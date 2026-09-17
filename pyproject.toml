@@ -1,0 +1,16 @@
+[project]
+name = "analyte"
+version = "0.1.0"
+description = "Bazimi determinist dhe verifikimi i automatizuar i shpjegimeve mjekesore"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.5"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov"]
+
+[tool.pytest.ini_options]
+pythonpath = ["backend/src", "."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
