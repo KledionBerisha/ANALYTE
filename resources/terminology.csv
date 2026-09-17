@@ -1,0 +1,47 @@
+term,explanation_sq,source_ref,category,synonyms
+anemi,nivel i ulët i hemoglobinës në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,anemia|anemik
+eritropoezë,prodhimi i qelizave të kuqe të gjakut në palcën kockore,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,eritropoeza
+leukocitozë,numër i rritur i qelizave të bardha të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,leukocitoza
+leukopeni,numër i ulët i qelizave të bardha të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,leukopenia
+trombocitopeni,numër i ulët i pllakëzave të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,trombocitopenia
+trombocitozë,numër i rritur i pllakëzave të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,trombocitoza
+hiperglicemi,nivel i rritur i sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperglicemia
+hipoglicemi,nivel i ulët i sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipoglicemia
+hiperkalemi,nivel i rritur i kaliumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkalemia
+hipokalemi,nivel i ulët i kaliumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipokalemia
+hipernatremi,nivel i rritur i natriumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipernatremia
+hiponatremi,nivel i ulët i natriumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiponatremia
+hiperkalcemi,nivel i rritur i kalciumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkalcemia
+hipokalcemi,nivel i ulët i kalciumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipokalcemia
+transaminaza,enzima që lidhen me funksionin e mëlçisë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],enzima,transaminazat|ALT|AST
+kolestazë,rrjedhje e penguar e biliarit nga mëlçia,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,kolestaza
+hiperbilirubinemi,nivel i rritur i bilirubinës në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperbilirubinemia
+ikter,ngjyrim i verdhë i lëkurës dhe i syve,[BURIMI — plotësohet gjatë ndërtimit të tabelës],shenjë,ikteri|verdhëz
+dislipidemi,vlera të çrregulluara të yndyrnave në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,dislipidemia
+hiperkolesterolemi,nivel i rritur i kolesterolit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkolesterolemia
+hipertrigliceridemi,nivel i rritur i trigliceridëve në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipertrigliceridemia
+hipotiroidizëm,veprimtari e ulët e gjëndrës tiroide,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipotiroidizmi|hipotiroidi
+hipertiroidizëm,veprimtari e shtuar e gjëndrës tiroide,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipertiroidizmi|hipertiroidi
+azotemi,nivel i rritur i mbetjeve azotike në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,azotemia
+proteinuri,prani e proteinave në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,proteinuria
+inflamacion,përgjigje mbrojtëse e organizmit ndaj dëmtimit ose infeksionit,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,inflamacioni|inflamator
+sideropeni,rezerva të ulëta të hekurit në organizëm,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,sideropenia
+hemolizë,shkatërrim i parakohshëm i qelizave të kuqe,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,hemoliza|hemolitik
+hipoalbuminemi,nivel i ulët i albuminës në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipoalbuminemia
+hiperurikemi,nivel i rritur i acidit urik në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperurikemia
+nefropati,sëmundje e veshkave,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,nefropatia
+hepatopati,sëmundje e mëlçisë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hepatopatia
+steatozë,grumbullim i yndyrës në mëlçi,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,steatoza
+glikemi,niveli i sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,glikemia
+elektrolit,minerale në gjak që mbajnë ekuilibrin e ujit dhe punën e qelizave,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,elektrolitet|elektrolitike
+hemogram,analiza e plotë e qelizave të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],analize,hemograma|analiza e plotë e gjakut
+interval referent,kufijtë brenda të cilëve vlera konsiderohet e zakonshme,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,vlera referente|intervali referent
+analit,substanca e matur në analizë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,analiti|analitet
+funksioni renal,mënyra si punojnë veshkat,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,funksioni i veshkave|renal
+funksioni hepatik,mënyra si punon mëlçia,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,funksioni i mëlçisë|hepatik
+metabolizëm,tërësia e proceseve kimike që mbajnë gjallë organizmin,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,metabolizmi|metabolik
+ferritinë,proteina që ruan hekurin në organizëm,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,ferritina
+hemoglobinë,proteina që bart oksigjenin në qelizat e kuqe,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,hemoglobina
+kreatininë,mbetje e punës së muskujve që largohet nga veshkat,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,kreatinina
+albuminë,proteina kryesore e gjakut e prodhuar nga mëlçia,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,albumina
+tiroide,gjëndra që rregullon shpejtësinë e metabolizmit,[BURIMI — plotësohet gjatë ndërtimit të tabelës],organ,tiroidja|tiroidea

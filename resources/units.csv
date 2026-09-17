@@ -1,0 +1,10 @@
+unit_from,unit_to,factor,decimals,loinc_code,note
+g/L,g/dL,0.1,0,,konvertim i pavarur nga analiti
+mmol/L,mg/dL,18.0182,1,2345-7,glukoze: masa molare 180.16 g/mol
+umol/L,mg/dL,0.0113122,0,2160-0,kreatinine: 1 mg/dL = 88.4 umol/L
+mmol/L,mg/dL,6.006,1,3094-0,ure: masa molare 60.06 g/mol
+umol/L,mg/dL,0.0584795,1,1975-2,bilirubine: 1 mg/dL = 17.104 umol/L
+mmol/L,mg/dL,38.67,2,2093-3,kolesterol total
+mmol/L,mg/dL,38.67,2,2085-9,kolesterol HDL
+mmol/L,mg/dL,38.67,2,13457-7,kolesterol LDL
+mmol/L,mg/dL,88.57,2,2571-8,trigliceride

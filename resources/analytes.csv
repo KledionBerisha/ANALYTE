@@ -1,0 +1,39 @@
+loinc_code,name_canonical_sq,name_variants,unit,alt_unit,decimals,panel,narrative_name,narrative_plural,ref_low_m,ref_high_m,ref_low_f,ref_high_f,critical_low,critical_high
+718-7,Hemoglobinë në gjak,Hemoglobina|HGB|Hb|Hemoglobinë,g/dL,g/L,1,hematologji,Hemoglobina,0,13.5,17.5,12.0,16.0,7.0,20.0
+4544-3,Hematokrit,Hematokriti|HCT|Ht,%,,1,hematologji,Hematokriti,0,40.0,52.0,36.0,48.0,20.0,60.0
+789-8,Eritrocite,Eritrocitet|RBC|Qelizat e kuqe,10^12/L,,2,hematologji,Eritrocitet,1,4.50,5.90,4.00,5.20,,
+6690-2,Leukocite,Leukocitet|WBC|Qelizat e bardha,10^9/L,,1,hematologji,Leukocitet,1,4.0,10.0,4.0,10.0,1.5,30.0
+777-3,Trombocite,Trombocitet|PLT|Pllakëzat,10^9/L,,0,hematologji,Trombocitet,1,150,400,150,400,50,1000
+787-2,Volumi mesatar eritrocitar,MCV|Vol. mes. eritrocitar,fL,,1,hematologji,MCV,0,80.0,100.0,80.0,100.0,,
+785-6,Hemoglobina mesatare eritrocitare,MCH,pg,,1,hematologji,MCH,0,27.0,33.0,27.0,33.0,,
+786-4,Përqendrimi mesatar i hemoglobinës,MCHC,g/dL,,1,hematologji,MCHC,0,32.0,36.0,32.0,36.0,,
+2345-7,Glukozë në serum,Glukoza|Glukoza (esëll)|Glicemia|GLU,mg/dL,mmol/L,0,biokimi,Glukoza,0,70,99,70,99,45,400
+4548-4,Hemoglobinë e glikuar,HbA1c|Hemoglobina e glikuar,%,,1,biokimi,HbA1c,0,4.0,5.6,4.0,5.6,,
+2160-0,Kreatininë në serum,Kreatinina|Krea|CREA,mg/dL,umol/L,2,veshkat,Kreatinina,0,0.70,1.30,0.60,1.10,,6.00
+3094-0,Ure në serum,Urea|Ureja|BUN,mg/dL,mmol/L,0,veshkat,Urea,0,15,45,15,45,,200
+3084-1,Acid urik në serum,Acidi urik|Urati,mg/dL,,1,veshkat,Acidi urik,0,3.4,7.0,2.4,6.0,,
+2951-2,Natrium në serum,Natriumi|Na,mmol/L,,0,elektrolite,Natriumi,0,135,145,135,145,120,160
+2823-3,Kalium në serum,Kaliumi|K,mmol/L,,1,elektrolite,Kaliumi,0,3.5,5.1,3.5,5.1,2.5,6.5
+2075-0,Klor në serum,Klori|Cl,mmol/L,,0,elektrolite,Klori,0,98,107,98,107,80,120
+17861-6,Kalcium në serum,Kalciumi|Ca,mg/dL,,1,elektrolite,Kalciumi,0,8.6,10.2,8.6,10.2,6.5,13.0
+2777-1,Fosfor në serum,Fosfori|P,mg/dL,,1,elektrolite,Fosfori,0,2.5,4.5,2.5,4.5,,
+2601-3,Magnez në serum,Magnezi|Mg,mg/dL,,1,elektrolite,Magnezi,0,1.7,2.4,1.7,2.4,,
+1742-6,Alanin aminotransferazë,ALT|GPT|ALT (GPT),U/L,,0,melcia,ALT,0,10,40,7,35,,1000
+1920-8,Aspartat aminotransferazë,AST|GOT|AST (GOT),U/L,,0,melcia,AST,0,10,40,10,40,,1000
+6768-6,Fosfatazë alkaline,ALP|Fosfataza alkaline,U/L,,0,melcia,Fosfataza alkaline,0,40,130,40,130,,
+2324-2,Gama-glutamil transferazë,GGT|Gama GT,U/L,,0,melcia,Gama GT,0,10,71,6,42,,
+1975-2,Bilirubinë totale,Bilirubina totale|BIL-T,mg/dL,umol/L,2,melcia,Bilirubina totale,0,0.20,1.20,0.20,1.20,,15.00
+1751-7,Albuminë në serum,Albumina|ALB,g/dL,,1,melcia,Albumina,0,3.5,5.2,3.5,5.2,,
+2885-2,Proteina totale,Proteinat totale|TP,g/dL,,1,melcia,Proteinat totale,1,6.4,8.3,6.4,8.3,,
+2093-3,Kolesterol total,Kolesteroli|Kolesteroli total|CHOL,mg/dL,mmol/L,0,lipide,Kolesteroli total,0,120,200,120,200,,
+2085-9,Kolesterol HDL,HDL|HDL-kolesteroli,mg/dL,mmol/L,0,lipide,HDL-kolesteroli,0,40,70,50,85,,
+13457-7,Kolesterol LDL,LDL|LDL-kolesteroli,mg/dL,mmol/L,0,lipide,LDL-kolesteroli,0,50,130,50,130,,
+2571-8,Trigliceride,Trigliceridet|TG,mg/dL,mmol/L,0,lipide,Trigliceridet,1,50,150,50,150,,885
+3016-3,Hormoni stimulues i tiroides,TSH,mIU/L,,2,tiroide,TSH,0,0.40,4.00,0.40,4.00,,
+3024-7,Tiroksinë e lirë,FT4|T4 i lirë,ng/dL,,2,tiroide,FT4,0,0.80,1.80,0.80,1.80,,
+3051-0,Triiodotironinë e lirë,FT3|T3 i lirë,pg/mL,,1,tiroide,FT3,0,2.3,4.2,2.3,4.2,,
+2276-4,Ferritinë në serum,Ferritina|FERR,ng/mL,,0,hekuri,Ferritina,0,30,400,15,150,,
+2498-4,Hekur në serum,Hekuri|Fe|Sideremia,ug/dL,,0,hekuri,Hekuri,0,65,175,50,170,,
+1988-5,Proteina C-reaktive,CRP|PCR,mg/L,,1,inflamacion,CRP,0,0.0,5.0,0.0,5.0,,
+2132-9,Vitaminë B12,Vitamina B12|B12|Kobalaminë,pg/mL,,0,vitamina,Vitamina B12,0,200,900,200,900,,
+1989-3,Vitaminë D 25-OH,Vitamina D|25-OH vitamina D,ng/mL,,1,vitamina,Vitamina D,0,30.0,100.0,30.0,100.0,,
