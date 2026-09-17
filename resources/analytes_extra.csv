@@ -1,0 +1,9 @@
+loinc_code,name_canonical_sq,name_variants,unit,decimals,panel,sample_low,sample_high
+13965-9,Homocisteinë në serum,Homocisteina|HCY,umol/L,1,speciale,5.0,25.0
+33959-8,Prokalcitoninë,Prokalcitonina|PCT,ng/mL,2,speciale,0.02,2.00
+3040-3,Lipazë në serum,Lipaza,U/L,0,speciale,10,300
+1798-8,Amilazë në serum,Amilaza|AMY,U/L,0,speciale,20,200
+10839-9,Troponinë I,Troponina I|TnI,ng/mL,3,speciale,0.001,0.500
+2857-1,Antigjen specifik i prostatës,PSA,ng/mL,2,speciale,0.20,8.00
+1834-1,Alfa-fetoproteinë,AFP,ng/mL,1,speciale,1.0,20.0
+2532-0,Laktat dehidrogjenazë,LDH,U/L,0,speciale,100,400

@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Korpuse të gjeneruara — rindërtohen nga seed-i, nuk versionohen
+data/
+ml/artifacts/
+
+# Mjedisi lokal
+.env
+.vs/
+.idea/
+.vscode/
