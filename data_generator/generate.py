@@ -28,7 +28,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from .catalog import RESOURCES_DIR
+from analyte.catalog import RESOURCES_DIR
 from .degrade import degrade_pdf, sample_profile
 from .ground_truth import SCANNED_SHARE, DocumentTruth, build_document
 from .ids import IdFactory

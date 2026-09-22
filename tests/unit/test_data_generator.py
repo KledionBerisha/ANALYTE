@@ -22,7 +22,7 @@ from analyte.domain.enums import (
     ReferenceSource,
 )
 from analyte.grounding.branch_a.classify import classify
-from data_generator.catalog import (
+from analyte.catalog import (
     Sex,
     analytes_by_code,
     load_analytes,

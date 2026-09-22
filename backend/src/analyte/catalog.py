@@ -1,11 +1,16 @@
 """
-Leximi i tabelave burimore: analitet, njësitë dhe terminologjia.
+Tabelat burimore: analitet, njësitë dhe terminologjia.
 
-Skedarët në `resources/` janë burimi i vetëm i së vërtetës. Gjeneruesi i
-të dhënave sintetike i lexon për të ditur çfarë të shtypë; Dega A do t'i
-lexojë të njëjtët skedarë për të ditur si ta interpretojë atë që lexon.
-Një tabelë e dytë do të prodhonte mospërputhje që shfaqen si gabime të
-sistemit dhe jo si gabime të të dhënave.
+Skedarët në `resources/` janë burimi i vetëm i së vërtetës. Dega A i
+lexon për të ditur si ta interpretojë atë që gjen në dokument; gjeneruesi
+i të dhënave sintetike lexon të njëjtët skedarë për të ditur çfarë të
+shtypë. Një tabelë e dytë do të prodhonte mospërputhje që shfaqen si
+gabime të sistemit dhe jo si gabime të të dhënave.
+
+Moduli rri jashtë `domain/` sepse lexon skedarë, dhe domeni nuk bën I/O.
+Ai rri brenda backend-it e jo te gjeneruesi sepse tabelat i përkasin
+sistemit: gjeneruesi është vegël zhvillimi dhe mund të mos ekzistojë fare
+në prodhim.
 
 Të gjitha vlerat numerike lexohen si Decimal. Float-i do të prishte
 barazinë e saktë mbi të cilën mbështetet rregulli R1.
@@ -14,13 +19,27 @@ barazinë e saktë mbi të cilën mbështetet rregulli R1.
 from __future__ import annotations
 
 import csv
+import os
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 
-RESOURCES_DIR = Path(__file__).resolve().parents[1] / "resources"
+def _resources_dir() -> Path:
+    """Ku gjenden tabelat burimore.
+
+    Parazgjedhja është dosja `resources/` e depove; ndryshorja e mjedisit
+    lejon zëvendësimin e tyre pa prekur kodin — e nevojshme kur shërbimi
+    vendoset i paketuar diku ku pema e depove nuk ekziston.
+    """
+    override = os.environ.get("ANALYTE_RESOURCES")
+    if override:
+        return Path(override)
+    return Path(__file__).resolve().parents[3] / "resources"
+
+
+RESOURCES_DIR = _resources_dir()
 
 
 class Sex(str, Enum):
