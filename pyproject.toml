@@ -7,6 +7,9 @@ dependencies = ["pydantic>=2.5"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pytest-cov"]
+# Vizatimi i korpusit sintetik. Backend-i nuk varet prej tyre: shërbimi
+# nuk shtyp kurrë PDF, ai vetëm i lexon.
+generate = ["reportlab>=4.0", "pymupdf>=1.24", "pillow>=10.0", "numpy>=1.26"]
 
 [tool.pytest.ini_options]
 pythonpath = ["backend/src", "."]

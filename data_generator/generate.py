@@ -29,8 +29,10 @@ from pathlib import Path
 from typing import Any
 
 from .catalog import RESOURCES_DIR
-from .ground_truth import DocumentTruth, build_document
+from .degrade import degrade_pdf, sample_profile
+from .ground_truth import SCANNED_SHARE, DocumentTruth, build_document
 from .ids import IdFactory
+from .render import render_document
 
 GENERATOR_VERSION = "gen-1.0"
 
@@ -52,12 +54,32 @@ def document_seed(seed: int, index: int) -> str:
     return f"analyte/{GENERATOR_VERSION}/{seed}/{index}"
 
 
-def build_corpus(seed: int, count: int) -> list[DocumentTruth]:
+def build_corpus(
+    seed: int, count: int, scanned_share: float = SCANNED_SHARE
+) -> list[DocumentTruth]:
     documents = []
     for index in range(count):
         rng = random.Random(document_seed(seed, index))
-        documents.append(build_document(rng, IdFactory(rng)))
+        documents.append(
+            build_document(rng, IdFactory(rng), scanned_share=scanned_share)
+        )
     return documents
+
+
+def render(document: DocumentTruth, seed: int, index: int) -> tuple[bytes, DocumentTruth]:
+    """Vizaton dokumentin dhe kthen PDF-në bashkë me të vërtetën e plotësuar.
+
+    Kutitë kufizuese dhe animi i skanimit dihen vetëm pasi faqja të jetë
+    vizatuar, prandaj e vërteta bazë përfundon këtu dhe jo te
+    `build_document`. Fara e skanerit rrjedh nga e njëjta farë dokumenti:
+    dy ekzekutime japin të njëjtën kopje të prishur.
+    """
+    rng = random.Random(document_seed(seed, index) + "/scan")
+    pdf, boxes = render_document(document)
+    if document.is_scanned:
+        profile = sample_profile(rng)
+        pdf, boxes = degrade_pdf(pdf, boxes, profile, rng.getrandbits(63))
+    return pdf, document.with_boxes(boxes)
 
 
 def summarize(documents: list[DocumentTruth]) -> dict[str, Any]:
@@ -94,6 +116,8 @@ def summarize(documents: list[DocumentTruth]) -> dict[str, Any]:
         "assertions": assertions,
         "unexplained_terms": unexplained,
         "documents_with_critical_value": with_critical,
+        "scanned_documents": sum(1 for d in documents if d.is_scanned),
+        "pages": sum(d.page_count for d in documents),
         "status": dict(sorted(statuses.items())),
         "reference_source": dict(sorted(sources.items())),
         "cross_reference_state": dict(sorted(states.items())),
@@ -113,29 +137,42 @@ def _dump(payload: Any) -> bytes:
     return (text + "\n").encode("utf-8")
 
 
-def write_corpus(documents: list[DocumentTruth], seed: int, out_dir: Path) -> Path:
+def write_corpus(
+    documents: list[DocumentTruth], seed: int, out_dir: Path, scanned_share: float = SCANNED_SHARE
+) -> tuple[Path, list[DocumentTruth]]:
+    """Vizaton dhe shkruan korpusin; kthen manifestin dhe të vërtetën e plotësuar."""
     docs_dir = out_dir / "documents"
     docs_dir.mkdir(parents=True, exist_ok=True)
 
     entries = []
+    rendered: list[DocumentTruth] = []
     for index, document in enumerate(documents):
-        name = f"doc_{index:05d}.json"
+        pdf, document = render(document, seed, index)
+        rendered.append(document)
+
+        stem = f"doc_{index:05d}"
         payload = _dump(document.to_json_dict())
-        (docs_dir / name).write_bytes(payload)
+        (docs_dir / f"{stem}.json").write_bytes(payload)
+        (docs_dir / f"{stem}.pdf").write_bytes(pdf)
         entries.append(
             {
                 "index": index,
-                "file": f"documents/{name}",
+                "file": f"documents/{stem}.json",
+                "pdf": f"documents/{stem}.pdf",
                 "document_id": str(document.document_id),
                 "seed": document_seed(seed, index),
+                "is_scanned": document.is_scanned,
                 "sha256": _sha256(payload),
+                "pdf_sha256": _sha256(pdf),
             }
         )
+    documents = rendered
 
     manifest = {
         "generator_version": GENERATOR_VERSION,
         "seed": seed,
         "count": len(documents),
+        "scanned_share": scanned_share,
         "resources": {
             name: _sha256((RESOURCES_DIR / name).read_bytes()) for name in RESOURCE_FILES
         },
@@ -144,7 +181,7 @@ def write_corpus(documents: list[DocumentTruth], seed: int, out_dir: Path) -> Pa
     }
     manifest_path = out_dir / "manifest.json"
     manifest_path.write_bytes(_dump(manifest))
-    return manifest_path
+    return manifest_path, documents
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -155,17 +192,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=42, help="fara e korpusit")
     parser.add_argument("--n", type=int, default=500, help="numri i dokumenteve")
     parser.add_argument("--out", type=Path, default=Path("data/v1"), help="dosja e daljes")
+    parser.add_argument(
+        "--scanned-share",
+        type=float,
+        default=SCANNED_SHARE,
+        help="përpjesa e dokumenteve që kalojnë nëpër simulimin e skanimit",
+    )
     args = parser.parse_args(argv)
 
     if args.n < 1:
         parser.error("--n duhet të jetë të paktën 1")
+    if not 0.0 <= args.scanned_share <= 1.0:
+        parser.error("--scanned-share duhet të jetë ndërmjet 0 dhe 1")
 
-    documents = build_corpus(args.seed, args.n)
-    manifest_path = write_corpus(documents, args.seed, args.out)
+    documents = build_corpus(args.seed, args.n, args.scanned_share)
+    manifest_path, documents = write_corpus(documents, args.seed, args.out)
 
     summary = summarize(documents)
     print(f"U shkruan {summary['documents']} dokumente në {args.out}")
     print(f"  gjetje: {summary['findings']}, pohime: {summary['assertions']}")
+    print(f"  faqe: {summary['pages']}, të skanuara: {summary['scanned_documents']}")
     print(f"  dokumente me vlerë kritike: {summary['documents_with_critical_value']}")
     print(f"  manifesti: {manifest_path}")
     return 0
