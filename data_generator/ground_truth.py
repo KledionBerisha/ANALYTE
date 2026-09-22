@@ -19,7 +19,7 @@ etiketë të rreme.
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
@@ -34,6 +34,7 @@ from analyte.domain.enums import (
 )
 from analyte.domain.models import (
     AnalyteFinding,
+    BoundingBox,
     CrossReference,
     GlossaryEntry,
     GroundingContext,
@@ -54,10 +55,19 @@ from .ids import IdFactory
 from .narrative import Name, build_narrative
 from .panels import PANEL_TITLES, compose_order
 
-ROWS_PER_PAGE = 24
-"""Sa rreshta analitesh hyjnë në një faqe. Paginimi vendoset këtu dhe jo
-te vizatuesi i PDF-së: numri i faqes është pjesë e së vërtetës bazë dhe
-duhet të jetë i njohur para se dokumenti të vizatohet."""
+LINES_PER_PAGE = 32
+"""Sa rreshta teksti nxë trupi i një faqeje, titujt e paneleve të përfshirë.
+
+Paginimi vendoset këtu dhe jo te vizatuesi: numri i faqes është pjesë e
+së vërtetës bazë dhe duhet të jetë i njohur para se dokumenti të
+vizatohet. Vizatuesi numëron rreshtat njësoj — `render.py` e kontrollon
+këtë me përputhje të drejtpërdrejtë, prandaj një ndryshim i heshtur i
+njërës anë dështon menjëherë."""
+
+SCANNED_SHARE = 0.35
+"""Përpjesa e dokumenteve që kalojnë nëpër simulimin e skanimit. PK1 dhe
+PK2 raportohen veçmas për dokumente dixhitale dhe të skanuara, prandaj të
+dyja duhet të jenë të pranishme në sasi të matshme."""
 
 LAB_NAMES: tuple[str, ...] = (
     "Laboratori Klinik Qendror",
@@ -66,10 +76,14 @@ LAB_NAMES: tuple[str, ...] = (
     "Qendra Laboratorike Medika",
 )
 
-FIRST_NAMES: tuple[str, ...] = (
-    "Arben", "Besnik", "Dritan", "Endrit", "Gentian", "Ilir", "Lorenc", "Valon",
-    "Albana", "Blerta", "Diana", "Elona", "Fatmira", "Jehona", "Mirela", "Vjosa",
-)
+FIRST_NAMES: dict[Sex, tuple[str, ...]] = {
+    Sex.MALE: ("Arben", "Besnik", "Dritan", "Endrit", "Gentian", "Ilir", "Lorenc", "Valon"),
+    Sex.FEMALE: ("Albana", "Blerta", "Diana", "Elona", "Fatmira", "Jehona", "Mirela", "Vjosa"),
+}
+"""Emri ndjek gjininë e kampionuar. Kjo nuk është hollësi kozmetike:
+gjinia përcakton intervalin referent, dhe një dokument ku emri thotë një
+gjë e fusha tjetër do të ishte pikërisht lloji i mospërputhjes që nxjerrja
+duhet ta shohë vetëm kur ne e fusim me qëllim."""
 
 LAST_NAMES: tuple[str, ...] = (
     "Hoxha", "Krasniqi", "Berisha", "Gashi", "Shala", "Bytyqi", "Dervishi",
@@ -129,7 +143,24 @@ class DocumentTruth:
     rows: tuple[PrintedRow, ...]
     narrative_text: str
     page_count: int
+    is_scanned: bool
     context: GroundingContext
+
+    def with_boxes(self, boxes: dict[UUID, "BoundingBox"]) -> "DocumentTruth":
+        """Kthen të njëjtin dokument me kutitë kufizuese të plotësuara.
+
+        Pozicionet dihen vetëm pasi faqja të jetë vizatuar, ndërsa gjetjet
+        janë të pandryshueshme. Prandaj vizatuesi nuk i modifikon ato por
+        kthen koordinatat, dhe këtu ndërtohet një kontekst i ri — gjurma e
+        auditimit mbetet e plotë dhe asnjë gjetje nuk ndryshon nën këmbët e
+        askujt.
+        """
+        findings = tuple(
+            f.model_copy(update={"bbox": boxes[f.id]}) if f.id in boxes else f
+            for f in self.context.findings
+        )
+        context = self.context.model_copy(update={"findings": findings})
+        return replace(self, context=context)
 
     def to_json_dict(self) -> dict[str, Any]:
         return {
@@ -149,6 +180,7 @@ class DocumentTruth:
             },
             "measured_at": self.measured_at.isoformat(),
             "page_count": self.page_count,
+            "is_scanned": self.is_scanned,
             "rows": [
                 {
                     "finding_id": str(r.finding_id),
@@ -181,31 +213,35 @@ def sample_lab_style(rng: random.Random) -> LabStyle:
     )
 
 
-def build_document(rng: random.Random, new_id: IdFactory) -> DocumentTruth:
+def build_document(
+    rng: random.Random, new_id: IdFactory, *, scanned_share: float = SCANNED_SHARE
+) -> DocumentTruth:
     """Prodhon një dokument të plotë me të vërtetën bazë të tij."""
     lab = sample_lab_style(rng)
     sex = rng.choice((Sex.MALE, Sex.FEMALE))
-    first = rng.choice(FIRST_NAMES)
+    first = rng.choice(FIRST_NAMES[sex])
     patient_name = f"{first} {rng.choice(LAST_NAMES)}"
     age = rng.randint(18, 85)
     measured_at = EARLIEST + timedelta(days=rng.randint(0, (LATEST - EARLIEST).days))
     document_id = new_id()
 
+    is_scanned = rng.random() < scanned_share
     groups = compose_order(rng)
     findings: list[AnalyteFinding] = []
     rows: list[PrintedRow] = []
-    index = 0
+    line = 0
 
     for panel, analytes in groups:
+        line += 1  # titulli i panelit zë një rresht si çdo tjetër
         for analyte in analytes:
             finding, row = _build_row(
-                rng, new_id, analyte, sex, lab, measured_at, panel, index
+                rng, new_id, analyte, sex, lab, measured_at, panel, page_for_line(line)
             )
             findings.append(finding)
             rows.append(row)
-            index += 1
+            line += 1
 
-    page_count = max(1, (index + ROWS_PER_PAGE - 1) // ROWS_PER_PAGE)
+    page_count = max(1, page_for_line(max(line - 1, 0)))
 
     measured_codes = {f.analyte_code for f in findings}
     display_names = {
@@ -241,8 +277,14 @@ def build_document(rng: random.Random, new_id: IdFactory) -> DocumentTruth:
         rows=tuple(rows),
         narrative_text=narrative.text,
         page_count=page_count,
+        is_scanned=is_scanned,
         context=context,
     )
+
+
+def page_for_line(line: int) -> int:
+    """Faqja në të cilën bie rreshti i dhënë, duke numëruar nga zero."""
+    return line // LINES_PER_PAGE + 1
 
 
 def _build_row(
@@ -253,9 +295,8 @@ def _build_row(
     lab: LabStyle,
     measured_at: date,
     panel: str,
-    index: int,
+    page: int,
 ) -> tuple[AnalyteFinding, PrintedRow]:
-    page = index // ROWS_PER_PAGE + 1
     name_printed = rng.choice(analyte.variants)
 
     if not analyte.has_reference:

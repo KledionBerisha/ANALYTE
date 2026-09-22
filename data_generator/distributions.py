@@ -25,15 +25,19 @@ from analyte.grounding.branch_a.classify import classify
 from .catalog import Analyte, Sex
 
 DEFAULT_STATUS_WEIGHTS: dict[AnalyteStatus, float] = {
-    AnalyteStatus.NORMAL: 0.74,
-    AnalyteStatus.LOW: 0.10,
-    AnalyteStatus.HIGH: 0.13,
-    AnalyteStatus.CRITICAL_LOW: 0.015,
-    AnalyteStatus.CRITICAL_HIGH: 0.015,
+    AnalyteStatus.NORMAL: 0.80,
+    AnalyteStatus.LOW: 0.085,
+    AnalyteStatus.HIGH: 0.105,
+    AnalyteStatus.CRITICAL_LOW: 0.005,
+    AnalyteStatus.CRITICAL_HIGH: 0.005,
 }
-"""Rreth 26% vlera jonormale për analit. Një raport me 25 analite del
-pothuajse gjithmonë me disa gjetje, çka i përgjigjet asaj që sheh një
-laborator; vlerat kritike mbeten të rralla por të matshme."""
+"""Rreth 20% vlera jonormale për analit.
+
+Kjo është më shumë se sa jep një depistim rutinë te një popullatë e
+shëndetshme, dhe kjo është me qëllim: një korpus ku pothuajse çdo vlerë
+është normale nuk ka mbi çfarë të matë as klasifikimin, as shpjegimin,
+as përshkallëzimin kritik. Pasurimi është i njohur dhe raportohet bashkë
+me rezultatet; ai nuk duhet ngatërruar me prevalencë."""
 
 
 def _steps(value: Decimal, decimals: int) -> int:
