@@ -21,6 +21,7 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 | Politika e sigurisë dhe katalogu i rregullave (`domain/policy.py`) | e plotë |
 | Klasifikimi determinist (`grounding/branch_a/classify.py`) | i plotë |
 | Gjeneruesi i korpusit sintetik (`data_generator/`) | i plotë: të dhëna, narrativë, PDF në tri formate, simulim skanimi |
+| Infrastruktura e vlerësimit (`evaluation/`) | e plotë: PK1-PK6, matrica E1-E15, prejardhja e rezultateve |
 | Nxjerrja, gjenerimi, verifikimi, ndërfaqja | ende jo |
 
 ## Struktura
@@ -29,6 +30,7 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 backend/src/analyte/domain/     modelet, enum-et dhe politika — pa I/O, pa varësi
 backend/src/analyte/grounding/  interpretimi i vlerave (Dega A) dhe i tekstit (Dega B)
 data_generator/                 korpusi sintetik: të dhënat, faqet dhe simulimi i skanimit
+evaluation/                     harness-i i eksperimenteve dhe metrikat PK1-PK6
 resources/                      tabelat burimore: analitet, njësitë, terminologjia
 tests/                          njësi, fixture referues
 ```
@@ -71,6 +73,22 @@ PDF-të e përfshira; kjo kontrollohet me test. Korpuset nuk versionohen —
 ato rindërtohen nga seed-i dhe nga shumat kontrolluese të tabelave
 burimore që ruhen në `manifest.json`.
 
+Ekzekutimi i eksperimenteve mbi një korpus:
+
+```bash
+python -m evaluation.harness --dataset data/v1 --pipeline empty
+```
+
+Shkruan `evaluation/results/{ID}/` për secilin nga E1-E15 dhe një
+`summary.md` me matricën e plotë. Qelizat që presin një komponent të
+paekzistuar shtypen `[TO BE MEASURED]`; ato nuk lihen bosh dhe nuk
+ngatërrohen me zero.
+
+Dy pipeline-a shërbejnë si kufij: `empty` nuk nxjerr asgjë dhe asnjë
+metrikë nuk duhet ta shpërblejë, `oracle` kthen vetë të vërtetën dhe çdo
+metrikë duhet të arrijë vlerën e përsosur mbi të. Të dy përdoren në teste;
+`oracle` nuk është sistem por provë e metrikave.
+
 ## Konventat
 
 - `domain/` nuk importon asgjë nga pjesa tjetër e sistemit. Kjo zbatohet
@@ -84,3 +102,8 @@ burimore që ruhen në `manifest.json`.
 - Kutitë kufizuese kanë origjinën në këndin e sipërm-majtas, ashtu si i
   raportojnë bibliotekat që lexojnë PDF. Kthimi nga sistemi i PDF-së
   bëhet një herë, te vizatuesi.
+- Metrikat kthejnë `None` kur nuk kishte çfarë të matej dhe kurrë zero.
+  Zeroja është pohim; `None` është mungesë matjeje.
+- Sistemit nuk i kalon kurrë e vërteta bazë: ajo hyrje mban vetëm
+  identifikuesin e dokumentit dhe shtegun e PDF-së, dhe kjo zbatohet me
+  test.
