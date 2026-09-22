@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import random
 
-from .catalog import Analyte, load_analytes, load_analytes_without_reference
+from analyte.catalog import Analyte, load_analytes, load_analytes_without_reference
 
 PANEL_TITLES: dict[str, str] = {
     "hematologji": "HEMOGRAMË E PLOTË",

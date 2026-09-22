@@ -108,3 +108,48 @@ class OraclePipeline:
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         return PipelineOutput(context=self.truth[document.document_id])
+
+
+@dataclass(frozen=True, slots=True)
+class BranchAPipeline:
+    """Dega A e vërtetë: lexim i PDF-së, nxjerrje, klasifikim.
+
+    Nuk gjeneron tekst dhe nuk verifikon asgjë — ajo është Faza 6.
+    Prandaj E4 dhe E6-E9 mbeten të pamatura edhe me këtë pipeline, dhe
+    kjo duhet të duket si `n/a` e jo si zero.
+
+    Dokumentet pa shtresë teksti nuk përpunohen: rruga e OCR-së ende nuk
+    ekziston. Ato kthehen si FAILED_INGESTION dhe jo si dokumente bosh,
+    sepse "nuk u lexua dot" dhe "nuk kishte asgjë brenda" janë gjendje të
+    ndryshme (Figura 6) dhe PK1 i të skanuarave duhet ta tregojë këtë
+    ndryshim.
+    """
+
+    name: str = "branch_a"
+    version: str = "1"
+
+    def run(self, document: DocumentInput) -> PipelineOutput:
+        from analyte.grounding.branch_a.extract import extract
+        from analyte.ingestion.router import route
+
+        routing = route(document.pdf_path)
+        if not routing.has_text:
+            return PipelineOutput(
+                context=GroundingContext(document_id=document.document_id),
+                state=ProcessingState.FAILED_INGESTION,
+                failures=(routing.reason,),
+            )
+
+        result = extract(routing.pages)
+        context = GroundingContext(
+            document_id=document.document_id, findings=result.findings
+        )
+        return PipelineOutput(
+            context=context,
+            state=(
+                ProcessingState.GROUNDED
+                if result.findings
+                else ProcessingState.NO_FINDINGS
+            ),
+            failures=tuple(f"{name}: {motive}" for name, motive in result.rejected),
+        )

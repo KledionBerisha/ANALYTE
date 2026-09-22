@@ -42,7 +42,7 @@ from analyte.domain.models import (
 )
 from analyte.grounding.branch_a.classify import classify
 
-from .catalog import (
+from analyte.catalog import (
     Analyte,
     Sex,
     analytes_by_code,

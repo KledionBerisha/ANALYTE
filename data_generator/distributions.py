@@ -22,7 +22,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from analyte.domain.enums import AnalyteStatus
 from analyte.grounding.branch_a.classify import classify
 
-from .catalog import Analyte, Sex
+from analyte.catalog import Analyte, Sex
 
 DEFAULT_STATUS_WEIGHTS: dict[AnalyteStatus, float] = {
     AnalyteStatus.NORMAL: 0.80,
