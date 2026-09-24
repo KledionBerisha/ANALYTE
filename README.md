@@ -22,12 +22,16 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 | Klasifikimi determinist (`grounding/branch_a/classify.py`) | i plotë |
 | Gjeneruesi i korpusit sintetik (`data_generator/`) | i plotë: të dhëna, narrativë, PDF në tri formate, simulim skanimi |
 | Infrastruktura e vlerësimit (`evaluation/`) | e plotë: PK1-PK6, matrica E1-E15, prejardhja e rezultateve |
-| Nxjerrja, gjenerimi, verifikimi, ndërfaqja | ende jo |
+| Dega A — vlerat nga tabela (`ingestion/`, `grounding/branch_a/`) | kanali dixhital; OCR-ja mbetet |
+| Dega B — pohimet nga narrativa (`grounding/branch_b/`) | e plotë: terma, mohim, pasiguri, krahasim i kryqëzuar |
+| Gjenerimi, verifikimi, ndërfaqja | ende jo |
 
 ## Struktura
 
 ```
 backend/src/analyte/domain/     modelet, enum-et dhe politika — pa I/O, pa varësi
+backend/src/analyte/catalog.py  tabelat burimore: analitet, njësitë, terminologjia
+backend/src/analyte/ingestion/  leximi i PDF-së dhe vendimi tekst/OCR
 backend/src/analyte/grounding/  interpretimi i vlerave (Dega A) dhe i tekstit (Dega B)
 data_generator/                 korpusi sintetik: të dhënat, faqet dhe simulimi i skanimit
 evaluation/                     harness-i i eksperimenteve dhe metrikat PK1-PK6
@@ -84,10 +88,14 @@ Shkruan `evaluation/results/{ID}/` për secilin nga E1-E15 dhe një
 paekzistuar shtypen `[TO BE MEASURED]`; ato nuk lihen bosh dhe nuk
 ngatërrohen me zero.
 
-Dy pipeline-a shërbejnë si kufij: `empty` nuk nxjerr asgjë dhe asnjë
-metrikë nuk duhet ta shpërblejë, `oracle` kthen vetë të vërtetën dhe çdo
-metrikë duhet të arrijë vlerën e përsosur mbi të. Të dy përdoren në teste;
-`oracle` nuk është sistem por provë e metrikave.
+Katër pipeline-a njihen. Dy prej tyre janë kufij dhe jo sisteme: `empty`
+nuk nxjerr asgjë dhe asnjë metrikë nuk duhet ta shpërblejë, `oracle` kthen
+vetë të vërtetën dhe çdo metrikë duhet të arrijë vlerën e përsosur mbi të.
+Dy të tjerët janë sistemi: `branch_a` nxjerr vlerat nga tabela, `grounding`
+shton pohimet e narrativës dhe krahasimin e kryqëzuar.
+
+Të dhënat e vërteta nuk i kalojnë kurrë sistemit: hyrja e tij mban vetëm
+identifikuesin e dokumentit dhe shtegun e PDF-së.
 
 ## Konventat
 

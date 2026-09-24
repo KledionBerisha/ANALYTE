@@ -153,3 +153,41 @@ class BranchAPipeline:
             ),
             failures=tuple(f"{name}: {motive}" for name, motive in result.rejected),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class GroundingPipeline:
+    """Të dyja degët: vlerat nga tabela dhe pohimet nga narrativa.
+
+    Ky është sistemi i plotë i bazimit — gjithçka që i jepet modelit
+    gjuhësor kur ai të ekzistojë. Gjenerimi dhe verifikimi janë Faza 6,
+    prandaj E4 dhe E6-E9 mbeten `n/a` edhe këtu.
+    """
+
+    name: str = "grounding"
+    version: str = "1"
+
+    def run(self, document: DocumentInput) -> PipelineOutput:
+        from analyte.grounding.context import build
+        from analyte.ingestion.router import route
+
+        routing = route(document.pdf_path)
+        if not routing.has_text:
+            return PipelineOutput(
+                context=GroundingContext(document_id=document.document_id),
+                state=ProcessingState.FAILED_INGESTION,
+                failures=(routing.reason,),
+            )
+
+        grounding = build(document.document_id, routing.pages)
+        return PipelineOutput(
+            context=grounding.context,
+            state=(
+                ProcessingState.GROUNDED
+                if grounding.has_content
+                else ProcessingState.NO_FINDINGS
+            ),
+            failures=tuple(
+                f"{name}: {motive}" for name, motive in grounding.extraction.rejected
+            ),
+        )

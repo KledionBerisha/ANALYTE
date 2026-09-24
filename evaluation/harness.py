@@ -37,7 +37,13 @@ from . import dataset as dataset_module
 from . import experiments as registry
 from .dataset import Dataset
 from .metrics import classification, crossref, extraction, prose, violations
-from .pipeline import BranchAPipeline, EmptyPipeline, OraclePipeline, Pipeline
+from .pipeline import (
+    BranchAPipeline,
+    EmptyPipeline,
+    GroundingPipeline,
+    OraclePipeline,
+    Pipeline,
+)
 
 NOT_MEASURED = "[TO BE MEASURED]"
 
@@ -269,7 +275,11 @@ def build_pipeline(name: str, data: Dataset) -> Pipeline:
         return OraclePipeline(truth=data.truth_by_id())
     if name == "branch_a":
         return BranchAPipeline()
-    raise SystemExit(f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a")
+    if name == "grounding":
+        return GroundingPipeline()
+    raise SystemExit(
+        f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding"
+    )
 
 
 def main(argv: list[str] | None = None) -> int:

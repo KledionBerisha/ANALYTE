@@ -45,3 +45,39 @@ hemoglobinë,proteina që bart oksigjenin në qelizat e kuqe,[BURIMI — plotës
 kreatininë,mbetje e punës së muskujve që largohet nga veshkat,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,kreatinina
 albuminë,proteina kryesore e gjakut e prodhuar nga mëlçia,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,albumina
 tiroide,gjëndra që rregullon shpejtësinë e metabolizmit,[BURIMI — plotësohet gjatë ndërtimit të tabelës],organ,tiroidja|tiroidea
+neutropeni,numër i ulët i një lloji të qelizave të bardha,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,neutropenia
+neutrofili,numër i rritur i një lloji të qelizave të bardha,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,
+limfocitozë,numër i rritur i limfociteve në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,limfocitoza
+limfopeni,numër i ulët i limfociteve në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,limfopenia
+policitemi,numër i rritur i qelizave të kuqe në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,policitemia
+hemostazë,procesi i ndalimit të gjakderdhjes,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,hemostaza
+koagulim,mpiksja e gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,koagulimi|koagulues
+filtrim glomerular,shpejtësia me të cilën veshkat pastrojnë gjakun,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,filtrimi glomerular|GFR
+klirens,masa e pastrimit të një substance nga gjaku,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,klirensi
+hematuri,prani e gjakut në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hematuria
+glikozuri,prani e sheqerit në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,glikozuria
+ketonuri,prani e trupave ketonikë në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,ketonuria
+urobilinogjen,produkt i zbërthimit të bilirubinës,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,urobilinogjeni
+lipoproteinë,grimcë që bart yndyrnat në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,lipoproteina|lipoproteinat
+aterosklerozë,ngurtësim dhe ngushtim i enëve të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,ateroskleroza
+sindrom metabolik,bashkësi çrregullimesh të metabolizmit,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,sindromi metabolik
+rezistencë ndaj insulinës,përgjigje e dobësuar e qelizave ndaj insulinës,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,rezistenca ndaj insulinës
+insulinë,hormoni që ul nivelin e sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,insulina
+kortizol,hormon i gjëndrave mbiveshkore,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,kortizoli
+paratiroide,gjëndra që rregullojnë kalciumin,[BURIMI — plotësohet gjatë ndërtimit të tabelës],organ,paratiroidet
+osteoporozë,humbje e dendësisë së kockave,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,osteoporoza
+hiperfosfatemi,nivel i rritur i fosforit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperfosfatemia
+hipofosfatemi,nivel i ulët i fosforit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipofosfatemia
+hipomagnezemi,nivel i ulët i magnezit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipomagnezemia
+hipokloremi,nivel i ulët i klorit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipokloremia
+hiperkloremi,nivel i rritur i klorit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkloremia
+serum,pjesa e lëngshme e gjakut pa faktorët e mpiksjes,[BURIMI — plotësohet gjatë ndërtimit të tabelës],material,serumi
+plazmë,pjesa e lëngshme e gjakut me faktorët e mpiksjes,[BURIMI — plotësohet gjatë ndërtimit të tabelës],material,plazma
+gjëndër,organ që prodhon dhe lëshon substanca në trup,[BURIMI — plotësohet gjatë ndërtimit të tabelës],organ,gjëndra|gjëndrat
+enzimë,proteinë që përshpejton reaksionet kimike në trup,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,enzima|enzimat
+antitrup,proteinë mbrojtëse e prodhuar nga sistemi imunitar,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,antitrupa|antitrupat
+antigjen,substancë që nxit përgjigje të sistemit imunitar,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,antigjeni
+biomarkues,tregues i matshëm i një gjendjeje në trup,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,biomarkuesi
+depistim,kontroll i rregullt për zbulim të hershëm,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,depistimi
+gjakderdhje,humbje gjaku nga enët e gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,gjakderdhja
+imunitet,aftësia e trupit për t'u mbrojtur nga infeksionet,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,imuniteti|imunitar

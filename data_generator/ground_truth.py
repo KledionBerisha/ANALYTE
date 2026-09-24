@@ -36,7 +36,6 @@ from analyte.domain.models import (
     AnalyteFinding,
     BoundingBox,
     CrossReference,
-    GlossaryEntry,
     GroundingContext,
     ReportAssertion,
 )
@@ -48,10 +47,11 @@ from analyte.catalog import (
     analytes_by_code,
     conversion_for,
     load_analytes,
-    terms_by_name,
 )
 from .distributions import sample_status, sample_unreferenced_value, sample_value
 from .ids import IdFactory
+from analyte.grounding.branch_b.crossref import build_cross_references
+from analyte.grounding.branch_b.terminology import glossary_for
 from .narrative import Name, build_narrative
 from .panels import PANEL_TITLES, compose_order
 
@@ -263,7 +263,12 @@ def build_document(
         findings=tuple(findings),
         assertions=narrative.assertions,
         cross_refs=build_cross_references(tuple(findings), narrative.assertions, new_id),
-        glossary=_glossary_for(narrative.explained_terms),
+        # Fjalori i së vërtetës bazë ndërtohet me të njëjtin kërkim tabele
+        # që përdor sistemi: "a gjendet ky term në tabelë" është rregull, jo
+        # hamendje. Termat e pashpjeguar, përkundrazi, vijnë nga lista e
+        # gjeneruesit — po t'i nxirrnim me heuristikën e sistemit, SP6 do të
+        # dukej gjithmonë i plotësuar.
+        glossary=glossary_for(narrative.text),
         unexplained_terms=narrative.unexplained_terms,
     )
 
@@ -489,106 +494,3 @@ def _flag_for(status: AnalyteStatus, style: str | None) -> str | None:
     if style == "arrow":
         return "↑" if status.direction is Direction.INCREASED else "↓"
     return "*"
-
-
-def build_cross_references(
-    findings: tuple[AnalyteFinding, ...],
-    assertions: tuple[ReportAssertion, ...],
-    new_id: IdFactory,
-) -> tuple[CrossReference, ...]:
-    """Krahasimi raport ↔ laborator, një gjendje për analit.
-
-    Pohimet pa analit (rekomandimet dhe përmendjet e termave) nuk hyjnë
-    këtu: ato nuk pretendojnë asgjë për një vlerë të matur.
-
-    Identifikuesi jepet nga fabrika e mbjellë dhe jo nga `uuid4()` i
-    modelit: një identifikues i rastësishëm i vetëm mjafton që i njëjti
-    seed të prodhojë dy korpuse të ndryshëm.
-    """
-    by_code = {f.analyte_code: f for f in findings}
-    refs: list[CrossReference] = []
-    mentioned: set[str] = set()
-
-    for assertion in assertions:
-        code = assertion.analyte_code
-        if code is None or code in mentioned:
-            continue
-        mentioned.add(code)
-
-        finding = by_code.get(code)
-        if finding is None:
-            refs.append(
-                CrossReference(
-                    id=new_id(),
-                    analyte_code=code,
-                    state=CrossReferenceState.MENTIONED_NOT_MEASURED,
-                    assertion_id=assertion.id,
-                )
-            )
-            continue
-
-        refs.append(
-            CrossReference(
-                id=new_id(),
-                analyte_code=code,
-                state=(
-                    CrossReferenceState.AGREEMENT
-                    if _agrees(assertion, finding.status)
-                    else CrossReferenceState.CONTRADICTION
-                ),
-                assertion_id=assertion.id,
-                finding_id=finding.id,
-            )
-        )
-
-    for finding in findings:
-        if finding.analyte_code not in mentioned:
-            refs.append(
-                CrossReference(
-                    id=new_id(),
-                    analyte_code=finding.analyte_code,
-                    state=CrossReferenceState.MEASURED_NOT_MENTIONED,
-                    finding_id=finding.id,
-                )
-            )
-
-    return tuple(refs)
-
-
-def _agrees(assertion: ReportAssertion, status: AnalyteStatus) -> bool:
-    """A përputhet pohimi me statusin e matur?
-
-    Mohimi nuk është e kundërta e pohimit: "nuk rezulton mbi intervalin"
-    përputhet me çdo status që nuk është i rritur, jo vetëm me atë të
-    ulët. Prandaj polariteti trajtohet veçmas nga drejtimi.
-    """
-    claimed = assertion.direction
-    if claimed is Direction.UNSPECIFIED:
-        return True
-    if assertion.polarity is Polarity.NEGATED:
-        return status.direction is not claimed
-    return status.direction is claimed
-
-
-def _glossary_for(terms: tuple[str, ...]) -> tuple[GlossaryEntry, ...]:
-    """Zërat e tabelës terminologjike për termat e përmendur.
-
-    Vetëm termat që janë vërtet në tabelë përfundojnë këtu; kjo është ana
-    tjetër e SP6, prandaj një term i panjohur nuk hyn në heshtje.
-    """
-    table = terms_by_name()
-    entries = []
-    for term in terms:
-        found = table.get(term)
-        if found is None:
-            continue
-        entries.append(
-            GlossaryEntry(
-                term=found.term,
-                explanation_sq=found.explanation_sq,
-                source_ref=found.source_ref,
-                category=found.category,
-                synonyms=found.synonyms,
-            )
-        )
-    return tuple(entries)

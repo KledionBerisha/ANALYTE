@@ -151,7 +151,7 @@ def render_document(document: DocumentTruth) -> tuple[bytes, dict[UUID, Bounding
             )
             line += 1
 
-    _draw_narrative(canvas, document, layout, line)
+    _draw_narrative(canvas, document, layout, line, page)
     canvas.showPage()
     canvas.save()
     return buffer.getvalue(), boxes
@@ -295,19 +295,30 @@ def _box_for(layout: Layout, y: float) -> BoundingBox:
 
 
 def _draw_narrative(
-    canvas: Canvas, document: DocumentTruth, layout: Layout, line: int
+    canvas: Canvas, document: DocumentTruth, layout: Layout, line: int, page: int
 ) -> None:
     """Teksti i lirë i mjekut, nën tabelën e vlerave.
 
-    Nëse nuk nxë në faqen e fundit, hap faqe të re. Kjo nuk prek faqet e
-    gjetjeve, sepse narrativa vjen gjithmonë pas tyre — as pozicionet e
-    rreshtave dhe as paginimi i tyre nuk ndryshojnë.
+    Dy arsye e nisin atë në faqe të re, dhe të dyja duhen kontrolluar.
+
+    E dukshmja: nuk ka mbetur vend poshtë tabelës. E padukshmja: rreshti i
+    radhës i takon faqes tjetër. `_y_for` e mat pozicionin brenda faqes me
+    mbetje, prandaj rreshti i parë i faqes së re kthehet në krye të saj —
+    dhe pa këtë kontroll narrativa vizatohej sipër tabelës, e lexueshme për
+    syrin si dy tekste të përziera dhe e palexueshme fare për nxjerrjen.
+
+    Kjo nuk prek faqet e gjetjeve: narrativa vjen gjithmonë pas tyre.
     """
-    y = _y_for(line, layout) - 10
-    if y < 220:
+    if page_for_line(line) != page:
         canvas.showPage()
         _draw_page_header(canvas, document, layout, continued=True)
         y = BODY_TOP
+    else:
+        y = _y_for(line, layout) - 10
+        if y < 220:
+            canvas.showPage()
+            _draw_page_header(canvas, document, layout, continued=True)
+            y = BODY_TOP
 
     canvas.setFont("Helvetica-Bold", layout.font_size + 1)
     canvas.drawString(MARGIN_X, y, "VLERËSIMI I MJEKUT")
