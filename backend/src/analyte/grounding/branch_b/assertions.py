@@ -31,6 +31,7 @@ from analyte.domain.enums import AssertionKind, Direction
 from analyte.domain.models import ReportAssertion
 from analyte.grounding.branch_a import loinc
 from analyte.ingestion.pdf_text import PageText
+from analyte import textnorm
 from analyte.textnorm import fold, words
 
 from . import hedging, negation, terminology
@@ -61,7 +62,6 @@ INCREASE_MARKERS: tuple[str, ...] = ("mbi intervalin", "e rritur", "te rritura",
 DECREASE_MARKERS: tuple[str, ...] = ("nen intervalin", "e ulet", "te ulura", "i ulet")
 NORMAL_MARKERS: tuple[str, ...] = ("brenda intervalit", "brenda kufijve", "normale")
 
-_SENTENCE = re.compile(r"[^.!?]+[.!?]?", re.UNICODE)
 MAX_NAME_TOKENS = 3
 """Emri më i gjatë i analitit në tabelë ka tri fjalë."""
 
@@ -107,15 +107,9 @@ def split_sentences(text: str) -> tuple[Sentence, ...]:
     shkurtër pa shkurtime me pikë; një ndarës më i zgjuar do të fshihte se
     ku e ka burimin secili pohim.
     """
-    out: list[Sentence] = []
-    for match in _SENTENCE.finditer(text):
-        raw = match.group()
-        stripped = raw.strip()
-        if not stripped:
-            continue
-        start = match.start() + (len(raw) - len(raw.lstrip()))
-        out.append(Sentence(stripped, start, start + len(stripped)))
-    return tuple(out)
+    return tuple(
+        Sentence(text_, start, end) for text_, start, end in textnorm.sentences(text)
+    )
 
 
 def find_analyte(sentence: str) -> str | None:

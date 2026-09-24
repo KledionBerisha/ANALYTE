@@ -247,6 +247,14 @@ UNINTERPRETABLE_NOTICE_SQ = (
 )
 """SP5. Zëvendëson interpretimin, nuk e shoqëron atë."""
 
+ATTRIBUTION_PREFIX_SQ = "Mjeku ka shënuar:"
+"""Me çfarë e shënon dalja një fjali si citim të mjekut.
+
+Dallimi ndërmjet asaj që thotë sistemi dhe asaj që citon ai nuk është
+stilistik: pohimet e veta verifikohen kundrejt matjeve, citimet kundrejt
+burimit. Pa këtë shenjë, një citim besnik i një mjeku që shprehet me
+rezervë do të dukej si pohim i sistemit që ka humbur rezervën."""
+
 UNEXPLAINED_TERM_NOTICE_SQ = (
     "Ky term nuk gjendet në fjalorin e sistemit, prandaj nuk shpjegohet."
 )

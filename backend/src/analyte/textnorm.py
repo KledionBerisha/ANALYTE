@@ -22,6 +22,13 @@ _PUNCTUATION = re.compile(r"[^\w\s]", re.UNICODE)
 _WHITESPACE = re.compile(r"\s+")
 _WORD = re.compile(r"\w+", re.UNICODE)
 
+_SENTENCE = re.compile(r"(?:[^.!?]|(?<=\d)[.,](?=\d))+[.!?]?", re.UNICODE)
+"""Fjalia mbaron me pikë, pikëçuditëse ose pikëpyetje — por jo me presjen
+dhjetore. Pa përjashtimin e pikës ndërmjet dy shifrave, "13.2 g/dL" ndahet
+në dy fjali dhe numri bëhet dy numra: i pari i pambështetur dhe i dyti i
+pakuptimtë. Ky gabim nuk duket te narrativa e mjekut, e cila me qëllim nuk
+përmban numra, dhe shpërthen te teksti i gjeneruar ku ata janë kudo."""
+
 
 def fold(text: str) -> str:
     """Forma e krahasueshme e një vargu."""
@@ -43,3 +50,16 @@ def words(text: str) -> list[tuple[str, int, int]]:
     dot në pohim të gjurmueshëm.
     """
     return [(match.group(), match.start(), match.end()) for match in _WORD.finditer(text)]
+
+
+def sentences(text: str) -> list[tuple[str, int, int]]:
+    """Fjalitë e tekstit me pozicionet e tyre në vargun origjinal."""
+    out: list[tuple[str, int, int]] = []
+    for match in _SENTENCE.finditer(text):
+        raw = match.group()
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        start = match.start() + (len(raw) - len(raw.lstrip()))
+        out.append((stripped, start, start + len(stripped)))
+    return out
