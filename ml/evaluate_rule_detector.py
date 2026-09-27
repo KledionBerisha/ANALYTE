@@ -24,6 +24,7 @@ import random
 from pathlib import Path
 
 from analyte.domain.enums import ViolationType
+from analyte.domain.policy import RULES_VERSION
 from analyte.verification.pipeline import RULES, verify
 from data_generator.ground_truth import build_document
 from data_generator.ids import IdFactory
@@ -84,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "experiment": "E10",
                 "detector": "rules",
+                "rules_version": RULES_VERSION,
                 "samples": len(chosen),
                 "split": args.split,
                 "source_documents": args.n,

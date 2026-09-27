@@ -27,6 +27,12 @@ from analyte.domain.enums import (
     ViolationType,
 )
 from analyte.domain.models import GroundingContext, ReportAssertion, Violation
+from analyte.domain.policy import (
+    CRITICAL_BANNER_SQ,
+    DISCLAIMER_SQ,
+    UNEXPLAINED_TERM_NOTICE_SQ,
+    UNINTERPRETABLE_NOTICE_SQ,
+)
 from analyte.grounding.branch_b import terminology
 from analyte.grounding.branch_b.assertions import find_direction
 from analyte.grounding.branch_b.hedging import certainty_of
@@ -134,6 +140,11 @@ def check_fabrication(context: GroundingContext, text: str) -> Iterator[Violatio
     for finding in context.findings:
         allowed |= {m.term.term for m in terminology.detect_terms(finding.analyte_name_canonical)}
         allowed |= {m.term.term for m in terminology.detect_terms(finding.analyte_name_raw)}
+    # Termi i pashpjeguar vjen nga raporti, dhe SP6 e detyron daljen ta
+    # përmendë. Ai nuk shpjegohet — këtë e ruan R9 — por as nuk është shtesë.
+    for term in context.unexplained_terms:
+        allowed |= {m.term.term for m in terminology.detect_terms(term)}
+    allowed |= _system_vocabulary()
 
     for sentence in sentences(text):
         for match in terminology.detect_terms(sentence.text):
@@ -143,6 +154,27 @@ def check_fabrication(context: GroundingContext, text: str) -> Iterator[Violatio
                     sentence.text,
                     f"termi “{match.term.term}” nuk shfaqet në raportin burimor",
                 )
+
+
+def _system_vocabulary() -> set[str]:
+    """Termat që përdorin tekstet e detyrueshme të politikës.
+
+    "Interval referent" nuk është gjetje: është fjalori me të cilin sistemi
+    flet për çdo matje, dhe njoftimi i SP4 e përmban vetë. Pa këtë
+    përjashtim, R7 do ta raportonte si të shpikur tekstin që politika e
+    kërkon — pikërisht në dokumentet ku termi nuk rastis të jetë edhe në
+    fjalor.
+
+    Bashkësia nxirret nga tekstet e politikës dhe nuk shkruhet me dorë, që
+    një ndryshim i njoftimit të mos kërkojë ndryshim të dytë këtu.
+    """
+    notices = (
+        CRITICAL_BANNER_SQ,
+        DISCLAIMER_SQ,
+        UNEXPLAINED_TERM_NOTICE_SQ,
+        UNINTERPRETABLE_NOTICE_SQ,
+    )
+    return {m.term.term for notice in notices for m in terminology.detect_terms(notice)}
 
 
 def check_recommendations(context: GroundingContext, text: str) -> Iterator[Violation]:

@@ -27,8 +27,13 @@ from .enums import ViolationType
 # Versionimi
 # --------------------------------------------------------------------
 
-RULES_VERSION = "r1.0"
-"""Versioni i katalogut R1-R9. Ruhet në çdo VerificationResult."""
+RULES_VERSION = "r1.1"
+"""Versioni i katalogut R1-R9. Ruhet në çdo VerificationResult.
+
+r1.1 — R1 i mat numrat e fjalive të atribuuara kundrejt pohimeve të
+mjekut; R7 nuk e numëron si gjetje fjalorin e teksteve të politikës dhe
+termat e pashpjeguar të raportit. Të dyja u zbuluan kur shablloni dështoi
+mbi kontekstin referues të shkruar me dorë."""
 
 POLICY_VERSION = "sp1.0"
 """Versioni i politikës SP1-SP8."""

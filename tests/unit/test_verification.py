@@ -223,3 +223,54 @@ def test_quoted_physician_claims_are_not_judged_against_measurements():
         if any(r.state.value == "contradiction" for r in d.context.cross_refs)
     )
     assert verify(document.context, build(document.context)).passed
+
+
+# --------------------------------------------------------------------
+# Konteksti i shkruar me dorë
+# --------------------------------------------------------------------
+#
+# Korpusi nuk prodhon rekomandime me numra dhe fjalorët e tij rastisin ta
+# përmbajnë "interval referent". Mbi të, dy rregulla dukeshin të sakta dhe
+# nuk ishin; konteksti referues i zbuloi që të dyja kur makina e gjendjeve
+# e verifikoi shabllonin mbi të.
+
+
+def test_template_passes_every_rule_on_the_reference_context():
+    from tests.fixtures.grounding_context import build_reference_context
+
+    context = build_reference_context()
+    result = verify(context, build(context))
+    assert result.passed, [(v.type.value, v.evidence) for v in result.violations]
+
+
+def test_r1_accepts_a_number_the_physician_wrote():
+    """"Kontroll pas 3 muajsh" — numri është i mjekut, jo i matjes."""
+    from tests.fixtures.grounding_context import build_reference_context
+
+    context = build_reference_context()
+    quote = f"{ATTRIBUTION_PREFIX_SQ} Rekomandohet kontroll pas 3 muajsh."
+    assert ViolationType.UNGROUNDED_NUMBER not in _types(context, quote)
+
+
+def test_r1_still_refuses_that_number_from_the_system():
+    """Përjashtimi i citimit nuk bëhet leje për fjalitë e sistemit."""
+    from tests.fixtures.grounding_context import build_reference_context
+
+    context = build_reference_context()
+    claim = "Vlera juaj duhet rikontrolluar pas 3 javësh."
+    assert ViolationType.UNGROUNDED_NUMBER in _types(context, claim)
+
+
+def test_r7_does_not_count_the_policy_vocabulary_as_a_finding(clean):
+    """Njoftimi i SP4 e përmban "interval referent"; politika nuk shpik gjetje."""
+    context, _ = clean
+    bare = context.model_copy(update={"glossary": (), "assertions": (), "cross_refs": ()})
+    text = f"{CRITICAL_BANNER_SQ} {DISCLAIMER_SQ}"
+    assert ViolationType.FABRICATED_FINDING not in _types(bare, text)
+
+
+def test_r7_still_catches_a_condition_the_report_never_named(clean):
+    context, _ = clean
+    bare = context.model_copy(update={"glossary": (), "assertions": (), "cross_refs": ()})
+    assert ViolationType.FABRICATED_FINDING not in _types(bare, DISCLAIMER_SQ)
+    assert ViolationType.FABRICATED_FINDING in _types(bare, f"Keni anemi. {DISCLAIMER_SQ}")

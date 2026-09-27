@@ -28,9 +28,20 @@ def check_numbers(context: GroundingContext, text: str) -> Iterator[Violation]:
     Bashkësia e lejuar përmban vlerën e matur, vlerën e normalizuar dhe të
     dy kufijtë e intervalit për çdo gjetje. Intervali është aty me qëllim:
     pacienti duhet të mund ta shohë krahas vlerës.
+
+    Fjalitë e atribuuara kanë burim tjetër (ADR 0010): numri në "kontroll
+    pas 3 muajsh" është i mjekut dhe verifikohet kundrejt pohimeve të tij,
+    jo kundrejt matjeve. Përjashtimi nuk shtrihet te fjalitë e sistemit —
+    aty e njëjta "3" do të ishte numër i shpikur.
     """
-    allowed = context.all_grounded_numbers()
+    measured = context.all_grounded_numbers()
+    quoted = measured | {
+        value
+        for assertion in context.assertions
+        for value, _ in numbers_in(assertion.text_span, context)
+    }
     for sentence in sentences(text):
+        allowed = quoted if is_attributed(sentence.text) else measured
         for value, raw in numbers_in(sentence.text, context):
             if value not in allowed:
                 yield violation(

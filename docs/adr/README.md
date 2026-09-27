@@ -21,3 +21,4 @@ del gjithmonë më i pastër dhe më i qëllimshëm seç ishte.
 | [0008](0008-mohimi-dhe-pasiguria.md) | Mohimi dhe pasiguria me rregulla leksikore | i zbatuar |
 | [0009](0009-rregulla-perpara-klasifikuesit.md) | Rregulla përpara klasifikuesit në verifikim | pjesërisht |
 | [0010](0010-atribuimi-i-citimeve.md) | Atribuimi i citimeve në daljen e gjeneruar | i zbatuar |
+| [0011](0011-makina-e-gjendjeve.md) | Makina e gjendjeve dhe dështimet që Figura 6 nuk i emërton | i zbatuar |

@@ -2,7 +2,7 @@
 
 ### Tabela 4. Katalogu i rregullave të verifikimit
 
-Versioni i katalogut: `r1.0`. Ai regjistrohet në çdo
+Versioni i katalogut: `r1.1`. Ai regjistrohet në çdo
 rezultat verifikimi, prandaj rezultatet e vjetra mbeten të lexueshme
 edhe pasi katalogu ndryshon.
 
