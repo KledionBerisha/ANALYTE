@@ -29,7 +29,7 @@ from analyte.domain.enums import AssertionKind, Certainty, Polarity, ViolationTy
 from analyte.domain.models import GroundingContext
 
 from ..pipeline import PipelineOutput
-from .base import _round, count_sentences
+from .base import _round, bootstrap_ratio, count_sentences
 
 
 def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, Any]:
@@ -37,6 +37,8 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
     flips = hedge_losses = omissions = fabrications = 0
     sentences = 0
     generated = 0
+    negation_units: list[tuple[int, int]] = []
+    hedge_units: list[tuple[int, int]] = []
 
     for truth, output in pairs:
         if not output.explanation:
@@ -48,13 +50,19 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
 
         generated += 1
         sentences += count_sentences(output.explanation)
-        negated += sum(1 for a in truth.assertions if a.polarity is Polarity.NEGATED)
-        hedged += sum(1 for a in truth.assertions if a.certainty is Certainty.HEDGED)
+        document_negated = sum(1 for a in truth.assertions if a.polarity is Polarity.NEGATED)
+        document_hedged = sum(1 for a in truth.assertions if a.certainty is Certainty.HEDGED)
+        negated += document_negated
+        hedged += document_hedged
         recommendations += sum(
             1 for a in truth.assertions if a.kind is AssertionKind.RECOMMENDATION
         )
 
         violations = output.verification.violations if output.verification else ()
+        document_flips = sum(1 for v in violations if v.type is ViolationType.POLARITY_FLIP)
+        document_losses = sum(1 for v in violations if v.type is ViolationType.HEDGE_REMOVED)
+        negation_units.append((max(0, document_negated - document_flips), document_negated))
+        hedge_units.append((max(0, document_hedged - document_losses), document_hedged))
         for violation in violations:
             if violation.type is ViolationType.POLARITY_FLIP:
                 flips += 1
@@ -71,6 +79,8 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
         "sentences": sentences,
         "negation_preservation": _preservation(negated, flips),
         "hedge_preservation": _preservation(hedged, hedge_losses),
+        "ci95_negation_preservation": bootstrap_ratio(negation_units),
+        "ci95_hedge_preservation": bootstrap_ratio(hedge_units),
         "recommendation_preservation": _preservation(recommendations, omissions),
         "fabricated_findings_per_100_sentences": _per_hundred(fabrications, sentences),
         "counts": {

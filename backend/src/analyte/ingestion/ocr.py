@@ -43,7 +43,12 @@ from analyte.domain.models import BoundingBox
 from .pdf_text import PageText, TextFragment, TextRow
 
 WINDOWS_DEFAULT = Path(r"C:\Program Files\Tesseract-OCR\tesseract.exe")
-DEFAULT_DPI = 300
+DEFAULT_LANGUAGE = "eng"
+DEFAULT_DPI = 200
+DEFAULT_PSM = 6
+"""Konfigurimi i zgjedhur mbi korpusin e akordimit (ADR 0012). Modeli anglez
+i lexon shifrat dhe njësitë më mirë se ai shqip; emrat krahasohen pas
+normalizimit, prandaj diakritikët e humbur nuk kushtojnë."""
 SKEW_RANGE = 2.0
 SKEW_STEP = 0.1
 SKEW_WIDTH = 800
@@ -85,9 +90,9 @@ class TesseractOcr:
 
     def __init__(
         self,
-        language: str = "sqi",
+        language: str = DEFAULT_LANGUAGE,
         dpi: int = DEFAULT_DPI,
-        psm: int = 6,
+        psm: int = DEFAULT_PSM,
         executable: Path | None = None,
         tessdata: Path | None = None,
     ) -> None:

@@ -168,3 +168,70 @@ def count_sentences(text: str) -> int:
 
 def _round(value: float | None, digits: int = 4) -> float | None:
     return None if value is None else round(value, digits)
+
+
+BOOTSTRAP_RESAMPLES = 2000
+BOOTSTRAP_SEED = 20260928
+BOOTSTRAP_LEVEL = 0.95
+
+
+def bootstrap_ratio(
+    units: list[tuple[float, float]],
+    *,
+    scale: float = 1.0,
+    resamples: int = BOOTSTRAP_RESAMPLES,
+    seed: int = BOOTSTRAP_SEED,
+    level: float = BOOTSTRAP_LEVEL,
+) -> dict[str, Any] | None:
+    """Intervali i besimit për një raport Σnumërues / Σemërues (§7 e specifikimit).
+
+    Njësia e rimostrimit është dokumenti, jo fjalia: fjalitë e një
+    dokumenti ndajnë kontekstin dhe gabimet e tyre nuk janë të pavarura.
+    Rimostrimi sipas fjalisë do ta ngushtonte intervalin pa të drejtë.
+
+    **Zero ngjarje.** Kur numëruesi është zero kudo, çdo rimostrim jep zero
+    dhe intervali përqindor del [0, 0] — sikur pasiguria të mos ekzistonte.
+    Prandaj raportohet edhe kufiri i sipërm sipas "rregullit të treshit"
+    (3/n për 95%), që tabela ta shtypë në vend të zeros së rreme. Rasti i
+    kundërt — çdo njësi sukses, si ruajtja e plotë e mohimeve — merr kufirin
+    e poshtëm 1 − 3/n.
+
+    Fara është e fiksuar: i njëjti rezultat jep gjithmonë të njëjtin
+    interval, dhe numri në Kapitullin 6 mund të rillogaritet.
+    """
+    import random
+
+    units = [(float(n), float(d)) for n, d in units if d > 0]
+    denominator = sum(d for _, d in units)
+    if not units or denominator == 0:
+        return None
+
+    numerator = sum(n for n, _ in units)
+    rng = random.Random(seed)
+    size = len(units)
+    estimates = []
+    for _ in range(resamples):
+        sample = [units[rng.randrange(size)] for _ in range(size)]
+        total = sum(d for _, d in sample)
+        estimates.append(scale * sum(n for n, _ in sample) / total)
+    estimates.sort()
+
+    tail = (1.0 - level) / 2.0
+    low = estimates[int(tail * (resamples - 1))]
+    high = estimates[int((1.0 - tail) * (resamples - 1))]
+    result: dict[str, Any] = {
+        "estimate": _round(scale * numerator / denominator),
+        "low": _round(low),
+        "high": _round(high),
+        "level": level,
+        "resamples": resamples,
+        "unit": "document",
+        "units": size,
+    }
+    if numerator == 0:
+        result["rule_of_three_high"] = _round(scale * 3.0 / denominator)
+    elif numerator == denominator:
+        # E njëjta pasqyrë për ruajtjen e plotë: asnjë humbje nuk do të thotë
+        # se humbja nuk ndodh kurrë, vetëm se nuk u pa në këtë mostër.
+        result["rule_of_three_low"] = _round(scale * max(0.0, 1.0 - 3.0 / denominator))
+    return result

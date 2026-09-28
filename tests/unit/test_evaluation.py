@@ -549,3 +549,128 @@ def test_conditions_the_pipeline_cannot_implement_are_refused():
     for condition in ("E6", "E9"):
         with pytest.raises(ValueError, match=condition):
             GenerationPipeline(TemplateGenerator(), ablation=condition)
+
+
+# --------------------------------------------------------------------
+# Intervalet e besimit
+# --------------------------------------------------------------------
+
+
+def test_bootstrap_is_reproducible_and_contains_the_estimate():
+    from evaluation.metrics.base import bootstrap_ratio
+
+    units = [(1, 10), (0, 12), (3, 9), (2, 11), (0, 8), (1, 10)]
+    first, second = bootstrap_ratio(units, scale=100.0), bootstrap_ratio(units, scale=100.0)
+    assert first == second
+    assert first["low"] <= first["estimate"] <= first["high"]
+    assert first["unit"] == "document" and first["units"] == 6
+
+
+def test_bootstrap_resamples_documents_not_sentences():
+    """Një dokument me shumë shkelje e zgjeron intervalin; po të
+    rimostroheshin fjalitë, ai do të tretej në emërues."""
+    from evaluation.metrics.base import bootstrap_ratio
+
+    spread = bootstrap_ratio([(10, 10)] + [(0, 10)] * 9)
+    even = bootstrap_ratio([(1, 10)] * 10)
+    assert spread["estimate"] == even["estimate"]
+    assert spread["high"] - spread["low"] > even["high"] - even["low"]
+
+
+def test_zero_events_report_the_rule_of_three_not_certainty():
+    from evaluation.metrics.base import bootstrap_ratio
+
+    result = bootstrap_ratio([(0, 30)] * 10, scale=100.0)
+    assert (result["low"], result["high"]) == (0.0, 0.0)
+    assert result["rule_of_three_high"] == pytest.approx(1.0)
+
+
+def test_bootstrap_is_none_when_nothing_was_measured():
+    from evaluation.metrics.base import bootstrap_ratio
+
+    assert bootstrap_ratio([]) is None
+    assert bootstrap_ratio([(0, 0), (0, 0)]) is None
+
+
+def test_violation_rates_carry_their_interval(data):
+    from analyte.generation.templates import TemplateGenerator
+    from evaluation.pipeline import GenerationPipeline
+
+    result = harness.run_experiment(
+        registry.get("E8"), data, GenerationPipeline(TemplateGenerator(), ablation="E8")
+    )
+    interval = result.metrics["ci95_reaching_user"]
+    assert interval["estimate"] == 0.0
+    assert "rule_of_three_high" in interval
+    assert "≤" in result.headline()
+
+
+# --------------------------------------------------------------------
+# E9 — rregulla + klasifikues
+# --------------------------------------------------------------------
+
+_SLIPPED = "Kjo pamje është krejt e qetë dhe s'ka asgjë për t'u shqetësuar."
+"""Një fjali që rregullat nuk e shohin — pa numër, pa analit, pa term — por
+që një klasifikues mund ta quajë shtesë."""
+
+
+class _Slipping:
+    """Gjeneruesi shton një fjali që rregullat e lënë të kalojë."""
+
+    name = "slipping"
+
+    def __call__(self, context, feedback):
+        from analyte.generation.templates import build
+
+        return f"{_SLIPPED} {build(context)}"
+
+
+class _Catcher:
+    version = "fake-catcher"
+    labels = ("clean", "fabricated_finding")
+    mode = "sentence"
+
+    def __call__(self, sentences, context):
+        return [[0.1, 0.9] if s == _SLIPPED else [0.99, 0.01] for s in sentences]
+
+
+def test_the_rules_alone_let_the_sentence_through(data):
+    from evaluation.pipeline import GenerationPipeline
+
+    metrics = _run(data, "E8", GenerationPipeline(_Slipping(), ablation="E8")).metrics
+    assert metrics["violations_produced"] == 0
+
+
+def test_e9_stops_what_only_the_classifier_sees(data):
+    from evaluation.pipeline import GenerationPipeline
+
+    pipeline = GenerationPipeline(
+        _Slipping(), ablation="E9", classifier=_Catcher(), threshold=0.5
+    )
+    metrics = _run(data, "E9", pipeline).metrics
+    documents = metrics["documents_with_output"]
+
+    assert metrics["by_detector"]["classifier"] == 2 * documents
+    assert metrics["violations_reaching_user"] == 0
+    assert metrics["template_fallbacks"] == documents
+    assert "fake-catcher@0.5" in pipeline.name
+
+
+def test_e9_needs_a_classifier_and_a_threshold():
+    from analyte.generation.templates import TemplateGenerator
+    from evaluation.pipeline import GenerationPipeline
+
+    with pytest.raises(ValueError, match="pragun"):
+        GenerationPipeline(TemplateGenerator(), ablation="E9", classifier=_Catcher())
+    with pytest.raises(ValueError, match="vetëm E9"):
+        GenerationPipeline(
+            TemplateGenerator(), ablation="E8", classifier=_Catcher(), threshold=0.5
+        )
+
+
+def test_perfect_preservation_reports_a_lower_bound_not_certainty():
+    from evaluation.metrics.base import bootstrap_ratio
+
+    result = bootstrap_ratio([(3, 3)] * 20)
+    assert result["estimate"] == 1.0
+    assert result["rule_of_three_low"] == pytest.approx(0.95)

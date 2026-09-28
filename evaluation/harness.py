@@ -183,10 +183,30 @@ def _headline(metric: str, payload: dict[str, Any]) -> str:
     if metric == "crossref":
         return _fmt(payload.get("overall", {}).get("accuracy"), "saktësi")
     if metric == "prose":
-        return _fmt(payload.get("negation_preservation"), "ruajtje mohimi")
+        return _fmt(payload.get("negation_preservation"), "ruajtje mohimi") + _ci(
+            payload.get("ci95_negation_preservation")
+        )
     if metric == "violations":
-        return _fmt(payload.get("rate_reaching_user_per_100_sentences"), "shkelje/100 fjali")
+        return _fmt(payload.get("rate_reaching_user_per_100_sentences"), "shkelje/100 fjali") + _ci(
+            payload.get("ci95_reaching_user")
+        )
     return NOT_MEASURED
+
+
+def _ci(interval: dict[str, Any] | None) -> str:
+    """Intervali i besimit pas numrit kryesor, kur ekziston.
+
+    Me zero ngjarje, ose me sukses në çdo njësi, shtypet kufiri i rregullit
+    të treshit dhe jo një interval me gjerësi zero: ai do të thoshte siguri
+    që mostra nuk e jep.
+    """
+    if not interval:
+        return ""
+    if "rule_of_three_high" in interval:
+        return f" [95%: ≤ {interval['rule_of_three_high']:.3f}]"
+    if "rule_of_three_low" in interval:
+        return f" [95%: ≥ {interval['rule_of_three_low']:.3f}]"
+    return f" [95%: {interval['low']:.3f}–{interval['high']:.3f}]"
 
 
 def _fmt(value: float | None, label: str) -> str:
@@ -309,22 +329,51 @@ def build_ocr(enabled: bool):
     from analyte.ingestion.ocr import OcrUnavailable, TesseractOcr
 
     try:
-        return TesseractOcr(**OCR_SETTINGS)
+        # Parazgjedhjet e motorit janë konfigurimi i akordimit (ADR 0012); i
+        # njëjti përdoret nga shërbimi, që E2 të matë atë që sheh pacienti.
+        return TesseractOcr()
     except OcrUnavailable as error:
         raise SystemExit(f"--ocr u kërkua, por {error}") from None
 
 
-OCR_SETTINGS: dict[str, Any] = {"language": "eng", "psm": 6, "dpi": 200}
-"""Konfigurimi i OCR-së për E2, i zgjedhur mbi korpusin e akordimit me farë 7 (ADR 0012)."""
+def build_classifier(run_dir: Path | None) -> tuple[Any, float | None]:
+    """Modeli i Colab-it dhe pragu i tij nga E11.
+
+    Pragu nuk jepet nga linja e komandës: ai lexohet nga rezultati i E11,
+    ku u zgjodh mbi validimin. Një prag i dhënë me dorë këtu do të ishte
+    akordim mbi të dhënat e vlerësimit.
+    """
+    if run_dir is None:
+        return None, None
+    from analyte.verification.classifier import TransformersPredictor
+
+    predictor = TransformersPredictor(run_dir)
+    result = Path("evaluation/results/E11") / predictor.mode / "result.json"
+    if not result.exists():
+        raise SystemExit(f"mungon {result}: ekzekutoni ml.evaluate_classifier përpara E9")
+    return predictor, json.loads(result.read_text(encoding="utf-8"))["threshold"]
 
 
 def build_pipeline(
-    name: str, data: Dataset, generator: str = "template", ocr: bool = False
+    name: str,
+    data: Dataset,
+    generator: str = "template",
+    ocr: bool = False,
+    classifier: Path | None = None,
 ) -> Pipeline:
     engine = build_ocr(ocr)
     suffix = "+ocr" if engine is not None else ""
-    if name in {"e7", "e8"}:
-        return GenerationPipeline(build_generator(generator), ablation=name.upper(), ocr=engine)
+    if name in {"e7", "e8", "e9"}:
+        predictor, threshold = build_classifier(classifier) if name == "e9" else (None, None)
+        if name == "e9" and predictor is None:
+            raise SystemExit("e9 kërkon --classifier me dosjen e ekzekutimit nga Colab")
+        return GenerationPipeline(
+            build_generator(generator),
+            ablation=name.upper(),
+            ocr=engine,
+            classifier=predictor,
+            threshold=threshold,
+        )
     if name == "empty":
         return EmptyPipeline()
     if name == "oracle":
@@ -334,7 +383,7 @@ def build_pipeline(
     if name == "grounding":
         return GroundingPipeline(name=f"grounding{suffix}", ocr=engine)
     raise SystemExit(
-        f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e7, e8"
+        f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e7, e8, e9"
     )
 
 
@@ -346,7 +395,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dataset", type=Path, required=True, help="dosja e korpusit")
     parser.add_argument("--experiment", default="all", help="ID e eksperimentit ose 'all'")
     parser.add_argument(
-        "--pipeline", default="empty", help="empty | oracle | branch_a | grounding | e7 | e8"
+        "--pipeline", default="empty", help="empty | oracle | branch_a | grounding | e7 | e8 | e9"
+    )
+    parser.add_argument(
+        "--classifier", type=Path, default=None, help="dosja e ekzekutimit të Colab-it, për e9"
     )
     parser.add_argument(
         "--generator", default="template", help="gjeneruesi për e7 dhe e8: template"
@@ -361,7 +413,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     data = dataset_module.load(args.dataset, limit=args.limit)
-    pipeline = build_pipeline(args.pipeline, data, args.generator, args.ocr)
+    pipeline = build_pipeline(args.pipeline, data, args.generator, args.ocr, args.classifier)
 
     chosen = (
         list(registry.EXPERIMENTS)

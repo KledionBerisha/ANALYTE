@@ -33,7 +33,7 @@ from analyte.domain.enums import DetectedBy, ProcessingState, ViolationType
 from analyte.domain.models import GroundingContext
 
 from ..pipeline import PipelineOutput
-from .base import _round, count_sentences
+from .base import _round, bootstrap_ratio, count_sentences
 
 
 def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, Any]:
@@ -41,6 +41,10 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
     produced: dict[str, int] = {v.value: 0 for v in ViolationType}
     reaching_user: dict[str, int] = {v.value: 0 for v in ViolationType}
     by_detector: dict[str, int] = {d.value: 0 for d in DetectedBy}
+
+    per_document: list[tuple[int, int, int]] = []
+    """(të prodhuara, te përdoruesi, fjali) për çdo dokument — njësia e
+    rimostrimit për intervalet e besimit."""
 
     documents_with_output = 0
     documents_with_violation = 0
@@ -56,12 +60,15 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
 
         documents_with_output += 1
         had_violation = False
+        document_sentences = document_produced = 0
         for text, verification in drafts:
-            sentences += count_sentences(text)
+            document_sentences += count_sentences(text)
             for violation in verification.violations if verification else ():
                 had_violation = True
+                document_produced += 1
                 produced[violation.type.value] += 1
                 by_detector[violation.detected_by.value] += 1
+        sentences += document_sentences
         if had_violation:
             documents_with_violation += 1
 
@@ -72,6 +79,7 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
             reaching_user[violation.type.value] += 1
         if not reaching:
             clean_deliveries += 1
+        per_document.append((document_produced, len(reaching), document_sentences))
 
     total_produced = sum(produced.values())
     total_reaching = sum(reaching_user.values())
@@ -84,6 +92,12 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
         "violations_reaching_user": total_reaching,
         "rate_produced_per_100_sentences": _rate(total_produced, sentences),
         "rate_reaching_user_per_100_sentences": _rate(total_reaching, sentences),
+        "ci95_produced": bootstrap_ratio(
+            [(p, s) for p, _, s in per_document], scale=100.0
+        ),
+        "ci95_reaching_user": bootstrap_ratio(
+            [(r, s) for _, r, s in per_document], scale=100.0
+        ),
         "by_type_produced": dict(sorted(produced.items())),
         "by_type_reaching_user": dict(sorted(reaching_user.items())),
         "by_detector": dict(sorted(by_detector.items())),

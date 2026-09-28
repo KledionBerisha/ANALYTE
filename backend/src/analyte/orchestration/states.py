@@ -23,6 +23,7 @@ dhe në cilën përpjekje.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
@@ -67,11 +68,22 @@ class Transition:
 
 
 class StateLog:
-    """Gjendja e tanishme e një dokumenti dhe rruga që e solli aty."""
+    """Gjendja e tanishme e një dokumenti dhe rruga që e solli aty.
 
-    def __init__(self, start: S = S.UPLOADED) -> None:
+    `listener` thirret me çdo kalim në çastin që ndodh. Kështu shërbimi e
+    shkruan gjendjen në bazë ndërsa dokumenti ende përpunohet — pyetja
+    "në ç'gjendje është?" merr përgjigje gjatë OCR-së, jo vetëm pas saj
+    (NFR4) — pa e ditur orkestruesi se ekziston një bazë të dhënash.
+    """
+
+    def __init__(
+        self,
+        start: S = S.UPLOADED,
+        listener: Callable[[Transition], None] | None = None,
+    ) -> None:
         self._state = start
         self._transitions: list[Transition] = []
+        self._listener = listener
 
     @property
     def state(self) -> S:
@@ -84,5 +96,8 @@ class StateLog:
     def advance(self, target: S, reason: str = "", *, attempt: int | None = None) -> None:
         if target not in TRANSITIONS[self._state]:
             raise IllegalTransition(f"{self._state.value} → {target.value}")
-        self._transitions.append(Transition(self._state, target, reason, attempt))
+        transition = Transition(self._state, target, reason, attempt)
+        self._transitions.append(transition)
         self._state = target
+        if self._listener is not None:
+            self._listener(transition)

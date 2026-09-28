@@ -245,7 +245,7 @@ lejon që rezultati i njërit të regjistrohet nën ID-në e një tjetri."""
 
 @dataclass(frozen=True, slots=True)
 class GenerationPipeline:
-    """Bazimi i plotë, pastaj gjenerimi — kushtet E7 dhe E8.
+    """Bazimi i plotë, pastaj gjenerimi — kushtet E7, E8 dhe E9.
 
     **E7 (vetëm bazim).** Një përpjekje; teksti verifikohet që shkeljet të
     numërohen, por dorëzohet pavarësisht tyre.
@@ -255,9 +255,12 @@ class GenerationPipeline:
     `explanation` është drafti i fundit i modelit — ai që mat PK3 — dhe jo
     domosdoshmërisht ai që mori përdoruesi.
 
-    **E6 dhe E9 nuk zbatohen këtu.** E6 kërkon një gjenerues që sheh
-    dokumentin e papërpunuar, gjë që protokolli `Generator` e ndalon me
-    qëllim; E9 kërkon klasifikuesin e Fazës 7.
+    **E9 (+ klasifikues).** I njëjti cikël si E8, me verifikues që ekzekuton
+    rregullat dhe pastaj klasifikuesin mbi fjalitë që ato lanë të pastra
+    (ADR 0009). Pragu vjen nga E11, ku u zgjodh vetëm mbi validimin.
+
+    **E6 nuk zbatohet këtu.** Ai kërkon një gjenerues që sheh dokumentin e
+    papërpunuar, gjë që protokolli `Generator` e ndalon me qëllim.
 
     Dokumentet që nuk bazohen — të skanuarat pa OCR, ato pa gjetje — nuk
     arrijnë te gjenerimi dhe dalin me gjendjen e bazimit.
@@ -267,15 +270,35 @@ class GenerationPipeline:
     ablation: str = "E8"
     version: str = "1"
     ocr: Any = None
+    classifier: Any = None
+    """Parashikuesi i fjalive (`SentencePredictor`), vetëm për E9."""
+    threshold: float | None = None
 
     def __post_init__(self) -> None:
-        if self.ablation not in {"E7", "E8"}:
+        if self.ablation not in {"E7", "E8", "E9"}:
             raise ValueError(f"kushti {self.ablation} nuk zbatohet nga ky pipeline")
+        if (self.ablation == "E9") != (self.classifier is not None):
+            raise ValueError("E9 kërkon klasifikues, dhe vetëm E9 e përdor atë")
+        if self.classifier is not None and self.threshold is None:
+            raise ValueError("klasifikuesi kërkon pragun e zgjedhur te E11")
 
     @property
     def name(self) -> str:
         suffix = "+ocr" if self.ocr is not None else ""
+        if self.classifier is not None:
+            suffix += f"+{self.classifier.version}@{self.threshold}"
         return f"{self.ablation.lower()}[{self.generator.name}]{suffix}"
+
+    def _verifier(self):
+        from analyte.verification.pipeline import verify
+
+        if self.classifier is None:
+            return verify
+        from analyte.verification.classifier import verify_with_classifier
+
+        return lambda context, text: verify_with_classifier(
+            context, text, self.classifier, self.threshold
+        )
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         from analyte.orchestration.process import Attempt, Delivery, explain
@@ -305,7 +328,7 @@ class GenerationPipeline:
                 failures=grounded.failures,
             )
 
-        explanation = explain(context, self.generator)
+        explanation = explain(context, self.generator, verifier=self._verifier())
         drafts = [a for a in explanation.attempts if a.text is not None]
         last = drafts[-1] if drafts else None
         return PipelineOutput(

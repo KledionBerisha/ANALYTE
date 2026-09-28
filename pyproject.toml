@@ -13,6 +13,24 @@ generate = ["reportlab>=4.0", "pymupdf>=1.24", "pillow>=10.0", "numpy>=1.26"]
 # Rruga e OCR-së. Motori Tesseract vetë instalohet jashtë Python-it; rruga e
 # tij dhe e të dhënave të gjuhës lexohen nga ANALYTE_TESSERACT/ANALYTE_TESSDATA.
 ocr = ["pymupdf>=1.24", "pillow>=10.0", "numpy>=1.26"]
+# Shërbimi: API, baza, radha e punëve. Testet e API-së ekzekutohen mbi
+# SQLite dhe punë të menjëhershme; PostgreSQL dhe Redis nevojiten vetëm për
+# `make dev` dhe për testin e integrimit.
+api = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.2",
+    "pydantic-settings>=2.4",
+    "pyjwt>=2.9",
+    "argon2-cffi>=23.1",
+    "cryptography>=43",
+    "python-multipart>=0.0.9",
+    "arq>=0.26",
+    "httpx>=0.27",
+    "pymupdf>=1.24",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["backend/src", "."]

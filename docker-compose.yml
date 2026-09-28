@@ -1,0 +1,32 @@
+# Baza dhe radha e punëve për zhvillim.
+#
+#   docker compose up -d
+#
+# API-ja dhe punëtori ekzekutohen lokalisht (`make api`, `make worker`),
+# sepse OCR-ja kërkon Tesseract-in e instaluar në makinë. PostgreSQL hapet
+# në portën 5433 dhe jo 5432, që të mos përplaset me një instalim lokal.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: analyte
+      POSTGRES_PASSWORD: analyte
+      POSTGRES_DB: analyte
+    ports:
+      - "5433:5432"
+    volumes:
+      - analyte-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U analyte"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  analyte-db:

@@ -70,6 +70,20 @@ tërësi. Pritshmëria e formuluar përpara matjes është se rregullat do të
 mbizotërojnë te defektet numerike dhe do të humbasin te mohimi dhe
 pasiguria; një F1 i vetëm i përgjithshëm do ta fshihte plotësisht këtë.
 
+### Intervalet e besimit
+
+Shkallët e PK5 dhe ruajtjet e PK3 raportohen me interval besimi 95% me
+rimostrim bootstrap (2 000 rimostrime, farë e fiksuar). Njësia e
+rimostrimit është dokumenti dhe jo fjalia, sepse fjalitë e një dokumenti
+ndajnë kontekstin dhe gabimet e tyre nuk janë të pavarura; rimostrimi
+sipas fjalisë do ta ngushtonte intervalin pa të drejtë.
+
+Kur mostra nuk ka asnjë ngjarje — zero shkelje, ose ruajtje e plotë —
+intervali përqindor del me gjerësi zero. Në atë rast raportohet kufiri i
+rregullit të treshit (3/n): mbi 80 dokumente, shablloni jep 0 shkelje për
+100 fjali, me kufi të sipërm 0.191. Kjo nuk është kujdes formal: "zero
+shkelje" mbi një mostër të vogël nuk do të thotë se sistemi nuk shkel kurrë.
+
 ## 5.11.3 Dy vendime të vogla me pasojë
 
 **Metrikat kthejnë vlerë të papërcaktuar kur emëruesi është zero, kurrë

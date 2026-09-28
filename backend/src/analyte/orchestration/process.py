@@ -126,14 +126,17 @@ def process(
     *,
     ocr: Ocr | None = None,
     verifier: Verifier = verify,
+    log: StateLog | None = None,
 ) -> Outcome:
     """Drejton një dokument nga ngarkimi te një gjendje përfundimtare.
 
     Pa motor OCR, një dokument i skanuar përfundon në `FAILED_INGESTION`
     me arsyen e shkruar — jo në `NO_FINDINGS`. "Nuk u lexua" dhe "nuk
     kishte asgjë" janë dy përgjigje të ndryshme për pacientin.
+
+    `log` jepet nga shërbimi kur kalimet duhet të shkruhen ndërsa ndodhin.
     """
-    log = StateLog()
+    log = log or StateLog()
 
     rejection = rejection_reason(path)
     if rejection is not None:

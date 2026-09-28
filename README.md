@@ -22,9 +22,13 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 | Klasifikimi determinist (`grounding/branch_a/classify.py`) | i plotë |
 | Gjeneruesi i korpusit sintetik (`data_generator/`) | i plotë: të dhëna, narrativë, PDF në tri formate, simulim skanimi |
 | Infrastruktura e vlerësimit (`evaluation/`) | e plotë: PK1-PK6, matrica E1-E15, prejardhja e rezultateve |
-| Dega A — vlerat nga tabela (`ingestion/`, `grounding/branch_a/`) | kanali dixhital; OCR-ja mbetet |
+| Dega A — vlerat nga tabela (`ingestion/`, `grounding/branch_a/`) | kanali dixhital dhe OCR (Tesseract, ADR 0012); kombinimet ndërmjet analiteve |
 | Dega B — pohimet nga narrativa (`grounding/branch_b/`) | e plotë: terma, mohim, pasiguri, krahasim i kryqëzuar |
-| Gjenerimi, verifikimi, ndërfaqja | ende jo |
+| Verifikimi (`verification/`) | rregullat R1-R9 dhe SP1-3; klasifikuesi pret trajnimin në Colab |
+| Makina e gjendjeve (`orchestration/`) | e plotë, me rigjenerim dhe shabllon rezervë (ADR 0011) |
+| Gjenerimi (`generation/`) | shablloni determinist; modeli gjuhësor ende jo |
+| Shërbimi (`api/`, `persistence/`, `audit/`) | API, PostgreSQL, radha arq, auditim, skedarë të koduar (ADR 0013); biseda jo |
+| Ndërfaqja web | ende jo |
 
 ## Struktura
 
@@ -38,6 +42,19 @@ evaluation/                     harness-i i eksperimenteve dhe metrikat PK1-PK6
 resources/                      tabelat burimore: analitet, njësitë, terminologjia
 tests/                          njësi, fixture referues
 ```
+
+## Shërbimi
+
+```bash
+cp .env.example .env              # plotësoni dy sekretet, sipas udhëzimeve brenda
+docker compose up -d --wait       # PostgreSQL (5433) dhe Redis
+cd backend && alembic upgrade head && cd ..
+uvicorn analyte.main:app --reload --app-dir backend/src
+arq analyte.orchestration.worker.WorkerSettings    # në terminal tjetër
+```
+
+Dokumentimi i API-së: `http://localhost:8000/docs`. Testi mbi PostgreSQL
+të vërtetë: `make test-postgres`.
 
 ## Përdorimi
 
