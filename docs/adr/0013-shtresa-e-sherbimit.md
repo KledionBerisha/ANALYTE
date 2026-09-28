@@ -81,6 +81,6 @@ pikat e administrimit të vlerësimit (eksperimentet ekzekutohen nga
 harness-i), kufizimi i shpeshtësisë së hyrjeve, dhe revokimi i tokenëve —
 një token rifreskimi i vjedhur mbetet i vlefshëm deri në skadim.
 
-Instalimi i paketës në mënyrë të redaktueshme (`pip install -e`) është i
-prishur që përpara këtij ndryshimi; testet punojnë sepse pytest vendos
-shtigjet vetë.
+Instalimi i paketës në mënyrë të redaktueshme (`pip install -e`) ishte i
+prishur që përpara këtij ndryshimi; u ndreq më vonë me konfigurimin e
+paketave namespace te `pyproject.toml`.

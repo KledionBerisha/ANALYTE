@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "analyte"
 version = "0.1.0"
@@ -31,6 +35,19 @@ api = [
     "httpx>=0.27",
     "pymupdf>=1.24",
 ]
+
+# Depoja ka dy rrënjë kodi: `analyte` nën backend/src dhe mjetet e kërkimit
+# (`data_generator`, `evaluation`, `ml`) në rrënjë. Asnjëra s'ka __init__.py,
+# prandaj kërkimi bëhet me paketa namespace dhe lista e lejuar është e
+# shprehur; pa të setuptools refuzon rrënjën e sheshtë. `resources/`, `data/`,
+# `docs/`, `frontend/` dhe `tests/` nuk janë paketa: tabelat burimore lexohen
+# në kohë ekzekutimi nga pema e depove (ose nga ANALYTE_RESOURCES), jo nga
+# instalimi.
+[tool.setuptools.packages.find]
+where = ["backend/src", "."]
+include = ["analyte*", "data_generator*", "evaluation*", "ml*"]
+exclude = ["evaluation.results*", "evaluation.handwritten*"]
+namespaces = true
 
 [tool.pytest.ini_options]
 pythonpath = ["backend/src", "."]
