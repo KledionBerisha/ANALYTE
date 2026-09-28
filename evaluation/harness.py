@@ -38,8 +38,10 @@ from . import experiments as registry
 from .dataset import Dataset
 from .metrics import classification, crossref, extraction, prose, violations
 from .pipeline import (
+    ABLATIONS,
     BranchAPipeline,
     EmptyPipeline,
+    GenerationPipeline,
     GroundingPipeline,
     OraclePipeline,
     Pipeline,
@@ -68,17 +70,23 @@ class ExperimentResult:
     experiment: registry.Experiment
     metadata: dict[str, Any]
     metrics: dict[str, Any] | None
+    skipped_reason: str | None = None
+    """Pse një eksperiment i ekzekutueshëm nuk u mat me këtë pipeline."""
 
     @property
     def measured(self) -> bool:
         return self.metrics is not None
+
+    @property
+    def reason(self) -> str | None:
+        return self.experiment.pending_reason or self.skipped_reason
 
     def to_json(self) -> dict[str, Any]:
         return {
             "experiment": self.experiment.to_json(),
             "metadata": self.metadata,
             "metrics": self.metrics,
-            "pending_reason": self.experiment.pending_reason,
+            "pending_reason": self.reason,
         }
 
     def headline(self) -> str:
@@ -97,6 +105,19 @@ def run_experiment(
 
     if not experiment.runnable:
         return ExperimentResult(experiment, metadata, None)
+
+    # Çdo kusht ablacioni është pipeline më vete. Pa këtë kontroll, një
+    # ekzekutim i vetëm do t'i mbushte E6-E9 me të njëjtat numra, dhe matrica
+    # do të tregonte një ablacion që nuk ndodhi.
+    ablation = getattr(pipeline, "ablation", None)
+    if experiment.id in ABLATIONS and ablation != experiment.id:
+        implemented = f"zbaton kushtin {ablation}" if ablation else "nuk gjeneron tekst"
+        return ExperimentResult(
+            experiment,
+            metadata,
+            None,
+            skipped_reason=f"pipeline-i `{pipeline.name}` {implemented}",
+        )
 
     outputs = [(case.truth, pipeline.run(case.document_input)) for case in scoped.cases]
 
@@ -218,7 +239,7 @@ def _result_table(result: ExperimentResult) -> str:
     ]
 
     if not result.measured:
-        lines += [f"> Ende e pamatur: {experiment.pending_reason}.", ""]
+        lines += [f"> Ende e pamatur: {result.reason}.", ""]
     else:
         lines += ["```json", json.dumps(result.metrics, ensure_ascii=False, indent=2), "```", ""]
 
@@ -268,17 +289,52 @@ def write_summary(results: list[ExperimentResult], out_dir: Path) -> Path:
 # --------------------------------------------------------------------
 
 
-def build_pipeline(name: str, data: Dataset) -> Pipeline:
+GENERATORS = ("template",)
+"""Gjeneruesit e njohur nga CLI. Modeli gjuhësor shtohet këtu kur të ketë."""
+
+
+def build_generator(name: str):
+    if name == "template":
+        from analyte.generation.templates import TemplateGenerator
+
+        return TemplateGenerator()
+    raise SystemExit(f"gjenerues i panjohur '{name}'; njihen: {', '.join(GENERATORS)}")
+
+
+def build_ocr(enabled: bool):
+    """Motori OCR, ose `None`. Mungesa e tij ndal ekzekutimin qysh këtu, jo
+    si 175 dokumente të dështuara në mes të matjes."""
+    if not enabled:
+        return None
+    from analyte.ingestion.ocr import OcrUnavailable, TesseractOcr
+
+    try:
+        return TesseractOcr(**OCR_SETTINGS)
+    except OcrUnavailable as error:
+        raise SystemExit(f"--ocr u kërkua, por {error}") from None
+
+
+OCR_SETTINGS: dict[str, Any] = {"language": "eng", "psm": 6, "dpi": 200}
+"""Konfigurimi i OCR-së për E2, i zgjedhur mbi korpusin e akordimit me farë 7 (ADR 0012)."""
+
+
+def build_pipeline(
+    name: str, data: Dataset, generator: str = "template", ocr: bool = False
+) -> Pipeline:
+    engine = build_ocr(ocr)
+    suffix = "+ocr" if engine is not None else ""
+    if name in {"e7", "e8"}:
+        return GenerationPipeline(build_generator(generator), ablation=name.upper(), ocr=engine)
     if name == "empty":
         return EmptyPipeline()
     if name == "oracle":
         return OraclePipeline(truth=data.truth_by_id())
     if name == "branch_a":
-        return BranchAPipeline()
+        return BranchAPipeline(name=f"branch_a{suffix}", ocr=engine)
     if name == "grounding":
-        return GroundingPipeline()
+        return GroundingPipeline(name=f"grounding{suffix}", ocr=engine)
     raise SystemExit(
-        f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding"
+        f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e7, e8"
     )
 
 
@@ -289,7 +345,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--dataset", type=Path, required=True, help="dosja e korpusit")
     parser.add_argument("--experiment", default="all", help="ID e eksperimentit ose 'all'")
-    parser.add_argument("--pipeline", default="empty", help="empty | oracle")
+    parser.add_argument(
+        "--pipeline", default="empty", help="empty | oracle | branch_a | grounding | e7 | e8"
+    )
+    parser.add_argument(
+        "--generator", default="template", help="gjeneruesi për e7 dhe e8: template"
+    )
+    parser.add_argument(
+        "--ocr", action="store_true", help="lexo dokumentet e skanuara me Tesseract"
+    )
     parser.add_argument("--limit", type=int, default=None, help="kufizo numrin e dokumenteve")
     parser.add_argument(
         "--out", type=Path, default=Path("evaluation/results"), help="dosja e rezultateve"
@@ -297,7 +361,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     data = dataset_module.load(args.dataset, limit=args.limit)
-    pipeline = build_pipeline(args.pipeline, data)
+    pipeline = build_pipeline(args.pipeline, data, args.generator, args.ocr)
 
     chosen = (
         list(registry.EXPERIMENTS)

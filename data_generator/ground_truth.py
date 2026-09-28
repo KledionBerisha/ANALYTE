@@ -40,6 +40,7 @@ from analyte.domain.models import (
     ReportAssertion,
 )
 from analyte.grounding.branch_a.classify import classify
+from analyte.grounding.branch_a.patterns import detect as detect_patterns
 
 from analyte.catalog import (
     Analyte,
@@ -270,6 +271,9 @@ def build_document(
         # dukej gjithmonë i plotësuar.
         glossary=glossary_for(narrative.text),
         unexplained_terms=narrative.unexplained_terms,
+        # Kombinimet janë rregull i dhënë, si klasifikimi (ADR 0003): e
+        # vërteta bazë i llogarit me të njëjtin funksion që përdor sistemi.
+        patterns=detect_patterns(tuple(findings)),
     )
 
     return DocumentTruth(

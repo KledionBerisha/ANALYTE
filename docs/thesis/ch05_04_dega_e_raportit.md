@@ -108,13 +108,14 @@ PK4 u mat mbi korpusin sintetik me dy vlera që duhen raportuar të dyja:
 
 - **1.000** mbi dokumentet dixhitale, me mbulim të plotë për të katër
   gjendjet;
-- **0.563** mbi tërë korpusin.
+- **0.656** mbi tërë korpusin pa OCR, dhe **0.877** me OCR
+  (`gen-1.0/s42/n500/37d8b080`, 500 dokumente, 168 të skanuar).
 
-I gjithë ndryshimi është kanali i skanuar. Pa njohje optike, ato
-dokumente nuk lexohen fare, prandaj çdo gjendje e tyre llogaritet si e
-munguar. Eksperimenti E5 nuk ka kufizim kanali në planin e vlerësimit,
-prandaj 0.563 është numri që ai prodhon sot dhe do të lëvizë vetëm kur
-rruga e OCR-së të ekzistojë.
+I gjithë ndryshimi është kanali i skanuar. Pa njohje optike ato dokumente
+nuk lexohen fare dhe çdo gjendje e tyre llogaritet si e munguar; me OCR
+lexohen pjesërisht. Një vlerë e mëparshme prej 0.563 u raportua në një
+draft më të hershëm pa u shënuar korpusi mbi të cilin u mat, prandaj nuk
+riprodhohet dhe nuk përdoret.
 
 Mbi gjysmën dixhitale, të gjitha pohimet e burimit u rikthyen me
 polaritet, siguri dhe lloj të saktë, dhe termat e pashpjeguar u

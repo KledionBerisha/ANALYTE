@@ -86,6 +86,7 @@ def test_manifest_records_resource_checksums(tmp_path):
         "analytes_extra.csv",
         "units.csv",
         "terminology.csv",
+        "patterns.csv",
     }
     assert len(manifest["documents"]) == 2
 

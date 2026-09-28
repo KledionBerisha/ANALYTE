@@ -20,7 +20,7 @@ vetëdije.
 ## Tabelat
 
 `tables/` gjenerohet nga `scripts/build_tables.py` dhe nuk shkruhet me
-dorë. Tabelat T1-T4 dalin nga po ata skedarë dhe po ai katalog që përdor
+dorë. Tabelat T1-T5 dalin nga po ata skedarë dhe po ai katalog që përdor
 sistemi, sepse një tabelë e shtypur me dorë fillon të largohet nga kodi
 që ditën e dytë.
 
@@ -35,4 +35,7 @@ python scripts/build_tables.py
 - **Kolona e burimit te tabela terminologjike.** Të 82 zërat mbajnë
   vendmbajtëse. Pa referencë të verifikueshme, tabela bëhet vetë burim
   informacioni të paverifikuar — pikërisht ajo që SP6 synon të pengojë.
+- **Rregullat e kombinimit (Tabela 5).** Njëmbëdhjetë kombinime, secili me
+  burim vendmbajtës. Kombinimet duhen konfirmuar nga mentori ose nga një
+  mjek, jo vetëm burimi i tyre.
 - **Figurat.** Thirrjet e figurave janë shënuar; vizatimi i tyre mbetet.

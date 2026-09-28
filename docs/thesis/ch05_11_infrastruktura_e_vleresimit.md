@@ -22,6 +22,26 @@ test të vetin: prej saj varet vlefshmëria e çdo numri që del nga
 harness-i, dhe një rrjedhje e tillë nuk do të linte asnjë shenjë të
 dukshme në rezultate.
 
+Çdo kusht ablacioni është sistem më vete, dhe harness-i refuzon ta
+regjistrojë rezultatin e njërit nën identifikuesin e një tjetri. Pa këtë,
+një ekzekutim i vetëm i sistemit të plotë do t'i mbushte E6-E9 me të
+njëjtat numra, dhe matrica do të tregonte një ablacion që nuk ndodhi.
+Qeliza e një kushti që sistemi nuk e zbaton mbetet `[TO BE MEASURED]`,
+bashkë me arsyen.
+
+Shablloni determinist luan për gjenerimin rolin që orakulli luan për
+nxjerrjen: i veshur si gjenerues, ai duhet të japë zero shkelje dhe zero
+kalime te shablloni rezervë. Mbi 80 dokumente ai jep pikërisht këtë, dhe
+kështu rruga nga gjeneruesi te qeliza e PK5 është e provuar përpara se të
+ekzistojë modeli gjuhësor.
+
+Kur kushti rigjeneron, çdo draft i modelit numërohet ndër shkeljet e
+prodhuara, ndërsa te përdoruesi numërohen vetëm shkeljet e tekstit që ai
+mori — drafti i pranuar ose shablloni. Po të numërohej vetëm drafti i
+fundit, shkeljet e përpjekjes së parë, ato që verifikimi i ndali, do të
+zhdukeshin nga numri i të prodhuarave, dhe verifikimi do të dukej sikur e
+bën modelin më të mirë në vend që të vendosë çfarë del jashtë.
+
 ## 5.11.2 Metrikat
 
 Të gjashtë pyetjet e para kërkimore kanë modulin e vet, dhe të gjitha
@@ -84,12 +104,12 @@ skedar e jo të kujtohet nga ai që e ekzekutoi.
 
 | Pyetja | Gjendja |
 |---|---|
-| PK1 — nxjerrja | e matur për kanalin dixhital; kanali i skanuar pret OCR-në |
+| PK1 — nxjerrja | dixhitale 1.000 (pa dallim); të skanuara 0.666 me OCR, 10.8% vlera të gabuara të pranuara |
 | PK2 — klasifikimi | e matur për kanalin dixhital |
-| PK3 — besnikëria | pret shtresën e gjenerimit |
+| PK3 — besnikëria | rruga e provuar me shabllonin; pret modelin gjuhësor |
 | PK4 — krahasimi i kryqëzuar | e matur |
-| PK5 — shkeljet | pret gjenerimin dhe verifikimin |
-| PK6 — zbuluesit | pret korpusin e korruptuar |
+| PK5 — shkeljet | rruga e provuar me shabllonin (E8: 0 shkelje); pret modelin gjuhësor |
+| PK6 — zbuluesit | rregullat të matura (E10); klasifikuesi pret trajnimin dhe grupin B |
 | PK7 — kuptueshmëria | pret studimin me përdorues |
 
 Metrikat e PK3, PK5 dhe PK6 janë të zbatuara dhe të testuara; atyre u

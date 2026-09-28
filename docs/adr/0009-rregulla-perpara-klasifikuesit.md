@@ -1,6 +1,6 @@
 # 0009 — Rregulla përpara klasifikuesit në verifikim
 
-**Gjendja:** i planifikuar (Fazat 6 dhe 7)
+**Gjendja:** i zbatuar; E11 pret trajnimin në Colab dhe grupin B
 
 ## Konteksti
 
@@ -50,3 +50,34 @@ por do të linte pa përgjigje pyetjen nëse zbulimi semantik ia vlen.
 Vlerësimi ruan për çdo shkelje se cili mekanizëm e zbuloi (`detected_by`).
 Pa këtë fushë, krahasimi rregulla-kundrejt-klasifikuesi do të kërkonte
 riekzekutim të të gjitha eksperimenteve.
+
+## Zbatimi (2026-09-27)
+
+Rendi i vendosur më sipër është zbatuar te `verification/classifier.py`:
+klasifikuesi gjykon vetëm fjalitë ku rregullat nuk gjetën asgjë, dhe çdo
+shkelje e tij mban `confidence`. Trajnimi bëhet në Colab (XLM-R base),
+matja lokalisht, mbi të njëjtat 192 tekste si E10 dhe me të njëjtën
+metrikë. Pragu i vendimit zgjidhet vetëm mbi validimin.
+
+**Dy hyrje, jo një.** Përveç fjalisë së vetme, trajnohet edhe një model që
+merr fjalinë bashkë me një përmbledhje të kontekstit. Rezultati i
+pritshëm i mësipërm u përmbys nga E10 pikërisht sepse rregullat e shohin
+kontekstin; pa hyrjen e dytë, PK6 do ta paraqiste dallimin e informacionit
+si dallim metode.
+
+**Kontrolli i rrjedhjes** (`ml/leakage.py`, `evaluation/results/E11/leakage.json`)
+tregoi dy gjëra përpara çdo trajnimi:
+
+- Për çdo lloj defekti, 100% e fjalive të validimit kanë skeletin — fjalinë
+  pa numra, pa emra analitesh dhe pa terma — të njëjtë me një fjali të
+  trajnimit. Ndarja sipas dokumentit i mban dokumentet të ndara, por jo
+  shabllonet: validimi është trajnimi me numra të tjerë.
+- Çdo gjetje e shpikur fillon me "Vërehet gjithashtu", dhe asnjë fjali e
+  pastër nuk fillon kështu. Etiketa është e shkruar në tekst.
+
+**Pasoja.** E11 mbi korpusin e korruptuar mat sa mirë klasifikuesi i njeh
+format e gjeneruesit, jo sa mirë e njeh defektin. Ky kufi nuk hiqet duke
+e ndryshuar korpusin — çdo korruptues i ri do të kishte formën e vet. Testi
+i vetëm përtej tij është grupi B i fjalive të shkruara me dorë
+(`evaluation/handwritten/`), dhe PK6 nuk raportohet për klasifikuesin pa
+të.

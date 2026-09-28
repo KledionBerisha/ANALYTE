@@ -61,6 +61,13 @@ def check_analytes(context: GroundingContext, text: str) -> Iterator[Violation]:
         for assertion in context.assertions
         if assertion.analyte_code is not None
     }
+    # Termi i fjalorit hyn në kontekst sepse raporti e përmendi, dhe
+    # shpjegimi i tij vjen nga tabela; të dy mund të emërtojnë një analit pa
+    # e pretenduar si të matur. "Qelizat e kuqe" brenda shpjegimit të
+    # hemoglobinës është variant i eritrociteve. R7 i pranon termat e
+    # shpjegimeve për të njëjtën arsye.
+    for entry in context.glossary:
+        known |= set(analytes_in(f"{entry.term}. {entry.explanation_sq}", context))
     for sentence in sentences(text):
         for code in analytes_in(sentence.text, context):
             if code not in known:

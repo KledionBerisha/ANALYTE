@@ -95,6 +95,15 @@ nxjerrësi lexon koordinata. Vlefshmëria e jashtme varet nga eksperimenti
 E13 mbi dokumente reale, dhe nëse ai nuk realizohet, kufizimi mbetet i
 shprehur në përfundime.
 
+Korpusi nuk u vështirësua për ta mbyllur këtë boshllëk. Emra të
+mbështjellë në dy rreshta, shenja fusnotash dhe kolona komentesh mund t'i
+shtoheshin gjeneruesit, por atëherë i njëjti autor do ta projektonte
+vështirësinë dhe zgjidhjen e saj, dhe një rezultat i lartë mbi të nuk do
+të provonte asgjë përtej asaj që autori priste. Kanali i skanuar është
+përjashtimi: zhurma e skanimit prodhohet nga një proces i rastësishëm dhe
+jo nga një listë rreziqesh, prandaj E2 është matja e vetme brenda
+korpusit që e sfidon nxjerrësin.
+
 Shkalla e jonormalitetit është rreth 20% për analit, më e lartë se te një
 depistim rutinë. Pasurimi është i qëllimshëm — një korpus ku pothuajse çdo
 vlerë është normale nuk ka mbi çfarë të matë as klasifikimin, as

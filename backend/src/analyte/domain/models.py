@@ -229,6 +229,21 @@ class GlossaryEntry(DomainModel):
     synonyms: tuple[str, ...] = ()
 
 
+class PatternObservation(DomainModel):
+    """Një kombinim rezultatesh që kërkon vlerësim nga profesionisti.
+
+    Nuk mban emër gjendjeje dhe nuk mban shpjegim. Një kombinim i
+    hemoglobinës së ulët me ferritinë të ulët ka emër në literaturë, por
+    emri është diagnozë (SP1); vëzhgimi thotë vetëm se këto vlera, bashkë,
+    meritojnë vëmendjen e mjekut. Kush është kombinimi dhe pse u zgjodh
+    regjistrohet te `pattern_id` dhe `source_ref`, për auditim.
+    """
+
+    pattern_id: str
+    finding_ids: tuple[UUID, ...] = Field(min_length=2)
+    source_ref: str
+
+
 class GroundingContext(DomainModel):
     """I VETMI input që i jepet modelit gjuhësor.
 
@@ -255,6 +270,10 @@ class GroundingContext(DomainModel):
             "SP6: modeli udhëzohet të mos i shpjegojë."
         ),
     )
+    patterns: tuple[PatternObservation, ...] = Field(
+        default=(),
+        description="Kombinimet e rregullave deterministe ndërmjet analiteve.",
+    )
 
     @model_validator(mode="after")
     def check_internal_consistency(self) -> GroundingContext:
@@ -271,6 +290,11 @@ class GroundingContext(DomainModel):
                 raise ValueError(f"cross_ref i referohet gjetjes së panjohur {ref.finding_id}")
             if ref.assertion_id is not None and ref.assertion_id not in assertion_ids:
                 raise ValueError(f"cross_ref i referohet pohimit të panjohur {ref.assertion_id}")
+
+        for pattern in self.patterns:
+            unknown = set(pattern.finding_ids) - finding_ids
+            if unknown:
+                raise ValueError(f"modeli {pattern.pattern_id} i referohet gjetjeve të panjohura")
 
         explained = {e.term.casefold() for e in self.glossary}
         overlap = explained & {t.casefold() for t in self.unexplained_terms}

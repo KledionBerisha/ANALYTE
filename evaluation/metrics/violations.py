@@ -14,6 +14,11 @@ E8 dhe E9 e ulin të dytin pa e prekur të parin, sepse verifikimi nuk e bën
 modelin më të mirë — ai vendos çfarë del jashtë. Nëse këto dy numra
 raportohen si një i vetëm, ablacioni humbet kuptimin.
 
+Kur kushti rigjeneron, çdo draft i modelit numërohet ndër të prodhuarat,
+dhe fjalitë e të gjithë drafteve formojnë emëruesin e të dyja shkallëve.
+Emëruesi i përbashkët i bën të krahasueshme drejtpërdrejt: dallimi mes tyre
+është pikërisht ajo që verifikimi ndali.
+
 Përpjesa e daljeve që përfunduan në shabllonin determinist raportohet
 gjithashtu: ajo është çmimi i verifikimit. Një sistem që refuzon gjithçka
 ka zero shkelje te përdoruesi dhe nuk shërben për asgjë; pa këtë numër
@@ -45,25 +50,28 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
     for _, output in pairs:
         if output.state is ProcessingState.TEMPLATE_FALLBACK:
             fallbacks += 1
-        if not output.explanation:
+        drafts = output.drafts()
+        if not drafts:
             continue
 
         documents_with_output += 1
-        sentences += count_sentences(output.explanation)
-
-        violations = output.verification.violations if output.verification else ()
-        if violations:
+        had_violation = False
+        for text, verification in drafts:
+            sentences += count_sentences(text)
+            for violation in verification.violations if verification else ():
+                had_violation = True
+                produced[violation.type.value] += 1
+                by_detector[violation.detected_by.value] += 1
+        if had_violation:
             documents_with_violation += 1
-        else:
-            clean_deliveries += 1
 
-        for violation in violations:
-            produced[violation.type.value] += 1
-            by_detector[violation.detected_by.value] += 1
-            # Verifikimi e ndal daljen; pra shkelja mbërrin te përdoruesi
-            # vetëm nëse teksti u dorëzua megjithatë.
-            if output.delivered:
-                reaching_user[violation.type.value] += 1
+        # Verifikimi e ndal daljen; shkelja mbërrin te përdoruesi vetëm nëse
+        # është në tekstin që iu dorëzua — drafti i pranuar ose shablloni.
+        reaching = output.violations_reaching_user()
+        for violation in reaching:
+            reaching_user[violation.type.value] += 1
+        if not reaching:
+            clean_deliveries += 1
 
     total_produced = sum(produced.values())
     total_reaching = sum(reaching_user.values())

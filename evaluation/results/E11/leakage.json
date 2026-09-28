@@ -1,0 +1,124 @@
+{
+  "shared_documents": 0,
+  "val_skeleton_seen_in_train": {
+    "clean": {
+      "seen": 2809,
+      "total": 2811,
+      "share": 0.999
+    },
+    "direction_mismatch": {
+      "seen": 216,
+      "total": 216,
+      "share": 1.0
+    },
+    "fabricated_finding": {
+      "seen": 225,
+      "total": 225,
+      "share": 1.0
+    },
+    "hedge_removed": {
+      "seen": 21,
+      "total": 21,
+      "share": 1.0
+    },
+    "polarity_flip": {
+      "seen": 76,
+      "total": 76,
+      "share": 1.0
+    },
+    "ungrounded_analyte": {
+      "seen": 225,
+      "total": 225,
+      "share": 1.0
+    },
+    "ungrounded_number": {
+      "seen": 225,
+      "total": 225,
+      "share": 1.0
+    }
+  },
+  "shortcuts": {
+    "direction_mismatch": {
+      "prefix": "për hemoglobinë",
+      "share_of_label": 0.202,
+      "share_of_clean": 0.043,
+      "is_shortcut": false
+    },
+    "fabricated_finding": {
+      "prefix": "vërehet gjithashtu",
+      "share_of_label": 1.0,
+      "share_of_clean": 0.0,
+      "is_shortcut": true
+    },
+    "hedge_removed": {
+      "prefix": "mjeku ka",
+      "share_of_label": 1.0,
+      "share_of_clean": 0.0777,
+      "is_shortcut": false
+    },
+    "polarity_flip": {
+      "prefix": "mjeku ka",
+      "share_of_label": 1.0,
+      "share_of_clean": 0.0777,
+      "is_shortcut": false
+    },
+    "ungrounded_analyte": {
+      "prefix": "për kolesterol",
+      "share_of_label": 0.117,
+      "share_of_clean": 0.0664,
+      "is_shortcut": false
+    },
+    "ungrounded_number": {
+      "prefix": "për kolesterol",
+      "share_of_label": 0.068,
+      "share_of_clean": 0.0664,
+      "is_shortcut": false
+    }
+  },
+  "data_meta": {
+    "documents": 1500,
+    "seed": 42,
+    "rules_version": "r1.2",
+    "e10_documents": 200,
+    "counts": {
+      "train": {
+        "fabricated_finding": 1050,
+        "clean": 7230,
+        "polarity_flip": 365,
+        "ungrounded_number": 1050,
+        "direction_mismatch": 1021,
+        "ungrounded_analyte": 1050,
+        "hedge_removed": 130
+      },
+      "val": {
+        "clean": 2811,
+        "ungrounded_number": 225,
+        "ungrounded_analyte": 225,
+        "polarity_flip": 76,
+        "fabricated_finding": 225,
+        "direction_mismatch": 216,
+        "hedge_removed": 21
+      },
+      "val_texts": {
+        "clean": 225,
+        "ungrounded_number": 225,
+        "ungrounded_analyte": 225,
+        "direction_mismatch": 216,
+        "fabricated_finding": 225,
+        "omitted_recommendation": 225,
+        "hedge_removed": 21,
+        "polarity_flip": 76
+      },
+      "test_texts": {
+        "clean": 30,
+        "ungrounded_number": 30,
+        "ungrounded_analyte": 30,
+        "direction_mismatch": 27,
+        "fabricated_finding": 30,
+        "omitted_recommendation": 30,
+        "polarity_flip": 12,
+        "hedge_removed": 3
+      }
+    }
+  }
+}

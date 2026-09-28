@@ -10,6 +10,9 @@ dev = ["pytest>=8.0", "pytest-cov"]
 # Vizatimi i korpusit sintetik. Backend-i nuk varet prej tyre: shërbimi
 # nuk shtyp kurrë PDF, ai vetëm i lexon.
 generate = ["reportlab>=4.0", "pymupdf>=1.24", "pillow>=10.0", "numpy>=1.26"]
+# Rruga e OCR-së. Motori Tesseract vetë instalohet jashtë Python-it; rruga e
+# tij dhe e të dhënave të gjuhës lexohen nga ANALYTE_TESSERACT/ANALYTE_TESSDATA.
+ocr = ["pymupdf>=1.24", "pillow>=10.0", "numpy>=1.26"]
 
 [tool.pytest.ini_options]
 pythonpath = ["backend/src", "."]

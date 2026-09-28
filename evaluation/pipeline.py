@@ -17,11 +17,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID
 
 from analyte.domain.enums import ProcessingState
-from analyte.domain.models import GroundingContext, VerificationResult
+from analyte.domain.models import GroundingContext, VerificationResult, Violation
+
+if TYPE_CHECKING:
+    from analyte.generation.base import Generator
+    from analyte.orchestration.process import Attempt
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +51,15 @@ class PipelineOutput:
     verification: VerificationResult | None = None
     state: ProcessingState = ProcessingState.DELIVERED
     failures: tuple[str, ...] = field(default=())
+    attempts: tuple[Attempt, ...] = ()
+    """Çdo përpjekje e gjeneruesit, kur kushti rigjeneron (E8, E9).
+
+    Pa to, PK5 do të shihte vetëm tekstin e fundit të modelit dhe shkeljet
+    e përpjekjes së parë — ato që verifikimi i ndali — do të zhdukeshin nga
+    numri i shkeljeve të prodhuara."""
+    delivered_verification: VerificationResult | None = None
+    """Verifikimi i tekstit që mori përdoruesi, kur ai ndryshon nga
+    `explanation` — p.sh. shablloni pas dy dështimeve."""
 
     @property
     def delivered(self) -> bool:
@@ -57,6 +70,21 @@ class PipelineOutput:
         ajo që mat ablacioni.
         """
         return self.state is ProcessingState.DELIVERED
+
+    def drafts(self) -> tuple[tuple[str, VerificationResult | None], ...]:
+        """Tekstet që prodhoi gjeneruesi, secili me verifikimin e vet."""
+        if self.attempts:
+            return tuple((a.text, a.verification) for a in self.attempts if a.text is not None)
+        return ((self.explanation, self.verification),) if self.explanation else ()
+
+    def violations_reaching_user(self) -> tuple[Violation, ...]:
+        """Shkeljet në tekstin që mori përdoruesi."""
+        if self.attempts:
+            verification = self.delivered_verification
+            return verification.violations if verification else ()
+        if not self.delivered or self.verification is None:
+            return ()
+        return self.verification.violations
 
 
 class Pipeline(Protocol):
@@ -110,6 +138,26 @@ class OraclePipeline:
         return PipelineOutput(context=self.truth[document.document_id])
 
 
+def _read_pages(document: DocumentInput, ocr) -> tuple[tuple, str | None]:
+    """Faqet e dokumentit, ose arsyeja pse nuk u lexuan.
+
+    Pa OCR, dokumenti i skanuar kthehet si i palexuar dhe jo si bosh:
+    "nuk u lexua dot" dhe "nuk kishte asgjë brenda" janë gjendje të
+    ndryshme (Figura 6), dhe PK1 i të skanuarave duhet ta tregojë këtë.
+    """
+    from analyte.ingestion.router import route
+
+    routing = route(document.pdf_path)
+    if routing.has_text:
+        return routing.pages, None
+    if ocr is None:
+        return (), routing.reason
+    try:
+        return ocr(document.pdf_path), None
+    except Exception as error:
+        return (), f"OCR dështoi: {type(error).__name__}: {error}"
+
+
 @dataclass(frozen=True, slots=True)
 class BranchAPipeline:
     """Dega A e vërtetë: lexim i PDF-së, nxjerrje, klasifikim.
@@ -118,29 +166,26 @@ class BranchAPipeline:
     Prandaj E4 dhe E6-E9 mbeten të pamatura edhe me këtë pipeline, dhe
     kjo duhet të duket si `n/a` e jo si zero.
 
-    Dokumentet pa shtresë teksti nuk përpunohen: rruga e OCR-së ende nuk
-    ekziston. Ato kthehen si FAILED_INGESTION dhe jo si dokumente bosh,
-    sepse "nuk u lexua dot" dhe "nuk kishte asgjë brenda" janë gjendje të
-    ndryshme (Figura 6) dhe PK1 i të skanuarave duhet ta tregojë këtë
-    ndryshim.
+    Dokumentet pa shtresë teksti lexohen me `ocr` kur jepet; përndryshe
+    kthehen si FAILED_INGESTION.
     """
 
     name: str = "branch_a"
     version: str = "1"
+    ocr: Any = None
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         from analyte.grounding.branch_a.extract import extract
-        from analyte.ingestion.router import route
 
-        routing = route(document.pdf_path)
-        if not routing.has_text:
+        pages, failure = _read_pages(document, self.ocr)
+        if failure is not None:
             return PipelineOutput(
                 context=GroundingContext(document_id=document.document_id),
                 state=ProcessingState.FAILED_INGESTION,
-                failures=(routing.reason,),
+                failures=(failure,),
             )
 
-        result = extract(routing.pages)
+        result = extract(pages)
         context = GroundingContext(
             document_id=document.document_id, findings=result.findings
         )
@@ -166,20 +211,20 @@ class GroundingPipeline:
 
     name: str = "grounding"
     version: str = "1"
+    ocr: Any = None
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         from analyte.grounding.context import build
-        from analyte.ingestion.router import route
 
-        routing = route(document.pdf_path)
-        if not routing.has_text:
+        pages, failure = _read_pages(document, self.ocr)
+        if failure is not None:
             return PipelineOutput(
                 context=GroundingContext(document_id=document.document_id),
                 state=ProcessingState.FAILED_INGESTION,
-                failures=(routing.reason,),
+                failures=(failure,),
             )
 
-        grounding = build(document.document_id, routing.pages)
+        grounding = build(document.document_id, pages)
         return PipelineOutput(
             context=grounding.context,
             state=(
@@ -190,4 +235,90 @@ class GroundingPipeline:
             failures=tuple(
                 f"{name}: {motive}" for name, motive in grounding.extraction.rejected
             ),
+        )
+
+
+ABLATIONS = ("E6", "E7", "E8", "E9")
+"""Kushtet e ablacionit. Secili është pipeline më vete, dhe harness-i nuk
+lejon që rezultati i njërit të regjistrohet nën ID-në e një tjetri."""
+
+
+@dataclass(frozen=True, slots=True)
+class GenerationPipeline:
+    """Bazimi i plotë, pastaj gjenerimi — kushtet E7 dhe E8.
+
+    **E7 (vetëm bazim).** Një përpjekje; teksti verifikohet që shkeljet të
+    numërohen, por dorëzohet pavarësisht tyre.
+
+    **E8 (+ verifikim me rregulla).** Cikli i plotë i `explain`: rigjenerim
+    me shkeljet në kërkesë dhe shabllon pas dy dështimeve. Teksti në
+    `explanation` është drafti i fundit i modelit — ai që mat PK3 — dhe jo
+    domosdoshmërisht ai që mori përdoruesi.
+
+    **E6 dhe E9 nuk zbatohen këtu.** E6 kërkon një gjenerues që sheh
+    dokumentin e papërpunuar, gjë që protokolli `Generator` e ndalon me
+    qëllim; E9 kërkon klasifikuesin e Fazës 7.
+
+    Dokumentet që nuk bazohen — të skanuarat pa OCR, ato pa gjetje — nuk
+    arrijnë te gjenerimi dhe dalin me gjendjen e bazimit.
+    """
+
+    generator: Generator
+    ablation: str = "E8"
+    version: str = "1"
+    ocr: Any = None
+
+    def __post_init__(self) -> None:
+        if self.ablation not in {"E7", "E8"}:
+            raise ValueError(f"kushti {self.ablation} nuk zbatohet nga ky pipeline")
+
+    @property
+    def name(self) -> str:
+        suffix = "+ocr" if self.ocr is not None else ""
+        return f"{self.ablation.lower()}[{self.generator.name}]{suffix}"
+
+    def run(self, document: DocumentInput) -> PipelineOutput:
+        from analyte.orchestration.process import Attempt, Delivery, explain
+        from analyte.verification.pipeline import verify
+
+        grounded = GroundingPipeline(ocr=self.ocr).run(document)
+        if grounded.state is not ProcessingState.GROUNDED:
+            return grounded
+        context = grounded.context
+
+        if self.ablation == "E7":
+            try:
+                text = self.generator(context, ())
+            except Exception as error:
+                return PipelineOutput(
+                    context=context,
+                    state=ProcessingState.GROUNDED,
+                    failures=(f"{type(error).__name__}: {error}",),
+                )
+            verification = verify(context, text)
+            return PipelineOutput(
+                context=context,
+                explanation=text,
+                verification=verification,
+                attempts=(Attempt(1, self.generator.name, text, verification),),
+                delivered_verification=verification,
+                failures=grounded.failures,
+            )
+
+        explanation = explain(context, self.generator)
+        drafts = [a for a in explanation.attempts if a.text is not None]
+        last = drafts[-1] if drafts else None
+        return PipelineOutput(
+            context=context,
+            explanation=last.text if last else "",
+            verification=last.verification if last else None,
+            state=(
+                ProcessingState.DELIVERED
+                if explanation.delivery is Delivery.GENERATED
+                else ProcessingState.TEMPLATE_FALLBACK
+            ),
+            attempts=explanation.attempts,
+            delivered_verification=explanation.verification,
+            failures=grounded.failures
+            + tuple(f"përpjekja {a.number}: {a.error}" for a in explanation.attempts if a.error),
         )

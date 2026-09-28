@@ -42,6 +42,22 @@ POSITION: dict[AnalyteStatus, str] = {
 }
 
 
+class TemplateGenerator:
+    """Shablloni i veshur si gjenerues.
+
+    E lejon ciklin dhe harness-in të ekzekutohen nga skaji në skaj pa model
+    gjuhësor. Mbi të, çdo metrikë e gjenerimit duhet të dalë e përsosur —
+    ashtu si orakulli te nxjerrja — dhe një metrikë që nuk del e tillë ka
+    gabim në vetvete. Shkeljet e përpjekjes së mëparshme injorohen: shablloni
+    nuk ka çfarë të korrigjojë.
+    """
+
+    name = "template"
+
+    def __call__(self, context: GroundingContext, feedback: tuple = ()) -> str:
+        return build(context)
+
+
 def build(context: GroundingContext) -> str:
     """Ndërton shpjegimin me shabllon për një kontekst të dhënë.
 
@@ -57,6 +73,7 @@ def build(context: GroundingContext) -> str:
     for finding in context.findings:
         parts.append(_finding_sentence(finding))
 
+    parts.extend(_pattern_sentences(context))
     parts.extend(_term_sentences(context))
     parts.extend(_quoted_assertions(context))
     parts.append(DISCLAIMER_SQ)
@@ -93,6 +110,25 @@ def _interval(finding: AnalyteFinding) -> str:
     if low is not None:
         return f" (nga {_number(low)})"
     return ""
+
+
+def _pattern_sentences(context: GroundingContext) -> list[str]:
+    """Kombinimet, pa emër dhe pa shpjegim.
+
+    Fjalia nuk përsërit drejtimin e secilës vlerë — ai është thënë te
+    fjalia e vetë gjetjes. Një fjali me dy drejtime të kundërta ("TSH e
+    lartë dhe FT4 e ulët") do ta detyronte R3 të zgjidhte njërin.
+    """
+    names = {finding.id: finding.analyte_name_canonical for finding in context.findings}
+    out = []
+    for pattern in context.patterns:
+        listed = [names[finding_id] for finding_id in pattern.finding_ids]
+        joined = ", ".join(listed[:-1]) + " dhe " + listed[-1]
+        out.append(
+            f"Rezultatet për {joined} janë njëkohësisht jashtë intervalit referent. "
+            "Ky kombinim rezultatesh duhet vlerësuar nga profesionisti shëndetësor."
+        )
+    return out
 
 
 def _term_sentences(context: GroundingContext) -> list[str]:

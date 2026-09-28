@@ -1,0 +1,266 @@
+# E3 — Klasifikimi i statusit
+
+**Kushti:** —  
+**Përgjigjet:** PK2  
+**Rezultati kryesor:** 0.867 saktësi
+
+| Prejardhja | Vlera |
+|---|---|
+| Korpusi | `gen-1.0/s42/n500/37d8b080` |
+| Dokumente | 500 (all) |
+| Fara | 42 |
+| Pipeline | `grounding+ocr` v1 |
+| Git | `d8839e240cfe` (e papastër) |
+| Rregullat | `r1.2` |
+| Kur | 2026-09-27T22:11:43+00:00 |
+
+```json
+{
+  "overall": {
+    "total": 8981,
+    "accuracy": 0.8668,
+    "matrix": {
+      "critical_high->critical_high": 22,
+      "critical_high->uninterpretable": 2,
+      "critical_low->critical_high": 1,
+      "critical_low->critical_low": 7,
+      "critical_low->uninterpretable": 1,
+      "high->critical_high": 1,
+      "high->high": 871,
+      "high->low": 6,
+      "high->uninterpretable": 99,
+      "low->low": 665,
+      "low->uninterpretable": 84,
+      "normal->critical_high": 9,
+      "normal->high": 9,
+      "normal->low": 36,
+      "normal->normal": 6050,
+      "normal->uninterpretable": 948,
+      "uninterpretable->uninterpretable": 170
+    },
+    "per_class": {
+      "critical_high": {
+        "tp": 22,
+        "fp": 11,
+        "fn": 2,
+        "precision": 0.6667,
+        "recall": 0.9167,
+        "f1": 0.7719,
+        "support": 24
+      },
+      "critical_low": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 2,
+        "precision": 1.0,
+        "recall": 0.7778,
+        "f1": 0.875,
+        "support": 9
+      },
+      "high": {
+        "tp": 871,
+        "fp": 9,
+        "fn": 106,
+        "precision": 0.9898,
+        "recall": 0.8915,
+        "f1": 0.9381,
+        "support": 977
+      },
+      "low": {
+        "tp": 665,
+        "fp": 42,
+        "fn": 84,
+        "precision": 0.9406,
+        "recall": 0.8879,
+        "f1": 0.9135,
+        "support": 749
+      },
+      "normal": {
+        "tp": 6050,
+        "fp": 0,
+        "fn": 1002,
+        "precision": 1.0,
+        "recall": 0.8579,
+        "f1": 0.9235,
+        "support": 7052
+      },
+      "uninterpretable": {
+        "tp": 170,
+        "fp": 1134,
+        "fn": 0,
+        "precision": 0.1304,
+        "recall": 1.0,
+        "f1": 0.2307,
+        "support": 170
+      }
+    }
+  },
+  "by_reference_source": {
+    "document": {
+      "total": 6928,
+      "accuracy": 0.859,
+      "matrix": {
+        "critical_high->critical_high": 20,
+        "critical_high->uninterpretable": 2,
+        "critical_low->critical_high": 1,
+        "critical_low->critical_low": 7,
+        "critical_low->uninterpretable": 1,
+        "high->critical_high": 1,
+        "high->high": 661,
+        "high->low": 6,
+        "high->uninterpretable": 76,
+        "low->low": 523,
+        "low->uninterpretable": 69,
+        "normal->critical_high": 6,
+        "normal->high": 6,
+        "normal->low": 36,
+        "normal->normal": 4740,
+        "normal->uninterpretable": 773
+      },
+      "per_class": {
+        "critical_high": {
+          "tp": 20,
+          "fp": 8,
+          "fn": 2,
+          "precision": 0.7143,
+          "recall": 0.9091,
+          "f1": 0.8,
+          "support": 22
+        },
+        "critical_low": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 2,
+          "precision": 1.0,
+          "recall": 0.7778,
+          "f1": 0.875,
+          "support": 9
+        },
+        "high": {
+          "tp": 661,
+          "fp": 6,
+          "fn": 83,
+          "precision": 0.991,
+          "recall": 0.8884,
+          "f1": 0.9369,
+          "support": 744
+        },
+        "low": {
+          "tp": 523,
+          "fp": 42,
+          "fn": 69,
+          "precision": 0.9257,
+          "recall": 0.8834,
+          "f1": 0.9041,
+          "support": 592
+        },
+        "normal": {
+          "tp": 4740,
+          "fp": 0,
+          "fn": 821,
+          "precision": 1.0,
+          "recall": 0.8524,
+          "f1": 0.9203,
+          "support": 5561
+        },
+        "uninterpretable": {
+          "tp": 0,
+          "fp": 921,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": null,
+          "support": 0
+        }
+      }
+    },
+    "internal_table": {
+      "total": 1883,
+      "accuracy": 0.8837,
+      "matrix": {
+        "critical_high->critical_high": 2,
+        "high->high": 210,
+        "high->uninterpretable": 23,
+        "low->low": 142,
+        "low->uninterpretable": 15,
+        "normal->critical_high": 3,
+        "normal->high": 3,
+        "normal->normal": 1310,
+        "normal->uninterpretable": 175
+      },
+      "per_class": {
+        "critical_high": {
+          "tp": 2,
+          "fp": 3,
+          "fn": 0,
+          "precision": 0.4,
+          "recall": 1.0,
+          "f1": 0.5714,
+          "support": 2
+        },
+        "high": {
+          "tp": 210,
+          "fp": 3,
+          "fn": 23,
+          "precision": 0.9859,
+          "recall": 0.9013,
+          "f1": 0.9417,
+          "support": 233
+        },
+        "low": {
+          "tp": 142,
+          "fp": 0,
+          "fn": 15,
+          "precision": 1.0,
+          "recall": 0.9045,
+          "f1": 0.9498,
+          "support": 157
+        },
+        "normal": {
+          "tp": 1310,
+          "fp": 0,
+          "fn": 181,
+          "precision": 1.0,
+          "recall": 0.8786,
+          "f1": 0.9354,
+          "support": 1491
+        },
+        "uninterpretable": {
+          "tp": 0,
+          "fp": 213,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": null,
+          "support": 0
+        }
+      }
+    },
+    "none": {
+      "total": 170,
+      "accuracy": 1.0,
+      "matrix": {
+        "uninterpretable->uninterpretable": 170
+      },
+      "per_class": {
+        "uninterpretable": {
+          "tp": 170,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 170
+        }
+      }
+    }
+  },
+  "reference_source_share": {
+    "document": 0.7671,
+    "internal_table": 0.2142,
+    "none": 0.0187
+  },
+  "unmatched_findings": 879,
+  "uninterpretable_recall": 1.0
+}
+```

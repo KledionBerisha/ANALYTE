@@ -54,6 +54,14 @@ def _sentence_for(
     """
     quoted = [s.text for s in sentences(text) if is_attributed(s.text)]
 
+    # Citimi fjalë për fjalë ka përparësi. Pa këtë, "Funksioni hepatik është
+    # vlerësuar" dhe "Vlerat sugjerojnë steatozë hepatike" ndajnë një term,
+    # dhe pohimi i dytë gjykohej mbi fjalinë e parë — ku rezerva mungon.
+    span = fold(assertion.text_span)
+    for sentence in quoted:
+        if span in fold(sentence):
+            return sentence
+
     if assertion.analyte_code is not None:
         for sentence in quoted:
             if assertion.analyte_code in analytes_in(sentence, context):

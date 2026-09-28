@@ -1,0 +1,12 @@
+pattern_id,conditions,source_ref
+P01,718-7:decreased|2276-4:decreased,[REFERENCË — plotësohet]
+P02,718-7:decreased|787-2:decreased,[REFERENCË — plotësohet]
+P03,718-7:decreased|2132-9:decreased,[REFERENCË — plotësohet]
+P04,2345-7:increased|4548-4:increased,[REFERENCË — plotësohet]
+P05,2160-0:increased|3094-0:increased,[REFERENCË — plotësohet]
+P06,1742-6:increased|1920-8:increased,[REFERENCË — plotësohet]
+P07,6768-6:increased|2324-2:increased,[REFERENCË — plotësohet]
+P08,3016-3:increased|3024-7:decreased,[REFERENCË — plotësohet]
+P09,3016-3:decreased|3024-7:increased,[REFERENCË — plotësohet]
+P10,6690-2:increased|1988-5:increased,[REFERENCË — plotësohet]
+P11,13457-7:increased|2085-9:decreased,[REFERENCË — plotësohet]

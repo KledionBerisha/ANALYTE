@@ -1,5 +1,5 @@
 """
-Tabelat burimore: analitet, njësitë dhe terminologjia.
+Tabelat burimore: analitet, njësitë, terminologjia dhe rregullat e kombinimit.
 
 Skedarët në `resources/` janë burimi i vetëm i së vërtetës. Dega A i
 lexon për të ditur si ta interpretojë atë që gjen në dokument; gjeneruesi
@@ -152,6 +152,21 @@ class Term:
         return (self.term, *self.synonyms)
 
 
+@dataclass(frozen=True, slots=True)
+class Pattern:
+    """Një rregull kombinimi: çdo kusht duhet të plotësohet njëkohësisht.
+
+    Kushti është një analit dhe drejtimi i statusit të tij. Drejtimi, jo
+    statusi: një vlerë kritike e lartë është e lartë, dhe rregulli që nuk
+    ndizet pikërisht te vlerat më të rënda do të ishte i pakuptimtë.
+    """
+
+    pattern_id: str
+    conditions: tuple[tuple[str, str], ...]
+    """Çifte (kodi LOINC, drejtimi) — drejtimi si vlerë e `Direction`."""
+    source_ref: str
+
+
 def _decimal(raw: str) -> Decimal | None:
     raw = raw.strip()
     return Decimal(raw) if raw else None
@@ -258,6 +273,17 @@ def load_terminology() -> tuple[Term, ...]:
                 synonyms=_variants(row["synonyms"]),
             )
         )
+    return tuple(out)
+
+
+@lru_cache(maxsize=1)
+def load_patterns() -> tuple[Pattern, ...]:
+    out = []
+    for row in _read("patterns.csv"):
+        conditions = tuple(
+            tuple(part.split(":", 1)) for part in _variants(row["conditions"])
+        )
+        out.append(Pattern(row["pattern_id"], conditions, row["source_ref"]))
     return tuple(out)
 
 

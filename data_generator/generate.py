@@ -41,6 +41,10 @@ RESOURCE_FILES: tuple[str, ...] = (
     "analytes_extra.csv",
     "units.csv",
     "terminology.csv",
+    # Kombinimet nuk ndryshojnë asnjë dokument, vetëm të vërtetën bazë të
+    # nxjerrë prej tyre; versioni i gjeneruesit mbetet, sepse ai hyn në
+    # farën e çdo dokumenti dhe rritja e tij do ta zëvendësonte korpusin.
+    "patterns.csv",
 )
 
 

@@ -125,8 +125,66 @@ fushën e intervalit pjesërisht tautologjike te rreshtat me njësi
 alternative.
 
 Matja që do të kishte vlerë dalluese është ajo mbi kanalin e skanuar dhe
-mbi dokumente reale. E para pret zbatimin e njohjes optike; e dyta pret
-miratimin etik. Deri atëherë, PK1 raportohet me këtë kufizim të shprehur.
+mbi dokumente reale. E dyta pret miratimin etik; e para u bë me Tesseract 5
+(ADR 0012), me konfigurim të zgjedhur mbi një korpus të veçantë akordimi.
+Mbi 168 dokumentet e skanuara të korpusit të vlerësimit
+(`gen-1.0/s42/n500/37d8b080`), F1 doli 0.666:
 
-Faza e zbulimit të kombinimeve ndërmjet analiteve, e përshkruar në
-planifikim, nuk është zbatuar ende.
+| Fusha | Saktësia | Mbulimi | F1 |
+|---|---|---|---|
+| Analiti | 0.996 | 0.741 | 0.849 |
+| Vlera | 0.893 | 0.664 | 0.761 |
+| Njësia | 0.735 | 0.547 | 0.627 |
+| Intervali | 0.501 | 0.373 | 0.428 |
+
+Numri që ka rëndësi nuk është F1 por saktësia e vlerës. Nga 2 520 vlera të
+nxjerra nga dokumentet e skanuara, 271 ishin të gabuara dhe u pranuan — më
+shpesh sepse OCR-ja humbi ndarësin dhjetor dhe "15,7" u lexua "157". Një
+vlerë e humbur nuk interpretohet; një vlerë e gabuar interpretohet me
+siguri, dhe asgjë më poshtë në rrjedhë nuk e vë re. Kontrolli i
+besueshmërisë që do ta ndalte kërkon kufij fiziologjikë me burim për çdo
+analit dhe mbetet vendim i hapur. [REFERENCË — plotësohet]
+
+E3 me OCR mbi tërë korpusin: saktësia e statusit 0.867. Pjesa më e madhe e
+gabimeve janë të sigurta — 1 134 vlera u bënë "pa interval" sepse intervali
+nuk u lexua, dhe SP5 refuzoi interpretimin. Por 62 vlera morën drejtim të
+gabuar, ndër to 9 vlera normale të shënuara kritike të larta dhe 1 vlerë
+kritike e ulët e shënuar kritike e lartë. Këta janë rastet që kontrolli i
+besueshmërisë do t'i ndalte.
+
+Vendimi për të mos e vështirësuar korpusin sintetik, dhe arsyeja e tij,
+jepen te seksioni 5.8.
+
+## 5.3.8 Kombinimet ndërmjet analiteve
+
+Rregullat e kombinimit janë të shkruara me dorë në një tabelë burimore
+(Tabela 5), një rresht për rregull: një listë kushtesh — analiti dhe
+drejtimi i statusit të tij — që duhet të plotësohen njëkohësisht, dhe
+burimi i rregullit. Njëmbëdhjetë rregulla mbulojnë kombinime të njohura
+gjerësisht, si hemoglobina e ulët me ferritinë të ulët apo hormoni
+stimulues i tiroides i lartë me tiroksinë të lirë të ulët.
+[REFERENCË — plotësohet]
+
+Rregulli nuk emërton gjendjen. Emri i një kombinimi është diagnozë, dhe
+SP1 e ndalon pavarësisht nga burimi; dalja thotë vetëm se këto vlera,
+bashkë, kërkojnë vlerësim nga profesionisti shëndetësor. Tri veti e
+kufizojnë rregullin më tej. Vlera kritike numërohet sipas drejtimit të
+saj, që rregulli të mos heshtë pikërisht te vlerat më të rënda. Vlera pa
+interval referent nuk merr pjesë, sepse përndryshe rregulli do ta
+interpretonte tërthorazi atë që SP5 ndalon të interpretohet. Dhe një
+analit që shfaqet dy herë në dokument nuk zgjidhet me hamendje: rregulli
+që e kërkon nuk ndizet.
+
+Kombinimet hyjnë në `GroundingContext` si vëzhgime që tregojnë gjetjet që
+i formuan, prandaj edhe modeli gjuhësor i sheh vetëm si pjesë të
+kontekstit. Ashtu si klasifikimi, ato janë rregull i dhënë (ADR 0003): e
+vërteta bazë e korpusit i llogarit me të njëjtin funksion.
+
+Korpusi prodhon vlera të pavarura për çdo analit, prandaj kombinimet aty
+janë të rralla — rreth 15 në 400 dokumente. Rregullat testohen mbi gjetje
+të ndërtuara me dorë, jo mbi korpusin, dhe asnjë PK nuk mat saktësinë e
+tyre klinike; ajo varet nga burimi i secilit rregull dhe nga shqyrtimi i
+mentorit.
+
+*[Figura — plotësohet: shembull i një kombinimi nga gjetjet te fjalia e
+daljes]*

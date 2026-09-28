@@ -3,7 +3,7 @@ Ndërtimi i tabelave të punimit nga burimet e vërteta.
 
     python scripts/build_tables.py
 
-Tabelat T1-T4 nuk shkruhen me dorë. Ato dalin nga po ata skedarë dhe po
+Tabelat T1-T5 nuk shkruhen me dorë. Ato dalin nga po ata skedarë dhe po
 ai katalog që përdor sistemi, sepse një tabelë e shtypur me dorë në
 punim fillon të largohet nga kodi që ditën e dytë — dhe askush nuk e
 vëren derisa dikush të kontrollojë një rresht.
@@ -24,7 +24,9 @@ from analyte.catalog import (  # noqa: E402
     Sex,
     load_analytes,
     load_analytes_without_reference,
+    analytes_by_code,
     load_conversions,
+    load_patterns,
     load_terminology,
 )
 from analyte.domain.policy import RULE_CATALOG, RULES_VERSION  # noqa: E402
@@ -157,6 +159,35 @@ def table_4() -> str:
     return "\n".join(lines) + "\n"
 
 
+def table_5() -> str:
+    """T5 — rregullat e kombinimit ndërmjet analiteve."""
+    names = {code: a.name_canonical_sq for code, a in analytes_by_code().items()}
+    arrow = {"increased": "↑", "decreased": "↓"}
+    lines = [
+        "### Tabela 5. Rregullat e kombinimit ndërmjet analiteve",
+        "",
+        "Një rregull ndizet kur të gjitha kushtet plotësohen njëkohësisht.",
+        "Vlera kritike numërohet sipas drejtimit të saj; vlera pa interval",
+        "referent nuk merr pjesë (SP5). Rregulli nuk emërton gjendje: dalja thotë",
+        "vetëm se kombinimi kërkon vlerësim nga profesionisti shëndetësor.",
+        "",
+        "| ID | Kushtet | Burimi |",
+        "|---|---|---|",
+    ]
+    for pattern in load_patterns():
+        conditions = " + ".join(
+            f"{names[code]} {arrow[direction]}" for code, direction in pattern.conditions
+        )
+        lines.append(f"| {pattern.pattern_id} | {conditions} | {pattern.source_ref} |")
+    lines += [
+        "",
+        "> Kombinimet u zgjodhën si të njohura gjerësisht dhe duhen konfirmuar nga",
+        "> mentori ose nga një mjek, bashkë me burimin e secilit, përpara",
+        "> dorëzimit.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     for name, builder in (
@@ -164,6 +195,7 @@ def main() -> int:
         ("T2_njesite.md", table_2),
         ("T3_terminologjia.md", table_3),
         ("T4_rregullat.md", table_4),
+        ("T5_kombinimet.md", table_5),
     ):
         path = OUT / name
         path.write_text(HEADER + builder(), encoding="utf-8")

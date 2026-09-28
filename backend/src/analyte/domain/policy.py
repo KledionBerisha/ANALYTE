@@ -27,13 +27,20 @@ from .enums import ViolationType
 # Versionimi
 # --------------------------------------------------------------------
 
-RULES_VERSION = "r1.1"
+RULES_VERSION = "r1.2"
 """Versioni i katalogut R1-R9. Ruhet në çdo VerificationResult.
 
 r1.1 — R1 i mat numrat e fjalive të atribuuara kundrejt pohimeve të
 mjekut; R7 nuk e numëron si gjetje fjalorin e teksteve të politikës dhe
 termat e pashpjeguar të raportit. Të dyja u zbuluan kur shablloni dështoi
-mbi kontekstin referues të shkruar me dorë."""
+mbi kontekstin referues të shkruar me dorë.
+
+r1.2 — R2 i pranon analitet e përmendura brenda shpjegimeve të fjalorit
+("qelizat e kuqe" te shpjegimi i hemoglobinës). U zbulua kur shablloni
+dështoi mbi një dokument me kombinime, jashtë 12 dokumenteve të testit.
+R5 dhe R6 e lidhin pohimin së pari me citimin fjalë për fjalë, pastaj me
+termin e përbashkët; më parë një term i përbashkët me një citim tjetër
+mjaftonte, dhe rezerva gjykohej mbi fjalinë e gabuar."""
 
 POLICY_VERSION = "sp1.0"
 """Versioni i politikës SP1-SP8."""

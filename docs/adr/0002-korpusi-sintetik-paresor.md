@@ -43,6 +43,16 @@ mungojnë emrat e mbështjellë në dy rreshta, shenjat e fusnotave, qelizat
 e bashkuara dhe kolonat e komenteve. Prandaj PK1 mbi dokumente dixhitale
 sintetike mat lidhjen e saktë të tubacionit, jo vështirësinë e nxjerrjes.
 
+**Korpusi nuk vështirësohet për ta bërë PK1 dallues** (vendim i
+2026-09-27). Alternativa ishte t'i shtoheshin gjeneruesit emra të
+mbështjellë, shenja fusnotash dhe kolona komentesh. U refuzua sepse i
+njëjti autor do ta projektonte vështirësinë dhe zgjidhjen e saj: çdo
+rrezik i shtuar do të ishte rrezik që nxjerrësi tashmë e njeh, dhe një
+rezultat i lartë mbi të do të dukej si provë pa qenë e tillë. Kufizimi
+shprehet si i tillë, dhe vlefshmëria e jashtme e nxjerrjes mbetet tërësisht
+te E13. Kanali i skanuar (E2) mbetet i vetmi që sfidon nxjerrësin brenda
+korpusit, sepse zhurma e skanimit nuk projektohet rresht për rresht.
+
 Shkalla e jonormalitetit është rreth 20% për analit — më e lartë se një
 depistim rutinë. Pasurimi është i qëllimshëm, sepse një korpus ku
 pothuajse çdo vlerë është normale nuk ka mbi çfarë të matë as

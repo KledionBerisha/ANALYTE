@@ -442,3 +442,110 @@ def test_channel_experiments_report_their_channel(data):
     assert digital.metadata["dataset"]["channel"] == "digital"
     assert scanned.metadata["dataset"]["channel"] == "scanned"
     assert digital.metadata["dataset"]["documents"] != len(data) or len(data) == 0
+
+
+# --------------------------------------------------------------------
+# Gjenerimi përmes harness-it (E7, E8)
+# --------------------------------------------------------------------
+#
+# Shablloni është për gjenerimin ajo që orakulli është për nxjerrjen: mbi
+# të, çdo metrikë e gjenerimit duhet të dalë e përsosur. Gjeneruesit e
+# skriptuar japin pastaj rastet që shablloni nuk i jep dot — defekte në
+# përpjekjen e parë, dështime të dyfishta.
+
+
+class _Scripted:
+    """Një hap për çdo thirrje, i përsëritur për çdo dokument."""
+
+    name = "scripted"
+
+    def __init__(self, *steps):
+        self.steps = steps
+        self.calls = 0
+
+    def __call__(self, context, feedback):
+        from analyte.generation.templates import build
+
+        step = self.steps[self.calls % len(self.steps)]
+        self.calls += 1
+        text = build(context)
+        return text if step == "clean" else f"{text} Vlera e matur është 987654."
+
+
+def _run(data, experiment_id, pipeline):
+    return harness.run_experiment(registry.get(experiment_id), data, pipeline)
+
+
+def test_template_generation_is_perfect_through_the_harness(data):
+    from analyte.generation.templates import TemplateGenerator
+    from evaluation.pipeline import GenerationPipeline
+
+    result = _run(data, "E8", GenerationPipeline(TemplateGenerator(), ablation="E8"))
+    metrics = result.metrics
+    assert metrics["documents_with_output"] > 0
+    assert metrics["violations_produced"] == 0
+    assert metrics["violations_reaching_user"] == 0
+    assert metrics["template_fallbacks"] == 0
+    assert metrics["clean_deliveries"] == metrics["documents_with_output"]
+
+
+def test_rejected_first_draft_counts_as_produced_but_not_delivered(data):
+    """E8 — përpjekja e parë me defekt, e dyta e pastër."""
+    from evaluation.pipeline import GenerationPipeline
+
+    pipeline = GenerationPipeline(_Scripted("defect", "clean"), ablation="E8")
+    metrics = _run(data, "E8", pipeline).metrics
+    documents = metrics["documents_with_output"]
+
+    assert metrics["violations_produced"] == documents
+    assert metrics["violations_reaching_user"] == 0
+    assert metrics["template_fallbacks"] == 0
+
+
+def test_double_failure_reaches_the_template_not_the_user(data):
+    from evaluation.pipeline import GenerationPipeline
+
+    pipeline = GenerationPipeline(_Scripted("defect"), ablation="E8")
+    metrics = _run(data, "E8", pipeline).metrics
+    documents = metrics["documents_with_output"]
+
+    assert metrics["violations_produced"] == 2 * documents
+    assert metrics["violations_reaching_user"] == 0
+    assert metrics["template_fallbacks"] == documents
+
+
+def test_without_verification_every_violation_reaches_the_user(data):
+    """E7 — pa verifikim, të prodhuarat dhe ato te përdoruesi janë një."""
+    from evaluation.pipeline import GenerationPipeline
+
+    pipeline = GenerationPipeline(_Scripted("defect"), ablation="E7")
+    metrics = _run(data, "E7", pipeline).metrics
+    assert metrics["violations_produced"] == metrics["documents_with_output"] > 0
+    assert metrics["violations_reaching_user"] == metrics["violations_produced"]
+    assert metrics["template_fallbacks"] == 0
+
+
+def test_an_ablation_is_never_filed_under_another_condition(data):
+    """Një ekzekutim i vetëm nuk mbush E6-E9 me të njëjtat numra."""
+    from analyte.generation.templates import TemplateGenerator
+    from evaluation.pipeline import GenerationPipeline
+
+    e8 = GenerationPipeline(TemplateGenerator(), ablation="E8")
+    for experiment_id in ("E6", "E7", "E9"):
+        result = _run(data, experiment_id, e8)
+        assert not result.measured, experiment_id
+        assert "E8" in result.reason
+
+    silent = _run(data, "E8", EmptyPipeline())
+    assert not silent.measured
+    assert "nuk gjeneron" in silent.reason
+
+
+def test_conditions_the_pipeline_cannot_implement_are_refused():
+    """E6 kërkon dokumentin e papërpunuar, E9 klasifikuesin."""
+    from analyte.generation.templates import TemplateGenerator
+    from evaluation.pipeline import GenerationPipeline
+
+    for condition in ("E6", "E9"):
+        with pytest.raises(ValueError, match=condition):
+            GenerationPipeline(TemplateGenerator(), ablation=condition)

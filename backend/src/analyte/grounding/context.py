@@ -20,6 +20,7 @@ from uuid import UUID
 from analyte.domain.models import GroundingContext
 from analyte.ingestion.pdf_text import PageText
 
+from .branch_a import patterns
 from .branch_a.extract import Extraction, extract
 from .branch_b import assertions as branch_b_assertions
 from .branch_b import terminology
@@ -57,5 +58,6 @@ def build(document_id: UUID, pages: tuple[PageText, ...]) -> Grounding:
         cross_refs=build_cross_references(findings.findings, assertions),
         glossary=terminology.glossary_for(narrative),
         unexplained_terms=branch_b_assertions.unexplained_terms(narrative),
+        patterns=patterns.detect(findings.findings),
     )
     return Grounding(context=context, narrative_text=narrative, extraction=findings)
