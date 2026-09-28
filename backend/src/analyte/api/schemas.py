@@ -95,14 +95,24 @@ class VerificationSummary(BaseModel):
     is_fallback: bool
 
 
+class Notice(BaseModel):
+    """Një kufizim i shprehur nga sistemi. `code` e lejon ndërfaqen ta vendosë
+    aty ku duhet — njoftimi i OCR-së në krye, jo i humbur në fund."""
+
+    code: str
+    text: str
+
+
 class ExplanationOut(BaseModel):
     document_id: UUID
     text: str
     generator: str
     critical: bool
-    """SP4 — ndërfaqja e shfaq njoftimin para tekstit, jo brenda tij."""
+    banner: str | None
+    """SP4 — teksti i njoftimit kur ka vlera kritike. Ndërfaqja e shfaq para
+    shpjegimit, si element më vete, dhe jo të humbur brenda tekstit."""
     disclaimer: str
-    notices: list[str]
+    notices: list[Notice]
     verification: VerificationSummary
 
 

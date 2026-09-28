@@ -2,7 +2,7 @@
 
 **Kushti:** —  
 **Përgjigjet:** PK2  
-**Rezultati kryesor:** 0.867 saktësi
+**Rezultati kryesor:** 0.881 saktësi
 
 | Prejardhja | Vlera |
 |---|---|
@@ -10,15 +10,15 @@
 | Dokumente | 500 (all) |
 | Fara | 42 |
 | Pipeline | `grounding+ocr` v1 |
-| Git | `d8839e240cfe` (e papastër) |
-| Rregullat | `r1.2` |
-| Kur | 2026-09-27T22:11:43+00:00 |
+| Git | `ba2c96b64c15` (e papastër) |
+| Rregullat | `r1.3` |
+| Kur | 2026-09-28T20:49:44+00:00 |
 
 ```json
 {
   "overall": {
-    "total": 8981,
-    "accuracy": 0.8668,
+    "total": 8832,
+    "accuracy": 0.8813,
     "matrix": {
       "critical_high->critical_high": 22,
       "critical_high->uninterpretable": 2,
@@ -28,15 +28,15 @@
       "high->critical_high": 1,
       "high->high": 871,
       "high->low": 6,
-      "high->uninterpretable": 99,
+      "high->uninterpretable": 82,
       "low->low": 665,
-      "low->uninterpretable": 84,
+      "low->uninterpretable": 75,
       "normal->critical_high": 9,
       "normal->high": 9,
       "normal->low": 36,
       "normal->normal": 6050,
-      "normal->uninterpretable": 948,
-      "uninterpretable->uninterpretable": 170
+      "normal->uninterpretable": 826,
+      "uninterpretable->uninterpretable": 169
     },
     "per_class": {
       "critical_high": {
@@ -60,45 +60,45 @@
       "high": {
         "tp": 871,
         "fp": 9,
-        "fn": 106,
+        "fn": 89,
         "precision": 0.9898,
-        "recall": 0.8915,
-        "f1": 0.9381,
-        "support": 977
+        "recall": 0.9073,
+        "f1": 0.9467,
+        "support": 960
       },
       "low": {
         "tp": 665,
         "fp": 42,
-        "fn": 84,
+        "fn": 75,
         "precision": 0.9406,
-        "recall": 0.8879,
-        "f1": 0.9135,
-        "support": 749
+        "recall": 0.8986,
+        "f1": 0.9191,
+        "support": 740
       },
       "normal": {
         "tp": 6050,
         "fp": 0,
-        "fn": 1002,
+        "fn": 880,
         "precision": 1.0,
-        "recall": 0.8579,
-        "f1": 0.9235,
-        "support": 7052
+        "recall": 0.873,
+        "f1": 0.9322,
+        "support": 6930
       },
       "uninterpretable": {
-        "tp": 170,
-        "fp": 1134,
+        "tp": 169,
+        "fp": 986,
         "fn": 0,
-        "precision": 0.1304,
+        "precision": 0.1463,
         "recall": 1.0,
-        "f1": 0.2307,
-        "support": 170
+        "f1": 0.2553,
+        "support": 169
       }
     }
   },
   "by_reference_source": {
     "document": {
-      "total": 6928,
-      "accuracy": 0.859,
+      "total": 6782,
+      "accuracy": 0.8775,
       "matrix": {
         "critical_high->critical_high": 20,
         "critical_high->uninterpretable": 2,
@@ -108,14 +108,14 @@
         "high->critical_high": 1,
         "high->high": 661,
         "high->low": 6,
-        "high->uninterpretable": 76,
+        "high->uninterpretable": 60,
         "low->low": 523,
-        "low->uninterpretable": 69,
+        "low->uninterpretable": 60,
         "normal->critical_high": 6,
         "normal->high": 6,
         "normal->low": 36,
         "normal->normal": 4740,
-        "normal->uninterpretable": 773
+        "normal->uninterpretable": 652
       },
       "per_class": {
         "critical_high": {
@@ -139,33 +139,33 @@
         "high": {
           "tp": 661,
           "fp": 6,
-          "fn": 83,
+          "fn": 67,
           "precision": 0.991,
-          "recall": 0.8884,
-          "f1": 0.9369,
-          "support": 744
+          "recall": 0.908,
+          "f1": 0.9477,
+          "support": 728
         },
         "low": {
           "tp": 523,
           "fp": 42,
-          "fn": 69,
+          "fn": 60,
           "precision": 0.9257,
-          "recall": 0.8834,
-          "f1": 0.9041,
-          "support": 592
+          "recall": 0.8971,
+          "f1": 0.9111,
+          "support": 583
         },
         "normal": {
           "tp": 4740,
           "fp": 0,
-          "fn": 821,
+          "fn": 700,
           "precision": 1.0,
-          "recall": 0.8524,
-          "f1": 0.9203,
-          "support": 5561
+          "recall": 0.8713,
+          "f1": 0.9312,
+          "support": 5440
         },
         "uninterpretable": {
           "tp": 0,
-          "fp": 921,
+          "fp": 775,
           "fn": 0,
           "precision": 0.0,
           "recall": null,
@@ -175,18 +175,18 @@
       }
     },
     "internal_table": {
-      "total": 1883,
-      "accuracy": 0.8837,
+      "total": 1881,
+      "accuracy": 0.8846,
       "matrix": {
         "critical_high->critical_high": 2,
         "high->high": 210,
-        "high->uninterpretable": 23,
+        "high->uninterpretable": 22,
         "low->low": 142,
         "low->uninterpretable": 15,
         "normal->critical_high": 3,
         "normal->high": 3,
         "normal->normal": 1310,
-        "normal->uninterpretable": 175
+        "normal->uninterpretable": 174
       },
       "per_class": {
         "critical_high": {
@@ -201,11 +201,11 @@
         "high": {
           "tp": 210,
           "fp": 3,
-          "fn": 23,
+          "fn": 22,
           "precision": 0.9859,
-          "recall": 0.9013,
-          "f1": 0.9417,
-          "support": 233
+          "recall": 0.9052,
+          "f1": 0.9438,
+          "support": 232
         },
         "low": {
           "tp": 142,
@@ -219,15 +219,15 @@
         "normal": {
           "tp": 1310,
           "fp": 0,
-          "fn": 181,
+          "fn": 180,
           "precision": 1.0,
-          "recall": 0.8786,
-          "f1": 0.9354,
-          "support": 1491
+          "recall": 0.8792,
+          "f1": 0.9357,
+          "support": 1490
         },
         "uninterpretable": {
           "tp": 0,
-          "fp": 213,
+          "fp": 211,
           "fn": 0,
           "precision": 0.0,
           "recall": null,
@@ -237,20 +237,20 @@
       }
     },
     "none": {
-      "total": 170,
+      "total": 169,
       "accuracy": 1.0,
       "matrix": {
-        "uninterpretable->uninterpretable": 170
+        "uninterpretable->uninterpretable": 169
       },
       "per_class": {
         "uninterpretable": {
-          "tp": 170,
+          "tp": 169,
           "fp": 0,
           "fn": 0,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0,
-          "support": 170
+          "support": 169
         }
       }
     }
@@ -260,7 +260,7 @@
     "internal_table": 0.2142,
     "none": 0.0187
   },
-  "unmatched_findings": 879,
+  "unmatched_findings": 1028,
   "uninterpretable_recall": 1.0
 }
 ```

@@ -28,7 +28,7 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 | Makina e gjendjeve (`orchestration/`) | e plotë, me rigjenerim dhe shabllon rezervë (ADR 0011) |
 | Gjenerimi (`generation/`) | shablloni determinist; modeli gjuhësor ende jo |
 | Shërbimi (`api/`, `persistence/`, `audit/`) | API, PostgreSQL, radha arq, auditim, skedarë të koduar (ADR 0013); biseda jo |
-| Ndërfaqja web | ende jo |
+| Ndërfaqja web (`frontend/`) | Next.js: ngarkimi, hapat e përpunimit, shpjegimi me verifikim, vlerat me burimin në dokument; biseda jo |
 
 ## Struktura
 
@@ -53,7 +53,8 @@ uvicorn analyte.main:app --reload --app-dir backend/src
 arq analyte.orchestration.worker.WorkerSettings    # në terminal tjetër
 ```
 
-Dokumentimi i API-së: `http://localhost:8000/docs`. Testi mbi PostgreSQL
+Ndërfaqja: `cd frontend && npm install && npm run dev`, pastaj
+`http://localhost:3000`. Dokumentimi i API-së: `http://localhost:8000/docs`. Testi mbi PostgreSQL
 të vërtetë: `make test-postgres`.
 
 ## Përdorimi

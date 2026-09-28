@@ -27,7 +27,7 @@ from .enums import ViolationType
 # Versionimi
 # --------------------------------------------------------------------
 
-RULES_VERSION = "r1.2"
+RULES_VERSION = "r1.3"
 """Versioni i katalogut R1-R9. Ruhet në çdo VerificationResult.
 
 r1.1 — R1 i mat numrat e fjalive të atribuuara kundrejt pohimeve të
@@ -40,7 +40,13 @@ r1.2 — R2 i pranon analitet e përmendura brenda shpjegimeve të fjalorit
 dështoi mbi një dokument me kombinime, jashtë 12 dokumenteve të testit.
 R5 dhe R6 e lidhin pohimin së pari me citimin fjalë për fjalë, pastaj me
 termin e përbashkët; më parë një term i përbashkët me një citim tjetër
-mjaftonte, dhe rezerva gjykohej mbi fjalinë e gabuar."""
+mjaftonte, dhe rezerva gjykohej mbi fjalinë e gabuar.
+
+r1.3 — maskimi i njësive dhe i emrave para kërkimit të numrave kapërcen
+vargjet pa shkronja që përmbajnë shifra ose ndarës dhjetorë. Njësitë e
+lexuara me OCR si "." e ndanin çdo numër dhjetor dhe e rrëzonin shabllonin
+vetë; ato si "52,0" do ta fshihnin një numër nga R1. U zbulua nga ndërfaqja,
+kur një dokument i skanuar përfundoi te shablloni rezervë pa arsye."""
 
 POLICY_VERSION = "sp1.0"
 """Versioni i politikës SP1-SP8."""

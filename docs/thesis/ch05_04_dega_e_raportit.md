@@ -108,7 +108,7 @@ PK4 u mat mbi korpusin sintetik me dy vlera që duhen raportuar të dyja:
 
 - **1.000** mbi dokumentet dixhitale, me mbulim të plotë për të katër
   gjendjet;
-- **0.656** mbi tërë korpusin pa OCR, dhe **0.877** me OCR
+- **0.656** mbi tërë korpusin pa OCR, dhe **0.863** me OCR
   (`gen-1.0/s42/n500/37d8b080`, 500 dokumente, 168 të skanuar).
 
 I gjithë ndryshimi është kanali i skanuar. Pa njohje optike ato dokumente

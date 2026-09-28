@@ -274,3 +274,29 @@ def test_r7_still_catches_a_condition_the_report_never_named(clean):
     bare = context.model_copy(update={"glossary": (), "assertions": (), "cross_refs": ()})
     assert ViolationType.FABRICATED_FINDING not in _types(bare, DISCLAIMER_SQ)
     assert ViolationType.FABRICATED_FINDING in _types(bare, f"Keni anemi. {DISCLAIMER_SQ}")
+
+
+# --------------------------------------------------------------------
+# Konteksti i lexuar me OCR (r1.3)
+# --------------------------------------------------------------------
+
+
+def _with_unit(context, unit):
+    first = context.findings[0].model_copy(update={"unit_raw": unit})
+    return context.model_copy(update={"findings": (first, *context.findings[1:])})
+
+
+def test_an_ocr_unit_made_of_punctuation_does_not_split_decimals():
+    """Njësia "." nuk guxon ta bëjë "13.4" dy numra të pambështetur."""
+    from tests.fixtures.grounding_context import build_reference_context
+
+    context = _with_unit(build_reference_context(), ".")
+    assert verify(context, build(context)).passed
+
+
+def test_an_ocr_unit_that_looks_like_a_number_does_not_hide_one():
+    """Njësia "52,0" nuk guxon ta fshehë numrin 52,0 nga R1."""
+    from tests.fixtures.grounding_context import build_reference_context
+
+    context = _with_unit(build_reference_context(), "52,0")
+    assert ViolationType.UNGROUNDED_NUMBER in _types(context, "Vlera juaj është 52,0.")

@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f6f7f9;
+  color: #0f172a;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Kutia e burimit mbi figurën e faqes: e dukshme pa e mbuluar vlerën. */
+.source-box {
+  box-shadow:
+    0 0 0 2px rgb(14 116 144),
+    0 0 0 6px rgb(14 116 144 / 0.18);
+  background: rgb(14 116 144 / 0.08);
+  transition: all 150ms ease-out;
+}

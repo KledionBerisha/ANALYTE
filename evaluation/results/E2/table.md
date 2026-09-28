@@ -2,7 +2,7 @@
 
 **Kushti:** i skanuar  
 **Përgjigjet:** PK1  
-**Rezultati kryesor:** 0.666 F1
+**Rezultati kryesor:** 0.670 F1
 
 | Prejardhja | Vlera |
 |---|---|
@@ -10,60 +10,60 @@
 | Dokumente | 168 (scanned) |
 | Fara | 42 |
 | Pipeline | `grounding+ocr` v1 |
-| Git | `d8839e240cfe` (e papastër) |
-| Rregullat | `r1.2` |
-| Kur | 2026-09-27T22:01:36+00:00 |
+| Git | `ba2c96b64c15` (e papastër) |
+| Rregullat | `r1.3` |
+| Kur | 2026-09-28T20:44:21+00:00 |
 
 ```json
 {
   "per_field": {
     "analyte": {
-      "tp": 2509,
-      "fp": 11,
-      "fn": 879,
-      "precision": 0.9956,
-      "recall": 0.7406,
-      "f1": 0.8494,
+      "tp": 2360,
+      "fp": 10,
+      "fn": 1028,
+      "precision": 0.9958,
+      "recall": 0.6966,
+      "f1": 0.8197,
       "support": 3388
     },
     "value": {
-      "tp": 2249,
-      "fp": 271,
-      "fn": 1139,
-      "precision": 0.8925,
-      "recall": 0.6638,
-      "f1": 0.7613,
+      "tp": 2245,
+      "fp": 125,
+      "fn": 1143,
+      "precision": 0.9473,
+      "recall": 0.6626,
+      "f1": 0.7798,
       "support": 3388
     },
     "unit": {
       "tp": 1852,
-      "fp": 668,
+      "fp": 518,
       "fn": 1536,
-      "precision": 0.7349,
+      "precision": 0.7814,
       "recall": 0.5466,
-      "f1": 0.6269,
+      "f1": 0.6433,
       "support": 3388
     },
     "interval": {
-      "tp": 1263,
-      "fp": 1257,
-      "fn": 2125,
-      "precision": 0.5012,
-      "recall": 0.3728,
-      "f1": 0.4276,
+      "tp": 1262,
+      "fp": 1108,
+      "fn": 2126,
+      "precision": 0.5325,
+      "recall": 0.3725,
+      "f1": 0.4383,
       "support": 3388
     }
   },
   "micro": {
-    "tp": 7873,
-    "fp": 2207,
-    "fn": 5679,
-    "precision": 0.7811,
-    "recall": 0.5809,
-    "f1": 0.6663,
+    "tp": 7719,
+    "fp": 1761,
+    "fn": 5833,
+    "precision": 0.8142,
+    "recall": 0.5696,
+    "f1": 0.6703,
     "support": 13552
   },
-  "macro_f1": 0.666299932295193,
+  "macro_f1": 0.670284821118444,
   "documents": 168
 }
 ```

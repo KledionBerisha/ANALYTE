@@ -2,7 +2,7 @@
 
 **Kushti:** —  
 **Përgjigjet:** PK4  
-**Rezultati kryesor:** 0.877 saktësi
+**Rezultati kryesor:** 0.863 saktësi
 
 | Prejardhja | Vlera |
 |---|---|
@@ -10,24 +10,24 @@
 | Dokumente | 500 (all) |
 | Fara | 42 |
 | Pipeline | `grounding+ocr` v1 |
-| Git | `d8839e240cfe` (e papastër) |
-| Rregullat | `r1.2` |
-| Kur | 2026-09-27T22:06:26+00:00 |
+| Git | `ba2c96b64c15` (e papastër) |
+| Rregullat | `r1.3` |
+| Kur | 2026-09-28T20:55:07+00:00 |
 
 ```json
 {
   "overall": {
     "total": 10009,
-    "accuracy": 0.8766,
+    "accuracy": 0.8634,
     "matrix": {
       "agreement->agreement": 790,
-      "agreement->measured_not_mentioned": 279,
-      "agreement->missing": 94,
+      "agreement->measured_not_mentioned": 263,
+      "agreement->missing": 110,
       "contradiction->contradiction": 59,
-      "contradiction->measured_not_mentioned": 20,
-      "contradiction->missing": 8,
-      "measured_not_mentioned->measured_not_mentioned": 7833,
-      "measured_not_mentioned->missing": 777,
+      "contradiction->measured_not_mentioned": 19,
+      "contradiction->missing": 9,
+      "measured_not_mentioned->measured_not_mentioned": 7701,
+      "measured_not_mentioned->missing": 909,
       "mentioned_not_measured->mentioned_not_measured": 92,
       "mentioned_not_measured->missing": 57
     },
@@ -51,12 +51,12 @@
         "support": 87
       },
       "measured_not_mentioned": {
-        "tp": 7833,
-        "fp": 299,
-        "fn": 777,
-        "precision": 0.9632,
-        "recall": 0.9098,
-        "f1": 0.9357,
+        "tp": 7701,
+        "fp": 282,
+        "fn": 909,
+        "precision": 0.9647,
+        "recall": 0.8944,
+        "f1": 0.9282,
         "support": 8610
       },
       "mentioned_not_measured": {
@@ -70,7 +70,7 @@
       },
       "missing": {
         "tp": 0,
-        "fp": 936,
+        "fp": 1085,
         "fn": 0,
         "precision": 0.0,
         "recall": null,
@@ -79,12 +79,12 @@
       }
     }
   },
-  "spurious_cross_references": 11,
+  "spurious_cross_references": 10,
   "recall_by_state": {
     "agreement": 0.6793,
     "contradiction": 0.6782,
     "mentioned_not_measured": 0.6174,
-    "measured_not_mentioned": 0.9098
+    "measured_not_mentioned": 0.8944
   }
 }
 ```

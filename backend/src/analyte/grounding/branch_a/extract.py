@@ -177,6 +177,19 @@ def parse_row(row: TextRow) -> RawRow | None:
     )
 
 
+def _unit_like(text: str) -> bool:
+    """Njësia ka shkronjë (`mg/dL`, `10^9/L`) ose është simbol si `%`.
+
+    Një "njësi" me shifra dhe pa asnjë shkronjë nuk është njësi: është pjesë
+    e një numri tjetër që ra në kolonën e gabuar. Njësia bosh lejohet — ajo
+    trajtohet më tej si e panjohur (SP5).
+    """
+    text = text.strip()
+    if not text or any(c.isalpha() for c in text):
+        return True
+    return not any(c.isdigit() for c in text)
+
+
 def _looks_like_prose(text: str) -> bool:
     """Njësitë janë të shkurtra dhe pa hapësira; fjalitë jo."""
     return len(text) > 12 or " " in text.strip()
@@ -193,6 +206,11 @@ def _to_finding(
     value = parse_number(raw.value_text)
     if value is None:
         return None, "vlerë e palexueshme"
+    if not _unit_like(raw.unit_text):
+        # "40,0 | 52,0": OCR-ja humbi vlerën dhe intervali u lexua si vlerë
+        # me njësi. Kufiri i poshtëm do të dilte si "vlera e matur" — më mirë
+        # rreshti i humbur se një vlerë e gabuar që pacienti e lexon si të tijën.
+        return None, "njësi e palexueshme"
 
     converted = to_canonical(analyte, value, raw.unit_text)
     if converted is None:

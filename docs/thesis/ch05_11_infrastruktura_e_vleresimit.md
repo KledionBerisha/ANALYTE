@@ -118,7 +118,7 @@ skedar e jo të kujtohet nga ai që e ekzekutoi.
 
 | Pyetja | Gjendja |
 |---|---|
-| PK1 — nxjerrja | dixhitale 1.000 (pa dallim); të skanuara 0.666 me OCR, 10.8% vlera të gabuara të pranuara |
+| PK1 — nxjerrja | dixhitale 1.000 (pa dallim); të skanuara 0.670 me OCR, 5.3% vlera të gabuara të pranuara |
 | PK2 — klasifikimi | e matur për kanalin dixhital |
 | PK3 — besnikëria | rruga e provuar me shabllonin; pret modelin gjuhësor |
 | PK4 — krahasimi i kryqëzuar | e matur |

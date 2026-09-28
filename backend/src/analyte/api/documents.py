@@ -6,6 +6,10 @@ madhësinë, dhe makina e gjendjeve vendos nëse është PDF — degëzimi
 UPLOADED → REJECTED i Figurës 6. Një kontroll i dytë këtu do ta linte atë
 degë pa u ushtruar kurrë nga shërbimi i vërtetë.
 
+**Faqet shërbehen si figura**, jo si PDF: ndërfaqja ka nevojë vetëm për
+pamjen, që të tregojë se nga erdhi çdo vlerë, dhe një figurë nuk mbart
+shtresën e tekstit as metadatat e skedarit origjinal.
+
 **Fshirja fshin gjithçka përveç gjurmës.** Skedari i koduar, konteksti,
 shpjegimet dhe verifikimet shkojnë; ngjarjet e auditimit mbeten, sepse nuk
 mbajnë të dhëna shëndetësore dhe janë e vetmja dëshmi se dokumenti u
@@ -17,6 +21,7 @@ from __future__ import annotations
 import hashlib
 
 from fastapi import APIRouter, Depends, File, Request, Response, UploadFile
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -174,4 +179,49 @@ def status(
             )
             for e in events
         ],
+    )
+
+
+PAGE_DPI = 110
+"""Mjafton për t'u lexuar në ekran; më shumë do të rëndonte çdo kërkesë
+pa asnjë fitim për pacientin."""
+
+
+class PagesOut(BaseModel):
+    count: int
+    width: float
+    height: float
+    """Përmasat në pika PDF — njësia e kutive të gjetjeve."""
+
+
+def _open_pdf(request: Request, document: DocumentRow):
+    import pymupdf
+
+    if document.state == ProcessingState.REJECTED.value:
+        raise Problem(409, "Skedari nuk është PDF i lexueshëm")
+    content = request.app.state.store.get(document.storage_path)
+    return pymupdf.open(stream=content, filetype="pdf")
+
+
+@router.get("/{document_id}/pages", response_model=PagesOut)
+def pages(request: Request, document: DocumentRow = Depends(deps.owned_document)) -> PagesOut:
+    with _open_pdf(request, document) as pdf:
+        first = pdf[0].rect
+        return PagesOut(count=pdf.page_count, width=first.width, height=first.height)
+
+
+@router.get("/{document_id}/pages/{number}", responses={200: {"content": {"image/png": {}}}})
+def page_image(
+    number: int,
+    request: Request,
+    document: DocumentRow = Depends(deps.owned_document),
+) -> Response:
+    with _open_pdf(request, document) as pdf:
+        if not 1 <= number <= pdf.page_count:
+            raise Problem(404, "Faqja nuk ekziston")
+        image = pdf[number - 1].get_pixmap(dpi=PAGE_DPI).tobytes("png")
+    return Response(
+        image,
+        media_type="image/png",
+        headers={"Cache-Control": "private, max-age=300"},
     )

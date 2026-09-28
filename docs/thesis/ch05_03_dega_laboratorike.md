@@ -128,25 +128,27 @@ Matja që do të kishte vlerë dalluese është ajo mbi kanalin e skanuar dhe
 mbi dokumente reale. E dyta pret miratimin etik; e para u bë me Tesseract 5
 (ADR 0012), me konfigurim të zgjedhur mbi një korpus të veçantë akordimi.
 Mbi 168 dokumentet e skanuara të korpusit të vlerësimit
-(`gen-1.0/s42/n500/37d8b080`), F1 doli 0.666:
+(`gen-1.0/s42/n500/37d8b080`), F1 doli 0.670:
 
 | Fusha | Saktësia | Mbulimi | F1 |
 |---|---|---|---|
-| Analiti | 0.996 | 0.741 | 0.849 |
-| Vlera | 0.893 | 0.664 | 0.761 |
-| Njësia | 0.735 | 0.547 | 0.627 |
-| Intervali | 0.501 | 0.373 | 0.428 |
+| Analiti | 0.996 | 0.697 | 0.820 |
+| Vlera | 0.947 | 0.663 | 0.780 |
+| Njësia | 0.781 | 0.547 | 0.643 |
+| Intervali | 0.533 | 0.373 | 0.438 |
 
-Numri që ka rëndësi nuk është F1 por saktësia e vlerës. Nga 2 520 vlera të
-nxjerra nga dokumentet e skanuara, 271 ishin të gabuara dhe u pranuan — më
-shpesh sepse OCR-ja humbi ndarësin dhjetor dhe "15,7" u lexua "157". Një
+Numri që ka rëndësi nuk është F1 por saktësia e vlerës. Nga 2 370 vlera të
+nxjerra nga dokumentet e skanuara, 125 ishin të gabuara dhe u pranuan — më
+shpesh sepse OCR-ja humbi ndarësin dhjetor dhe "15,7" u lexua "157". Në
+matjen e parë ishin 271; gjysma tjetër — intervale të lexuara si vlerë me
+njësi numerike — refuzohen tani nga nxjerrësi (ADR 0012). Një
 vlerë e humbur nuk interpretohet; një vlerë e gabuar interpretohet me
 siguri, dhe asgjë më poshtë në rrjedhë nuk e vë re. Kontrolli i
 besueshmërisë që do ta ndalte kërkon kufij fiziologjikë me burim për çdo
 analit dhe mbetet vendim i hapur. [REFERENCË — plotësohet]
 
-E3 me OCR mbi tërë korpusin: saktësia e statusit 0.867. Pjesa më e madhe e
-gabimeve janë të sigurta — 1 134 vlera u bënë "pa interval" sepse intervali
+E3 me OCR mbi tërë korpusin: saktësia e statusit 0.881. Pjesa më e madhe e
+gabimeve janë të sigurta — vlerat u bënë "pa interval" sepse intervali
 nuk u lexua, dhe SP5 refuzoi interpretimin. Por 62 vlera morën drejtim të
 gabuar, ndër to 9 vlera normale të shënuara kritike të larta dhe 1 vlerë
 kritike e ulët e shënuar kritike e lartë. Këta janë rastet që kontrolli i

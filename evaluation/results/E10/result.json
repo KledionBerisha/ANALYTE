@@ -1,7 +1,7 @@
 {
   "experiment": "E10",
   "detector": "rules",
-  "rules_version": "r1.2",
+  "rules_version": "r1.3",
   "samples": 192,
   "split": "test",
   "source_documents": 200,

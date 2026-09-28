@@ -331,3 +331,28 @@ def test_scanned_document_has_no_text_layer_to_route_to(tmp_path):
     path.write_bytes(pdf)
 
     assert route(path).channel is Channel.OCR
+
+
+def test_an_interval_misread_as_value_and_unit_is_rejected():
+    """OCR-ja humbi vlerën; "40,0 | 52,0" nuk guxon të dalë si vlerë 40 me njësi 52,0."""
+    from analyte.domain.models import BoundingBox
+    from analyte.grounding.branch_a.extract import extract
+    from analyte.ingestion.pdf_text import PageText, TextFragment, TextRow
+
+    def row(*texts):
+        fragments = tuple(
+            TextFragment(t, BoundingBox(x0=100.0 * i, y0=10.0, x1=100.0 * i + 50, y1=20.0))
+            for i, t in enumerate(texts)
+        )
+        return TextRow(page=1, fragments=fragments)
+
+    result = extract((PageText(number=1, rows=(row("Hematokriti", "40,0 52,0"),)),))
+    assert result.findings == ()
+    assert ("Hematokriti", "njësi e palexueshme") in result.rejected
+
+
+def test_a_symbol_unit_is_still_a_unit():
+    from analyte.grounding.branch_a.extract import _unit_like
+
+    assert _unit_like("%") and _unit_like("mg/dL") and _unit_like("10^9/L") and _unit_like("")
+    assert not _unit_like("52,0") and not _unit_like("145")

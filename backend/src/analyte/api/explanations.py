@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from analyte.domain.enums import AnalyteStatus, ProcessingState
 from analyte.domain.models import GroundingContext
-from analyte.domain.policy import DISCLAIMER_SQ
+from analyte.domain.policy import CRITICAL_BANNER_SQ, DISCLAIMER_SQ
 from analyte.persistence import repository
 from analyte.persistence.tables import DocumentRow, ExplanationRow, VerificationRow
 
@@ -23,6 +23,7 @@ from .problems import Problem
 from .schemas import (
     AttemptOut,
     ExplanationOut,
+    Notice,
     VerificationDetail,
     VerificationOut,
     VerificationSummary,
@@ -63,24 +64,30 @@ def _summary(row: ExplanationRow) -> VerificationSummary:
     )
 
 
-def notices(document: DocumentRow, context: GroundingContext, row: ExplanationRow) -> list[str]:
+def notices(document: DocumentRow, context: GroundingContext, row: ExplanationRow) -> list[Notice]:
     """Kufizimet që pacienti duhet t'i dijë (NFR7), të shkruara nga sistemi."""
     out = []
     if document.channel == "ocr":
-        out.append(OCR_NOTICE_SQ)
+        out.append(Notice(code="ocr", text=OCR_NOTICE_SQ))
     uninterpretable = sum(
         1 for f in context.findings if f.status is AnalyteStatus.UNINTERPRETABLE
     )
     if uninterpretable:
         out.append(
-            f"{uninterpretable} vlera nuk u interpretuan sepse nuk u gjet interval referent."
+            Notice(
+                code="uninterpretable",
+                text=f"{uninterpretable} vlera nuk u interpretuan sepse nuk u gjet interval referent.",
+            )
         )
     if context.unexplained_terms:
         out.append(
-            f"Raporti përmend {len(context.unexplained_terms)} terma që sistemi nuk i shpjegon."
+            Notice(
+                code="unexplained_terms",
+                text=f"Raporti përmend {len(context.unexplained_terms)} terma që sistemi nuk i shpjegon.",
+            )
         )
     if row.is_fallback:
-        out.append(FALLBACK_NOTICE_SQ)
+        out.append(Notice(code="fallback", text=FALLBACK_NOTICE_SQ))
     return out
 
 
@@ -96,6 +103,7 @@ def explanation(
         text=row.final_output,
         generator=row.generator,
         critical=bool(context.critical_findings()),
+        banner=CRITICAL_BANNER_SQ if context.critical_findings() else None,
         disclaimer=DISCLAIMER_SQ,
         notices=notices(document, context, row),
         verification=_summary(row),

@@ -63,10 +63,25 @@ def _mask(text: str, strings: set[str]) -> str:
 
     Zëvendësimi bëhet nga vargu më i gjatë te më i shkurtri, që `10^12/L`
     të mos maskohet pjesërisht si `10^1` dhe të lërë mbetje.
+
+    Maskohen vetëm vargjet që mund të jenë emër ose njësi. OCR-ja prodhon
+    "njësi" si "." ose "52,0": maskimi i pikës do t'i ndante të gjithë numrat
+    dhjetorë të tekstit ("15.6" → "15 6"), dhe maskimi i "52,0" do ta fshihte
+    pikërisht një numër nga R1 — rregulli do të heshte para një vlere të
+    shpikur.
     """
-    for value in sorted((s for s in strings if s), key=len, reverse=True):
+    for value in sorted((s for s in strings if _maskable(s)), key=len, reverse=True):
         text = text.replace(value, " " * len(value))
     return text
+
+
+def _maskable(value: str) -> bool:
+    """Ka shkronjë, ose është simbol pa shifra dhe pa ndarës dhjetor ("%")."""
+    if not value.strip():
+        return False
+    if any(c.isalpha() for c in value):
+        return True
+    return not any(c.isdigit() or c in ".," for c in value)
 
 
 def mask_units(text: str, context: GroundingContext) -> str:

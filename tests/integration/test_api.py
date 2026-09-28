@@ -300,7 +300,7 @@ def test_double_failure_is_stored_as_a_fallback(tmp_path, pdfs):
     body = client.get(f"/documents/{document_id}/explanation", headers=headers).json()
     assert body["verification"]["is_fallback"] is True
     assert "987654" not in body["text"]
-    assert any("nuk kaloi kontrollin" in notice for notice in body["notices"])
+    assert [n["code"] for n in body["notices"] if n["code"] == "fallback"] == ["fallback"]
 
     attempts = client.get(f"/documents/{document_id}/verification", headers=headers).json()["attempts"]
     assert [(a["attempt"], a["is_fallback"], a["delivered"]) for a in attempts] == [
@@ -429,3 +429,17 @@ def test_terminology_is_public(world):
 def test_chat_says_it_is_not_built(world, alice, delivered):
     response = world[0].post(f"/documents/{delivered}/chat", headers=alice)
     assert response.status_code == 501
+
+
+def test_pages_are_served_as_images_to_the_owner_only(world, alice, delivered):
+    client = world[0]
+    meta = client.get(f"/documents/{delivered}/pages", headers=alice).json()
+    assert meta["count"] >= 1 and meta["width"] > 0
+
+    image = client.get(f"/documents/{delivered}/pages/1", headers=alice)
+    assert image.headers["content-type"] == "image/png"
+    assert image.content.startswith(b"\x89PNG")
+    assert client.get(f"/documents/{delivered}/pages/99", headers=alice).status_code == 404
+
+    mallory = _headers(client, "mallory2@shembull.al")
+    assert client.get(f"/documents/{delivered}/pages/1", headers=mallory).status_code == 404
