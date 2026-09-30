@@ -341,7 +341,9 @@ def build_classifier(run_dir: Path | None) -> tuple[Any, float | None]:
 
     Pragu nuk jepet nga linja e komandës: ai lexohet nga rezultati i E11,
     ku u zgjodh mbi validimin. Një prag i dhënë me dorë këtu do të ishte
-    akordim mbi të dhënat e vlerësimit.
+    akordim mbi të dhënat e vlerësimit. Është pika brenda buxhetit të
+    alarmeve të rreme (`deployed_threshold`), jo ajo me macro F1 më të lartë:
+    kjo e dyta bllokon pothuajse çdo tekst të pastër.
     """
     if run_dir is None:
         return None, None
@@ -351,7 +353,12 @@ def build_classifier(run_dir: Path | None) -> tuple[Any, float | None]:
     result = Path("evaluation/results/E11") / predictor.mode / "result.json"
     if not result.exists():
         raise SystemExit(f"mungon {result}: ekzekutoni ml.evaluate_classifier përpara E9")
-    return predictor, json.loads(result.read_text(encoding="utf-8"))["threshold"]
+    threshold = json.loads(result.read_text(encoding="utf-8")).get("deployed_threshold")
+    if threshold is None:
+        raise SystemExit(
+            f"{result} nuk ka prag brenda buxhetit të alarmeve të rreme; E9 nuk mund të ekzekutohet"
+        )
+    return predictor, threshold
 
 
 def build_pipeline(

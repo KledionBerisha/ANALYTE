@@ -41,10 +41,19 @@ class PRF(NamedTuple):
 
     @property
     def f1(self) -> float | None:
-        precision, recall = self.precision, self.recall
-        if precision is None or recall is None or precision + recall == 0:
+        """2TP / (2TP + FP + FN): zero kur ka rast të vërtetë ose alarm dhe asnjë
+        përputhje, `None` vetëm kur nuk ka asgjë për t'u matur.
+
+        Një klasë me raste të vërteta ku zbuluesi nuk parashikoi asnjë ka
+        saktësi të papërkufizuar, por F1 i saj është zero — një zero e matur.
+        Duke e kthyer `None`, mesatarja e klasave e hidhte mënjanë pa zhurmë,
+        dhe një zbulues që kap asgjë në pesë nga shtatë llojet dilte me F1 0.96.
+        """
+        if self.true_positive + self.false_positive + self.false_negative == 0:
             return None
-        return 2 * precision * recall / (precision + recall)
+        return 2 * self.true_positive / (
+            2 * self.true_positive + self.false_positive + self.false_negative
+        )
 
     @property
     def support(self) -> int:

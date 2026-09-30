@@ -1,0 +1,528 @@
+{
+  "experiment": "E11",
+  "detector": "classifier",
+  "input": "context",
+  "model": "xlm-roberta-base",
+  "samples": 192,
+  "test_clean_texts": 30,
+  "val_clean_texts": 225,
+  "structurally_invisible": [
+    "omitted_recommendation"
+  ],
+  "false_alarm_budget": 0.05,
+  "operating_points": {
+    "max_macro_f1": {
+      "rule": "max_macro_f1",
+      "threshold": 0.4,
+      "chosen_on": "val",
+      "val": {
+        "macro_f1": 0.4937,
+        "false_alarm_rate": 0.9778
+      },
+      "test_false_alarm_rate": 0.9667,
+      "metrics": {
+        "samples": 192,
+        "confusion": {
+          "total": 192,
+          "accuracy": 0.526,
+          "matrix": {
+            "clean->clean": 1,
+            "clean->direction_mismatch": 6,
+            "clean->fabricated_finding": 1,
+            "clean->polarity_flip": 6,
+            "clean->ungrounded_analyte": 1,
+            "clean->ungrounded_number": 15,
+            "direction_mismatch->direction_mismatch": 11,
+            "direction_mismatch->fabricated_finding": 1,
+            "direction_mismatch->polarity_flip": 2,
+            "direction_mismatch->ungrounded_analyte": 1,
+            "direction_mismatch->ungrounded_number": 12,
+            "fabricated_finding->fabricated_finding": 30,
+            "hedge_removed->hedge_removed": 2,
+            "hedge_removed->ungrounded_number": 1,
+            "omitted_recommendation->clean": 1,
+            "omitted_recommendation->direction_mismatch": 6,
+            "omitted_recommendation->fabricated_finding": 1,
+            "omitted_recommendation->polarity_flip": 6,
+            "omitted_recommendation->ungrounded_analyte": 1,
+            "omitted_recommendation->ungrounded_number": 15,
+            "polarity_flip->direction_mismatch": 4,
+            "polarity_flip->fabricated_finding": 1,
+            "polarity_flip->polarity_flip": 4,
+            "polarity_flip->ungrounded_number": 3,
+            "ungrounded_analyte->ungrounded_analyte": 29,
+            "ungrounded_analyte->ungrounded_number": 1,
+            "ungrounded_number->direction_mismatch": 3,
+            "ungrounded_number->fabricated_finding": 1,
+            "ungrounded_number->polarity_flip": 1,
+            "ungrounded_number->ungrounded_analyte": 1,
+            "ungrounded_number->ungrounded_number": 24
+          },
+          "per_class": {
+            "clean": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 29,
+              "precision": 0.5,
+              "recall": 0.0333,
+              "f1": 0.0625,
+              "support": 30
+            },
+            "direction_mismatch": {
+              "tp": 11,
+              "fp": 19,
+              "fn": 16,
+              "precision": 0.3667,
+              "recall": 0.4074,
+              "f1": 0.386,
+              "support": 27
+            },
+            "fabricated_finding": {
+              "tp": 30,
+              "fp": 5,
+              "fn": 0,
+              "precision": 0.8571,
+              "recall": 1.0,
+              "f1": 0.9231,
+              "support": 30
+            },
+            "hedge_removed": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.6667,
+              "f1": 0.8,
+              "support": 3
+            },
+            "omitted_recommendation": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 30,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 30
+            },
+            "polarity_flip": {
+              "tp": 4,
+              "fp": 15,
+              "fn": 8,
+              "precision": 0.2105,
+              "recall": 0.3333,
+              "f1": 0.2581,
+              "support": 12
+            },
+            "ungrounded_analyte": {
+              "tp": 29,
+              "fp": 4,
+              "fn": 1,
+              "precision": 0.8788,
+              "recall": 0.9667,
+              "f1": 0.9206,
+              "support": 30
+            },
+            "ungrounded_number": {
+              "tp": 24,
+              "fp": 47,
+              "fn": 6,
+              "precision": 0.338,
+              "recall": 0.8,
+              "f1": 0.4752,
+              "support": 30
+            }
+          }
+        },
+        "per_defect_type": {
+          "direction_mismatch": {
+            "tp": 11,
+            "fp": 19,
+            "fn": 16,
+            "precision": 0.3667,
+            "recall": 0.4074,
+            "f1": 0.386,
+            "support": 27
+          },
+          "fabricated_finding": {
+            "tp": 30,
+            "fp": 5,
+            "fn": 0,
+            "precision": 0.8571,
+            "recall": 1.0,
+            "f1": 0.9231,
+            "support": 30
+          },
+          "hedge_removed": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 1,
+            "precision": 1.0,
+            "recall": 0.6667,
+            "f1": 0.8,
+            "support": 3
+          },
+          "omitted_recommendation": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 30,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 30
+          },
+          "polarity_flip": {
+            "tp": 4,
+            "fp": 15,
+            "fn": 8,
+            "precision": 0.2105,
+            "recall": 0.3333,
+            "f1": 0.2581,
+            "support": 12
+          },
+          "ungrounded_analyte": {
+            "tp": 29,
+            "fp": 4,
+            "fn": 1,
+            "precision": 0.8788,
+            "recall": 0.9667,
+            "f1": 0.9206,
+            "support": 30
+          },
+          "ungrounded_number": {
+            "tp": 24,
+            "fp": 47,
+            "fn": 6,
+            "precision": 0.338,
+            "recall": 0.8,
+            "f1": 0.4752,
+            "support": 30
+          }
+        },
+        "micro": {
+          "tp": 100,
+          "fp": 90,
+          "fn": 62,
+          "precision": 0.5263,
+          "recall": 0.6173,
+          "f1": 0.5682,
+          "support": 162
+        },
+        "macro_f1": 0.5375698281248648,
+        "false_alarms_on_clean": 29
+      }
+    },
+    "false_alarm_budget": {
+      "rule": "false_alarm_budget",
+      "threshold": 0.9,
+      "chosen_on": "val",
+      "val": {
+        "macro_f1": 0.3079,
+        "false_alarm_rate": 0.04
+      },
+      "test_false_alarm_rate": 0.0667,
+      "metrics": {
+        "samples": 192,
+        "confusion": {
+          "total": 192,
+          "accuracy": 0.4896,
+          "matrix": {
+            "clean->clean": 28,
+            "clean->ungrounded_analyte": 1,
+            "clean->ungrounded_number": 1,
+            "direction_mismatch->clean": 26,
+            "direction_mismatch->ungrounded_analyte": 1,
+            "fabricated_finding->fabricated_finding": 30,
+            "hedge_removed->clean": 3,
+            "omitted_recommendation->clean": 28,
+            "omitted_recommendation->ungrounded_analyte": 1,
+            "omitted_recommendation->ungrounded_number": 1,
+            "polarity_flip->clean": 12,
+            "ungrounded_analyte->clean": 1,
+            "ungrounded_analyte->ungrounded_analyte": 29,
+            "ungrounded_number->clean": 22,
+            "ungrounded_number->ungrounded_analyte": 1,
+            "ungrounded_number->ungrounded_number": 7
+          },
+          "per_class": {
+            "clean": {
+              "tp": 28,
+              "fp": 92,
+              "fn": 2,
+              "precision": 0.2333,
+              "recall": 0.9333,
+              "f1": 0.3733,
+              "support": 30
+            },
+            "direction_mismatch": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 27,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 27
+            },
+            "fabricated_finding": {
+              "tp": 30,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 30
+            },
+            "hedge_removed": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 3,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 3
+            },
+            "omitted_recommendation": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 30,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 30
+            },
+            "polarity_flip": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 12,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 12
+            },
+            "ungrounded_analyte": {
+              "tp": 29,
+              "fp": 4,
+              "fn": 1,
+              "precision": 0.8788,
+              "recall": 0.9667,
+              "f1": 0.9206,
+              "support": 30
+            },
+            "ungrounded_number": {
+              "tp": 7,
+              "fp": 2,
+              "fn": 23,
+              "precision": 0.7778,
+              "recall": 0.2333,
+              "f1": 0.359,
+              "support": 30
+            }
+          }
+        },
+        "per_defect_type": {
+          "direction_mismatch": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 27,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 27
+          },
+          "fabricated_finding": {
+            "tp": 30,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 30
+          },
+          "hedge_removed": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 3,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 3
+          },
+          "omitted_recommendation": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 30,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 30
+          },
+          "polarity_flip": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 12,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 12
+          },
+          "ungrounded_analyte": {
+            "tp": 29,
+            "fp": 4,
+            "fn": 1,
+            "precision": 0.8788,
+            "recall": 0.9667,
+            "f1": 0.9206,
+            "support": 30
+          },
+          "ungrounded_number": {
+            "tp": 7,
+            "fp": 2,
+            "fn": 23,
+            "precision": 0.7778,
+            "recall": 0.2333,
+            "f1": 0.359,
+            "support": 30
+          }
+        },
+        "micro": {
+          "tp": 66,
+          "fp": 6,
+          "fn": 96,
+          "precision": 0.9167,
+          "recall": 0.4074,
+          "f1": 0.5641,
+          "support": 162
+        },
+        "macro_f1": 0.32565846851561137,
+        "false_alarms_on_clean": 2
+      },
+      "budget": 0.05
+    }
+  },
+  "deployed": "false_alarm_budget",
+  "deployed_threshold": 0.9,
+  "val_by_threshold": {
+    "0.3": {
+      "macro_f1": 0.4928,
+      "false_alarm_rate": 0.9956
+    },
+    "0.35": {
+      "macro_f1": 0.4932,
+      "false_alarm_rate": 0.9911
+    },
+    "0.4": {
+      "macro_f1": 0.4937,
+      "false_alarm_rate": 0.9778
+    },
+    "0.45": {
+      "macro_f1": 0.4932,
+      "false_alarm_rate": 0.9778
+    },
+    "0.5": {
+      "macro_f1": 0.4923,
+      "false_alarm_rate": 0.96
+    },
+    "0.55": {
+      "macro_f1": 0.4915,
+      "false_alarm_rate": 0.9556
+    },
+    "0.6": {
+      "macro_f1": 0.4923,
+      "false_alarm_rate": 0.9422
+    },
+    "0.65": {
+      "macro_f1": 0.4899,
+      "false_alarm_rate": 0.9022
+    },
+    "0.7": {
+      "macro_f1": 0.4838,
+      "false_alarm_rate": 0.8356
+    },
+    "0.75": {
+      "macro_f1": 0.4578,
+      "false_alarm_rate": 0.6533
+    },
+    "0.8": {
+      "macro_f1": 0.4438,
+      "false_alarm_rate": 0.56
+    },
+    "0.85": {
+      "macro_f1": 0.3307,
+      "false_alarm_rate": 0.4044
+    },
+    "0.9": {
+      "macro_f1": 0.3079,
+      "false_alarm_rate": 0.04
+    },
+    "0.95": {
+      "macro_f1": 0.2744,
+      "false_alarm_rate": 0.0267
+    }
+  },
+  "run": {
+    "input": "context",
+    "model": "xlm-roberta-base",
+    "max_length": 384,
+    "epochs": 3,
+    "learning_rate": 2e-05,
+    "batch": 16,
+    "seed": 42,
+    "limit": null,
+    "train_sentences": 11896,
+    "val_sentences": 3799,
+    "val_macro_f1_sentences": 0.5967140896734877,
+    "training_seconds": 966,
+    "device": "Tesla T4",
+    "versions": {
+      "python": "3.13.15",
+      "torch": "2.11.0+cu128",
+      "transformers": "5.18.0",
+      "numpy": "2.1.3"
+    },
+    "data_meta": {
+      "documents": 1500,
+      "seed": 42,
+      "rules_version": "r1.3",
+      "e10_documents": 200,
+      "counts": {
+        "train": {
+          "fabricated_finding": 1050,
+          "clean": 7230,
+          "polarity_flip": 365,
+          "ungrounded_number": 1050,
+          "direction_mismatch": 1021,
+          "ungrounded_analyte": 1050,
+          "hedge_removed": 130
+        },
+        "val": {
+          "clean": 2811,
+          "ungrounded_number": 225,
+          "ungrounded_analyte": 225,
+          "polarity_flip": 76,
+          "fabricated_finding": 225,
+          "direction_mismatch": 216,
+          "hedge_removed": 21
+        },
+        "val_texts": {
+          "clean": 225,
+          "ungrounded_number": 225,
+          "ungrounded_analyte": 225,
+          "direction_mismatch": 216,
+          "fabricated_finding": 225,
+          "omitted_recommendation": 225,
+          "hedge_removed": 21,
+          "polarity_flip": 76
+        },
+        "test_texts": {
+          "clean": 30,
+          "ungrounded_number": 30,
+          "ungrounded_analyte": 30,
+          "direction_mismatch": 27,
+          "fabricated_finding": 30,
+          "omitted_recommendation": 30,
+          "polarity_flip": 12,
+          "hedge_removed": 3
+        }
+      }
+    }
+  }
+}

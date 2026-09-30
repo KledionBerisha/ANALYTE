@@ -1,0 +1,509 @@
+{
+  "experiment": "E11",
+  "detector": "classifier",
+  "input": "sentence",
+  "model": "xlm-roberta-base",
+  "samples": 192,
+  "test_clean_texts": 30,
+  "val_clean_texts": 225,
+  "structurally_invisible": [
+    "omitted_recommendation"
+  ],
+  "false_alarm_budget": 0.05,
+  "operating_points": {
+    "max_macro_f1": {
+      "rule": "max_macro_f1",
+      "threshold": 0.3,
+      "chosen_on": "val",
+      "val": {
+        "macro_f1": 0.4548,
+        "false_alarm_rate": 0.9822
+      },
+      "test_false_alarm_rate": 1.0,
+      "metrics": {
+        "samples": 192,
+        "confusion": {
+          "total": 192,
+          "accuracy": 0.3802,
+          "matrix": {
+            "clean->direction_mismatch": 5,
+            "clean->polarity_flip": 20,
+            "clean->ungrounded_number": 5,
+            "direction_mismatch->direction_mismatch": 5,
+            "direction_mismatch->polarity_flip": 19,
+            "direction_mismatch->ungrounded_number": 3,
+            "fabricated_finding->fabricated_finding": 30,
+            "hedge_removed->hedge_removed": 3,
+            "omitted_recommendation->direction_mismatch": 5,
+            "omitted_recommendation->polarity_flip": 20,
+            "omitted_recommendation->ungrounded_number": 5,
+            "polarity_flip->polarity_flip": 12,
+            "ungrounded_analyte->direction_mismatch": 2,
+            "ungrounded_analyte->polarity_flip": 7,
+            "ungrounded_analyte->ungrounded_analyte": 18,
+            "ungrounded_analyte->ungrounded_number": 3,
+            "ungrounded_number->direction_mismatch": 5,
+            "ungrounded_number->polarity_flip": 20,
+            "ungrounded_number->ungrounded_number": 5
+          },
+          "per_class": {
+            "clean": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 30,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 30
+            },
+            "direction_mismatch": {
+              "tp": 5,
+              "fp": 17,
+              "fn": 22,
+              "precision": 0.2273,
+              "recall": 0.1852,
+              "f1": 0.2041,
+              "support": 27
+            },
+            "fabricated_finding": {
+              "tp": 30,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 30
+            },
+            "hedge_removed": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 3
+            },
+            "omitted_recommendation": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 30,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 30
+            },
+            "polarity_flip": {
+              "tp": 12,
+              "fp": 86,
+              "fn": 0,
+              "precision": 0.1224,
+              "recall": 1.0,
+              "f1": 0.2182,
+              "support": 12
+            },
+            "ungrounded_analyte": {
+              "tp": 18,
+              "fp": 0,
+              "fn": 12,
+              "precision": 1.0,
+              "recall": 0.6,
+              "f1": 0.75,
+              "support": 30
+            },
+            "ungrounded_number": {
+              "tp": 5,
+              "fp": 16,
+              "fn": 25,
+              "precision": 0.2381,
+              "recall": 0.1667,
+              "f1": 0.1961,
+              "support": 30
+            }
+          }
+        },
+        "per_defect_type": {
+          "direction_mismatch": {
+            "tp": 5,
+            "fp": 17,
+            "fn": 22,
+            "precision": 0.2273,
+            "recall": 0.1852,
+            "f1": 0.2041,
+            "support": 27
+          },
+          "fabricated_finding": {
+            "tp": 30,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 30
+          },
+          "hedge_removed": {
+            "tp": 3,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 3
+          },
+          "omitted_recommendation": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 30,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 30
+          },
+          "polarity_flip": {
+            "tp": 12,
+            "fp": 86,
+            "fn": 0,
+            "precision": 0.1224,
+            "recall": 1.0,
+            "f1": 0.2182,
+            "support": 12
+          },
+          "ungrounded_analyte": {
+            "tp": 18,
+            "fp": 0,
+            "fn": 12,
+            "precision": 1.0,
+            "recall": 0.6,
+            "f1": 0.75,
+            "support": 30
+          },
+          "ungrounded_number": {
+            "tp": 5,
+            "fp": 16,
+            "fn": 25,
+            "precision": 0.2381,
+            "recall": 0.1667,
+            "f1": 0.1961,
+            "support": 30
+          }
+        },
+        "micro": {
+          "tp": 73,
+          "fp": 119,
+          "fn": 89,
+          "precision": 0.3802,
+          "recall": 0.4506,
+          "f1": 0.4124,
+          "support": 162
+        },
+        "macro_f1": 0.48119169745820406,
+        "false_alarms_on_clean": 30
+      }
+    },
+    "false_alarm_budget": {
+      "rule": "false_alarm_budget",
+      "threshold": 0.85,
+      "chosen_on": "val",
+      "val": {
+        "macro_f1": 0.3867,
+        "false_alarm_rate": 0.0
+      },
+      "test_false_alarm_rate": 0.0,
+      "metrics": {
+        "samples": 192,
+        "confusion": {
+          "total": 192,
+          "accuracy": 0.4115,
+          "matrix": {
+            "clean->clean": 30,
+            "direction_mismatch->clean": 27,
+            "fabricated_finding->fabricated_finding": 30,
+            "hedge_removed->hedge_removed": 3,
+            "omitted_recommendation->clean": 30,
+            "polarity_flip->clean": 12,
+            "ungrounded_analyte->clean": 14,
+            "ungrounded_analyte->ungrounded_analyte": 16,
+            "ungrounded_number->clean": 30
+          },
+          "per_class": {
+            "clean": {
+              "tp": 30,
+              "fp": 113,
+              "fn": 0,
+              "precision": 0.2098,
+              "recall": 1.0,
+              "f1": 0.3468,
+              "support": 30
+            },
+            "direction_mismatch": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 27,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 27
+            },
+            "fabricated_finding": {
+              "tp": 30,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 30
+            },
+            "hedge_removed": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 3
+            },
+            "omitted_recommendation": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 30,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 30
+            },
+            "polarity_flip": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 12,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 12
+            },
+            "ungrounded_analyte": {
+              "tp": 16,
+              "fp": 0,
+              "fn": 14,
+              "precision": 1.0,
+              "recall": 0.5333,
+              "f1": 0.6957,
+              "support": 30
+            },
+            "ungrounded_number": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 30,
+              "precision": null,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 30
+            }
+          }
+        },
+        "per_defect_type": {
+          "direction_mismatch": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 27,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 27
+          },
+          "fabricated_finding": {
+            "tp": 30,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 30
+          },
+          "hedge_removed": {
+            "tp": 3,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 3
+          },
+          "omitted_recommendation": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 30,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 30
+          },
+          "polarity_flip": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 12,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 12
+          },
+          "ungrounded_analyte": {
+            "tp": 16,
+            "fp": 0,
+            "fn": 14,
+            "precision": 1.0,
+            "recall": 0.5333,
+            "f1": 0.6957,
+            "support": 30
+          },
+          "ungrounded_number": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 30,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 30
+          }
+        },
+        "micro": {
+          "tp": 49,
+          "fp": 0,
+          "fn": 113,
+          "precision": 1.0,
+          "recall": 0.3025,
+          "f1": 0.4645,
+          "support": 162
+        },
+        "macro_f1": 0.38509316770186336,
+        "false_alarms_on_clean": 0
+      },
+      "budget": 0.05
+    }
+  },
+  "deployed": "false_alarm_budget",
+  "deployed_threshold": 0.85,
+  "val_by_threshold": {
+    "0.3": {
+      "macro_f1": 0.4548,
+      "false_alarm_rate": 0.9822
+    },
+    "0.35": {
+      "macro_f1": 0.4548,
+      "false_alarm_rate": 0.9822
+    },
+    "0.4": {
+      "macro_f1": 0.4544,
+      "false_alarm_rate": 0.9733
+    },
+    "0.45": {
+      "macro_f1": 0.4538,
+      "false_alarm_rate": 0.9644
+    },
+    "0.5": {
+      "macro_f1": 0.4516,
+      "false_alarm_rate": 0.96
+    },
+    "0.55": {
+      "macro_f1": 0.4454,
+      "false_alarm_rate": 0.9467
+    },
+    "0.6": {
+      "macro_f1": 0.4409,
+      "false_alarm_rate": 0.9067
+    },
+    "0.65": {
+      "macro_f1": 0.4348,
+      "false_alarm_rate": 0.88
+    },
+    "0.7": {
+      "macro_f1": 0.416,
+      "false_alarm_rate": 0.8222
+    },
+    "0.75": {
+      "macro_f1": 0.4138,
+      "false_alarm_rate": 0.7556
+    },
+    "0.8": {
+      "macro_f1": 0.4016,
+      "false_alarm_rate": 0.0756
+    },
+    "0.85": {
+      "macro_f1": 0.3867,
+      "false_alarm_rate": 0.0
+    },
+    "0.9": {
+      "macro_f1": 0.379,
+      "false_alarm_rate": 0.0
+    },
+    "0.95": {
+      "macro_f1": 0.3333,
+      "false_alarm_rate": 0.0
+    }
+  },
+  "run": {
+    "input": "sentence",
+    "model": "xlm-roberta-base",
+    "max_length": 128,
+    "epochs": 3,
+    "learning_rate": 2e-05,
+    "batch": 16,
+    "seed": 42,
+    "limit": null,
+    "train_sentences": 11896,
+    "val_sentences": 3799,
+    "val_macro_f1_sentences": 0.5158170799535089,
+    "training_seconds": 359,
+    "device": "Tesla T4",
+    "versions": {
+      "python": "3.13.15",
+      "torch": "2.11.0+cu128",
+      "transformers": "5.18.0",
+      "numpy": "2.1.3"
+    },
+    "data_meta": {
+      "documents": 1500,
+      "seed": 42,
+      "rules_version": "r1.3",
+      "e10_documents": 200,
+      "counts": {
+        "train": {
+          "fabricated_finding": 1050,
+          "clean": 7230,
+          "polarity_flip": 365,
+          "ungrounded_number": 1050,
+          "direction_mismatch": 1021,
+          "ungrounded_analyte": 1050,
+          "hedge_removed": 130
+        },
+        "val": {
+          "clean": 2811,
+          "ungrounded_number": 225,
+          "ungrounded_analyte": 225,
+          "polarity_flip": 76,
+          "fabricated_finding": 225,
+          "direction_mismatch": 216,
+          "hedge_removed": 21
+        },
+        "val_texts": {
+          "clean": 225,
+          "ungrounded_number": 225,
+          "ungrounded_analyte": 225,
+          "direction_mismatch": 216,
+          "fabricated_finding": 225,
+          "omitted_recommendation": 225,
+          "hedge_removed": 21,
+          "polarity_flip": 76
+        },
+        "test_texts": {
+          "clean": 30,
+          "ungrounded_number": 30,
+          "ungrounded_analyte": 30,
+          "direction_mismatch": 27,
+          "fabricated_finding": 30,
+          "omitted_recommendation": 30,
+          "polarity_flip": 12,
+          "hedge_removed": 3
+        }
+      }
+    }
+  }
+}

@@ -218,6 +218,16 @@ def test_provenance_fields_are_read_from_a_real_result():
     assert evaluation_chain.provenance_fields({}) == []
 
 
+def test_results_kept_in_subfolders_count_as_measured(tmp_path):
+    """E11 ruan një rezultat për çdo hyrje, te `E11/sentence/result.json`."""
+    (tmp_path / "E11" / "sentence").mkdir(parents=True)
+    (tmp_path / "E11" / "sentence" / "result.json").write_text('{"metrics": {}}', encoding="utf-8")
+    (tmp_path / "E11" / "leakage.json").write_text("{}", encoding="utf-8")  # nuk është rezultat
+    (tmp_path / "E2").mkdir()
+    (tmp_path / "E2" / "result.json").write_text('{"metrics": {}}', encoding="utf-8")
+    assert sorted(evaluation_chain.load_results(tmp_path)) == ["E11", "E2"]
+
+
 def test_figure_11_covers_every_registered_experiment():
     fig, statuses = evaluation_chain.build()
     assert list(statuses) == [e.id for e in evaluation_chain.registry.EXPERIMENTS]

@@ -7,7 +7,7 @@ medical PDFs, interprets them deterministically, writes a patient-facing
 explanation that may use only that interpretation (`GroundingContext`), and
 verifies the explanation automatically before anyone sees it.
 
-**Tests:** 438 pass, plus 1 PostgreSQL integration test (`make test-postgres`, run against migration 0002 on 2026-09-30).
+**Tests:** 450 pass, plus 1 PostgreSQL integration test (`make test-postgres`, run against migration 0002 on 2026-09-30).
 **Architecture decisions:** 14 ADRs in `docs/adr/`.
 
 ---
@@ -22,8 +22,8 @@ verifies the explanation automatically before anyone sees it.
 | 4 — Branch A (lab values) | ✅ done — digital + **OCR** (Tesseract), combination patterns P01–P11 |
 | 5 — Branch B (physician narrative) | ✅ done — terms, negation, hedging, cross-reference |
 | 6 — Generation + verification | ⚠️ rules R1–R9 + SP1-3, state machine, regeneration, template fallback done — **no LLM yet** (by decision) |
-| 7 — ML classifier | ⚠️ data, Colab notebook, evaluator, leakage report, runtime integration done — **training not run yet** |
-| 8 — Ablation | ⚠️ E7/E8/E9 pipelines ready — needs LLM + trained classifier |
+| 7 — ML classifier | ✅ trained on Colab and measured on 2026-09-30 (E11) — far weaker than the rules; both threshold rules are reported (author's decision, 5% false-alarm budget) |
+| 8 — Ablation | ⚠️ E7/E8/E9 pipelines ready — needs an LLM; E9 also needs the trained weights locally (only predictions came back from Colab) |
 | 9 — Web application | ✅ backend + frontend done (chat not built — needs LLM) |
 | 10 — User study (PK7) | ⛔ not started |
 | 11 — Analysis / discussion | ⛔ not started |
@@ -45,7 +45,8 @@ corpus `gen-1.0/s42/n500/37d8b080` (500 documents, 168 scanned) unless noted.
 | E5 | PK4 cross-reference | 1.000 digital · **0.656** whole corpus without OCR · **0.863** with OCR | The old draft value 0.563 had no recorded corpus and was replaced. |
 | E8 | PK5 with the template as generator | **0.000 violations/100 sentences** (95% ≤ 0.136) | A boundary check, not a result: proves the loop and metric work end to end. |
 | E10 | PK6 rules detector, 192 test samples | **macro F1 0.993**, 0 false alarms | Rules were fixed (r1.1–r1.3) after the test split was first measured (0.979). The fixes came from hand-built contexts and the UI, not from test errors — but this must be said. |
-| E4, E6, E7, E9, E11, E12 | PK3, PK5, PK6 | not measured | Need the LLM or the trained classifier. Pipelines and metrics exist and are tested. |
+| E11 | PK6 classifier, same 192 texts as E10 | **Rule 1** (max macro F1): sentence **0.481**, sentence + context **0.538**, but it blocks **30/30 and 29/30 clean texts**. **Rule 2** (≤5% of clean validation texts blocked): sentence **0.385** (0/30 clean blocked), context **0.326** (2/30 blocked — 6.7%, above the 5% budget on the test set). | Far below the rules (0.993). Within the budget it catches nothing for `polarity_flip` and `direction_mismatch` (F1 0.00). Its perfect class, `fabricated_finding`, is a template artifact (leakage report). Measured after a metric correction, and rule 2 was added after the test split had been seen — both disclosed in ADR 0009. E9 uses rule 2. |
+| E4, E6, E7, E9, E12 | PK3, PK5, PK6 | not measured | Need the LLM (E4, E6, E7, E12), or the LLM plus local classifier weights (E9). Pipelines and metrics exist and are tested. |
 | E13, E14 | external validity, PK7 | not measured | Need ethics approval / user study. |
 
 ---
@@ -73,6 +74,8 @@ corpus `gen-1.0/s42/n500/37d8b080` (500 documents, 168 scanned) unless noted.
    not by the corpus: R1 on numbers inside physician quotes, R7 on the SP4
    banner's own vocabulary, R2 on glossary explanations, R5/R6 judging the
    wrong quote (rules r1.1 → r1.3).
+
+6. **A metric defect hid a weak classifier, and a threshold rule hides a useless one.** `PRF.f1` returned `None` for a class the detector missed entirely, and the class average skipped it: a classifier catching nothing in five of seven defect types scored macro F1 0.96. Corrected to 2TP/(2TP+FP+FN); E10 is unchanged. Separately, the threshold rule (max macro F1 over defect types, chosen on validation) ignores false alarms on clean text, so it picks points that block ~98% of clean texts. Both were found after the test split had been seen. The original rule was kept and reported; a second rule (≤5% of clean validation texts blocked, chosen on validation, author's decision) was added beside it, and E9 uses that one. The table in ADR 0009 names both and says the second was added after the test was seen.
 
 ---
 
@@ -129,7 +132,7 @@ are generated from OpenAPI.
 
 | # | Item | Unblocks |
 |---|---|---|
-| 1 | Run `ml/colab/train_xlmr.ipynb` and return `results.zip` | E11, then E9 |
+| 1 | Were the XLM-R weights saved to Drive (`analyte_runs/`)? Only predictions came back, and E9 needs the weights locally; otherwise retrain (~15 min on Colab). | E9 |
 | 2 | Handwritten set **A** — 25 explanations (`A_shpjegimet.md`, currently empty) | false-alarm rate on natural text; LLM quality baseline |
 | 3 | Handwritten set **B** — ~105 sentences (`B_fjalite.csv`, empty) | the only non-template PK6 test |
 | 4 | Handwritten set **C** — ~60 physician sentences (`C_narrativa.csv`, empty) | Branch B outside the generator's vocabulary |

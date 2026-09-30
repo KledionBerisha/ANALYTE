@@ -32,9 +32,13 @@ WIDTH = 6.3
 
 
 def load_results(directory: Path = RESULTS) -> dict[str, dict[str, Any]]:
-    found = {}
-    for path in sorted(directory.glob("E*/result.json")):
-        found[path.parent.name] = json.loads(path.read_text(encoding="utf-8"))
+    """Rezultati i secilit eksperimenti. E11 ka një rezultat për çdo hyrje
+    (`E11/sentence/`, `E11/context/`); mban i pari sipas emrit, dhe për figurën
+    vlen vetëm që ekziston."""
+    found: dict[str, dict[str, Any]] = {}
+    for path in sorted(directory.glob("E*/result.json")) + sorted(directory.glob("E*/*/result.json")):
+        experiment_id = path.relative_to(directory).parts[0]
+        found.setdefault(experiment_id, json.loads(path.read_text(encoding="utf-8")))
     return found
 
 

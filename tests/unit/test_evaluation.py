@@ -37,7 +37,13 @@ from evaluation import dataset as dataset_module
 from evaluation import experiments as registry
 from evaluation import harness
 from evaluation.metrics import classification, crossref, detector, extraction, prose, violations
-from evaluation.metrics.base import PRF, ConfusionMatrix, count_sentences, micro_average
+from evaluation.metrics.base import (
+    PRF,
+    ConfusionMatrix,
+    count_sentences,
+    macro_f1,
+    micro_average,
+)
 from evaluation.metrics.detector import CLEAN, Judgement
 from evaluation.pipeline import DocumentInput, EmptyPipeline, OraclePipeline, PipelineOutput
 
@@ -77,6 +83,26 @@ def test_prf_returns_none_instead_of_zero_when_nothing_was_measured():
     assert PRF(0, 0, 0).f1 is None
     assert PRF(0, 0, 5).precision is None  # asgjë e parashikuar
     assert PRF(0, 0, 5).recall == 0.0  # por kishte çfarë të gjendej
+
+
+def test_f1_is_a_measured_zero_when_there_was_something_to_find_or_a_false_alarm():
+    """Një klasë ku zbuluesi nuk parashikoi asgjë ndërsa kishte raste ka saktësi
+    të papërkufizuar, por F1 zero — jo `None`, që e hedh mënjanë nga mesatarja."""
+    assert PRF(0, 0, 5).f1 == 0.0  # kishte çfarë të gjendej, s'u gjet asgjë
+    assert PRF(0, 3, 0).f1 == 0.0  # vetëm alarme të rreme
+    assert PRF(0, 2, 3).f1 == 0.0  # parashikoi dhe kishte, por asnjë përputhje
+    assert PRF(3, 0, 0).f1 == 1.0
+
+
+def test_macro_f1_counts_a_class_the_detector_missed_entirely():
+    """Rasti i E11: një zbulues që kap një lloj e humbet plotësisht tjetrin nuk
+    merr 1.0. Me F1 `None` për klasën e humbur, mesatarja dilte 1.0."""
+    assert macro_f1({"kapur": PRF(10, 0, 0), "humbur": PRF(0, 0, 10)}) == 0.5
+
+
+def test_macro_f1_leaves_out_only_a_class_with_nothing_to_measure():
+    assert macro_f1({"kapur": PRF(10, 0, 0), "mungon": PRF(0, 0, 0)}) == 1.0
+    assert macro_f1({"mungon": PRF(0, 0, 0)}) is None
 
 
 def test_prf_addition_merges_counts():
@@ -127,7 +153,8 @@ def test_extraction_is_perfect_on_the_oracle(data):
 def test_extraction_gives_no_credit_for_silence(data):
     result = extraction.measure(_empty_contexts(data))
     assert result["micro"]["recall"] == 0.0
-    assert result["micro"]["f1"] is None  # saktësia e papërkufizuar
+    assert result["micro"]["precision"] is None  # asgjë e parashikuar
+    assert result["micro"]["f1"] == 0.0  # zero e matur: kishte çfarë të gjendej
     assert result["per_field"]["analyte"]["fn"] > 0
 
 

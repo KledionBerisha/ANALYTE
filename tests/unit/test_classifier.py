@@ -114,6 +114,110 @@ def test_threshold_is_chosen_on_validation_rows_only():
 
 
 # --------------------------------------------------------------------
+# Buxheti i alarmeve të rreme (vendim i autorit, 2026-09-30)
+# --------------------------------------------------------------------
+
+
+def _curve(points):
+    return {t: {"macro_f1": f1, "false_alarm_rate": far} for t, (f1, far) in points.items()}
+
+
+def test_budget_picks_the_best_threshold_among_those_within_budget():
+    curve = _curve({0.3: (0.9, 0.5), 0.5: (0.6, 0.04), 0.7: (0.4, 0.0)})
+    assert evaluate_classifier.choose_within_budget(curve, 0.05) == 0.5
+
+
+def test_budget_is_inclusive_at_the_boundary_and_breaks_ties_low():
+    curve = _curve({0.4: (0.5, 0.05), 0.6: (0.5, 0.05), 0.8: (0.7, 0.051)})
+    assert evaluate_classifier.choose_within_budget(curve, 0.05) == 0.4
+
+
+def test_no_threshold_within_budget_is_reported_not_invented():
+    curve = _curve({0.3: (0.9, 0.5), 0.5: (0.6, 0.06)})
+    assert evaluate_classifier.choose_within_budget(curve, 0.05) is None
+
+
+def test_false_alarm_rate_counts_clean_texts_only():
+    rows = (
+        [{"label": "clean", "probabilities": [[0.3, 0.7, 0.0]]}] * 2
+        + [{"label": "clean", "probabilities": [[0.95, 0.05, 0.0]]}] * 2
+        + [{"label": "ungrounded_number", "probabilities": [[0.1, 0.9, 0.0]]}] * 6
+    )
+    curve = evaluate_classifier.validation_curve(rows, LABELS)
+    assert curve[0.5]["false_alarm_rate"] == 0.5  # 2 nga 4 të pastra, jo nga 10 tekste
+    assert curve[0.7]["false_alarm_rate"] == 0.5  # p = 0.7 kalon pragun 0.7 (>=)
+    assert curve[0.75]["false_alarm_rate"] == 0.0
+    assert curve[0.95]["false_alarm_rate"] == 0.0
+
+
+def _run(directory, val, test):
+    import json
+
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "run.json").write_text(
+        json.dumps({"labels": LABELS, "input": "sentence", "model": "m"}), encoding="utf-8"
+    )
+    for name, rows in (("val", val), ("test", test)):
+        with (directory / f"predictions_{name}.jsonl").open("w", encoding="utf-8") as handle:
+            for row in rows:
+                handle.write(json.dumps(row) + "\n")
+    return directory
+
+
+def _texts(label, defect_p, count):
+    return [
+        {"label": label, "probabilities": [[1 - defect_p, defect_p, 0.0]]} for _ in range(count)
+    ]
+
+
+def _indistinguishable_validation():
+    """Defektet dhe gjysma e të pastrave duken njësoj (0.6); gjysma tjetër e të pastrave 0.1."""
+    return (
+        _texts("ungrounded_number", 0.6, 10)
+        + _texts("clean", 0.6, 10)
+        + _texts("clean", 0.1, 10)
+    )
+
+
+def test_the_two_rules_disagree_when_the_best_f1_blocks_clean_text(tmp_path):
+    run = _run(tmp_path / "r", _indistinguishable_validation(), _texts("clean", 0.1, 4))
+    result = evaluate_classifier.evaluate(run)
+    points = result["operating_points"]
+    assert points["max_macro_f1"]["threshold"] == 0.3
+    assert points["max_macro_f1"]["val"]["false_alarm_rate"] == 0.5
+    assert points["false_alarm_budget"]["threshold"] == 0.65
+    assert points["false_alarm_budget"]["val"]["false_alarm_rate"] == 0.0
+    assert points["false_alarm_budget"]["budget"] == 0.05
+    assert result["deployed"] == "false_alarm_budget"
+    assert result["deployed_threshold"] == 0.65
+
+
+def test_thresholds_depend_on_validation_rows_only(tmp_path):
+    val = _indistinguishable_validation()
+    easy = evaluate_classifier.evaluate(_run(tmp_path / "a", val, _texts("clean", 0.1, 4)))
+    hard = evaluate_classifier.evaluate(
+        _run(tmp_path / "b", val, _texts("ungrounded_number", 0.99, 4) + _texts("clean", 0.99, 4))
+    )
+    for rule in ("max_macro_f1", "false_alarm_budget"):
+        assert easy["operating_points"][rule]["threshold"] == hard["operating_points"][rule]["threshold"]
+
+
+def test_with_no_threshold_within_budget_nothing_is_deployed(tmp_path):
+    val = _texts("ungrounded_number", 0.99, 5) + _texts("clean", 0.99, 5)
+    result = evaluate_classifier.evaluate(_run(tmp_path / "r", val, _texts("clean", 0.1, 2)))
+    assert result["operating_points"]["false_alarm_budget"] is None
+    assert result["deployed"] is None and result["deployed_threshold"] is None
+    assert result["operating_points"]["max_macro_f1"] is not None  # rregulli 1 del gjithsesi
+
+
+def test_the_budget_is_a_parameter_with_the_authors_value_as_default(tmp_path):
+    assert evaluate_classifier.FALSE_ALARM_BUDGET == 0.05
+    run = _run(tmp_path / "r", _indistinguishable_validation(), _texts("clean", 0.1, 2))
+    strict = evaluate_classifier.evaluate(run, budget=0.6)
+    assert strict["operating_points"]["false_alarm_budget"]["threshold"] == 0.3
+
+
+# --------------------------------------------------------------------
 # Rrjedhja
 # --------------------------------------------------------------------
 

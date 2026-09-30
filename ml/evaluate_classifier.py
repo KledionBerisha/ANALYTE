@@ -11,10 +11,24 @@ probabilitetin më të lartë për një defekt, nëse ai kalon pragun; përndrys
 është i pastër. Kjo është e njëjta formë vendimi si te rregullat — një
 etiketë për tekst — dhe e lejon krahasimin mostër për mostër.
 
-**Pragu zgjidhet mbi validimin dhe vetëm atje.** Vlerat 0,30-0,95
-provohen mbi tekstet e validimit; ajo me macro F1 më të lartë zbatohet e
+**Dy pika pune, të dyja të zgjedhura mbi validimin dhe vetëm atje.** Vlerat
+0,30-0,95 provohen mbi tekstet e validimit, dhe çdo prag zbatohet i
 pandryshuar mbi testin. Një prag i zgjedhur mbi testin do ta bënte E11 të
 pakrahasueshëm me E10, ku rregullat nuk kanë asnjë parametër të akorduar.
+
+  - `max_macro_f1` — pragu me macro F1 më të lartë mbi llojet e defektit.
+    Ky numër nuk e sheh tekstin e pastër që bllokohet: një tekst ka rreth 31
+    fjali, dhe mjafton një gabim i vogël për fjali që pothuajse çdo tekst i
+    pastër të dalë si i dyshimtë. Në ekzekutimin e parë, pragjet e zgjedhura
+    bllokonin 98% të teksteve të pastra të validimit.
+  - `false_alarm_budget` — pragu me macro F1 më të lartë ndër ata që bllokojnë
+    jo më shumë se 5% të teksteve të pastra të validimit. Buxheti u vendos nga
+    autori më 2026-09-30, pasi u panë rezultatet e rregullit të parë; ai
+    raportohet si pikë e dytë krahas të parit, jo në vend të tij. Kjo është
+    pika që përdor verifikimi (E9), sepse e para do t'i dërgonte pothuajse
+    të gjitha shpjegimet te shablloni.
+
+Nëse asnjë prag nuk e plotëson buxhetin, pika e dytë mungon dhe E9 nuk ka prag.
 
 **Rekomandimi i fshirë mbetet i padukshëm.** Ai nuk lë fjali për të
 gjykuar, prandaj klasifikuesi i fjalisë ka mbulim zero mbi të nga ndërtimi,
@@ -34,6 +48,9 @@ from evaluation.metrics import detector
 from evaluation.metrics.detector import Judgement
 
 CLEAN = "clean"
+FALSE_ALARM_BUDGET = 0.05
+"""Pjesa më e madhe e teksteve të pastra të validimit që lejohet të bllokohet
+(vendim i autorit, 2026-09-30)."""
 THRESHOLDS = tuple(round(0.30 + 0.05 * step, 2) for step in range(14))
 
 
@@ -63,62 +80,139 @@ def judge(rows: list[dict[str, Any]], labels: list[str], threshold: float) -> li
     ]
 
 
+def validation_curve(
+    rows: list[dict[str, Any]], labels: list[str]
+) -> dict[float, dict[str, float]]:
+    """Për çdo prag: macro F1 mbi llojet e defektit dhe pjesa e teksteve të pastra
+    që bllokohen. Të dyja rregullat e zgjedhjes lexojnë të njëjtën kurbë."""
+    clean_texts = sum(1 for row in rows if row["label"] == CLEAN)
+    curve = {}
+    for threshold in THRESHOLDS:
+        measured = detector.measure(judge(rows, labels, threshold))
+        curve[threshold] = {
+            "macro_f1": measured["macro_f1"] or 0.0,
+            "false_alarm_rate": (
+                measured["false_alarms_on_clean"] / clean_texts if clean_texts else 0.0
+            ),
+        }
+    return curve
+
+
 def choose_threshold(rows: list[dict[str, Any]], labels: list[str]) -> tuple[float, dict]:
     """Pragu me macro F1 më të lartë mbi validimin; në barazim, më i ulëti."""
-    scores = {}
-    for threshold in THRESHOLDS:
-        scores[threshold] = detector.measure(judge(rows, labels, threshold))["macro_f1"] or 0.0
-    best = max(THRESHOLDS, key=lambda t: (scores[t], -t))
-    return best, scores
+    curve = validation_curve(rows, labels)
+    best = max(THRESHOLDS, key=lambda t: (curve[t]["macro_f1"], -t))
+    return best, {t: point["macro_f1"] for t, point in curve.items()}
 
 
-def evaluate(run_dir: Path) -> dict[str, Any]:
+def choose_within_budget(curve: dict[float, dict[str, float]], budget: float) -> float | None:
+    """Pragu me macro F1 më të lartë ndër ata që bllokojnë jo më shumë se `budget`
+    të teksteve të pastra; në barazim, më i ulëti. `None` nëse asnjë s'e plotëson."""
+    eligible = [t for t, point in curve.items() if point["false_alarm_rate"] <= budget]
+    return max(eligible, key=lambda t: (curve[t]["macro_f1"], -t)) if eligible else None
+
+
+def _point(
+    rule: str, threshold: float, curve: dict, test: list[dict[str, Any]], labels: list[str]
+) -> dict[str, Any]:
+    metrics = detector.measure(judge(test, labels, threshold))
+    clean_texts = sum(1 for row in test if row["label"] == CLEAN)
+    return {
+        "rule": rule,
+        "threshold": threshold,
+        "chosen_on": "val",
+        "val": {k: round(v, 4) for k, v in curve[threshold].items()},
+        "test_false_alarm_rate": (
+            round(metrics["false_alarms_on_clean"] / clean_texts, 4) if clean_texts else None
+        ),
+        "metrics": metrics,
+    }
+
+
+def evaluate(run_dir: Path, budget: float = FALSE_ALARM_BUDGET) -> dict[str, Any]:
     run = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
     labels = run["labels"]
     val = read_jsonl(run_dir / "predictions_val.jsonl")
     test = read_jsonl(run_dir / "predictions_test.jsonl")
 
-    threshold, val_scores = choose_threshold(val, labels)
-    metrics = detector.measure(judge(test, labels, threshold))
+    curve = validation_curve(val, labels)
+    best, _ = choose_threshold(val, labels)
+    within = choose_within_budget(curve, budget)
+    budgeted = None
+    if within is not None:
+        budgeted = {**_point("false_alarm_budget", within, curve, test, labels), "budget": budget}
+    points = {
+        "max_macro_f1": _point("max_macro_f1", best, curve, test, labels),
+        "false_alarm_budget": budgeted,
+    }
+    deployed = "false_alarm_budget" if budgeted else None
     return {
         "experiment": "E11",
         "detector": "classifier",
         "input": run["input"],
         "model": run["model"],
-        "threshold": threshold,
-        "threshold_chosen_on": "val",
-        "val_macro_f1_by_threshold": {str(t): round(s, 4) for t, s in val_scores.items()},
         "samples": len(test),
+        "test_clean_texts": sum(1 for row in test if row["label"] == CLEAN),
+        "val_clean_texts": sum(1 for row in val if row["label"] == CLEAN),
         "structurally_invisible": [ViolationType.OMITTED_RECOMMENDATION.value],
+        "false_alarm_budget": budget,
+        "operating_points": points,
+        "deployed": deployed,
+        "deployed_threshold": budgeted["threshold"] if budgeted else None,
+        "val_by_threshold": {
+            str(t): {k: round(v, 4) for k, v in point.items()} for t, point in curve.items()
+        },
         "run": {k: v for k, v in run.items() if k != "labels"},
-        "metrics": metrics,
     }
+
+
+def _report(point: dict[str, Any] | None, title: str, clean_texts: int) -> None:
+    print(f"\n== {title}")
+    if point is None:
+        print("   asnjë prag nuk e plotëson buxhetin")
+        return
+    metrics = point["metrics"]
+    print(
+        f"   pragu {point['threshold']}   validim: macro F1 {point['val']['macro_f1']}, "
+        f"{point['val']['false_alarm_rate']:.0%} e të pastrave të bllokuara"
+    )
+    print(
+        f"   TEST: macro F1 {metrics['macro_f1']:.4f}   "
+        f"të pastra të bllokuara {metrics['false_alarms_on_clean']}/{clean_texts}"
+    )
+    for label, counts in metrics["per_defect_type"].items():
+        print(
+            f"     {label:30} P={counts['precision']} R={counts['recall']} "
+            f"F1={counts['f1']} (n={counts['support']})"
+        )
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="ml.evaluate_classifier")
     parser.add_argument("--run", type=Path, required=True, help="dosja e një ekzekutimi nga Colab")
     parser.add_argument("--out", type=Path, default=Path("evaluation/results/E11"))
+    parser.add_argument(
+        "--false-alarm-budget",
+        type=float,
+        default=FALSE_ALARM_BUDGET,
+        help="pjesa e teksteve të pastra të validimit që lejohet të bllokohet",
+    )
     args = parser.parse_args(argv)
 
-    result = evaluate(args.run)
+    result = evaluate(args.run, args.false_alarm_budget)
     out = args.out / result["input"]
     out.mkdir(parents=True, exist_ok=True)
     (out / "result.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
 
-    metrics = result["metrics"]
-    print(f"hyrja: {result['input']}   pragu (nga validimi): {result['threshold']}")
-    print(f"mostra: {result['samples']} (test)")
-    print(f"macro F1: {metrics['macro_f1']}")
-    print(f"alarme të rreme mbi tekst të pastër: {metrics['false_alarms_on_clean']}")
-    print("\nsipas llojit të defektit:")
-    for label, counts in metrics["per_defect_type"].items():
-        print(
-            f"  {label:32} P={counts['precision']} R={counts['recall']} "
-            f"F1={counts['f1']} (n={counts['support']})"
-        )
+    print(
+        f"hyrja: {result['input']}   mostra: {result['samples']} (test)   "
+        f"buxheti i alarmeve të rreme: {args.false_alarm_budget:.0%}"
+    )
+    points = result["operating_points"]
+    _report(points["max_macro_f1"], "rregulli 1: macro F1 më i lartë", result["test_clean_texts"])
+    _report(points["false_alarm_budget"], "rregulli 2: brenda buxhetit", result["test_clean_texts"])
     return 0
 
 
