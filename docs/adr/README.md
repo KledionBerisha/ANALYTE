@@ -24,3 +24,4 @@ del gjithmonë më i pastër dhe më i qëllimshëm seç ishte.
 | [0011](0011-makina-e-gjendjeve.md) | Makina e gjendjeve dhe dështimet që Figura 6 nuk i emërton | i zbatuar |
 | [0012](0012-ocr.md) | Rruga e OCR-së dhe zgjedhja e konfigurimit | i zbatuar; vendim i hapur |
 | [0013](0013-shtresa-e-sherbimit.md) | Shtresa e shërbimit: baza, radha, siguria | i zbatuar pa bisedë |
+| [0014](0014-seancat-rifreskimi-dhe-kufizimi-i-hyrjeve.md) | Seancat e revokueshme, rrotullimi i tokenëve dhe kufizimi i hyrjeve | i zbatuar |

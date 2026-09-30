@@ -40,6 +40,16 @@ def user_registered(session: Session, user_id: UUID) -> None:
     _record(session, "user.registered", {}, user_id=user_id)
 
 
+def login_throttled(session: Session, bucket: str) -> None:
+    """Vetëm cila kovë u mbush (`pair`, `ip`, `email`). As email-i, as IP-ja:
+    log-u i auditimit nuk mban asnjërën (NFR5), edhe pse kufizimi i përdor."""
+    _record(session, "auth.login_throttled", {"bucket": bucket})
+
+
+def session_revoked(session: Session, user_id: UUID, reason: str) -> None:
+    _record(session, "auth.session_revoked", {"reason": reason}, user_id=user_id)
+
+
 def document_uploaded(
     session: Session, document_id: UUID, user_id: UUID, size_bytes: int, sha256: str
 ) -> None:

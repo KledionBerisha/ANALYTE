@@ -129,6 +129,26 @@
         }
       }
     },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "description": "Revokon seancën: tokenët e aksesit dhe të rifreskimit pushojnë menjëherë.",
+        "operationId": "logout_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/auth/me": {
       "get": {
         "tags": [

@@ -93,6 +93,57 @@ class UserRow(Base):
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
 
 
+class AuthSessionRow(Base):
+    """Një hyrje e një përdoruesi, që shërbimi mund ta revokojë (ADR 0014).
+
+    Tokenët e aksesit dhe të rifreskimit mbajnë identifikuesin e kësaj
+    seance; revokimi i saj i bën të dy të pavlefshëm menjëherë, jo në skadim.
+    """
+
+    __tablename__ = "auth_sessions"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
+    revoked_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    revoked_reason: Mapped[str | None] = mapped_column(String(30))
+    """`logout` ose `refresh_reuse`."""
+
+
+class RefreshTokenRow(Base):
+    """Një token rifreskimi i lëshuar. Përdoret një herë dhe zëvendësohet."""
+
+    __tablename__ = "refresh_tokens"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    """Është `jti` i tokenit."""
+    session_id: Mapped[UUID] = mapped_column(
+        ForeignKey("auth_sessions.id", ondelete="CASCADE"), index=True
+    )
+    expires_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    used_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class LoginFailureRow(Base):
+    """Një hyrje e dështuar, për kufizimin e shpeshtësisë (ADR 0014).
+
+    Email-i dhe adresa IP ruhen vetëm si HMAC me çelës, jo si tekst: tabela
+    duhet të dallojë njërën nga tjetra, jo t'i mbajë. Rreshtat fshihen sapo
+    dalin nga dritarja e numërimit.
+    """
+
+    __tablename__ = "login_failures"
+    __table_args__ = (
+        Index("ix_login_failures_email_at", "email_key", "at"),
+        Index("ix_login_failures_ip_at", "ip_key", "at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    email_key: Mapped[str] = mapped_column(String(64))
+    ip_key: Mapped[str] = mapped_column(String(64))
+    at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
+
+
 class DocumentRow(Base):
     __tablename__ = "documents"
 

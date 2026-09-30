@@ -3,15 +3,16 @@ Regjistrimi, hyrja dhe rifreskimi.
 
 Hyrja e dështuar ka një përgjigje të vetme, qoftë email-i i panjohur apo
 fjalëkalimi i gabuar: dy përgjigje të ndryshme do t'i tregonin kujtdo se
-cili email ka llogari. Kufizimi i shpeshtësisë së përpjekjeve nuk është
-ndërtuar ende dhe shënohet te ADR 0013.
+cili email ka llogari. Kufizimi i shpeshtësisë së përpjekjeve vlen njësoj
+për të dyja (`throttle.py`). Seancat, rrotullimi i tokenëve të rifreskimit
+dhe dalja janë te `auth_sessions.py`; të gjitha shpjegohen te ADR 0014.
 """
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -19,9 +20,9 @@ from sqlalchemy.orm import Session
 from analyte.audit import logger as audit
 from analyte.config import Settings
 from analyte.persistence.tables import UserRow
-from analyte.security import TokenError, hash_password, issue_token, read_token, verify_password
+from analyte.security import TokenError, hash_password, read_token, verify_password
 
-from . import deps
+from . import auth_sessions, deps, throttle
 from .problems import Problem
 from .schemas import Credentials, RefreshIn, Tokens, UserOut
 
@@ -39,17 +40,6 @@ def _normalize(email: str) -> str:
     if not local or "." not in domain or " " in email:
         raise Problem(422, "Email i pavlefshëm")
     return email
-
-
-def _tokens(user: UserRow, config: Settings) -> Tokens:
-    return Tokens(
-        access_token=issue_token(
-            user.id, "access", timedelta(minutes=config.access_token_minutes), config.jwt_secret
-        ),
-        refresh_token=issue_token(
-            user.id, "refresh", timedelta(days=config.refresh_token_days), config.jwt_secret
-        ),
-    )
 
 
 @router.post("/register", response_model=UserOut, status_code=201)
@@ -77,14 +67,24 @@ def register(
 @router.post("/login", response_model=Tokens)
 def login(
     body: Credentials,
+    request: Request,
     db: Session = Depends(deps.session),
     config: Settings = Depends(deps.settings),
 ) -> Tokens:
-    user = db.scalars(select(UserRow).where(UserRow.email == body.email.strip().lower())).first()
+    now = datetime.now(UTC)
+    email = body.email.strip().lower()
+    keys = throttle.keys_for(email, throttle.client_ip(request, config.trusted_proxy_hops), config)
+    # Kufizimi para fjalëkalimit: një çift i bllokuar refuzohet edhe me fjalëkalimin
+    # e saktë, përndryshe provat do të vazhdonin derisa një të ketë sukses.
+    throttle.check(db, config, keys, now)
+
+    user = db.scalars(select(UserRow).where(UserRow.email == email)).first()
     stored = user.password_hash if user is not None else _DECOY_HASH
     if not verify_password(stored, body.password) or user is None:
+        throttle.record_failure(db, config, keys, now)
         raise Problem(401, "Email ose fjalëkalim i gabuar")
-    return _tokens(user, config)
+    throttle.clear_pair(db, keys)
+    return auth_sessions.open_session(db, user, config, now)
 
 
 @router.post("/refresh", response_model=Tokens)
@@ -94,13 +94,20 @@ def refresh(
     config: Settings = Depends(deps.settings),
 ) -> Tokens:
     try:
-        user_id = read_token(body.refresh_token, "refresh", config.jwt_secret)
+        claims = read_token(body.refresh_token, "refresh", config.jwt_secret)
     except TokenError:
         raise Problem(401, "Token rifreskimi i pavlefshëm ose i skaduar") from None
-    user = db.get(UserRow, user_id)
-    if user is None:
-        raise Problem(401, "Token rifreskimi i pavlefshëm ose i skaduar")
-    return _tokens(user, config)
+    return auth_sessions.rotate(db, claims, config, datetime.now(UTC))
+
+
+@router.post("/logout", status_code=204)
+def logout(
+    current: deps.Login = Depends(deps.current_login),
+    db: Session = Depends(deps.session),
+) -> Response:
+    """Revokon seancën: tokenët e aksesit dhe të rifreskimit pushojnë menjëherë."""
+    auth_sessions.revoke(db, current.auth_session, "logout", datetime.now(UTC))
+    return Response(status_code=204)
 
 
 @router.get("/me", response_model=UserOut)

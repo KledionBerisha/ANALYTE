@@ -23,7 +23,7 @@ NEEDS_USER_STUDY = "needs_user_study"
 NEEDS_SECOND_PROVIDER = "needs_second_provider"
 
 PENDING_REASONS: dict[str, str] = {
-    NEEDS_CORRUPTION_SET: "korpusi i korruptuar ndërtohet në Fazën 7",
+    NEEDS_CORRUPTION_SET: "matet mbi çifte etiketash nga skriptet `ml/`, jo nga harness-i mbi dokumente",
     NEEDS_REAL_DATA: "varet nga miratimi etik dhe nga dokumentet reale",
     NEEDS_USER_STUDY: "kërkon pjesëmarrës njerëz (Faza 10)",
     NEEDS_SECOND_PROVIDER: "kërkon një model të dytë gjuhësor",
@@ -45,6 +45,9 @@ class Experiment:
     channel: str | None = None
     """Kufizimi te kanali dixhital ose i skanuar, kur eksperimenti e kërkon."""
     status: str = RUNNABLE
+    waiting_for: str = ""
+    """Çfarë i mungon një eksperimenti që ende nuk është matur. Nuk hyn në
+    `to_json`: është për figurën e tubacionit, jo për rezultatet."""
 
     @property
     def runnable(self) -> bool:
@@ -89,9 +92,11 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     Experiment("E10", "Zbuluesi: rregulla", "—", "corruption-test",
                "detector", "PK6", status=NEEDS_CORRUPTION_SET),
     Experiment("E11", "Zbuluesi: klasifikues", "—", "corruption-test",
-               "detector", "PK6", status=NEEDS_CORRUPTION_SET),
+               "detector", "PK6", status=NEEDS_CORRUPTION_SET,
+               waiting_for="klasifikuesi XLM-R i trajnuar në Colab"),
     Experiment("E12", "Zbuluesi: gjykatës LLM", "—", "corruption-test",
-               "detector", "PK6", status=NEEDS_CORRUPTION_SET),
+               "detector", "PK6", status=NEEDS_CORRUPTION_SET,
+               waiting_for="një model gjuhësor si gjykatës"),
     Experiment("E13", "Vlefshmëria mbi të dhëna reale", "—", "real-subset",
                "extraction", "vlefshmëri e jashtme", status=NEEDS_REAL_DATA),
     Experiment("E14", "Kuptueshmëria te përdoruesit", "me / pa sistem", "n=12-20",

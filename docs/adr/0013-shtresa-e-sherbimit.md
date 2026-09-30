@@ -1,6 +1,6 @@
 # 0013 — Shtresa e shërbimit: baza, radha, siguria
 
-**Gjendja:** i zbatuar (pa bisedë dhe pa pikat e administrimit)
+**Gjendja:** i zbatuar (pa bisedë dhe pa pikat e administrimit); kufizimi i hyrjeve dhe revokimi i tokenëve u shtuan me ADR 0014
 
 ## Konteksti
 
@@ -76,10 +76,10 @@ kodit, dhe shënohet si kufizim.
 
 ## Pasojat
 
-Mbeten pa u ndërtuar: biseda (kërkon modelin gjuhësor; kthen 501),
+Mbeten pa u ndërtuar: biseda (kërkon modelin gjuhësor; kthen 501) dhe
 pikat e administrimit të vlerësimit (eksperimentet ekzekutohen nga
-harness-i), kufizimi i shpeshtësisë së hyrjeve, dhe revokimi i tokenëve —
-një token rifreskimi i vjedhur mbetet i vlefshëm deri në skadim.
+harness-i). Kufizimi i shpeshtësisë së hyrjeve dhe revokimi i tokenëve,
+që ky ADR i la të hapur, u ndërtuan te [ADR 0014](0014-seancat-rifreskimi-dhe-kufizimi-i-hyrjeve.md).
 
 Instalimi i paketës në mënyrë të redaktueshme (`pip install -e`) ishte i
 prishur që përpara këtij ndryshimi; u ndreq më vonë me konfigurimin e

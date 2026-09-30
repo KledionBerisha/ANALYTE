@@ -1,14 +1,14 @@
 # ANALYTE — progress so far
 
-*State as of 2026-09-30, commit `fc8722e`. Everything below is committed on `main`.*
+*State as of 2026-09-30, on top of commit `3ab94e7`. The security hardening (ADR 0014) and the generated figures are in the working tree, not yet committed.*
 
 ANALYTE extracts laboratory values and physician statements from Albanian
 medical PDFs, interprets them deterministically, writes a patient-facing
 explanation that may use only that interpretation (`GroundingContext`), and
 verifies the explanation automatically before anyone sees it.
 
-**Tests:** 387 pass, plus 1 PostgreSQL integration test (`make test-postgres`).
-**Architecture decisions:** 13 ADRs in `docs/adr/`.
+**Tests:** 438 pass, plus 1 PostgreSQL integration test (`make test-postgres`, run against migration 0002 on 2026-09-30).
+**Architecture decisions:** 14 ADRs in `docs/adr/`.
 
 ---
 
@@ -88,7 +88,7 @@ corpus `gen-1.0/s42/n500/37d8b080` (500 documents, 168 scanned) unless noted.
 - `orchestration/` — the state machine (Figure 6 as a transition table), regeneration loop, template fallback, job runner, arq worker.
 
 ### Service layer
-- `api/` — FastAPI: auth (JWT + Argon2, equal-time login failure), upload, history, status, findings, assertions, cross-references, explanation (always with its verification summary), verification details, page images, terminology. Errors as RFC 7807. Chat returns 501.
+- `api/` — FastAPI: auth (JWT + Argon2, equal-time login failure, **login throttling, revocable sessions, single-use refresh tokens with reuse detection, logout** — ADR 0014), upload, history, status, findings, assertions, cross-references, explanation (always with its verification summary), verification details, page images, terminology. Errors as RFC 7807. Chat returns 501.
 - `persistence/` — SQLAlchemy tables mirroring the domain (exact decimals), repository with round-trip tests, Alembic migration `0001`, encrypted file storage (Fernet; the filename is encrypted too).
 - `audit/` — audit log that structurally cannot record names, emails or lab values.
 - Infrastructure: `docker-compose.yml` (PostgreSQL on 5433, Redis), `.env.example`, `Makefile`.
@@ -110,6 +110,7 @@ are generated from OpenAPI.
 - ADRs 0001–0013 (`docs/adr/`).
 - Chapter 5 drafts: 5.2, 5.3 (incl. patterns and OCR), 5.4, 5.8 (incl. the decision not to harden the corpus), 5.11 (incl. CIs and the ablation guard).
 - Tables T1–T5 generated from source (`scripts/build_tables.py`).
+- Figures 6, 7, 8 and 11 generated from code (`python scripts/build_figures.py` → `docs/thesis/figures/`, PNG + SVG): the state machine from `TRANSITIONS`, the ER diagram from the table metadata, the module dependency matrix from real imports, and the evaluation pipeline with each experiment's status taken from the result files that exist.
 
 ---
 
@@ -143,10 +144,19 @@ are generated from OpenAPI.
 
 ## 7. Possible next steps without the author
 
-1. Figures generated from code: F5 state machine (from the transition table), F6 ER diagram (from the tables), F10 evaluation chain.
-2. A reproducible script that exports the six thesis screenshots from the running UI.
-3. Security gaps recorded in ADR 0013: login rate limiting and refresh-token revocation.
+1. Figures still to draw by hand or by script: 1 (phases), 2–5 (architecture and pipelines), 9–10 (corpus generation, corrupted corpus).
+2. A reproducible script that exports the six thesis screenshots (Figures 12–17) from the running UI.
+3. Remaining gaps recorded in ADR 0014: registration still reveals whether an email has an account (409), no "sign out everywhere", and IPv6 /64 rotation weakens the per-address limits.
 4. Chapter 5/6 drafts for the service layer, the interface, OCR, and a results section generated from `evaluation/results/`.
+
+---
+
+## 7b. Traceability gaps the generated figures exposed
+
+- **E1 and E8 have no `result.json`** in `evaluation/results/`, although §2 cites their values. Figure 11 shows them as "gati", not "i matur". Re-run them (`python -m evaluation.harness …`) so the numbers have a file behind them.
+- **E2, E3 and E5 were produced with uncommitted changes** (`working_tree_dirty: true` at `ba2c96b`), so the recorded git sha does not identify the code that made them. Re-run from a clean commit before quoting them in the thesis.
+- **E10's result has no provenance metadata** (no git sha, no corpus version), unlike the harness results.
+- **Package-level cycle `audit ↔ orchestration ↔ persistence`** (Figure 8): `audit.logger` imports `orchestration.states.Transition`, and `persistence.repository` imports `Delivery`/`Explanation` from `orchestration.process`, while `orchestration.tasks` imports both. There is no cycle at module level. Moving those three types into `domain/` would remove it; §5.9 of the thesis should either say so or be changed once it is fixed.
 
 ---
 

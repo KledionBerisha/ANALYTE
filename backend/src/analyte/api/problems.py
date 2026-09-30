@@ -21,24 +21,41 @@ log = logging.getLogger("analyte.api")
 
 
 class Problem(Exception):
-    def __init__(self, status: int, title: str, detail: str = "", kind: str = "about:blank"):
+    def __init__(
+        self,
+        status: int,
+        title: str,
+        detail: str = "",
+        kind: str = "about:blank",
+        headers: dict[str, str] | None = None,
+    ):
         self.status = status
         self.title = title
         self.detail = detail
         self.kind = kind
+        self.headers = headers or {}
 
 
-def _response(status: int, title: str, detail: str, kind: str, instance: str) -> JSONResponse:
+def _response(
+    status: int,
+    title: str,
+    detail: str,
+    kind: str,
+    instance: str,
+    headers: dict[str, str] | None = None,
+) -> JSONResponse:
     body = {"type": kind, "title": title, "status": status, "instance": instance}
     if detail:
         body["detail"] = detail
-    return JSONResponse(body, status_code=status, media_type=MEDIA_TYPE)
+    return JSONResponse(body, status_code=status, media_type=MEDIA_TYPE, headers=headers)
 
 
 def install(app: FastAPI) -> None:
     @app.exception_handler(Problem)
     async def _problem(request: Request, error: Problem) -> JSONResponse:
-        return _response(error.status, error.title, error.detail, error.kind, request.url.path)
+        return _response(
+            error.status, error.title, error.detail, error.kind, request.url.path, error.headers
+        )
 
     @app.exception_handler(StarletteHTTPException)
     async def _http(request: Request, error: StarletteHTTPException) -> JSONResponse:

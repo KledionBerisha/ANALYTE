@@ -29,20 +29,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     session.access() ? undefined : null,
   );
 
-  const logout = useCallback(() => {
+  // Seanca u humb: tokenët janë tashmë të pavlefshëm, s'ka çfarë t'i thuhet shërbimit.
+  const leave = useCallback(() => {
     session.clear();
     setUser(null);
     router.replace("/login");
   }, [router]);
 
+  // Dalje me dëshirë: seanca mbyllet edhe te shërbimi, para se tokenët të fshihen.
+  const logout = useCallback(() => {
+    void api.endSession();
+    leave();
+  }, [leave]);
+
   useEffect(() => {
-    whenSessionLost(logout);
+    whenSessionLost(leave);
     if (!session.access()) return;
     api
       .json<UserOut>("/auth/me")
       .then(setUser)
       .catch(() => setUser(null));
-  }, [logout]);
+  }, [leave]);
 
   const login = useCallback(async (email: string, password: string) => {
     session.save(await api.post<Tokens>("/auth/login", { email, password }));

@@ -33,6 +33,23 @@ class Settings(BaseSettings):
     max_upload_mb: int = 20
     min_password_length: int = 10
 
+    refresh_reuse_grace_seconds: int = 10
+    """Një token rifreskimi i përdorur dy herë brenda kësaj kohe refuzohet pa
+    revokuar seancën: dy kërkesa paralele të të njëjtit klient nuk janë vjedhje.
+    Pas saj, ripërdorimi revokon seancën (ADR 0014)."""
+
+    login_window_minutes: int = 15
+    login_max_failures_pair: int = 5
+    """Dështime për një çift (email, IP) brenda dritares."""
+    login_max_failures_ip: int = 20
+    """Dështime nga një IP, pavarësisht email-it — kundër provës së shumë llogarive."""
+    login_max_failures_email: int = 20
+    """Dështime për një email nga çdo IP — kundër provës së shpërndarë."""
+    trusted_proxy_hops: int = 0
+    """Sa ndërmjetës të besuar qëndrojnë para shërbimit. 0 = adresa e lidhjes;
+    n > 0 = e n-ta nga e djathta te `X-Forwarded-For`. Mos e rrit pa proxy:
+    koka mund ta shkruajë kushdo."""
+
     job_runner: Literal["inline", "arq"] = "arq"
     """`inline` e përpunon dokumentin brenda kërkesës — vetëm për teste dhe
     prova; `arq` e dërgon te radha dhe kërkesa kthehet menjëherë (NFR4)."""

@@ -10,6 +10,12 @@
  *
  * Një 401 provon një rifreskim të vetëm dhe e përsërit kërkesën; nëse edhe
  * rifreskimi dështon, seanca pastrohet dhe përdoruesi kthehet te hyrja.
+ *
+ * **Rifreskimi bëhet një herë për të gjitha kërkesat paralele.** Tokeni i
+ * rifreskimit vlen vetëm një herë (ADR 0014): nëse dy kërkesa e dërgonin të
+ * njëjtin token, e dyta do të dukej si ripërdorim dhe shërbimi do ta
+ * revokonte seancën. Një kërkesë që merr 401 pasi një tjetër e ka rifreskuar
+ * tashmë e përsërit me tokenin e ri, pa rifreskuar sërish.
  */
 
 import type { components } from "./schema";
@@ -78,27 +84,42 @@ async function toError(response: Response): Promise<ApiError> {
   }
 }
 
-async function tryRefresh(): Promise<boolean> {
+async function refreshTokens(): Promise<boolean> {
   const token = session.refresh();
   if (!token) return false;
-  const response = await fetch(`${API_URL}/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: token }),
+  try {
+    const response = await fetch(`${API_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: token }),
+    });
+    if (!response.ok) return false;
+    session.save(await response.json());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+let refreshing: Promise<boolean> | null = null;
+
+function tryRefresh(): Promise<boolean> {
+  refreshing ??= refreshTokens().finally(() => {
+    refreshing = null;
   });
-  if (!response.ok) return false;
-  session.save(await response.json());
-  return true;
+  return refreshing;
 }
 
 async function send(path: string, init: RequestInit = {}, retry = true): Promise<Response> {
   const headers = new Headers(init.headers);
-  const token = session.access();
-  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const sentWith = session.access();
+  if (sentWith) headers.set("Authorization", `Bearer ${sentWith}`);
   const response = await fetch(`${API_URL}${path}`, { ...init, headers });
 
   if (response.status === 401 && retry && session.refresh()) {
-    if (await tryRefresh()) return send(path, init, false);
+    // Tokeni ndryshoi ndërsa kërkesa ishte në rrugë: një tjetër e ka rifreskuar.
+    const alreadyRefreshed = session.access() !== sentWith;
+    if (alreadyRefreshed || (await tryRefresh())) return send(path, init, false);
     session.clear();
     onSessionLost();
   }
@@ -124,6 +145,25 @@ export const api = {
     const form = new FormData();
     form.append("file", file);
     return api.json<Schemas["UploadOut"]>("/documents", { method: "POST", body: form });
+  },
+
+  /**
+   * Mbyll seancën te shërbimi, që tokenët të pushojnë menjëherë edhe nëse
+   * dikush i ka kopjuar. Përpjekje e vetme: nëse dështon (rrjeti, ose tokeni i
+   * aksesit ka skaduar), tokenët fshihen lokalisht gjithsesi.
+   */
+  async endSession(): Promise<void> {
+    const token = session.access();
+    if (!token) return;
+    try {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        keepalive: true,
+      });
+    } catch {
+      // pa rrjet: seanca fshihet lokalisht dhe skadon vetë
+    }
   },
 
   remove(id: string) {
