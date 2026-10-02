@@ -23,13 +23,13 @@
       "channel": "all"
     },
     "code": {
-      "git_sha": "ba2c96b64c15efcca49539670d9bd70f710a16a8",
-      "working_tree_dirty": true,
+      "git_sha": "37b5be45b34b5949419677f87c13d34093e919bb",
+      "working_tree_dirty": false,
       "rules_version": "r1.3",
       "policy_version": "sp1.0",
       "python": "3.12.3"
     },
-    "created_at": "2026-09-28T20:49:44+00:00"
+    "created_at": "2026-10-02T19:27:12+00:00"
   },
   "metrics": {
     "overall": {
@@ -185,7 +185,7 @@
             "fn": 0,
             "precision": 0.0,
             "recall": null,
-            "f1": null,
+            "f1": 0.0,
             "support": 0
           }
         }
@@ -247,7 +247,7 @@
             "fn": 0,
             "precision": 0.0,
             "recall": null,
-            "f1": null,
+            "f1": 0.0,
             "support": 0
           }
         }

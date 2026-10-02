@@ -60,6 +60,27 @@ cilësisë në shqip, mbi të njëjtat kontekste.
 | `fjalia` | Një fjali e vetme e daljes |
 | `etiketa` | Njëra nga vlerat më poshtë |
 | `shenim` | Opsionale — çfarë keni prishur |
+| `burimi` | Vetëm për `polarity_flip` dhe `hedge_removed`: fjala e saktë e pohimit të mjekut (nga lista "Mjeku ka shkruar" e kontekstit) që fjalia zëvendëson |
+
+**Prejardhja.** Skedari i tanishëm i dorëzoi autori më 2026-10-02, si punën e vet.
+Gjatë kësaj pune ekzistonte në depo një draft i mëparshëm i hartuar nga një model
+gjuhësor (Claude); ai u zëvendësua dhe nuk është më pjesë e depove. **12 nga 105 rreshta të
+skedarit të tanishëm janë identikë (kontekst dhe fjali) me rreshta të atij drafti**: 6
+`polarity_flip` dhe 6 `hedge_removed`, pra vetëm rreshta me citim të mjekut; edhe 4 fjali të
+tjera përputhen nëse nuk merret parasysh konteksti. 93 rreshtat e tjerë janë të ndryshëm.
+Forma e rreshtave me citim është shumë e kufizuar (parashtesa dhe fjala e mjekut me një
+ndryshim), prandaj përputhja mund të ndodhë pa kopjim, por skedari nuk e vërteton
+se si ndodhi. Punimi duhet ta thotë hapur si u përgatit B dhe se kjo mbivendosje ekziston.
+
+Matja ka një ndryshim të rëndësishëm nga përshkrimi fillestar: `polarity_flip`
+dhe `hedge_removed` **zëvendësojnë** citimin burimor te shablloni, jo shtohen
+në fund. Shablloni i mban tashmë citimet e sakta, dhe R5/R6 gjykojnë të parin;
+një citim i dytë i shtuar nuk gjykohej kurrë dhe matja jepte zero për një arsye
+që s'ka lidhje me rregullat (20 nga 20 të humbura në matjen e parë). Ky ndryshim
+u bë pasi u pa ai rezultat, dhe duhet raportuar.
+
+`python -m evaluation.kits check` raporton edhe rreshtat e përsëritur (`B_duplicates`):
+një rresht me të njëjtin kontekst, fjali dhe burim numërohet dy herë dhe e fryn llojin e tij.
 
 Etiketat dhe sa të shkruhen:
 

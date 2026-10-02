@@ -150,3 +150,50 @@ e kap pjesërisht (F1 0.22 dhe 0.26), por duke bllokuar pothuajse çdo tekst.
    i rregullit 2 nuk varet nga testi (një test e provon), por vetë ekzistenca
    e tij është shtuar pas parë rezultateve.
 
+
+## Grupi B dhe E9 (2026-10-02)
+
+**Grupi B.** 105 fjali natyrale (`evaluation/handwritten/B_fjalite.csv`) për 25 kontekste, me etiketën e secilës,
+të dorëzuara nga autori. Gjatë punës ekzistonte në depo një draft i hartuar nga një model gjuhësor (Claude); ai u
+zëvendësua. **12 nga 105 rreshta të skedarit të tanishëm janë identikë me rreshta të atij drafti** (6 `polarity_flip`
+dhe 6 `hedge_removed`, vetëm citime të mjekut); 93 janë të ndryshëm. Forma e rreshtave me citim është e kufizuar,
+prandaj përputhja mund të ndodhë pa kopjim, por skedari nuk e vërteton si ndodhi; punimi duhet ta deklarojë këtë.
+
+Matja e parë mbi drafin dha zero për 20 nga 20 fjalitë me citim (`polarity_flip`, `hedge_removed`). Arsyeja nuk ishte
+rregulli: vlerësuesi shtonte fjalinë në fund të shablloni-t, që mban tashmë citimet e sakta, dhe R5/R6 gjykojnë
+citimin e parë që përputhet. Vlerësuesi u ndryshua që fjalia të **zëvendësojë** citimin burimor (kolona `burimi`),
+si korruptuesit e E10. **Ky ndryshim u bë pasi u pa rezultati.** `kits check` raporton tani edhe rreshtat e
+përsëritur (një çift i tillë u gjet dhe u korrigjua nga autori; skedari i tanishëm nuk ka dublikatë).
+
+| Detektori | Macro F1, korpusi i korruptuar | Macro F1, grupi B | Të pastra të bllokuara, B |
+|---|---|---|---|
+| Rregullat | **0.993** | **0.795** | 1 / 30 |
+| Klasifikuesi, fjalia, rregulli 1 (pragu 0.30) | 0.481 | 0.053 | 30 / 30 |
+| Klasifikuesi, fjalia, rregulli 2 (pragu 0.85) | 0.385 | 0.015 | 2 / 30 |
+| Klasifikuesi, fjalia + konteksti, rregulli 1 (0.40) | 0.538 | 0.177 | 29 / 30 |
+| Klasifikuesi, fjalia + konteksti, rregulli 2 (0.90) | 0.326 | 0.104 | 0 / 30 |
+
+Pragjet e klasifikuesit vijnë nga E11, të zgjedhura mbi validimin; asnjë prag nuk u akordua mbi B.
+Rregullat sipas llojit (F1): `polarity_flip` 1.00, `hedge_removed` 1.00, `ungrounded_analyte` 1.00,
+`ungrounded_number` 0.95, `fabricated_finding` 0.95, `direction_mismatch` 0.67 (kapen 5 nga 10),
+`prohibited_claim` 0.46 (3 nga 10), `ungrounded_term_explanation` 0.33 (1 nga 5).
+
+**Si duhet lexuar.** Rregullat bien nga 0.993 në 0.795 kur fjalitë nuk vijnë nga gjeneruesi; klasifikuesi, i
+trajnuar mbi shabllone, mezi dallon nga rastësia (te fjalia, 0.053 dhe 0.015: ai mësoi shprehjen "Vërehet
+gjithashtu" dhe nuk njeh një gjetje të shpikur të shprehur ndryshe). Dobësitë e rregullave janë leksikore: ato
+njohin vetëm formën e pohimit të drejtimit që kanë ("Eritrocitet janë të larta" nuk kapet), shprehjet e SP1–SP3
+që kanë (7 nga 10 diagnoza, trajtime dhe prognoza kalojnë), dhe termat e tabelës së tyre (një gjendje si
+"pankreatit" nuk kapet); R9 kap vetëm një nga pesë shpjegimet e një termi të pashpjeguar. Dy alarme të rreme mbi
+fjali të sakta janë gjetje më vete: "25-OH" te "Vitamina D 25-OH" lexohet si numri 25 (te një version tjetër i B,
+"Kolesteroli LDL" lexohej si kolesterol total). **Kufizime të B:** 8 nga 105 fjali ndajnë formën me një fjali të
+trajnimit (të gjitha citime të mjekut, sepse fjalët e mjekut te kontekstet vijnë nga gjeneruesi) dhe asnjë nuk
+gjendet fjalë për fjalë te shablloni; rreshtat `polarity_flip` dhe `hedge_removed` janë, prandaj, më pak të
+pavarura se të tjerat. Disa grupe rreshtash janë shumë njëtrajtëshme (p.sh. të gjitha fjalitë e pastra ndjekin të
+njëjtën formë), çka e ngushton llojin e fjalive që testohen.
+
+**E9** (shablloni si gjenerues, OCR, 500 dokumente, klasifikuesi i fjalisë në pragun 0.85): 51 dokumente (10.2%)
+u çuan te shablloni rezervë nga alarme të rreme të klasifikuesit, 158 fjali, të gjitha `ungrounded_analyte`. Meqë
+gjeneruesi është shablloni, çdo detektim është alarm i rremë. Një provë: 12 nga 40 dokumente të skanuara u goditën,
+kundrejt 0 nga dokumentet dixhitale të një kampioni prej 120; fjalitë e shënuara mbanin njësi të prishura nga OCR
+("midi", "ugidl", "umolL"). Buxheti 5%, i zgjedhur mbi tekst të pastër dixhital (0% e bllokuar), nuk transferohet
+te kanali i skanuar.

@@ -47,7 +47,7 @@ from analyte.domain.enums import (
     ViolationType,
 )
 from analyte.domain.models import GroundingContext
-from analyte.domain.policy import DISCLAIMER_SQ, sentence_local_violations
+from analyte.domain.policy import ATTRIBUTION_PREFIX_SQ, DISCLAIMER_SQ, sentence_local_violations
 from analyte.generation.templates import build as build_template
 from analyte.grounding.branch_a import loinc
 from analyte.grounding.branch_a.patterns import detect as detect_patterns
@@ -61,6 +61,11 @@ MAX_FINDINGS = 7
 NORMAL_KEPT = 2
 
 B_COLUMNS = ("id", "konteksti", "fjalia", "etiketa", "shenim")
+B_OPTIONAL = ("burimi",)
+"""Kolona e pëlqyer, e detyrueshme vetëm për `polarity_flip` dhe `hedge_removed`:
+fjala e saktë e pohimit të mjekut që fjalia e zëvendëson (shih `check_sentences`)."""
+
+REPLACES_SOURCE_QUOTE = frozenset({ViolationType.POLARITY_FLIP, ViolationType.HEDGE_REMOVED})
 C_COLUMNS = ("id", "fjalia", "lloji", "polariteti", "siguria", "analiti", "drejtimi", "shenim")
 
 B_LABELS: tuple[str, ...] = ("clean",) + tuple(
@@ -262,17 +267,25 @@ def read_explanations(path: Path) -> dict[str, str]:
     return out
 
 
-def read_rows(path: Path, columns: tuple[str, ...]) -> list[dict[str, str]]:
-    """Rreshtat e plotësuar të një CSV-je; rreshtat pa fjali anashkalohen."""
+def read_rows(
+    path: Path, columns: tuple[str, ...], optional: tuple[str, ...] = ()
+) -> list[dict[str, str]]:
+    """Rreshtat e plotësuar të një CSV-je; rreshtat pa fjali anashkalohen.
+
+    `optional` janë kolona që mund të mungojnë: rreshtat i marrin bosh.
+
+    `utf-8-sig`: Excel dhe disa redaktorë e ruajnë "UTF-8" me një shenjë në fillim
+    të skedarit (BOM). Pa këtë, emri i kolonës së parë lexohej si `﻿id` dhe
+    skedari refuzohej me "mungon kolona id", ndërsa përmbajtja ishte e saktë."""
     if not path.exists():
         return []
-    with path.open(encoding="utf-8", newline="") as handle:
+    with path.open(encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
         missing = set(columns) - set(reader.fieldnames or ())
         if missing:
             raise ValueError(f"{path.name}: mungojnë kolonat {sorted(missing)}")
         return [
-            {key: (row.get(key) or "").strip() for key in columns}
+            {key: (row.get(key) or "").strip() for key in (*columns, *optional)}
             for row in reader
             if (row.get("fjalia") or "").strip()
         ]
@@ -320,6 +333,13 @@ def check_sentences(
     Fjalia futet te shablloni i kontekstit të vet, para shënimit përmbyllës,
     ashtu si korruptuesit e E10. Shablloni kalon çdo rregull, prandaj çdo
     shkelje e gjetur vjen nga fjalia.
+
+    **Përjashtim: `polarity_flip` dhe `hedge_removed` zëvendësojnë citimin.**
+    Shablloni i mban tashmë citimet e sakta të mjekut, dhe R5/R6 gjykojnë
+    citimin e parë që përputhet. Një citim i përmbysur i shtuar në fund do të
+    ishte i dyti, kurrë i gjykuar, dhe matja do të tregonte zero për një arsye
+    që s'ka të bëjë me aftësinë e rregullit. Ashtu si te korruptuesit e E10,
+    fjalia zëvendëson citimin burimor — fjalën e të cilit e jep kolona `burimi`.
     """
     from evaluation.metrics import detector
     from evaluation.metrics.detector import Judgement
@@ -327,20 +347,42 @@ def check_sentences(
 
     judgements, errors = [], []
     for row in rows:
-        context = contexts.get(row["konteksti"])
-        if context is None:
-            errors.append(RowError(row["id"], f"konteksti '{row['konteksti']}' nuk ekziston"))
+        try:
+            context, text = row_text(row, contexts)
+        except ValueError as problem:
+            errors.append(RowError(row["id"], str(problem)))
             continue
-        if row["etiketa"] not in B_LABELS:
-            errors.append(RowError(row["id"], f"etiketë e panjohur '{row['etiketa']}'"))
-            continue
-        clean = build_template(context)
-        sentence = row["fjalia"].rstrip(".") + "."
-        text = clean.replace(DISCLAIMER_SQ, f"{sentence} {DISCLAIMER_SQ}")
         actual = None if row["etiketa"] == "clean" else ViolationType(row["etiketa"])
         judgements.append(Judgement(actual, _single_label(verify(context, text).violations)))
 
     return detector.measure(judgements), errors
+
+
+def row_text(
+    row: dict[str, str], contexts: dict[str, GroundingContext]
+) -> tuple[GroundingContext, str]:
+    """Konteksti i një rreshti B dhe teksti i plotë ku fjalia e tij është futur.
+
+    Të dy vlerësuesit — rregullat këtu dhe klasifikuesi te `ml/evaluate_on_kit.py` —
+    gjykojnë të njëjtin tekst, prandaj ndërtimi i tij jetë një funksion i vetëm.
+    Hedh `ValueError` me arsyen nëse rreshti nuk mund të matet.
+    """
+    context = contexts.get(row["konteksti"])
+    if context is None:
+        raise ValueError(f"konteksti '{row['konteksti']}' nuk ekziston")
+    if row["etiketa"] not in B_LABELS:
+        raise ValueError(f"etiketë e panjohur '{row['etiketa']}'")
+    clean = build_template(context)
+    sentence = row["fjalia"].rstrip(".") + "."
+    actual = None if row["etiketa"] == "clean" else ViolationType(row["etiketa"])
+    if actual in REPLACES_SOURCE_QUOTE:
+        source = f"{ATTRIBUTION_PREFIX_SQ} {row.get('burimi', '')}."
+        if not row.get("burimi"):
+            raise ValueError("mungon `burimi`: citimi që zëvendësohet")
+        if source not in clean:
+            raise ValueError(f"`burimi` nuk është citim i kontekstit: {source!r}")
+        return context, clean.replace(source, sentence, 1)
+    return context, clean.replace(DISCLAIMER_SQ, f"{sentence} {DISCLAIMER_SQ}")
 
 
 def check_narrative(rows: list[dict[str, str]]) -> tuple[dict[str, Any], list[RowError]]:
@@ -410,7 +452,7 @@ def build(directory: Path = KIT_DIR) -> list[Path]:
 
     skeletons = {
         "A_shpjegimet.md": skeleton_explanations(contexts),
-        "B_fjalite.csv": ",".join(B_COLUMNS) + "\n",
+        "B_fjalite.csv": ",".join((*B_COLUMNS, *B_OPTIONAL)) + "\n",
         "C_narrativa.csv": ",".join(C_COLUMNS) + "\n",
     }
     for name, content in skeletons.items():
@@ -421,15 +463,29 @@ def build(directory: Path = KIT_DIR) -> list[Path]:
     return written
 
 
+def duplicate_rows(rows: list[dict[str, str]]) -> list[list[str]]:
+    """Grupet e rreshtave me të njëjtin kontekst, fjali dhe burim.
+
+    Një rresht i përsëritur numërohet dy herë dhe e fryn llojin e tij: dhjetë
+    rreshta me një dublikat janë në fakt nëntë. Pikat dhe hapësirat e fundit
+    nuk i bëjnë rreshtat të ndryshëm — vlerësuesi i heq.
+    """
+    groups: dict[tuple[str, str, str], list[str]] = {}
+    for row in rows:
+        key = (row["konteksti"], row["fjalia"].rstrip(". ").strip(), row.get("burimi", ""))
+        groups.setdefault(key, []).append(row["id"])
+    return [ids for ids in groups.values() if len(ids) > 1]
+
+
 def check(directory: Path = KIT_DIR) -> dict[str, Any]:
     contexts = dict(kit_contexts())
-    b_metrics, b_errors = check_sentences(
-        read_rows(directory / "B_fjalite.csv", B_COLUMNS), contexts
-    )
+    b_rows = read_rows(directory / "B_fjalite.csv", B_COLUMNS, B_OPTIONAL)
+    b_metrics, b_errors = check_sentences(b_rows, contexts)
     c_metrics, c_errors = check_narrative(read_rows(directory / "C_narrativa.csv", C_COLUMNS))
     return {
         "A": check_explanations(read_explanations(directory / "A_shpjegimet.md"), contexts),
         "B": b_metrics,
+        "B_duplicates": duplicate_rows(b_rows),
         "C": c_metrics,
         "errors": [{"id": e.row_id, "reason": e.reason} for e in b_errors + c_errors],
     }

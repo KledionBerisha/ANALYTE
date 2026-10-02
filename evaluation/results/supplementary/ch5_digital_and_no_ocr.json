@@ -1,0 +1,407 @@
+{
+ "E5_digital_no_ocr": {
+  "documents": 332,
+  "metadata": {
+   "experiment_id": "E5",
+   "pipeline": {
+    "name": "grounding",
+    "version": "1"
+   },
+   "dataset": {
+    "name": "v1[digital]",
+    "version": "gen-1.0/s42/n500/37d8b080",
+    "seed": 42,
+    "documents": 332,
+    "channel": "all"
+   },
+   "code": {
+    "git_sha": "37b5be45b34b5949419677f87c13d34093e919bb",
+    "working_tree_dirty": false,
+    "rules_version": "r1.3",
+    "policy_version": "sp1.0",
+    "python": "3.12.3"
+   },
+   "created_at": "2026-10-02T19:34:19+00:00"
+  },
+  "metrics": {
+   "overall": {
+    "total": 6564,
+    "accuracy": 1.0,
+    "matrix": {
+     "agreement->agreement": 790,
+     "contradiction->contradiction": 59,
+     "measured_not_mentioned->measured_not_mentioned": 5623,
+     "mentioned_not_measured->mentioned_not_measured": 92
+    },
+    "per_class": {
+     "agreement": {
+      "tp": 790,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 790
+     },
+     "contradiction": {
+      "tp": 59,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 59
+     },
+     "measured_not_mentioned": {
+      "tp": 5623,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5623
+     },
+     "mentioned_not_measured": {
+      "tp": 92,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 92
+     }
+    }
+   },
+   "spurious_cross_references": 0,
+   "recall_by_state": {
+    "agreement": 1.0,
+    "contradiction": 1.0,
+    "mentioned_not_measured": 1.0,
+    "measured_not_mentioned": 1.0
+   }
+  }
+ },
+ "E5_all_no_ocr": {
+  "documents": 500,
+  "metadata": {
+   "experiment_id": "E5",
+   "pipeline": {
+    "name": "grounding",
+    "version": "1"
+   },
+   "dataset": {
+    "name": "v1",
+    "version": "gen-1.0/s42/n500/37d8b080",
+    "seed": 42,
+    "documents": 500,
+    "channel": "all"
+   },
+   "code": {
+    "git_sha": "37b5be45b34b5949419677f87c13d34093e919bb",
+    "working_tree_dirty": false,
+    "rules_version": "r1.3",
+    "policy_version": "sp1.0",
+    "python": "3.12.3"
+   },
+   "created_at": "2026-10-02T19:34:26+00:00"
+  },
+  "metrics": {
+   "overall": {
+    "total": 10009,
+    "accuracy": 0.6558,
+    "matrix": {
+     "agreement->agreement": 790,
+     "agreement->missing": 373,
+     "contradiction->contradiction": 59,
+     "contradiction->missing": 28,
+     "measured_not_mentioned->measured_not_mentioned": 5623,
+     "measured_not_mentioned->missing": 2987,
+     "mentioned_not_measured->mentioned_not_measured": 92,
+     "mentioned_not_measured->missing": 57
+    },
+    "per_class": {
+     "agreement": {
+      "tp": 790,
+      "fp": 0,
+      "fn": 373,
+      "precision": 1.0,
+      "recall": 0.6793,
+      "f1": 0.809,
+      "support": 1163
+     },
+     "contradiction": {
+      "tp": 59,
+      "fp": 0,
+      "fn": 28,
+      "precision": 1.0,
+      "recall": 0.6782,
+      "f1": 0.8082,
+      "support": 87
+     },
+     "measured_not_mentioned": {
+      "tp": 5623,
+      "fp": 0,
+      "fn": 2987,
+      "precision": 1.0,
+      "recall": 0.6531,
+      "f1": 0.7901,
+      "support": 8610
+     },
+     "mentioned_not_measured": {
+      "tp": 92,
+      "fp": 0,
+      "fn": 57,
+      "precision": 1.0,
+      "recall": 0.6174,
+      "f1": 0.7635,
+      "support": 149
+     },
+     "missing": {
+      "tp": 0,
+      "fp": 3445,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": 0.0,
+      "support": 0
+     }
+    }
+   },
+   "spurious_cross_references": 0,
+   "recall_by_state": {
+    "agreement": 0.6793,
+    "contradiction": 0.6782,
+    "mentioned_not_measured": 0.6174,
+    "measured_not_mentioned": 0.6531
+   }
+  }
+ },
+ "E3_digital_no_ocr": {
+  "documents": 332,
+  "metadata": {
+   "experiment_id": "E3",
+   "pipeline": {
+    "name": "grounding",
+    "version": "1"
+   },
+   "dataset": {
+    "name": "v1[digital]",
+    "version": "gen-1.0/s42/n500/37d8b080",
+    "seed": 42,
+    "documents": 332,
+    "channel": "all"
+   },
+   "code": {
+    "git_sha": "37b5be45b34b5949419677f87c13d34093e919bb",
+    "working_tree_dirty": false,
+    "rules_version": "r1.3",
+    "policy_version": "sp1.0",
+    "python": "3.12.3"
+   },
+   "created_at": "2026-10-02T19:35:39+00:00"
+  },
+  "metrics": {
+   "overall": {
+    "total": 6472,
+    "accuracy": 1.0,
+    "matrix": {
+     "critical_high->critical_high": 19,
+     "critical_low->critical_low": 6,
+     "high->high": 735,
+     "low->low": 544,
+     "normal->normal": 5045,
+     "uninterpretable->uninterpretable": 123
+    },
+    "per_class": {
+     "critical_high": {
+      "tp": 19,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 19
+     },
+     "critical_low": {
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 6
+     },
+     "high": {
+      "tp": 735,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 735
+     },
+     "low": {
+      "tp": 544,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 544
+     },
+     "normal": {
+      "tp": 5045,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5045
+     },
+     "uninterpretable": {
+      "tp": 123,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 123
+     }
+    }
+   },
+   "by_reference_source": {
+    "document": {
+     "total": 4988,
+     "accuracy": 1.0,
+     "matrix": {
+      "critical_high->critical_high": 18,
+      "critical_low->critical_low": 6,
+      "high->high": 558,
+      "low->low": 427,
+      "normal->normal": 3979
+     },
+     "per_class": {
+      "critical_high": {
+       "tp": 18,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 18
+      },
+      "critical_low": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 6
+      },
+      "high": {
+       "tp": 558,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 558
+      },
+      "low": {
+       "tp": 427,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 427
+      },
+      "normal": {
+       "tp": 3979,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 3979
+      }
+     }
+    },
+    "internal_table": {
+     "total": 1361,
+     "accuracy": 1.0,
+     "matrix": {
+      "critical_high->critical_high": 1,
+      "high->high": 177,
+      "low->low": 117,
+      "normal->normal": 1066
+     },
+     "per_class": {
+      "critical_high": {
+       "tp": 1,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 1
+      },
+      "high": {
+       "tp": 177,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 177
+      },
+      "low": {
+       "tp": 117,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 117
+      },
+      "normal": {
+       "tp": 1066,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 1066
+      }
+     }
+    },
+    "none": {
+     "total": 123,
+     "accuracy": 1.0,
+     "matrix": {
+      "uninterpretable->uninterpretable": 123
+     },
+     "per_class": {
+      "uninterpretable": {
+       "tp": 123,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 123
+      }
+     }
+    }
+   },
+   "reference_source_share": {
+    "document": 0.7707,
+    "internal_table": 0.2103,
+    "none": 0.019
+   },
+   "unmatched_findings": 0,
+   "uninterpretable_recall": 1.0
+  }
+ }
+}

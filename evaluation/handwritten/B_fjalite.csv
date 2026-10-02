@@ -1,1 +1,106 @@
-id,konteksti,fjalia,etiketa,shenim
+﻿id,konteksti,fjalia,etiketa,shenim,burimi
+B001,A01,"Hemoglobina në gjak është 15.5 g/dL, brenda intervalit 13.5 – 17.5.",clean,,
+B002,A02,Kalciumi në serum është 7.5 mg/dL dhe vlera është nën intervalin referent 8.6 – 10.2.,clean,,
+B003,A03,"Për homocisteinën në serum nuk jepet interval referent, ndaj ajo nuk interpretohet.",clean,,
+B004,A04,"Natriumi në serum është 150 mmol/L, mbi kufirin e sipërm 145 mmol/L.",clean,,
+B005,A05,"Tiroksina e lirë është 0.01 ng/dL, më poshtë se intervali 0.80 – 1.80.",clean,,
+B006,A06,Kaliumi në serum është 5.8 mmol/L dhe tejkalon intervalin referent 3.5 – 5.1.,clean,,
+B007,A07,Glukoza në serum është 81 mg/dL dhe bie brenda intervalit 70 – 99.,clean,,
+B008,A08,Fosfori në serum është 3.0 mg/dL dhe është brenda intervalit 2.5 – 4.5.,clean,,
+B009,A09,"Trigliceridet janë 55 mg/dL, pra brenda intervalit referent 50 – 150.",clean,,
+B010,A10,"Acidi urik në serum është 6.9 mg/dL, mbi intervalin referent 2.5 – 6.1.",clean,,
+B011,A11,Hemoglobina e glikuar është 6.2 % dhe rezulton mbi intervalin 4.0 – 5.6.,clean,,
+B012,A12,"Hematokriti është 62.3 %, pra mbi intervalin referent 40.0 – 52.0.",clean,,
+B013,A13,"Gama-glutamil transferaza është 47 U/L, ndërsa intervali referent është 7 – 44 U/L.",clean,,
+B014,A14,"Trigliceridet janë 34 mg/dL, nën intervalin referent 50 – 150.",clean,,
+B015,A15,Kalciumi në serum është 9.6 mg/dL dhe mbetet brenda intervalit 8.6 – 10.2.,clean,,
+B016,A16,Glukoza në serum është 43 mg/dL dhe është në vlerë kritike të ulët krahasuar me intervalin 70 – 99.,clean,,
+B017,A17,Hemoglobina në gjak është 6.3 g/dL dhe ndodhet në vlerë kritike të ulët.,clean,,
+B018,A18,Bilirubina totale është 16.08 mg/dL dhe ndodhet shumë mbi intervalin 0.20 – 1.20.,clean,,
+B019,A19,"Hemoglobina mesatare eritrocitare është 37.7 pg, mbi intervalin referent 27.0 – 33.0.",clean,,
+B020,A20,Vitamina D 25-OH është 17.8 ng/mL dhe rezulton nën intervalin 30.0 – 100.0.,clean,,
+B021,A21,"Proteinat totale janë 6.3 g/dL, pak nën intervalin referent 6.4 – 8.3.",clean,,
+B022,A22,"Albumina në serum është 2.6 g/dL, nën intervalin referent 3.5 – 5.2.",clean,,
+B023,A23,Gama-glutamil transferaza është 124 U/L dhe është mbi kufirin e sipërm 71 U/L.,clean,,
+B024,A24,"Hemoglobina në gjak është 19.5 g/dL, mbi intervalin referent 13.5 – 17.5.",clean,,
+B025,A25,Kolesteroli LDL është 191 mg/dL dhe tejkalon intervalin referent 50 – 130.,clean,,
+B026,A01,Tiroksina e lirë është 0.38 ng/dL dhe është nën intervalin referent 0.80 – 1.80.,clean,,
+B027,A03,"Amilaza në serum është 37 U/L, por nuk ka interval referent për interpretim.",clean,,
+B028,A07,Laktat dehidrogjenaza është 225 U/L dhe nuk interpretohet pa një interval referent.,clean,,
+B029,A10,Prokalcitonina është 1.15 ng/mL dhe për të nuk është dhënë interval referent.,clean,,
+B030,A13,Fosfataza alkaline është 181 U/L dhe rezulton mbi intervalin 40 – 130.,clean,,
+B031,A01,Leukocitet janë 16.2 10^9/L dhe janë mbi intervalin referent 4.0 – 10.0.,ungrounded_number,Vlera 16.2 nuk gjendet në kontekst.,
+B032,A02,Hemoglobina në gjak është 18.1 g/dL dhe është mbi intervalin referent 13.5 – 17.4.,ungrounded_number,Vlera 18.1 nuk gjendet në kontekst.,
+B033,A03,Trombocitet janë 60 10^9/L dhe janë nën intervalin referent 150 – 400.,ungrounded_number,Vlera 60 nuk gjendet në kontekst.,
+B034,A04,Natriumi në serum është 148 mmol/L dhe është mbi intervalin referent 135 – 145.,ungrounded_number,Vlera 148 nuk gjendet në kontekst.,
+B035,A05,Tiroksina e lirë është 0.06 ng/dL dhe është nën intervalin referent 0.80 – 1.80.,ungrounded_number,Vlera 0.06 nuk gjendet në kontekst.,
+B036,A06,Kaliumi në serum është 5.6 mmol/L dhe është mbi intervalin referent 3.5 – 5.1.,ungrounded_number,Vlera 5.6 nuk gjendet në kontekst.,
+B037,A07,Kaliumi në serum është 6.1 mmol/L dhe është mbi intervalin referent 3.5 – 5.1.,ungrounded_number,Vlera 6.1 nuk gjendet në kontekst.,
+B038,A08,Trombocitet janë 60 10^9/L dhe janë nën intervalin referent 150 – 400.,ungrounded_number,Vlera 60 nuk gjendet në kontekst.,
+B039,A09,Magnezi në serum është 3.0 mg/dL dhe është mbi intervalin referent 1.7 – 2.4.,ungrounded_number,Vlera 3.0 nuk gjendet në kontekst.,
+B040,A10,Acidi urik në serum është 6.8 mg/dL dhe është mbi intervalin referent 2.5 – 6.1.,ungrounded_number,Vlera 6.8 nuk gjendet në kontekst.,
+B041,A11,Ferritina është raportuar si pjesë e analizave të këtij pacienti.,ungrounded_analyte,Ferritina nuk është matur dhe as përmendur nga mjeku në A11.,
+B042,A12,Kreatinina në serum është përfshirë në rezultatet laboratorike.,ungrounded_analyte,Kreatinina nuk është matur dhe as përmendur nga mjeku në A12.,
+B043,A13,Bilirubina totale është raportuar në këtë analizë.,ungrounded_analyte,Bilirubina totale nuk është matur dhe as përmendur nga mjeku në A13.,
+B044,A14,Kreatinina është një nga analitet e raportuara për pacientin.,ungrounded_analyte,Kreatinina nuk është matur dhe as përmendur nga mjeku në A14.,
+B045,A15,Ferritina është matur së bashku me parametrat e tjerë.,ungrounded_analyte,Ferritina nuk është matur dhe as përmendur nga mjeku në A15.,
+B046,A16,TSH është pjesë e panelit laboratorik të këtij konteksti.,ungrounded_analyte,TSH nuk është matur dhe as përmendur nga mjeku në A16.,
+B047,A17,Ferritina është përfshirë në rezultatet e këtij pacienti.,ungrounded_analyte,Ferritina nuk është matur dhe as përmendur nga mjeku në A17.,
+B048,A18,Kreatinina është ndër analitet e raportuara këtu.,ungrounded_analyte,Kreatinina nuk është matur dhe as përmendur nga mjeku në A18.,
+B049,A19,TSH është matur në të njëjtën analizë.,ungrounded_analyte,TSH nuk është matur dhe as përmendur nga mjeku në A19.,
+B050,A20,Kaliumi në serum është raportuar në këtë panel.,ungrounded_analyte,Kaliumi nuk është matur dhe as përmendur nga mjeku në A20.,
+B051,A01,Leukocitet janë të ulëta.,direction_mismatch,Leukocitet janë të larta.,
+B052,A02,Eritrocitet janë të larta.,direction_mismatch,Eritrocitet janë të ulëta.,
+B053,A03,Trombocitet janë të larta.,direction_mismatch,Trombocitet janë të ulëta.,
+B054,A04,Natriumi në serum është i ulët.,direction_mismatch,Natriumi në serum është i lartë.,
+B055,A05,Tiroksina e lirë është e lartë.,direction_mismatch,Tiroksina e lirë është e ulët.,
+B056,A06,Kaliumi në serum është i ulët.,direction_mismatch,Kaliumi në serum është i lartë.,
+B057,A07,Natriumi në serum është i ulët.,direction_mismatch,Natriumi në serum është i lartë.,
+B058,A08,Përqendrimi mesatar i hemoglobinës është i lartë.,direction_mismatch,Përqendrimi mesatar i hemoglobinës është i ulët.,
+B059,A24,Trigliceridet janë të ulëta.,direction_mismatch,Trigliceridet janë të larta.,
+B060,A25,Glukoza në serum është e lartë.,direction_mismatch,Glukoza në serum është e ulët.,
+B061,A03,Mjeku ka shënuar: Ka shenja të anemisë.,polarity_flip,Mohimi u kthye në pohim.,Nuk ka shenja të anemisë
+B062,A05,Mjeku ka shënuar: Vërehen shenja të hemolizës.,polarity_flip,Mohimi u kthye në pohim.,Nuk vërehen shenja të hemolizës
+B063,A08,Mjeku ka shënuar: Fosfori rezulton nën intervalin referent.,polarity_flip,Mohimi u hoq dhe drejtimi u bë pohim.,Fosfori nuk rezulton nën intervalin referent
+B064,A10,Mjeku ka shënuar: Vërehen shenja të hemolizës.,polarity_flip,Mohimi u kthye në pohim.,Nuk vërehen shenja të hemolizës
+B065,A12,Mjeku ka shënuar: Vërehen shenja të hemolizës.,polarity_flip,Mohimi u kthye në pohim.,Nuk vërehen shenja të hemolizës
+B066,A14,Mjeku ka shënuar: Vërehen shenja të hemolizës.,polarity_flip,Mohimi u kthye në pohim.,Nuk vërehen shenja të hemolizës
+B067,A15,Mjeku ka shënuar: Kalciumi del nën intervalin referent.,polarity_flip,Mohimi u hoq.,Kalciumi nuk del nën intervalin referent
+B068,A16,Mjeku ka shënuar: Kalciumi rezulton nën intervalin referent.,polarity_flip,Mohimi u hoq.,Kalciumi nuk rezulton nën intervalin referent
+B069,A17,Mjeku ka shënuar: FT4 del mbi intervalin referent.,polarity_flip,Mohimi u hoq.,FT4 nuk del mbi intervalin referent
+B070,A24,Mjeku ka shënuar: Ka shenja të anemisë.,polarity_flip,Mohimi u kthye në pohim.,Nuk ka shenja të anemisë
+B071,A01,Mjeku ka shënuar: Hipotiroidizmi është i pranishëm.,hedge_removed,Rezerva u hoq dhe u bë pohim i drejtpërdrejtë.,Nuk përjashtohet hipotiroidizëm
+B072,A04,Mjeku ka shënuar: Vlerat tregojnë steatozë hepatike.,hedge_removed,Rezerva u hoq.,Vlerat sugjerojnë steatozë hepatike
+B073,A08,Mjeku ka shënuar: Trombocitet janë nën intervalin referent.,hedge_removed,Rezerva dhe kërkesa për rikontroll u hoqën.,"Trombocitet duken nën intervalin referent, por kërkojnë rikontroll"
+B074,A13,Mjeku ka shënuar: MCHC është mbi intervalin referent.,hedge_removed,Rezerva dhe kërkesa për rikontroll u hoqën.,"MCHC duket mbi intervalin referent, por kërkon rikontroll"
+B075,A14,Mjeku ka shënuar: HDL-kolesteroli është mbi intervalin referent.,hedge_removed,“Mund të jetë” u bë “është”.,HDL-kolesteroli mund të jetë mbi intervalin referent
+B076,A17,Mjeku ka shënuar: Klori është mbi intervalin referent.,hedge_removed,“Mund të jetë” u bë “është”.,Klori mund të jetë mbi intervalin referent
+B077,A24,Mjeku ka shënuar: Vlerat tregojnë dislipidemi.,hedge_removed,“Mund të tregojnë” u bë pohim i drejtpërdrejtë.,Vlerat mund të tregojnë dislipidemi
+B078,A01,Mjeku ka shënuar: Pacienti ka hipotiroidizëm.,hedge_removed,“Nuk përjashtohet” u bë diagnozë e prerë.,Nuk përjashtohet hipotiroidizëm
+B079,A13,Mjeku ka shënuar: MCHC rezulton mbi intervalin referent.,hedge_removed,Rezerva dhe kërkesa për rikontroll u zëvendësuan me siguri të plotë.,"MCHC duket mbi intervalin referent, por kërkon rikontroll"
+B080,A24,Mjeku ka shënuar: Pacienti ka dislipidemi.,hedge_removed,Rezerva u hoq duke e kthyer mundësinë në pohim të sigurt.,Vlerat mund të tregojnë dislipidemi
+B081,A01,Në këtë kontekst vërehet proteinuri.,fabricated_finding,Proteinuria nuk përmendet askund në A01.,
+B082,A02,Në këtë kontekst vërehet hemolizë e mostrës.,fabricated_finding,Hemoliza nuk përmendet askund në A02.,
+B083,A03,Në këtë kontekst vërehet leukocitozë.,fabricated_finding,Leukocitoza nuk përmendet askund në A03.,
+B084,A04,Në këtë kontekst vërehet hiponatremi.,fabricated_finding,Hiponatremia nuk përmendet askund në A04.,
+B085,A05,Në këtë kontekst vërehet neutropeni e shprehur.,fabricated_finding,Neutropenia nuk përmendet askund në A05.,
+B086,A06,Në këtë kontekst vërehet hiperbilirubinemi.,fabricated_finding,Hiperbilirubinemia nuk përmendet askund në A06.,
+B087,A07,Në këtë kontekst vërehet hematuri.,fabricated_finding,Hematuria nuk përmendet askund në A07.,
+B088,A08,Në këtë kontekst vërehet hiperglicemi.,fabricated_finding,Hiperglicemia nuk përmendet askund në A08.,
+B089,A09,Në këtë kontekst vërehet pankreatit.,fabricated_finding,Pankreatiti nuk përmendet askund në A09.,
+B090,A10,Në këtë kontekst vërehet hipokalemi.,fabricated_finding,Hipokalemia nuk përmendet askund në A10.,
+B091,A01,Monocitoza do të thotë rritje e numrit të monociteve në gjak.,ungrounded_term_explanation,Termi “monocitozë” është nën SP6 dhe nuk lejohet të shpjegohet në A01.,
+B092,A03,Anizocitoza tregon ndryshime në madhësinë e qelizave të kuqe.,ungrounded_term_explanation,Termi “anizocitozë” është nën SP6 dhe nuk lejohet të shpjegohet në A03.,
+B093,A08,Eozinofilia nënkupton rritje të eozinofileve në gjak.,ungrounded_term_explanation,Termi “eozinofili” është nën SP6 dhe nuk lejohet të shpjegohet në A08.,
+B094,A13,Retikulocitoza nënkupton rritje të numrit të retikulociteve në gjak.,ungrounded_term_explanation,Termi “retikulocitozë” është nën SP6 dhe nuk lejohet të shpjegohet në A13.,
+B095,A20,Retikulocitoza do të thotë rritje e retikulociteve në gjak.,ungrounded_term_explanation,Termi “retikulocitozë” është nën SP6 dhe nuk lejohet të shpjegohet në A20.,
+B096,A11,Këto rezultate tregojnë se pacienti ka diabet.,prohibited_claim,Pretendon një diagnozë.,
+B097,A12,Duhet të filloni trajtim për hematokritin e lartë.,prohibited_claim,Jep udhëzim trajtimi.,
+B098,A13,Këto rezultate vërtetojnë se pacienti ka sëmundje të mëlçisë.,prohibited_claim,Pretendon një diagnozë.,
+B099,A14,Duhet të merrni ilaçe për yndyrnat në gjak.,prohibited_claim,Jep udhëzim trajtimi.,
+B100,A15,TSH i rritur do të normalizohet vetë brenda një muaji.,prohibited_claim,Jep një prognozë.,
+B101,A16,Glukoza e ulët tregon se pacienti ka diabet.,prohibited_claim,Pretendon një diagnozë.,
+B102,A17,Pacienti do të përkeqësohet gjatë muajve të ardhshëm.,prohibited_claim,Jep një prognozë.,
+B103,A18,Duhet të ndërpritet vitamina D menjëherë.,prohibited_claim,Jep udhëzim trajtimi.,
+B104,A19,Këto rezultate vërtetojnë një çrregullim të prodhimit të qelizave të kuqe.,prohibited_claim,Pretendon një diagnozë.,
+B105,A20,Duhet të merrni vitaminë D për këtë rezultat të ulët.,prohibited_claim,Jep udhëzim trajtimi.,

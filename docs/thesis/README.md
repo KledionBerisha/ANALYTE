@@ -17,6 +17,30 @@ vetëdije.
 | `ch05_08_strategjia_e_te_dhenave.md` | 5.8 | Korpusi sintetik ashtu si u ndërtua |
 | `ch05_11_infrastruktura_e_vleresimit.md` | i ri | Harness-i dhe metrikat |
 
+## Versioni 3 (2026-10-02)
+
+`teza_v3.md` është `teza_v2.md` me drafte e Kapitullit 5 të bashkuara (5.2.1, 5.3, 5.4,
+5.8.1, 5.11.2), gabimet e gjetura kundrejt kodit të ndrequra, dhe Shtojcat A–I në fund.
+Origjinali `teza_v2.md` nuk u ndryshua.
+
+| Skedari | Çfarë është |
+|---|---|
+| `teza_v3.md` | Teksti i plotë me figurat dhe shtojcat |
+| `appendices/` | Shtojcat A–I, të gjeneruara nga kodi: `python scripts/build_appendices.py` |
+| `figures/` | Figurat 6, 7, 8 dhe 11, të gjeneruara nga kodi: `python scripts/build_figures.py` |
+| `tables/` | Tabelat e shtojcave B dhe C, nga `python scripts/build_tables.py` |
+
+Çfarë ndryshoi nga v2, e verifikuar kundrejt kodit: fazat e Degës A janë gjashtë (jo shtatë);
+krahasimi i tri detektorëve nuk bëhet mbi të njëjtën hyrje (ADR 0009); Tabela 1 nuk liston spaCy
+dhe pdfplumber që nuk përdoren; Tabela 6 ka E15; baza nuk ka tabela ekzekutimesh dhe terminologjia
+nuk është në të (ADR 0013); ndarja e korpusit sipas dokumentit nuk e ndalon rrjedhjen e shabllonit
+(seksioni 5.11.1); llojet e defekteve të korpusit të korruptuar emërtohen siç janë në kod.
+
+**Ç'mbetet e hapur:** Kapitujt 6 dhe 7 janë ende skelet; Abstrakti dhe seksioni 7.6 duhen
+përshtatur me atë që u bë vërtet (pa dokumente reale, pa model gjuhësor, pa studim me përdorues);
+Kapitulli 3 ka vende të pashkruara dhe 4 referenca; figurat 1–5, 9, 10, 12–21 nuk janë bërë;
+burimet e terminologjisë dhe të kombinimeve mungojnë.
+
 ## Tabelat
 
 `tables/` gjenerohet nga `scripts/build_tables.py` dhe nuk shkruhet me

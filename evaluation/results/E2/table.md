@@ -10,9 +10,9 @@
 | Dokumente | 168 (scanned) |
 | Fara | 42 |
 | Pipeline | `grounding+ocr` v1 |
-| Git | `ba2c96b64c15` (e papastër) |
+| Git | `37b5be45b34b` |
 | Rregullat | `r1.3` |
-| Kur | 2026-09-28T20:44:21+00:00 |
+| Kur | 2026-10-02T19:22:15+00:00 |
 
 ```json
 {
@@ -63,7 +63,7 @@
     "f1": 0.6703,
     "support": 13552
   },
-  "macro_f1": 0.670284821118444,
+  "macro_f1": 0.6702848211184439,
   "documents": 168
 }
 ```
