@@ -185,7 +185,7 @@ njohin vetëm formën e pohimit të drejtimit që kanë ("Eritrocitet janë të 
 që kanë (7 nga 10 diagnoza, trajtime dhe prognoza kalojnë), dhe termat e tabelës së tyre (një gjendje si
 "pankreatit" nuk kapet); R9 kap vetëm një nga pesë shpjegimet e një termi të pashpjeguar. Dy alarme të rreme mbi
 fjali të sakta janë gjetje më vete: "25-OH" te "Vitamina D 25-OH" lexohet si numri 25 (te një version tjetër i B,
-"Kolesteroli LDL" lexohej si kolesterol total). **Kufizime të B:** 8 nga 105 fjali ndajnë formën me një fjali të
+"Kolesteroli LDL" lexohej si kolesterol total). **Kufizime të B:** 9 nga 105 fjali ndajnë formën me një fjali të
 trajnimit (të gjitha citime të mjekut, sepse fjalët e mjekut te kontekstet vijnë nga gjeneruesi) dhe asnjë nuk
 gjendet fjalë për fjalë te shablloni; rreshtat `polarity_flip` dhe `hedge_removed` janë, prandaj, më pak të
 pavarura se të tjerat. Disa grupe rreshtash janë shumë njëtrajtëshme (p.sh. të gjitha fjalitë e pastra ndjekin të

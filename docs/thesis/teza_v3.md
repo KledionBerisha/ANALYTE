@@ -31,7 +31,7 @@ Ky punim është përpiluar dhe dorëzuar në përmbushjen e kërkesave të pjes
 
 > **SHËNIM PËR STATUSIN** *(hiqet para dorëzimit)*
 >
-> Versioni 3, ndërtuar më 2026-10-02. Kapitujt 2, 4 dhe 5 janë të shkruar; Kapitulli 5 u rishikua kundrejt zbatimit të vërtetë (seksionet 5.2.1, 5.3, 5.4, 5.8.1 dhe 5.11.2 vijnë nga `docs/thesis/ch05_*.md`). Kapitulli 3 ka ende vende të pashkruara dhe 4 referenca të verifikuara. Kapitujt 6 dhe 7 janë ende skelet; çdo vlerë e pamatur është shënuar **[MATET]**. Shtojcat A–I gjenerohen nga kodi (`scripts/build_appendices.py`) dhe jepen në fund.
+> Versioni 3, ndërtuar më 2026-10-02. Kapitujt 2, 4 dhe 5 janë të shkruar; Kapitulli 5 u rishikua kundrejt zbatimit të vërtetë (seksionet 5.2.1, 5.3, 5.4, 5.8.1 dhe 5.11.2 vijnë nga `docs/thesis/ch05_*.md`). Kapitulli 3 ka ende vende të pashkruara dhe 4 referenca të verifikuara. Kapitulli 6 është plotësuar nga skedarët e rezultateve (`scripts/build_chapter6_tables.py`); çdo gjë që nuk u mat thuhet si e tillë. Kapitulli 7: shtrirja e kufizimeve (7.6) është rishkruar; nënkapitujt 7.1, 7.3 dhe 7.8 janë ende skelet. Shtojcat A–I gjenerohen nga kodi (`scripts/build_appendices.py`) dhe jepen në fund.
 >
 > **Ç'nuk është bërë, dhe teksti nuk duhet të pretendojë të kundërtën:** nuk ka model gjuhësor (shablloni është gjeneruesi i vetëm, ndaj E4, E6 dhe E12 janë të pamatura dhe E7–E9 janë vetëm kufij të njohur); nuk ka dokumente reale (E13); nuk ka studim me përdorues (E14). Grupi B i fjalive (`evaluation/handwritten/B_fjalite.csv`) e dorëzoi autori; një draft i mëparshëm i hartuar nga një model gjuhësor ekzistonte në depo dhe 12 nga 105 rreshta (vetëm citime të mjekut) janë identikë me të — kjo duhet deklaruar te punimi (shih `evaluation/handwritten/README.md`).
 
@@ -41,13 +41,13 @@ Ky punim është përpiluar dhe dorëzuar në përmbushjen e kërkesave të pjes
 
 Rezultatet e analizave laboratorike dhe raportet mjekësore u dorëzohen pacientëve në një formë të hartuar për profesionistin shëndetësor dhe jo për vetë pacientin. Dokumenti përmban shkurtesa latine, njësi që ndryshojnë sipas laboratorit dhe intervale referente që nuk janë të vetëkuptueshme, me pasojë që pacienti ka qasje në informacionin e vet pa pasur qasje në kuptimin e tij. Modelet e mëdha gjuhësore e bëjnë teknikisht të mundur riformulimin e këtij informacioni në gjuhë të thjeshtë, por ato prodhojnë me rrjedhshmëri edhe pohime që nuk mbështeten nga dokumenti burimor, dukuri e njohur në literaturë si halucinacion. Në kontekst mjekësor, një pohim i tillë nuk është thjesht gabim cilësie por rrezik i drejtpërdrejtë për pacientin.
 
-Ky punim propozon, implementon dhe vlerëson ANALYTE, një sistem i ndërtuar mbi parimin se modeli gjuhësor nuk duhet të ketë autoritet mbi faktet. Informacioni nxirret nga dokumenti dhe interpretohet nga një shtresë deterministe; modeli gjuhësor merr vetëm këtë përfaqësim të strukturuar dhe merret ekskluzivisht me formulimin gjuhësor; një shtresë e automatizuar verifikimi kontrollon daljen e gjeneruar kundrejt burimit përpara se ajo t'i shfaqet përdoruesit. Asnjë tekst i paverifikuar nuk arrin te përdoruesi.
+Ky punim propozon, implementon dhe vlerëson ANALYTE, një sistem i ndërtuar mbi parimin se modeli gjuhësor nuk duhet të ketë autoritet mbi faktet. Informacioni nxirret nga dokumenti dhe interpretohet nga një shtresë deterministe; modeli gjuhësor merr vetëm këtë përfaqësim të strukturuar dhe merret ekskluzivisht me formulimin gjuhësor; një shtresë e automatizuar verifikimi kontrollon daljen e gjeneruar kundrejt burimit përpara se ajo t'i shfaqet përdoruesit. Sistemi është projektuar që asnjë tekst i paverifikuar të mos arrijë te përdoruesi: kur verifikimi dështon pas rigjenerimit, shfaqet një tekst rezervë deterministe.
 
-Arkitektura testohet njëkohësisht në dy fusha me natyrë thelbësisht të ndryshme: rezultate laboratorike numerike të strukturuara dhe raporte mjekësore në tekst të lirë. Për të dhënat numerike verifikimi është mekanikisht i vendosshëm, ndërsa për prozën klinike ai është semantik dhe rrjedhimisht më pak i sigurt. Kjo asimetri matet dhe raportohet si gjetje e pavarur e punimit.
+Arkitektura zbatohet njëkohësisht në dy fusha me natyrë thelbësisht të ndryshme: rezultate laboratorike numerike të strukturuara dhe raporte mjekësore në tekst të lirë. Për të dhënat numerike verifikimi është mekanikisht i vendosshëm, ndërsa për prozën klinike ai është semantik dhe rrjedhimisht më pak i sigurt. Kjo asimetri formulohet si hipotezë dhe matet në nivelin e detektorit.
 
-Vlerësimi kryhet mbi një korpus sintetik dokumentesh laboratorike shqip, i gjeneruar posaçërisht për këtë punim dhe i pajisur me të vërtetë bazë të plotë, si dhe validohet mbi një grup të vogël dokumentesh reale të anonimizuara. Eksperimenti kryesor krahason normën e pohimeve të pambështetura në katër kushte: pa bazim, me bazim, me verifikim me rregulla dhe me verifikim të plotë.
+Vlerësimi u krye mbi një korpus sintetik prej 500 dokumentesh laboratorike shqip (332 dixhitale dhe 168 të skanuara), të gjeneruar posaçërisht për këtë punim dhe të pajisur me të vërtetë bazë të plotë; mbi një korpus të korruptuar për matjen e detektorëve të defekteve; dhe mbi 105 fjali natyrale të dorëzuara nga autori. **Punimi nuk përdor model të madh gjuhësor, nuk validohet mbi dokumente reale dhe nuk përfshin studim me përdorues.** Gjeneruesi i vetëm është një shabllon deterministe, prandaj eksperimenti kryesor, krahasimi i normës së pohimeve të pambështetura pa bazim dhe me verifikim, nuk u krye në formën e planifikuar: kushti pa bazim nuk matet, kushtet me shabllon japin zero shkelje sepse shablloni nuk gabon, dhe hipoteza e parë (verifikimi ul normën e pohimeve të pambështetura) mbetet e pavlerësuar.
 
-**[REZULTATET KRYESORE — KAPITULLI 6]**
+**Rezultatet.** Mbi dokumentet dixhitale nxjerrja dhe klasifikimi i statusit dalin 1.000; kjo vlerë mat lidhjen e tubacionit mbi një korpus të pastër dhe jo vështirësinë e dokumenteve reale. Mbi skanimet e simuluara F1 i nxjerrjes është 0.670 dhe saktësia e statusit 0.881: nga 2 370 vlera të nxjerra, 125 janë të gabuara dhe pranohen, dhe 62 vlera marrin status të interpretuar gabim, ndër to 11 kritike të rreme. Detektori me rregulla arrin macro F1 0.993 mbi korpusin e korruptuar dhe 0.795 mbi fjalitë natyrale; dobësitë e tij janë leksikore (drejtimi i shprehur me mbiemër, pohimet diagnostike e të trajtimit jashtë listës, termat në formë të shquar). Klasifikuesi XLM-RoBERTa, i trajnuar mbi korpusin e korruptuar, arrin 0.326–0.538 aty, por vetëm 0.015–0.177 mbi fjalitë natyrale, sepse mëson shabllonet e gjeneruesit; me pragun e zgjedhur që të bllokojë jo më shumë se 5% të tekstit të pastër, ai shënon gabimisht 10.2% të dokumenteve të skanuara. Hipoteza e dytë, që detektori është më i saktë për degën laboratorike sesa për atë narrative, nuk konfirmohet nga këto matje.
 
 Punimi trajton gjithashtu zbatueshmërinë e qasjes në gjuhën shqipe, për të cilën nuk ekziston asnjë model klinik i paratrajnuar i përpunimit të gjuhës natyrore, dhe dokumenton pasojat arkitekturore të kësaj mungese.
 
@@ -101,7 +101,7 @@ Figura 15. Shpjegimi në gjuhë të thjeshtë me treguesin e verifikimit
 
 Figura 16. Krahasimi i raportit mjekësor me rezultatet laboratorike
 
-Figura 17. Chat-i i lidhur me dokumentin
+Figura 17. Chat-i i lidhur me dokumentin *(nuk prodhohet: chat-i nuk është ndërtuar)*
 
 Figura 18. Rezultatet e ablacionit të shtresës së verifikimit
 
@@ -131,7 +131,7 @@ Tabela 7. Saktësia e nxjerrjes së të dhënave laboratorike
 
 Tabela 8. Saktësia e klasifikimit kundrejt intervaleve referente
 
-Tabela 9. Besnikëria e thjeshtimit të tekstit mjekësor
+Tabela 9. Besnikëria e thjeshtimit të tekstit mjekësor *(e pamatur: E4 kërkon model gjuhësor)*
 
 Tabela 10. Saktësia e krahasimit të kryqëzuar
 
@@ -141,7 +141,7 @@ Tabela 12. Krahasimi i tre qasjeve të detektimit
 
 Tabela 13. Performanca e detektorëve sipas llojit të defektit
 
-Tabela 14. Rezultatet e studimit me përdorues
+Tabela 14. Rezultatet e studimit me përdorues *(nuk prodhohet: studimi nuk u krye)*
 
 Tabela 15. Taksonomia e gabimeve të vërejtura
 
@@ -665,7 +665,7 @@ Mbi 168 dokumentet e skanuara të korpusit të vlerësimit
 | Analiti | 0.996 | 0.697 | 0.820 |
 | Vlera | 0.947 | 0.663 | 0.780 |
 | Njësia | 0.781 | 0.547 | 0.643 |
-| Intervali | 0.533 | 0.373 | 0.438 |
+| Intervali | 0.532 | 0.372 | 0.438 |
 
 Numri që ka rëndësi nuk është F1 por saktësia e vlerës. Nga 2 370 vlera të
 nxjerra nga dokumentet e skanuara, 125 ishin të gabuara dhe u pranuan — më
@@ -1233,100 +1233,298 @@ Përveç këtyre, sistemi mban një regjistër të plotë auditimi që përmban 
 
 # 6 REZULTATET
 
-> **Ky kapitull është skelet.** Struktura e paraqitjes, tabelat dhe teksti i pavarur nga matjet janë të shkruara. Çdo vlerë numerike është shënuar **[MATET]** dhe plotësohet vetëm nga ekzekutime reale eksperimentesh, sipas parimit se asnjë rezultat nuk shpiket.
+Çdo vlerë numerike e këtij kapitulli lexohet nga një skedar rezultatesh te `evaluation/results/`, dhe tabelat 7, 8, 10, 11, 12 dhe 13 gjenerohen prej tyre nga `scripts/build_chapter6_tables.py`, pa kopjim me dorë. Pjesa që nuk është matur është thënë si e tillë: eksperimentet E4, E6, E12, E13, E14 dhe E15 nuk u kryen, dhe seksionet përkatëse e thonë këtë në vend që të japin një vlerë.
+
+**Prejardhja.** E1, E2, E3, E5, E7, E8 dhe E9 u ekzekutuan më 2026-10-02 nga një kopje e pastër e commit-it `37b5be4` (`working_tree_dirty: false`), mbi korpusin `gen-1.0/s42/n500/37d8b080` (500 dokumente, prej tyre 332 dixhitale dhe 168 të skanuara). Dy rezultate kanë prejardhje më të dobët. Skedari i E10 nuk mban shenjë të git-it as të versionit të korpusit; ai u ekzekutua me katalogun `r1.3` mbi 200 dokumente burimore (ndarja e testit, 192 mostra, fara 42). Parashikimet e E11 u prodhuan në Colab (GPU Tesla T4, `xlm-roberta-base`, 3 epoka, fara 42) dhe kodi i vlerësimit nuk ishte i commit-uar kur u ekzekutuan, ashtu si vlerësuesi i grupit B. Të dyja duhen ekzekutuar përsëri nga një kopje e pastër para dorëzimit.
+
+**Pasiguria.** Vetëm E7, E8 dhe E9 kanë intervale besimi (bootstrap në nivel dokumenti, 2 000 rimostrime). Të gjitha vlerat e tjera janë vlerësime pikësore. Grupi B ka 105 fjali dhe 5 deri 10 për çdo lloj defekti, ndaj një fjali e vetme e ndryshon F1 të një lloji me 0.05 deri 0.2, dhe asnjë diferencë mes dy detektorëve mbi B nuk është provuar statistikisht.
+
+**Ndryshimet e bëra pasi u pa një rezultat.** Katër metoda u ndryshuan pasi rezultati i mëparshëm ishte parë, dhe lexuesi duhet t'i dijë:
+
+1. Nxjerrësi filloi të refuzojë intervalet e lexuara si «vlerë me njësi» (ADR 0012). Vlerat e gabuara të pranuara nga skanimi ranë nga 271 në 125.
+2. Rregullat e verifikimit u rregulluan nga `r1.1` në `r1.3` pasi E10 dha 0.979 për herë të parë; macro F1 përfundimtar është 0.993. Rregullimet vijnë nga kontekste të ndërtuara me dorë dhe nga ndërfaqja, jo nga gabimet e mostrës së testit, por ato u bënë pasi testi ishte parë (ADR 0009).
+3. F1 për një klasë që detektori e humb plotësisht kthehej `None` dhe mesatarja e anashkalonte; u korrigjua në 2TP/(2TP+FP+FN). Pragu i klasifikuesit i zgjedhur me macro F1 maksimal ignoronte alarmet e rreme, prandaj u shtua një rregull i dytë (jo më shumë se 5% e teksteve të pastra të validimit të bllokuara). Të dyja ndodhën pasi testi ishte parë, dhe E11 raporton të dy rregullat (ADR 0009).
+4. Vlerësuesi i grupit B u ndryshua pasi matja e parë dha 0 nga 20 për fjalitë me citim: fjalia futej në fund të shabllonit dhe rregullat gjykonin citimin e parë, kështu që fjalia zëvendëson citimin burimor (ADR 0009).
 
 ## 6.1 Rezultatet e implementimit të sistemit
 
-*Figura 12–17. Pamje të ndërfaqes së përdoruesit*
+Sistemi është zbatuar i plotë përveç dy pjesëve: nuk ka model gjuhësor (gjeneruesi i vetëm është shablloni deterministe, i cili është edhe teksti rezervë) dhe chat-i i lidhur me dokumentin nuk është ndërtuar (shërbimi kthen `501`). Ç'është ndërtuar dhe ç'u mat:
 
-*[Përshkrim i sistemit të përfunduar: komponentët e implementuar, numri i analiteve të mbështetura, madhësia e tabelës terminologjike, numri i dokumenteve në korpusin sintetik, mbulimi i testeve.]*
+| Përbërësi | Gjendja e matur |
+|---|---|
+| Paneli i analiteve | 38 analite me hartëzim LOINC (Tabela 2) |
+| Tabela terminologjike | 82 terma shqip, pa burime të shënuara (Shtojca A) |
+| Kombinimet ndërmjet analiteve | 11 rregulla, pa burime të shënuara (Tabela B.3) |
+| Katalogu i verifikimit | `r1.3`: R1–R9 dhe SP1–3, dhjetë lloje shkeljesh (Tabela 5) |
+| Kanali i leximit | Tekst dixhital dhe OCR (Tesseract 5, `eng`, `--psm 6`, 200 dpi) |
+| Shërbimi | API me autentikim të forcuar, regjistër auditimi, ruajtje e enkriptuar (ADR 0013, 0014) |
+| Ndërfaqja | Next.js në shqip: hyrja, ngarkimi, historiku, hapat e përpunimit, njoftimi për vlera kritike, paralajmërimi i OCR-së, shpjegimi me treguesin e verifikimit, tabela e gjetjeve ku një klikim hedh dritë mbi rreshtin burimor |
+| Vendimet arkitekturore | 14 ADR (`docs/adr/`) |
+| Testet | 470 kalojnë, 1 anashkalohet (testi i integrimit me PostgreSQL ekzekutohet me `make test-postgres`) |
 
-**[MATET]**
+Korpusi sintetik i vlerësimit ka 500 dokumente (332 dixhitale, 168 të skanuara, 556 faqe), me 9 860 gjetje laboratorike, 2 749 pohime narrative dhe 36 dokumente me të paktën një vlerë kritike. Korpusi i korruptuar del nga 1 500 dokumente për trajnimin dhe validimin e klasifikuesit dhe nga 200 dokumente burimore për testin (192 mostra, E10 dhe E11); rrjedhja e dokumenteve ndërmjet trajnimit dhe validimit është zero (`E11/leakage.json`).
+
+*Figura 12–16. Pamje të ndërfaqes së përdoruesit.* **[FIGURË — plotësohet: pamjet merren nga ndërfaqja në punë; nuk janë prodhuar ende.]** *Figura 17 nuk prodhohet: chat-i nuk është ndërtuar.*
 
 ## 6.2 Saktësia e nxjerrjes së të dhënave laboratorike
+
+Rezultatet i përgjigjen PK1 (E1 dhe E2).
 
 *Tabela 7. Saktësia e nxjerrjes së të dhënave laboratorike*
 
 | Fusha | Precision (dig.) | Recall (dig.) | F1 (dig.) | Precision (skan.) | Recall (skan.) | F1 (skan.) |
 |---|---|---|---|---|---|---|
-| Emri i analitit | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] |
-| Vlera numerike | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] |
-| Njësia | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] |
-| Intervali referent | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] |
-| Mikro-mesatarja | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] | [MATET] |
+| Emri i analitit | 1.000 | 1.000 | 1.000 | 0.996 | 0.697 | 0.820 |
+| Vlera numerike | 1.000 | 1.000 | 1.000 | 0.947 | 0.663 | 0.780 |
+| Njësia | 1.000 | 1.000 | 1.000 | 0.781 | 0.547 | 0.643 |
+| Intervali referent | 1.000 | 1.000 | 1.000 | 0.532 | 0.372 | 0.438 |
+| **Mikro-mesatarja** | 1.000 | 1.000 | 1.000 | 0.814 | 0.570 | 0.670 |
+
+*Dixhitale: 332 dokumente, 6 472 vlera për çdo fushë. Të skanuara: 168 dokumente, 3 388 vlera për çdo fushë, OCR i ndezur.*
+
+**Kanali dixhital.** Të katër fushat dalin 1.000. Kjo vlerë nuk provon që nxjerrja është e zgjidhur: ajo thotë se tubacioni është lidhur saktë mbi një korpus që vizaton tekst të pastër në koordinata të njohura (§5.3.7). Vendimi për të mos e vështirësuar korpusin u mor më 2026-09-27, dhe vlefshmëria e jashtme mbështetej te E13, që nuk u krye.
+
+**Kanali i skanuar.** Mikro-F1 është 0.670, me një rënie të dukshme sipas fushës: analiti 0.820, vlera 0.780, njësia 0.643, intervali 0.438. Treguesi që ka rëndësi nuk është F1 por saktësia e vlerës, 0.947: nga 2 370 vlera të nxjerra nga skanimet, **125 janë të gabuara dhe pranohen**. Një vlerë e humbur nuk interpretohet; një vlerë e gabuar interpretohet me siguri dhe asgjë më poshtë në rrjedhë nuk e vë re (ADR 0012). Pjesa tjetër e gabimeve është e gjatë por më pak e rrezikshme: 1 028 nga 3 388 vlera (30.3%) nuk u nxorën fare, sepse emri i analitit nuk u njoh; 518 nga 2 370 njësitë e nxjerra dhe 1 108 nga 2 370 intervalet e nxjerra nuk përputhen me të vërtetën. Pasoja e këtyre te statusi matet te §6.3.
+
+Numri 125 është pas korrigjimit të përmendur më sipër (271 në matjen e parë).
 
 ## 6.3 Saktësia e klasifikimit kundrejt intervaleve referente
 
-*Tabela 8* dhe *Figura 19.* **[MATET]**
+Rezultatet i përgjigjen PK2 (E3). Matja bëhet mbi gjetjet që nxjerrësi i përputhi me një gjetje të së vërtetës: 8 832 nga 9 860 vlera të korpusit të plotë (me OCR). Pjesa tjetër, 1 028 vlera të pa-nxjerra, është jashtë bazës së PK2 dhe u raportua te §6.2.
 
-*[Raportohet gjithashtu përpjesa e vlerave për të cilat intervali u nxor nga dokumenti kundrejt tabelës së brendshme, si dhe përpjesa e shënuar si e painterpretueshme.]*
+*Tabela 8. Saktësia e klasifikimit të statusit (E3, tërë korpusi, me OCR)*
+
+| Statusi i vërtetë | Mbështetja | Precision | Recall | F1 |
+|---|---|---|---|---|
+| `normal` | 6930 | 1.000 | 0.873 | 0.932 |
+| `high` | 960 | 0.990 | 0.907 | 0.947 |
+| `low` | 740 | 0.941 | 0.899 | 0.919 |
+| `critical_high` | 24 | 0.667 | 0.917 | 0.772 |
+| `critical_low` | 9 | 1.000 | 0.778 | 0.875 |
+| `uninterpretable` | 169 | 0.146 | 1.000 | 0.255 |
+| **Të gjitha** | 8832 | | | saktësia 0.881 |
+
+**Mbi dokumentet dixhitale saktësia është 1.000** (6 472 vlera), pra e gjithë rënia te 0.881 vjen nga kanali i skanuar. Pjesa tjetër e matricës së konfuzionit:
+
+*Matrica e konfuzionit të E3. Rreshti është statusi i vërtetë, kolona statusi i dhënë nga sistemi.*
+
+| e vërteta ↓ / e parashikuar → | `normal` | `high` | `low` | `critical_high` | `critical_low` | `uninterpretable` |
+|---|---|---|---|---|---|---|
+| `normal` | 6050 | 9 | 36 | 9 | 0 | 826 |
+| `high` | 0 | 871 | 6 | 1 | 0 | 82 |
+| `low` | 0 | 0 | 665 | 0 | 0 | 75 |
+| `critical_high` | 0 | 0 | 0 | 22 | 0 | 2 |
+| `critical_low` | 0 | 0 | 0 | 1 | 7 | 1 |
+| `uninterpretable` | 0 | 0 | 0 | 0 | 0 | 169 |
+
+**Si lexohet.** Nga 8 832 vlera, 7 784 morën statusin e saktë. Të tjerat ndahen në dy grupe që nuk kanë të njëjtin kuptim:
+
+- **986 vlera (11.2%) u bënë `uninterpretable`** pa qenë të tilla, sepse intervali nuk u lexua dhe SP5 refuzoi interpretimin. Këto janë gabime të sigurta: përdoruesi nuk merr shpjegim për vlerën, por nuk merr as shpjegim të gabuar. Kjo shpjegon saktësinë 0.146 të klasës `uninterpretable`: shumica e parashikimeve të saj janë refuzime të sigurta.
+- **62 vlera (0.70%) morën një status të interpretuar dhe të gabuar.** Prej tyre 11 u shënuan kritike të larta pa qenë të tilla: 9 vlera normale, 1 e lartë dhe 1 kritike e ulët. Këto janë rastet që një kontroll besueshmërie do t'i ndalte; ai nuk ekziston (§6.10).
+
+Të 169 vlerat pa interval referent në dokument u njohën të gjitha si `uninterpretable` (recall 1.000): SP5 refuzoi secilën.
+
+*Tabela 8, vazhdim. Saktësia sipas burimit të intervalit*
+
+| Burimi i intervalit | Vlera | Pjesa | Saktësia e statusit |
+|---|---|---|---|
+| dokumenti | 6782 | 0.767 | 0.877 |
+| tabela e brendshme | 1881 | 0.214 | 0.885 |
+| asnjë (pa interval) | 169 | 0.019 | 1.000 |
+
+Rreth 77% e vlerave kanë intervalin nga dokumenti dhe 21% nga tabela e brendshme. Saktësia ndërmjet të dyjave ndryshon pak (0.877 dhe 0.885), prandaj gabimet nuk vijnë nga burimi i intervalit por nga leximi.
+
+*Figura 19. Matrica e konfuzionit për klasifikimin e statusit.* **[FIGURË — plotësohet nga matrica më sipër; të dhënat janë te `evaluation/results/E3/result.json`.]**
 
 ## 6.4 Besnikëria e thjeshtimit të tekstit mjekësor
 
+PK3 (E4) **nuk u mat.** Matja kërkon një model gjuhësor që thjeshton tekstin e mjekut, dhe punimi nuk përdori asnjë: gjeneruesi i vetëm është shablloni, i cili e kopjon fjalën e mjekut fjalë për fjalë me parashtesën «Mjeku ka shënuar:». Ruajtja e mohimit dhe e pasigurisë nga një shabllon që nuk e ndryshon tekstin është e vërtetë nga ndërtimi, jo një rezultat, dhe nuk raportohet si i tillë.
+
 *Tabela 9. Besnikëria e thjeshtimit*
 
-| Metrika | Vlera |
+| Metrika | Statusi |
 |---|---|
-| Norma e ruajtjes së mohimit | [MATET] |
-| Norma e ruajtjes së shprehjeve të pasigurisë | [MATET] |
-| Norma e gjetjeve të shpikura | [MATET] |
-| Norma e rekomandimeve të humbura | [MATET] |
-| Gjatësia mesatare e fjalisë, burim kundrejt dalje | [MATET] |
-| Raporti i termave mjekësorë, burim kundrejt dalje | [MATET] |
-| Vlerësimi i ekspertëve, shkallë Likert | [MATET] |
+| Norma e ruajtjes së mohimit | nuk matet (E4) |
+| Norma e ruajtjes së shprehjeve të pasigurisë | nuk matet (E4) |
+| Norma e gjetjeve të shpikura | nuk matet (E4) |
+| Norma e rekomandimeve të humbura | nuk matet (E4) |
+| Gjatësia mesatare e fjalisë, burim kundrejt dalje | nuk matet (E4) |
+| Raporti i termave mjekësorë, burim kundrejt dalje | nuk matet (E4) |
+| Vlerësimi i ekspertëve, shkallë Likert | nuk matet; nuk u krye rishikim ekspertësh |
+
+Çfarë ekziston nga ky drejtim janë dy matje të ndryshme që nuk e zëvendësojnë PK3: detektori i mohimit dhe i pasigurisë mbi fjalitë e korruptuara dhe të grupit B (§6.7), dhe matja e nxjerrjes së pohimeve të burimit nga narrativa (§6.5).
 
 ## 6.5 Saktësia e krahasimit të kryqëzuar
 
-*Tabela 10.* **[MATET]**
+Rezultatet i përgjigjen PK4 (E5): 10 009 çifte analit–dokument, me katër gjendje.
+
+*Tabela 10. Saktësia e krahasimit të kryqëzuar*
+
+| Gjendja | Mbështetja | Precision (me OCR) | Recall: dixhital | Recall: gjithë korpusi, pa OCR | Recall: gjithë korpusi, me OCR |
+|---|---|---|---|---|---|
+| `agreement` (përputhje) | 1163 | 1.000 | 1.000 | 0.679 | 0.679 |
+| `contradiction` (kundërshtim) | 87 | 1.000 | 1.000 | 0.678 | 0.678 |
+| `mentioned_not_measured` (përmendur, jo matur) | 149 | 1.000 | 1.000 | 0.617 | 0.617 |
+| `measured_not_mentioned` (matur, jo përmendur) | 8610 | 0.965 | 1.000 | 0.653 | 0.894 |
+| **Saktësia e përgjithshme** | 10009 | | 1.000 | 0.656 | 0.863 |
+
+Mbi dokumentet dixhitale të katër gjendjet kthehen pa gabim (1.000, pa referenca të rreme). Mbi tërë korpusin saktësia është 0.656 pa OCR dhe 0.863 me OCR; vlera e vjetër 0.563 e një drafti më të hershëm nuk ka korpus të regjistruar dhe nuk përdoret (§5.4.5).
+
+Dy gjëra duhen vënë re:
+
+1. **I gjithë përmirësimi me OCR vjen nga `measured_not_mentioned`** (0.653 në 0.894). Recall-i i tri gjendjeve të tjera, që kërkojnë një pohim narrativ, është i njëjtë me dhe pa OCR (0.679, 0.678, 0.617). Matrica e E5 e përputh me këtë: nga 373 përputhjet e humbura, në 263 vlera laboratorike u lexua por pohimi narrativ nuk u rikthye, dhe në 110 mungoi vetë vlera. Këtu ka një sinjal se narrativa e dokumenteve të skanuara nuk rikthehet nga tubacioni i tanishëm, por **shkaku nuk është hetuar në nivel dokumenti** dhe nuk pohohet.
+2. **28 nga 87 kundërshtime humbën**, të gjitha në dokumente të skanuara (mbi dixhitalet recall-i është 1.000): 19 u raportuan si «matur, jo përmendur» dhe 9 si të munguara. Në këto raste mospërputhja ndërmjet raportit dhe laboratorit nuk i tregohet pacientit. Rezultati është më i rëndë se saktësia e përgjithshme e sugjeron, sepse kundërshtimi është gjendja që ekziston pikërisht për t'u shfaqur.
+
+Dhjetë referenca të rreme (`spurious_cross_references: 10`) dolën me OCR dhe asnjë pa të.
 
 ## 6.6 Efekti i shtresës së verifikimit
 
-Ky është eksperimenti kryesor i punimit dhe rezultati i tij përbën përgjigjen e drejtpërdrejtë ndaj hipotezës së parë.
+Ky është eksperimenti kryesor i punimit dhe rezultati i tij do të ishte përgjigjja e drejtpërdrejtë ndaj hipotezës së parë. **Ai nuk u krye në formën e planifikuar.** Pyetja është nëse verifikimi ul normën e pohimeve të pambështetura që gjeneron një model gjuhësor; pa model gjuhësor ka vetëm një gjenerues që nuk gabon, ndaj kushti A (pa bazim, E6) nuk matet fare dhe kushtet B, C dhe D matin diçka tjetër nga ç'duhej.
 
-*Tabela 11. Rezultatet e ablacionit të verifikimit*
+*Tabela 11. Rezultatet e ablacionit të verifikimit (gjeneruesi është shablloni; OCR i ndezur; 500 dokumente)*
 
-| Kushti | Norma e shkeljeve, dega A | Norma e shkeljeve, dega B |
-|---|---|---|
-| A — pa bazim | [MATET] | [MATET] |
-| B — vetëm bazim | [MATET] | [MATET] |
-| C — bazim dhe rregulla | [MATET] | [MATET] |
-| D — bazim, rregulla dhe klasifikues | [MATET] | [MATET] |
+| Kushti | Eksperimenti | Fjali | Shkelje që arrijnë te përdoruesi | Për 100 fjali (95% CI) | Dega A | Dega B |
+|---|---|---|---|---|---|---|
+| A — pa bazim | E6 | — | **nuk matet** | — | — | — |
+| B — vetëm bazim | E7 | 14016 | 0 | 0.000 (95%: ≤ 0.021, rregulla e tre) | 0 | 0 |
+| C — bazim dhe rregulla | E8 | 14016 | 0 | 0.000 (95%: ≤ 0.021, rregulla e tre) | 0 | 0 |
+| D — bazim, rregulla dhe klasifikues | E9 | 15328 | 79 | 0.515 [0.373–0.665] | 79 | 0 |
 
-*Figura 18.* **[MATET]**
+Si lexohet çdo rresht:
+
+- **B dhe C: zero shkelje, dhe kjo nuk është një rezultat.** Shablloni nuk gabon kurrë, prandaj nuk ka çfarë të heqë verifikimi. Dy rreshtat provojnë vetëm që unaza e rigjenerimit dhe metrika funksionojnë nga fillimi në fund, dhe kufiri i sipërm 95% (0.021 për 100 fjali, sipas rregullës së tre) vlen për këtë gjenerues, jo për një model gjuhësor. Ata janë kontroll kufiri.
+- **C ka një vlerë të vetme jotriviale:** rregullat R1–R9 nuk bllokuan asnjë nga 14 016 fjalitë e shabllonit mbi 500 dokumente, përfshirë 168 të skanuara me njësi të prishura nga OCR (`template_fallbacks: 0`). Pra mbi këtë korpus rregullat nuk japin alarme të rreme. Kjo është e kufizuar në tekstin e shabllonit; mbi fjalitë natyrale të grupit B një e pastër nga 30 u shënua (§6.7).
+- **D matet 0.515 shkelje për 100 fjali [0.373–0.665], dhe të gjitha janë alarme të rreme.** Gjeneruesi është shablloni, prandaj çdo shënim i klasifikuesit është gabim i tij. 51 dokumente (10.2%) u shënuan dhe u çuan te shablloni rezervë; 158 shkelje u prodhuan (secila përpjekje numërohet) dhe 79 mbetën në tekstin e dorëzuar, sepse pas dështimit të rigjenerimit dorëzohet shablloni rezervë edhe kur klasifikuesi e shënon. Të gjitha janë `ungrounded_analyte`.
+
+Burimi i alarmeve të rreme është kanali i skanuar: njësitë e prishura nga OCR («midi», «ugidl», «umolL») dalin jashtë fjalorit që klasifikuesi ka parë. Një kampion kontrolli (ADR 0009) dha 12 nga 40 dokumente të skanuara të goditura kundrejt 0 nga 120 dixhitale. Buxheti prej 5% alarmesh të rreme, i zgjedhur mbi tekst të pastër dixhital (0% e bllokuar), **nuk transferohet te kanali i skanuar**.
+
+**Çfarë mund dhe s'mund të thuhet për hipotezën e parë.** H1 pretendon se verifikimi ul ndjeshëm normën e pohimeve të pambështetura që arrijnë te përdoruesi, krahasuar me bazimin pa verifikim. Kjo krahasohet mes kushteve A (ose B) dhe C/D, dhe për këtë duhet një gjenerues që prodhon pohime të pambështetura. **Pa të, H1 nuk provohet dhe nuk hidhet poshtë.** Ajo që matja tregon është më e ngushtë: shtresa me rregulla nuk futi asnjë alarm të rremë mbi tekstin e shabllonit, dhe shtimi i klasifikuesit të fjalisë mbi të e keqësoi daljen në kanalin e skanuar.
+
+*Figura 18. Rezultatet e ablacionit të shtresës së verifikimit.* Nuk vizatohet: me njërin kusht të pamatur dhe dy me zero, grafiku nuk do të shtonte asgjë përtej Tabelës 11.
 
 ## 6.7 Saktësia e vetë shtresës së verifikimit
 
-*Tabela 12. Krahasimi i tre qasjeve të detektimit*
+Rezultatet i përgjigjen PK6 (E10, E11 dhe grupi B). Janë dy mostra me natyrë të ndryshme, dhe krahasimi mes tyre është pjesa më informuese e kapitullit.
 
-| Qasja | Precision | Recall | F1 |
-|---|---|---|---|
-| Rregullat deterministe | [MATET] | [MATET] | [MATET] |
-| Klasifikuesi i finetunuar | [MATET] | [MATET] | [MATET] |
-| Modeli gjuhësor si gjykatës | [MATET] | [MATET] | [MATET] |
+- **Korpusi i korruptuar (E10, E11).** 192 tekste të testit, secili një shpjegim i plotë: 30 të pastra dhe 162 me një defekt të futur nga një korruptues mbi tekstin e shabllonit. Defektet vijnë nga i njëjti gjenerues që ka ndërtuar tekstin e pastër.
+- **Grupi B.** 105 fjali natyrale për 25 kontekste, secila e futur në shabllonin e kontekstit të vet: 30 të pastra dhe 75 me defekt, të dorëzuara nga autori (§6.7.1 për prejardhjen). Është e vetmja lëndë e punimit që nuk ka kaluar nëpër gjeneruesin sintetik.
 
-*Tabela 13. Performanca sipas llojit të defektit* — **[MATET]**
+Katalogu ka lloje që nuk maten në asnjërën mostër: `missing_critical` (R4) nuk ka asnjë mostër dhe për të nuk ka matje; `omitted_recommendation` (R8) ka mostra vetëm te korpusi i korruptuar, ndërsa `ungrounded_term_explanation` (R9) dhe `prohibited_claim` (SP1–3) vetëm te B.
 
-Kjo tabelë është më informuese se ajo e përgjithshme. Pritshmëria e formuluar para matjes ishte që rregullat të ishin të plota për defektet numerike dhe të pafuqishme për ato semantike, ndërsa klasifikuesi të sillej në mënyrën e kundërt. Matja e kundërshtoi pjesën e parë: rregullat arritën macro F1 0.993 mbi korpusin e korruptuar edhe te mohimi dhe pasiguria, sepse ato shohin kontekstin e plotë të strukturuar, ndërsa klasifikuesi sheh më pak (ADR 0009).
+*Tabela 12. Krahasimi i qasjeve të detektimit. P, R dhe F1 janë mikro-mesatare mbi llojet e defektit; macro F1 është mesatarja e F1 mbi llojet e defektit me mbështetje.*
 
-*Figura 20* dhe *Figura 21.* **[MATET]**
+| Qasja | Korpusi i korruptuar: P | R | F1 | Macro F1 | Të pastra të bllokuara | Grupi B: P | R | F1 | Macro F1 | Të pastra të bllokuara |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Rregullat deterministe (`r1.3`) | 0.994 | 0.988 | 0.991 | 0.993 | 0 / 30 | 0.983 | 0.773 | 0.866 | 0.795 | 1 / 30 |
+| Klasifikuesi XLM-R, fjalia, rregulli 1 (prag 0.3) | 0.380 | 0.451 | 0.412 | 0.481 | 30 / 30 | 0.105 | 0.147 | 0.122 | 0.053 | 30 / 30 |
+| Klasifikuesi XLM-R, fjalia, rregulli 2 (prag 0.85) | 1.000 | 0.302 | 0.465 | 0.385 | 0 / 30 | 0.143 | 0.013 | 0.024 | 0.015 | 2 / 30 |
+| Klasifikuesi XLM-R, fjalia + konteksti, rregulli 1 (prag 0.4) | 0.526 | 0.617 | 0.568 | 0.538 | 29 / 30 | 0.175 | 0.240 | 0.202 | 0.177 | 29 / 30 |
+| Klasifikuesi XLM-R, fjalia + konteksti, rregulli 2 (prag 0.9) | 0.917 | 0.407 | 0.564 | 0.326 | 2 / 30 | 0.667 | 0.080 | 0.143 | 0.104 | 0 / 30 |
+| Modeli gjuhësor si gjykatës (E12) | **nuk matet** | | | | | **nuk matet** | | | | |
+
+Klasifikuesi është i matur me dy rregulla pragu (ADR 0009): rregulli 1 maksimizon macro F1 në validim, rregulli 2 kërkon që më së shumti 5% e teksteve të pastra të validimit të bllokohen; rregulli 2 është ai që përdoret në E9. «Fjalia + konteksti» sheh edhe kontekstin e strukturuar, «fjalia» vetëm fjalinë. Klasifikuesi nuk e sheh kurrë një defekt `omitted_recommendation`, sepse një fjali që mungon nuk është fjali; ky lloj hyn në macro F1 të E11 me F1 0.00.
+
+**Si lexohet.**
+
+1. **Rregullat bien nga 0.993 në 0.795 kur fjalitë nuk vijnë nga gjeneruesi.** Mikro-precision mbetet e lartë (0.994 në 0.983), recall-i bie nga 0.988 në 0.773. Pra rregullat flasin pak, jo shpesh gabim: ato humbasin defekte që nuk njohin, dhe te B kanë një alarm të rremë nga 30 fjali të pastra.
+2. **Klasifikuesi është afër të pavlefshmit mbi tekst natyral:** macro F1 0.015–0.177. Mbi korpusin e korruptuar shifrat (0.326–0.538) janë më të larta, por te rregulli 1 ai bllokon 30 nga 30 (fjalia) dhe 29 nga 30 (fjalia + konteksti) tekste të pastra, pra nuk dallon të pastrin nga i prishuri; te rregulli 2 ai bllokon pak të pastra (0 dhe 2 nga 30) por kap pak defekte (recall 0.302 dhe 0.407).
+3. **Rregulli 2 nuk e mban premtimin e tij te teksti i vërtetë:** te «fjalia + konteksti» ai bllokon 2 nga 30 tekste të pastra të testit (6.7%, mbi buxhetin 5%), dhe te kanali i skanuar mbi 10% të dokumenteve (§6.6).
+
+*Tabela 13a. F1 sipas llojit të defektit, korpusi i korruptuar (192 mostra). Rreshtat pa mbështetje nuk janë paraqitur.*
+
+| Lloji i defektit | Mbështetja | Rregullat | Fjalia, R1 | Fjalia, R2 | Fj.+konteksti, R1 | Fj.+konteksti, R2 |
+|---|---|---|---|---|---|---|
+| `ungrounded_number` | 30 | 1.00 | 0.20 | 0.00 | 0.48 | 0.36 |
+| `ungrounded_analyte` | 30 | 0.98 | 0.75 | 0.70 | 0.92 | 0.92 |
+| `direction_mismatch` | 27 | 0.98 | 0.20 | 0.00 | 0.39 | 0.00 |
+| `polarity_flip` | 12 | 1.00 | 0.22 | 0.00 | 0.26 | 0.00 |
+| `hedge_removed` | 3 | 1.00 | 1.00 | 1.00 | 0.80 | 0.00 |
+| `fabricated_finding` | 30 | 0.98 | 1.00 | 1.00 | 0.92 | 1.00 |
+| `omitted_recommendation` | 30 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+
+*Tabela 13b. F1 sipas llojit të defektit, grupi B (105 mostra). `omitted_recommendation` nuk ka rreshta në B.*
+
+| Lloji i defektit | Mbështetja | Rregullat | Fjalia, R1 | Fjalia, R2 | Fj.+konteksti, R1 | Fj.+konteksti, R2 |
+|---|---|---|---|---|---|---|
+| `ungrounded_number` | 10 | 0.95 | 0.00 | 0.00 | 0.18 | 0.00 |
+| `ungrounded_analyte` | 10 | 1.00 | 0.15 | 0.12 | 0.67 | 0.40 |
+| `direction_mismatch` | 10 | 0.67 | 0.06 | 0.00 | 0.12 | 0.00 |
+| `polarity_flip` | 10 | 1.00 | 0.22 | 0.00 | 0.21 | 0.00 |
+| `hedge_removed` | 10 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| `fabricated_finding` | 10 | 0.95 | 0.00 | 0.00 | 0.23 | 0.43 |
+| `ungrounded_term_explanation` | 5 | 0.33 | 0.00 | 0.00 | 0.00 | 0.00 |
+| `prohibited_claim` | 10 | 0.46 | 0.00 | 0.00 | 0.00 | 0.00 |
+
+**Çfarë tregojnë tabelat sipas llojit.**
+
+- **Pritshmëria e formuluar para matjes ishte që rregullat të ishin të plota për defektet numerike dhe të pafuqishme për ato semantike**, ndërsa klasifikuesi të sillej në mënyrën e kundërt. Pjesa e parë u kundërshtua: rregullat arritën macro F1 0.993 edhe te mohimi dhe pasiguria, sepse ato shohin kontekstin e plotë të strukturuar (ADR 0009). Te B kjo vazhdon të ndodhë për citimet e mjekut: `polarity_flip` dhe `hedge_removed` marrin F1 1.00, por këto rreshta janë më pak të pavarura se të tjerat (§6.7.1).
+- **Dobësitë e rregullave te B janë leksikore, jo konceptuale.** `direction_mismatch` 0.67 (5 nga 10), `prohibited_claim` 0.46 (3 nga 10), `ungrounded_term_explanation` 0.33 (1 nga 5). §6.10 jep shkaqet.
+- **Perfeksioni i klasifikuesit te `fabricated_finding` (1.00) është artefakt i shabllonit:** çdo gjetje e shpikur e korpusit të korruptuar fillon me «Vërehet gjithashtu» (`E11/leakage.json`). Mbi fjali të shkruara ndryshe ai bie në 0.00–0.43.
+- **Rrjedhja e shabllonit:** për 100% të fjalive me defekt të validimit forma e tyre (pa numra e emra) gjendet te një fjali e trajnimit; ndarja në nivel dokumenti nuk e ndalon këtë (§5.11.1). E11 mbi korpusin e korruptuar mat njohjen e shablloneve të gjeneruesit më shumë se zbulimin e defektit; grupi B është prova e vetme e vërtetë.
+
+**Hipoteza e dytë (H2).** H2 pret që precision-i dhe recall-i i detektorit të jenë më të lartë për degën laboratorike (A) sesa për atë narrative (B). Tabela më poshtë i mbledh përfundimet e Tabelës 13 sipas degës (A: `ungrounded_number`, `ungrounded_analyte`, `direction_mismatch`, `missing_critical`; B: të tjerat).
+
+*Detektimi sipas degës.*
+
+| Detektori | Dega | Korpusi i korruptuar: P | R | Grupi B: P | R |
+|---|---|---|---|---|---|
+| Rregullat deterministe (`r1.3`) | A | 1.000 | 0.977 | 0.962 | 0.833 |
+| Rregullat deterministe (`r1.3`) | B | 0.987 | 1.000 | 1.000 | 0.733 |
+| Klasifikuesi XLM-R, fjalia, rregulli 1 (prag 0.3) | A | 0.459 | 0.322 | 0.071 | 0.100 |
+| Klasifikuesi XLM-R, fjalia, rregulli 1 (prag 0.3) | B | 0.344 | 0.600 | 0.127 | 0.178 |
+| Klasifikuesi XLM-R, fjalia, rregulli 2 (prag 0.85) | A | 1.000 | 0.184 | 0.143 | 0.033 |
+| Klasifikuesi XLM-R, fjalia, rregulli 2 (prag 0.85) | B | 1.000 | 0.440 | — | 0.000 |
+| Klasifikuesi XLM-R, fjalia + konteksti, rregulli 1 (prag 0.4) | A | 0.478 | 0.736 | 0.186 | 0.367 |
+| Klasifikuesi XLM-R, fjalia + konteksti, rregulli 1 (prag 0.4) | B | 0.643 | 0.480 | 0.159 | 0.156 |
+| Klasifikuesi XLM-R, fjalia + konteksti, rregulli 2 (prag 0.9) | A | 0.857 | 0.414 | 0.600 | 0.100 |
+| Klasifikuesi XLM-R, fjalia + konteksti, rregulli 2 (prag 0.9) | B | 1.000 | 0.400 | 0.750 | 0.067 |
+
+Për rregullat te B, recall-i është në drejtimin e H2 (dega A 0.833, dega B 0.733) por precision-i në të kundërtën (0.962 dhe 1.000); te korpusi i korruptuar precision-i është në drejtimin e H2 (1.000 kundrejt 0.987) por recall-i në të kundërtën (0.977 kundrejt 1.000). Te klasifikuesi nuk ka model të qëndrueshëm. Nuk ka test statistikor dhe mbështetja është 30 deri 45 fjali për degë. **H2 nuk konfirmohet nga këto matje**, as nuk hidhet poshtë; vetë ndarja nuk është e pastër, sepse llojet më të dobëta te B janë të përziera (`direction_mismatch` në A, `prohibited_claim` dhe `ungrounded_term_explanation` në B), dhe H2 flet edhe për modelin gjuhësor si gjykatës (E12), që nuk u mat.
+
+*Figura 20. Matricat e konfuzionit për tre qasjet.* **[FIGURË — plotësohet; matricat janë te `evaluation/results/E10`, `E11` dhe te rezultati i grupit B. Qasja e tretë (modeli gjuhësor si gjykatës) nuk ekziston.]**
+*Figura 21. Shpërndarja e llojeve të shkeljeve të zbuluara.* **[FIGURË — plotësohet nga Tabela 13.]**
+
+### 6.7.1 Prejardhja e grupit B
+
+Grupi B u dorëzua nga autori si punë e vet më 2026-10-02. Gjatë punës ekzistonte në depo një draft i mëparshëm i hartuar nga një model gjuhësor (Claude), i cili u zëvendësua dhe nuk është më pjesë e depos. **12 nga 105 rreshta të skedarit të tanishëm janë identikë (kontekst dhe fjali) me rreshta të atij drafti**: 6 `polarity_flip` dhe 6 `hedge_removed`, pra vetëm citime të mjekut; edhe 4 fjali të tjera përputhen nëse nuk merret parasysh konteksti. 93 rreshtat e tjerë janë të ndryshëm. Forma e rreshtave me citim është shumë e kufizuar (parashtesa dhe fjala e mjekut me një ndryshim), prandaj përputhja mund të ndodhë pa kopjim, por skedari nuk e vërteton si ndodhi. Skedari nuk ka rreshta të përsëritur. Kufizime të tjera: 9 nga 105 fjali ndajnë formën me një fjali të trajnimit të klasifikuesit (të gjitha citime të mjekut), asnjë nuk gjendet fjalë për fjalë te shablloni, dhe fjalitë e pastra ndjekin pothuajse të njëjtën formë, çka ngushton llojin e fjalive që testohen. Asnjë prag nuk u akordua mbi B: pragjet e klasifikuesit vijnë nga E11.
 
 ## 6.8 Validimi mbi të dhëna reale
 
-*[Vetëm nëse miratimi etik jepet. Përndryshe zëvendësohet me deklaratën përkatëse të kufizimit.]*
-
-**[MATET OSE NUK APLIKOHET]**
+**Nuk u krye.** Nuk ka miratim etik dhe nuk u përdor asnjë dokument real; E13 është e pamatur. Pasoja është e rëndë: **asnjë rezultat i këtij kapitulli nuk mat sjellje mbi dokumente reale.** E1 dhe E3 (1.000) matin lidhjen e tubacionit mbi tekst të pastër; E2 dhe E5 matin një skanim të simuluar nga i njëjti gjenerues, jo një skaner dhe një faqosje të vërtetë; detektorët e testuar mbi tekst natyral (grupi B) janë testuar mbi fjali të shkruara nga autori, jo mbi raporte të mjekëve. Të gjitha këto janë kufij të sipërm të asaj që do të maten mbi dokumente reale, jo vlerësime të saj.
 
 ## 6.9 Rezultatet e studimit me përdorues
 
-*Tabela 14.* **[MATET]**
-
-*[Nuk fabrikohen përgjigje pjesëmarrësish. Nëse studimi nuk kryhet, seksioni zëvendësohet me rishikim ekspertësh mbi një mostër dhe kjo deklarohet shprehimisht.]*
+**Nuk u krye.** Nuk ka studim me përdorues dhe nuk ka rishikim ekspertësh; PK7 dhe pjesa e PK3 që kërkon vlerësim ekspertësh nuk kanë matje. Tabela 14 nuk prodhohet dhe nuk fabrikohen përgjigje pjesëmarrësish. Pohimi që sistemi e bën rezultatin më të kuptueshëm për pacientin **nuk mbështetet nga asnjë matje e këtij punimi.**
 
 ## 6.10 Analiza e gabimeve
 
-*Tabela 15. Taksonomia e gabimeve* — ndërtohet nga shkeljet reale të vërejtura gjatë eksperimenteve.
+Taksonomia më poshtë ndërtohet nga gabimet e vërejtura gjatë eksperimenteve, jo nga një listë e paracaktuar. Kolona «Pasoja» thotë nëse gabimi është i sigurt (sistemi heshtet ose refuzon) apo i pasigurt (sistemi pohon diçka të gabuar).
 
-**[MATET]**
+*Tabela 15. Taksonomia e gabimeve të vërejtura*
+
+| # | Gabimi | Ku u vërejt | Sa | Pasoja | Gjendja |
+|---|---|---|---|---|---|
+| | **Leximi (OCR)** | | | | |
+| 1 | Vlerë e gabuar e pranuar (ndarësi dhjetor humbet: «15,7» lexohet «157») | E2 | 125 nga 2 370 vlera të nxjerra | **Pasigurt:** vlera interpretohet me siguri. E3 ka 62 statuse të interpretuara gabim, 11 prej tyre kritike të rreme; ADR 0012 i lidh me ndarësin dhjetor të humbur | E hapur: kërkon kufij fiziologjikë me burim për çdo analit, ose deklarimin e kanalit të skanuar si të pasigurt për interpretim |
+| 2 | Intervali referent i humbur ose i prishur | E2, E3 | 1 108 nga 2 370 intervale të nxjerra nuk përputhen; 986 vlera u bënë `uninterpretable` | I sigurt në 986 raste (SP5 refuzon); pjesa tjetër hyn te rreshti 1 | Pjesërisht e mbyllur (SP5) |
+| 3 | Analiti nuk u njoh dhe vlera nuk u nxor | E2 | 1 028 nga 3 388 vlera (30.3%) | Heshtje për atë vlerë; paralajmërimi i OCR-së në krye të faqes e tregon kanalin | E hapur |
+| 4 | Njësi e prishur | E2, E9 | 518 nga 2 370 njësi të nxjerra nuk përputhen; E9: 158 shënime të rreme në 51 dokumente | E sigurt për përdoruesin (fallback), por dëmton shpjegimin | E hapur |
+| 5 | Pohimi narrativ i një dokumenti të skanuar nuk rikthehet | E5 | 373 përputhje të humbura (263 me vlerë të lexuar, 110 pa vlerë); 28 nga 87 kundërshtime humbën | **Pasigurt në heshtje:** një kundërshtim raport–laborator nuk shfaqet | E hapur; shkaku nuk është hetuar |
+| 6 | Referencë e kryqëzuar e rreme | E5 | 10 | Pasigurt, por i rrallë | E hapur |
+| | **Verifikimi me rregulla (grupi B)** | | | | |
+| 7 | Drejtimi i shprehur me mbiemër nuk njihet («Eritrocitet janë të larta»; «Glukoza në serum është e lartë») | B, E10 | 5 nga 10 `direction_mismatch` te B; 1 nga 27 te E10 | **Pasigurt:** një drejtim i kthyer kalon verifikimin | E hapur. Fjalori i drejtimit (`find_direction`) njeh vetëm format e shabllonit |
+| 8 | Pohime SP1–SP3 jashtë listës leksikore («ka diabet», «duhet të filloni trajtim», «do të normalizohet vetë») | B | 7 nga 10 `prohibited_claim` | **Pasigurt:** diagnoza, trajtim ose prognozë kalon | E hapur; lista leksikore është e shkurtër me qëllim |
+| 9 | Shpjegim i termit të pashpjeguar në formë të shquar («Monocitoza do të thotë…» kundrejt «monocitozë» në tabelë) | B | 4 nga 5 `ungrounded_term_explanation` | **Pasigurt:** SP6 shkelet | E hapur. R9 krahason formën e palosur të termit pa morfologji (ndajshtesa e shquar ndryshon zanoren e fundit); kapi vetëm «eozinofilia» sepse fjala përmban «eozinofili» |
+| 10 | Gjetje e shpikur me term jashtë tabelës («vërehet pankreatit») | B | 1 nga 10 `fabricated_finding` | Pasigurt | E hapur; mbulimi i tabelës së 82 termave |
+| 11 | Shifra në emrin e analitit lexohet si numër i pambështetur («Vitamina D 25-OH») | B | 1 nga 30 fjali të pastra | Alarm i rremë, tekst i pastër bllokohet | E hapur |
+| | **Klasifikuesi** | | | | |
+| 12 | Bllokon tekst të pastër | E11 | rregulli 1: 30/30 dhe 29/30 të pastra; rregulli 2: 0 dhe 2 nga 30 | Alarm i rremë; me rregull 1 detektori është i padobishëm | Raportuar |
+| 13 | Mëson shabllonin dhe jo defektin | E11, B | 100% e formave të validimit të defekteve ishin në trajnim; `fabricated_finding` 1.00 → 0.00–0.43 | Rezultati në korpusin sintetik është i fryrë | Raportuar (ADR 0009) |
+| 14 | Alarme të rreme mbi njësi të OCR-së | E9 | 79 shkelje në tekstin e dorëzuar; 10.2% e dokumenteve | Tekst rezervë në vend të shpjegimit | E hapur |
+
+Për rreshtat 7 deri 11, §6.7 dhe ADR 0009 japin shkaqet. Rregullat `r1.3` **nuk u ndryshuan pasi grupi B u mat**, që B të mbetet matje e pavarur; ndryshimi i tyre pas kësaj do të duhej raportuar si ndryshim pas shikimit të rezultatit.
+
+**Gabime të vetë matjes.** Katër gabime të harness-it ose të metrikës u gjetën gjatë punës dhe janë korrigjuar, por ato tregojnë se një matje që duket e rregullt mund të jetë e prishur: (1) F1 hidhej poshtë për një klasë që detektori e humbte plotësisht, dhe një klasifikues që nuk kapte asgjë në pesë nga shtatë llojet dilte me macro F1 0.96; (2) pragu me macro F1 maksimal nuk kishte kufi për alarmet e rreme dhe zgjidhte pika që blloknin ~98% të teksteve të pastra; (3) një vlerësues që shtonte citimin e përmbysur në fund jepte 0 nga 20 për një arsye që s'kishte lidhje me rregullat; (4) një rresht i përsëritur te B (korrigjuar nga autori) e fryente llojin e tij. Gjithashtu, ndërfaqja gjeti dy defekte që asnjë metrikë nuk i kishte gjetur: një interval i lexuar si «vlerë dhe njësi» e shfaqur pacientit si vlerë e matur, dhe një pikë e OCR-së që ndante çdo numër dhjetor dhe e bënte shabllonin vetë të dështonte verifikimin (ADR 0011 dhe 0012).
 
 ---
 
@@ -1378,17 +1576,25 @@ Për sa i përket Aktit Evropian për Inteligjencën Artificiale, detyrimet e tr
 
 ## 7.6 Kufizimet e punimit
 
-Vlerësimi kryesor është kryer mbi të dhëna sintetike, dhe performanca mbi faqosje reale të papara mbetet ose e pamatur ose e matur vetëm mbi një mostër të vogël. Ky është kufizimi më i rëndësishëm i punimit dhe ndikon në përgjithësueshmërinë e rezultateve të PK1 dhe PK2.
+Kufizimet renditen nga më e rëndësishmja. Secila thotë çfarë nuk dihet, jo çfarë shpresohet.
 
-Verifikimi semantik i degës narrative nuk ofron garanci por vetëm ulje të matshme të rrezikut, dhe norma e tij e gabimit nuk është zero.
+**1. Nuk ka model gjuhësor, prandaj eksperimenti kryesor nuk u krye.** Gjeneruesi i vetëm i sistemit është shablloni deterministe. Si pasojë E4, E6 dhe E12 nuk maten; E7 dhe E8 japin zero shkelje sepse shablloni nuk gabon (kontrolle kufiri, jo rezultate); dhe E9 mat vetëm alarmet e rreme të klasifikuesit. Hipoteza e parë, që verifikimi e ul normën e pohimeve të pambështetura që arrijnë te përdoruesi, **nuk provohet dhe nuk hidhet poshtë**. Ky është kufizimi më i rëndësishëm i punimit. Për të njëjtën arsye cilësia e një modeli gjuhësor në shqip nuk u mat fare.
 
-Tabela terminologjike është e kufizuar në numër dhe nuk mbulon çdo term të mundshëm mjekësor, gjë që nënkupton se një pjesë e termave do të mbeten të pashpjeguar.
+**2. Nuk ka dokumente reale.** Nuk ka miratim etik dhe E13 nuk u krye. Korpusi vizaton tekst të pastër në koordinata të njohura, prandaj E1 dhe E3 (1.000 mbi dixhitalet) matin lidhjen e tubacionit, jo vështirësinë; skanimi është i simuluar (dokument i vizatuar dhe pastaj i degraduar), jo një skaner i vërtetë. Asnjë numër i Kapitullit 6 nuk është vlerësim i sjelljes mbi dokumente reale.
 
-Studimi me përdorues, nëse kryhet, është i vogël dhe lejon vetëm përshkrim dhe jo përgjithësim statistikor.
+**3. Detektorët u matën mbi tekst të prodhuar nga i njëjti gjenerues dhe mbi një grup të vogël fjalish natyrale.** Macro F1 0.993 i rregullave përshkruan korpusin e korruptuar: rënia në 0.795 mbi grupin B është e vetmja prova se ai numër nuk përgjithësohet plotësisht. Grupi B ka 105 fjali me 5 deri 10 për lloj defekti, një autor, fjali të pastra shumë njëtrajtëshme, dhe nuk ka rreshta për `missing_critical`; një fjali ndryshon F1 të një lloji me 0.05 deri 0.2. Grupi B u dorëzua nga autori si punë e vet; gjatë punës ekzistonte në depo një draft i mëparshëm i hartuar nga një model gjuhësor (Claude), që u zëvendësua, dhe 12 nga 105 rreshta të skedarit përfundimtar (vetëm citime të mjekut) janë identikë me rreshta të atij drafti (§6.7.1). Grupet A (25 shpjegime referuese) dhe C (rreth 60 fjali narrative të mjekut) mbeten bosh; prandaj shkalla e alarmeve të rreme mbi prozë natyrale të gjatë dhe Dega B mbi fjali të mjekëve të vërtetë nuk matet.
 
-Rezultatet laboratorike jonumerike nuk mbulohen fare nga sistemi.
+**4. Klasifikuesi mëson shabllonin.** 100% e formave të fjalive me defekt të validimit ishin tashmë në trajnim, dhe çdo gjetje e shpikur fillon me të njëjtën shprehje. Rezultati mbi korpusin sintetik nuk është dëshmi e zbulimit të defektit. Klasifikuesi u trajnua një herë (një farë, tri epoka, GPU Tesla T4), pa variancë ndërmjet ekzekutimeve; pragu i dytë (buxheti i alarmeve të rreme) u shtua pasi testi ishte parë.
 
-Së fundi, cilësia e modelit gjuhësor në gjuhën shqipe është matur vetëm në kontekstin e këtij sistemi dhe nuk përbën vlerësim të përgjithshëm të aftësisë së modelit në këtë gjuhë.
+**5. Pasiguria statistikore dhe prejardhja.** Vetëm E7–E9 kanë intervale besimi. Mostrat janë të vogla: te E10 `hedge_removed` ka 3 mostra dhe `polarity_flip` 12. E10 nuk mban shenjën e git-it dhe vlerësimet e E11 dhe të grupit B u ekzekutuan me kod që nuk ishte ende i commit-uar; duhen përsëritur nga një kopje e pastër. Katër metoda u ndryshuan pasi rezultati i mëparshëm ishte parë (§6, hyrja).
+
+**6. OCR-ja është një rrezik sigurie, jo vetëm saktësie.** Me Tesseract, një konfigurim, 125 nga 2 370 vlera të nxjerra nga skanimet janë të gabuara dhe pranohen, dhe 62 marrin status të interpretuar gabim, 11 prej tyre kritike të rreme. Nuk ka kontroll besueshmërie me kufij fiziologjikë me burim, dhe deri sa të ketë, interpretimi i kanalit të skanuar nuk duhet të konsiderohet i sigurt. Pohimet narrative të dokumenteve të skanuara nuk rikthehen (28 nga 87 kundërshtime humbën), dhe shkaku nuk u hetua.
+
+**7. Rregullat kanë kufij leksikorë të njohur.** Ato njohin drejtimin vetëm në format që kanë (5 nga 10 gabime drejtimi nuk u kapën), 7 nga 10 pohime diagnostike, trajtimi ose prognoze kaluan, dhe R9 humbi 4 nga 5 shpjegime të termave të pashpjeguar sepse nuk njeh formën e shquar. Katalogu `r1.3` nuk u ndryshua pasi B u mat, që B të mbetet matje e pavarur. Verifikimi semantik i degës narrative, edhe me rregullat më të mira, nuk ofron garanci por vetëm ulje të matshme të rrezikut, dhe norma e tij e gabimit nuk është zero.
+
+**8. Burimet.** Tabela terminologjike ka 82 terma dhe nuk mbulon çdo term të mundshëm mjekësor, kështu që një pjesë e termave do të mbeten të pashpjeguar; asnjë nga 82 termat dhe asnjë nga 11 rregullat e kombinimit nuk ka burim të shënuar, dhe asnjë nuk është vlerësuar klinikisht. Paneli ka 38 analite dhe rezultatet laboratorike jonumerike nuk mbulohen fare.
+
+**9. Nuk ka studim me përdorues dhe nuk ka rishikim ekspertësh.** PK7 dhe pjesa ekspertësh e PK3 nuk kanë matje; nuk ka asnjë provë të mbledhur se sistemi e bën rezultatin më të kuptueshëm për pacientin. Chat-i i lidhur me dokumentin nuk është ndërtuar.
 
 ## 7.7 Mundësitë për zhvillime të mëtejshme
 
