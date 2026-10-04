@@ -853,3 +853,76 @@ def test_ingest_refuses_answers_for_unknown_ids_and_requires_a_model(exported, t
     (root / "batches" / "answers_01.jsonl").unlink()
     with pytest.raises(SystemExit):
         judge_batches.main(["ingest", str(root / "batches"), "--key", str(root / "key.json")])
+
+
+# --------------------------------------------------------------------
+# Auditi i E8
+# --------------------------------------------------------------------
+
+
+def _audit_dir(tmp_path, answers, items=None):
+    items = items or {
+        "A-000": {"document_index": 1, "channel": "digital", "source": "generated"},
+        "A-001": {"document_index": 2, "channel": "scanned", "source": "generated"},
+        "A-002": {"document_index": 3, "channel": "digital", "source": "template"},
+    }
+    key = tmp_path / "key.json"
+    key.write_text(json.dumps({"items": items, "sample_seed": 11}), encoding="utf-8")
+    directory = tmp_path / "batches"
+    directory.mkdir()
+    (directory / "answers_00.jsonl").write_text(
+        "\n".join(json.dumps(a) for a in answers), encoding="utf-8"
+    )
+    return directory, key
+
+
+def test_audit_prompt_lists_every_rule_type_plus_the_catch_all_for_unchecked_claims():
+    from evaluation import audit_batches
+
+    for label in audit_batches.LABELS:
+        assert label in audit_batches.SYSTEM
+    assert "other_unsupported" in audit_batches.LABELS
+    assert "Çdo numër në tekst duhet të gjendet" in audit_batches.SYSTEM  # përkufizimi i R1 nga katalogu
+
+
+def test_audit_ingest_counts_texts_with_problems_by_stratum_and_by_label(tmp_path):
+    from evaluation import audit_batches
+
+    directory, key = _audit_dir(
+        tmp_path,
+        [
+            {"id": "A-000", "problems": [{"label": "direction_mismatch", "quote": "x"},
+                                         {"label": "other_unsupported", "quote": "y"}]},
+            {"id": "A-001", "problems": []},
+            {"id": "A-002", "problems": []},
+        ],
+    )
+    result = audit_batches.ingest(directory, key, model="prova")
+    generated = result["generated_passed_verification"]
+    assert (generated["items"], generated["texts_with_problem"], generated["share_with_problem"]) == (2, 1, 0.5)
+    assert generated["problems_by_label"] == {"direction_mismatch": 1, "other_unsupported": 1}
+    assert result["generated_digital"]["texts_with_problem"] == 1
+    assert result["generated_scanned"]["texts_with_problem"] == 0
+    assert result["template_fallback_control"]["texts_with_problem"] == 0
+
+
+def test_audit_ingest_reports_missing_answers_and_refuses_unknown_ids(tmp_path):
+    from evaluation import audit_batches
+
+    directory, key = _audit_dir(tmp_path, [{"id": "A-000", "problems": []}])
+    result = audit_batches.ingest(directory, key, model="prova")
+    assert result["generated_passed_verification"]["missing"] == ["A-001"]
+
+    other = tmp_path / "other"
+    other.mkdir()
+    directory, key = _audit_dir(other, [{"id": "Z-9", "problems": []}])
+    with pytest.raises(ValueError, match="të panjohur"):
+        audit_batches.ingest(directory, key, model="prova")
+
+
+def test_audit_requires_a_model_note(tmp_path):
+    from evaluation import audit_batches
+
+    directory, key = _audit_dir(tmp_path, [{"id": "A-000", "problems": []}])
+    with pytest.raises(SystemExit):
+        audit_batches.main(["ingest", str(directory), "--key", str(key)])

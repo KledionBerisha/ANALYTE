@@ -24,9 +24,9 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 | Infrastruktura e vlerësimit (`evaluation/`) | e plotë: PK1-PK6, matrica E1-E15, prejardhja e rezultateve |
 | Dega A — vlerat nga tabela (`ingestion/`, `grounding/branch_a/`) | kanali dixhital dhe OCR (Tesseract, ADR 0012); kombinimet ndërmjet analiteve |
 | Dega B — pohimet nga narrativa (`grounding/branch_b/`) | e plotë: terma, mohim, pasiguri, krahasim i kryqëzuar |
-| Verifikimi (`verification/`) | rregullat R1-R9 dhe SP1-3; klasifikuesi pret trajnimin në Colab |
+| Verifikimi (`verification/`) | rregullat R1-R9 dhe SP1-3; klasifikuesi XLM-R i trajnuar në Colab dhe i matur (ADR 0009) |
 | Makina e gjendjeve (`orchestration/`) | e plotë, me rigjenerim dhe shabllon rezervë (ADR 0011) |
-| Gjenerimi (`generation/`) | shablloni determinist; modeli gjuhësor ende jo |
+| Gjenerimi (`generation/`) | shablloni determinist (rezervë) dhe modeli gjuhësor përmes klientit me cache (`ministral-14b-2512`, ADR 0015); biseda jo |
 | Shërbimi (`api/`, `persistence/`, `audit/`) | API, PostgreSQL, radha arq, auditim, skedarë të koduar (ADR 0013); biseda jo |
 | Ndërfaqja web (`frontend/`) | Next.js: ngarkimi, hapat e përpunimit, shpjegimi me verifikim, vlerat me burimin në dokument; biseda jo |
 
@@ -106,7 +106,7 @@ Shkruan `evaluation/results/{ID}/` për secilin nga E1-E15 dhe një
 paekzistuar shtypen `[TO BE MEASURED]`; ato nuk lihen bosh dhe nuk
 ngatërrohen me zero.
 
-Katër pipeline-a njihen. Dy prej tyre janë kufij dhe jo sisteme: `empty`
+Katër pipeline-a pa gjenerim njihen (`e6`–`e9` janë kushtet e ablacionit, më sipër). Dy prej tyre janë kufij dhe jo sisteme: `empty`
 nuk nxjerr asgjë dhe asnjë metrikë nuk duhet ta shpërblejë, `oracle` kthen
 vetë të vërtetën dhe çdo metrikë duhet të arrijë vlerën e përsosur mbi të.
 Dy të tjerët janë sistemi: `branch_a` nxjerr vlerat nga tabela, `grounding`
@@ -114,6 +114,38 @@ shton pohimet e narrativës dhe krahasimin e kryqëzuar.
 
 Të dhënat e vërteta nuk i kalojnë kurrë sistemit: hyrja e tij mban vetëm
 identifikuesin e dokumentit dhe shtegun e PDF-së.
+
+### Modeli gjuhësor
+
+Pa konfigurim, gjeneruesi është shablloni. Për të përdorur një model, te `.env`
+(shih `.env.example`; çelësi nuk shkruhet kurrë në kod):
+
+```
+ANALYTE_LLM_PROVIDER=mistral         # gemini | mistral | groq | cerebras | openrouter | openai_compatible
+ANALYTE_LLM_MODEL=ministral-14b-2512 # emër me version, jo `-latest`
+ANALYTE_LLM_API_KEY=
+```
+
+Kushtet e ablacionit me modelin (nga rrënja, me `--ocr` për të skanuarat):
+
+```bash
+python -m evaluation.harness --dataset data/v1 --generator llm --ocr --pipeline e6 --experiment E6   # pa bazim
+python -m evaluation.harness --dataset data/v1 --generator llm --ocr --pipeline e7 --experiment E7   # vetëm bazim
+python -m evaluation.harness --dataset data/v1 --generator llm --ocr --pipeline e8 --experiment E8   # + rregulla
+python -m evaluation.harness --dataset data/v1 --generator llm --ocr --pipeline e9 --experiment E9 --classifier ml/artifacts/runs/sentence
+python -m evaluation.harness --dataset data/v1 --generator llm --ocr --pipeline e8 --experiment E4   # PK3
+```
+
+Çdo përgjigje e modelit ruhet te `evaluation/cache/llm/` (një skedar për kërkesë, çelës
+hash-i i kërkesës së plotë) dhe versionohet në git: një ekzekutim i dytë nuk bën asnjë thirrje dhe jep
+po atë tekst. Nëse ofruesi bie ose kuota mbaron, ekzekutimi ndalet (jo numërohet si gabim i modelit)
+dhe e njëjta komandë vazhdon aty ku u ndal. Numrat e Kapitullit 6 merren nga një kopje e pastër e git-it
+(`git worktree add --detach <dosja> HEAD`, me `data/` dhe `ml/artifacts/` të lidhura), jo nga pema e punës.
+
+Gjykatësit (E12) dhe auditi i E8 përdorin modele Claude si subagjentë, pa API: `python -m evaluation.judge_batches`
+dhe `python -m evaluation.audit_batches` shkruajnë batch-e pa etiketa dhe rillogarisin rezultatin nga
+përgjigjet e ruajtura; shih ADR 0015 për kufizimet. Tabelat e Kapitullit 6 dalin nga
+`python scripts/build_chapter6_tables.py`.
 
 ## Konventat
 

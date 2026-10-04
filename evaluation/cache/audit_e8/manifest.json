@@ -1,0 +1,8 @@
+{
+ "documents": 500,
+ "generated_delivered": 374,
+ "template_fallbacks": 126,
+ "sampled": 100,
+ "chunks": 5,
+ "llm_calls_made": 0
+}

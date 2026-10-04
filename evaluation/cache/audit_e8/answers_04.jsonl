@@ -1,0 +1,20 @@
+{"id": "A-080", "problems": []}
+{"id": "A-081", "problems": [{"label": "ungrounded_number", "quote": "Leukocite** janë 7.7 10⁴/µL"}, {"label": "fabricated_finding", "quote": "Mjeku ka shënuar: *Kreatinina e lartë duhet të vlerësohet më tej.*"}]}
+{"id": "A-082", "problems": []}
+{"id": "A-083", "problems": [{"label": "direction_mismatch", "quote": "shumë më e ulët se intervali referent (15 - 45). Kjo është një vlerë **dukshëm nën intervalin referent**"}, {"label": "direction_mismatch", "quote": "Vlerat e tjera janë brenda intervalit referent."}]}
+{"id": "A-084", "problems": [{"label": "polarity_flip", "quote": "Mjeku ka shënuar: Hemoglobina mesatare eritrocitare është mbi intervalin referent."}]}
+{"id": "A-085", "problems": []}
+{"id": "A-086", "problems": []}
+{"id": "A-087", "problems": [{"label": "direction_mismatch", "quote": "Të gjitha vlerat tjera janë **brenda intervalit referent**, përveç **triiodotironinës së lirë**"}]}
+{"id": "A-088", "problems": [{"label": "other_unsupported", "quote": "çdo qelizë e kuqe të gjakut përmban më shumë hemoglobin se sa duhet"}]}
+{"id": "A-089", "problems": []}
+{"id": "A-090", "problems": [{"label": "ungrounded_number", "quote": "ka dy vlera që janë **mbi intervalin referent**"}, {"label": "polarity_flip", "quote": "Fosfataza alkaline është **mbi intervalin referent** (jo brenda, siç ishte shkruar më parë)."}]}
+{"id": "A-091", "problems": [{"label": "fabricated_finding", "quote": "Mjeku ka thënë se për këto vlera nuk ka intervale referente, prandaj nuk mund të interpretohen."}]}
+{"id": "A-092", "problems": []}
+{"id": "A-093", "problems": [{"label": "other_unsupported", "quote": "por nuk janë në nivel të rrezikut"}]}
+{"id": "A-094", "problems": []}
+{"id": "A-095", "problems": [{"label": "direction_mismatch", "quote": "vetëm një vlerë është jashtë normës"}, {"label": "fabricated_finding", "quote": "Mjeku ka shënuar: *Kjo analizë përmban vlera jashtë normës. Ju duhet të konsultoni mjekun tuaj"}]}
+{"id": "A-096", "problems": [{"label": "other_unsupported", "quote": "Kjo është vetëm një vlerë që mjeku ka shënuar si e rëndësishme."}, {"label": "fabricated_finding", "quote": "Mjeku ka vlerësuar **funksionin renal** (mënyra si punojnë veshkat) si të mirë në tërësi."}, {"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera të matura, si **kaliumi, kloruri, kalcium"}]}
+{"id": "A-097", "problems": []}
+{"id": "A-098", "problems": []}
+{"id": "A-099", "problems": []}

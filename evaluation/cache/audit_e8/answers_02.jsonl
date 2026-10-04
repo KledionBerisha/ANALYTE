@@ -1,0 +1,20 @@
+{"id": "A-040", "problems": []}
+{"id": "A-041", "problems": [{"label": "ungrounded_number", "quote": "ka dy vlera që shkojnë jashtë kufijve të zakonshëm"}, {"label": "direction_mismatch", "quote": "vlera është **34**, ndërsa intervali i zakonshëm është nga **32 deri në 36**, prandaj është **nën intervalin referent**"}, {"label": "ungrounded_term_explanation", "quote": "MCH** është një term që tregon sa hemoglobinë ka një qelizë gjaku"}]}
+{"id": "A-042", "problems": [{"label": "direction_mismatch", "quote": "Vlerat e tjera të matura janë brenda intervalit referent, duke përfshirë hematokritin"}, {"label": "ungrounded_term_explanation", "quote": "Albumina është një proteinë që ndihmon në mbajtjen e ujit dhe substancave të tjera në gjak"}]}
+{"id": "A-043", "problems": []}
+{"id": "A-044", "problems": [{"label": "direction_mismatch", "quote": "nuk ka vlera që të kërkojnë vëmendje të veçantë ose të jenë jashtë kufijve të pranuar"}, {"label": "direction_mismatch", "quote": "Vlerat e tjera nuk kanë interval referent për të parësuar, prandaj nuk interpretohen"}]}
+{"id": "A-045", "problems": []}
+{"id": "A-046", "problems": []}
+{"id": "A-047", "problems": [{"label": "other_unsupported", "quote": "por nuk janë të rrezikshme ose të rënda"}, {"label": "ungrounded_term_explanation", "quote": "pllaket e gjakut (trombocitet)"}]}
+{"id": "A-048", "problems": []}
+{"id": "A-049", "problems": []}
+{"id": "A-050", "problems": [{"label": "other_unsupported", "quote": "asnjëra nuk është nën ose jashtë kufijve të rrezikshëm"}, {"label": "other_unsupported", "quote": "por nuk është e lartë në masë të rrezikshme"}]}
+{"id": "A-051", "problems": []}
+{"id": "A-052", "problems": []}
+{"id": "A-053", "problems": [{"label": "ungrounded_number", "quote": "vetëm dy vlera nuk janë brenda intervalit referent"}, {"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera janë brenda intervalit referent."}, {"label": "fabricated_finding", "quote": "Mjeku ka shënuar: Për këtë vlerë nuk u gjet interval referent, prandaj nuk interpretohet"}]}
+{"id": "A-054", "problems": [{"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera të analizave janë brenda intervalit referent, përveç këtyre dy vlerave."}]}
+{"id": "A-055", "problems": []}
+{"id": "A-056", "problems": [{"label": "ungrounded_number", "quote": "dy vlera janë jashtë kufijve të zakonshëm"}, {"label": "ungrounded_term_explanation", "quote": "Vëllimi mesatar i qelizave të kuqe (volumi mesatar eritrocitar, ose MCV)"}]}
+{"id": "A-057", "problems": [{"label": "other_unsupported", "quote": "Ky test mat përqindjen e glukozës në gjak gjatë muajve të fundit"}, {"label": "prohibited_claim", "quote": "shërben si një indikator për kontrollin e diabetit ose rrezikun e saj"}, {"label": "ungrounded_term_explanation", "quote": "eritrocitet** (qelizat e gjakut të kuq)"}, {"label": "other_unsupported", "quote": "kjo vlerë e fosfatazës alkaline duhet të ndjeket më tej"}]}
+{"id": "A-058", "problems": []}
+{"id": "A-059", "problems": []}

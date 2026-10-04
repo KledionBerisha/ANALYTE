@@ -1,0 +1,20 @@
+{"id": "A-000", "problems": [{"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera të gjakut janë brenda intervalit normal."}, {"label": "fabricated_finding", "quote": "Mjeku ka shënuar: Për vlerën e kaliumit të ulët, duhet vlerësuar arsyet"}, {"label": "prohibited_claim", "quote": "mund të kërkohet kontroll i përsëritur ose trajtim nëse ka simptoma"}]}
+{"id": "A-001", "problems": [{"label": "other_unsupported", "quote": "Mjeku ka shënuar: Ky shpjegim është automatik dhe nuk zëvendëson vlerësimin e profesionistit shëndetësor."}]}
+{"id": "A-002", "problems": []}
+{"id": "A-003", "problems": [{"label": "direction_mismatch", "quote": "14.9 është brenda, por mjeku shënon se eritrocitet janë mbi normën e zakonshme"}, {"label": "ungrounded_term_explanation", "quote": "eritrociteve** (qelizat e kuqe të gjakut)"}, {"label": "ungrounded_term_explanation", "quote": "glukozës në serum** (sheqeri në gjak)"}, {"label": "other_unsupported", "quote": "Mjeku ka shënuar se kjo është një gjendje e vërtetuar."}]}
+{"id": "A-004", "problems": []}
+{"id": "A-005", "problems": [{"label": "other_unsupported", "quote": "Në rezultate nuk shfaqet anemi, sepse vlera e hemoglobinës është 14.7"}]}
+{"id": "A-006", "problems": [{"label": "ungrounded_term_explanation", "quote": "TSH (hormoni i stimulimit të mëlçisë)"}]}
+{"id": "A-007", "problems": [{"label": "ungrounded_term_explanation", "quote": "numri i qelizave të bardha të gjakut është më i ulët se sa duhet"}, {"label": "fabricated_finding", "quote": "tiroksinës së lirë (FT4)** është **2.39** dhe gjendet **mbi intervalin referent"}, {"label": "other_unsupported", "quote": "Mjeku ka shënuar se ky rezultat është i vërtetuar dhe nuk është brenda intervalit të zakonshëm"}, {"label": "other_unsupported", "quote": "por nuk ka shënuar asnjë ndryshim të veçantë"}]}
+{"id": "A-008", "problems": []}
+{"id": "A-009", "problems": [{"label": "ungrounded_term_explanation", "quote": "numri i pllakave që ndihmojnë në pjekjen e gjakut është më i lartë se sa duhet"}, {"label": "fabricated_finding", "quote": "Mjeku ka thënë se ky kombinim duhet vlerësuar nga ai."}, {"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera janë brenda intervalit referent."}]}
+{"id": "A-010", "problems": []}
+{"id": "A-011", "problems": [{"label": "direction_mismatch", "quote": "Përqendrimi mesatar i hemoglobinës është 37.4 g/dL, brenda intervalit referent (32 - 36)."}]}
+{"id": "A-012", "problems": []}
+{"id": "A-013", "problems": []}
+{"id": "A-014", "problems": []}
+{"id": "A-015", "problems": [{"label": "ungrounded_number", "quote": "vlera e **fosforit në serum** është **11.7 mg/dL**, e cila është **mbi intervalin referent** (8.6 - 10.2)"}]}
+{"id": "A-016", "problems": [{"label": "other_unsupported", "quote": "mënyra si punon mëlçia është e vlerësuar si e mirë"}]}
+{"id": "A-017", "problems": [{"label": "ungrounded_number", "quote": "vlera e magnezit është 2.0 mmol/L"}, {"label": "other_unsupported", "quote": "Kjo mund të thotë se mjeku ka vërtetuar një gabim në vlerësim ose ka pasur një shënim të veçantë"}]}
+{"id": "A-018", "problems": [{"label": "ungrounded_term_explanation", "quote": "Ky term shënon pjesën e gjakut të përbërë nga eritrocitet (qelizat e kuqe të gjakut)."}, {"label": "ungrounded_term_explanation", "quote": "Këto janë qelizat e bardha të gjakut, të cilat ndihmojnë në mbrojtjen e organizmit nga infeksionet."}, {"label": "ungrounded_term_explanation", "quote": "Urea është një substancë që prodhohet kur organizmi përpunon proteinat dhe shkon në vezikën e vezës"}, {"label": "ungrounded_term_explanation", "quote": "Ky term lidhet me një numër më të lartë se normali i një lloji eritrocitesh të reja"}]}
+{"id": "A-019", "problems": []}

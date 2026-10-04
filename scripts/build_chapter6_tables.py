@@ -96,7 +96,7 @@ def split(m):
 
 
 rows = ["| Kushti | Eksperimenti | Fjali | Shkelje që arrijnë te përdoruesi | Për 100 fjali (95% CI) | Dega A | Dega B |", "|---|---|---|---|---|---|---|",
-        "| A — pa bazim | E6 | — | **nuk matet** | — | — | — |"]
+        "| A — pa bazim | E6 | — | nuk matet (nevojitet model) | — | — | — |"]
 for label, eid, m in (("B — vetëm bazim", "E7", e7), ("C — bazim dhe rregulla", "E8", e8), ("D — bazim, rregulla dhe klasifikues", "E9", e9)):
     ci = m["ci95_reaching_user"]
     if ci["estimate"] == 0:
@@ -105,7 +105,76 @@ for label, eid, m in (("B — vetëm bazim", "E7", e7), ("C — bazim dhe rregul
         txt = f"{f(m['rate_reaching_user_per_100_sentences'])} [{f(ci['low'])}–{f(ci['high'])}]"
     a, b = split(m)
     rows.append(f"| {label} | {eid} | {m['sentences']} | {m['violations_reaching_user']} | {txt} | {a} | {b} |")
-out["T11"] = "\n".join(rows)
+out["T11_template"] = "\n".join(rows)
+
+
+# ---- Tabela 11 (E6-E9 me modelin gjuhësor) dhe Tabela 9 (E4)
+LLM = "llm"
+
+
+def have_llm(name):
+    return (R / LLM / name / "result.json").exists()
+
+
+if all(have_llm(e) for e in ("E6", "E7", "E8", "E9")):
+    llm = {e: load(f"{LLM}/{e}/result.json") for e in ("E6", "E7", "E8", "E9")}
+    rows = [
+        "| Kushti | Eksperimenti | Fjali | Shkelje të prodhuara | Shkelje që arrijnë te përdoruesi | Për 100 fjali (95% CI) | Dega A | Dega B | Dokumente me shkelje (nga 500) | Shabllon rezervë |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    labels = {"E6": "A — pa bazim", "E7": "B — vetëm bazim", "E8": "C — bazim dhe rregulla",
+              "E9": "D — bazim, rregulla dhe klasifikues"}
+    for eid in ("E6", "E7", "E8", "E9"):
+        m = llm[eid]["metrics"]
+        ci = m["ci95_reaching_user"]
+        if ci["estimate"] == 0:
+            txt = f"0.000 (95%: ≤ {f(ci['rule_of_three_high'])}, rregulla e tre)"
+        else:
+            txt = f"{f(m['rate_reaching_user_per_100_sentences'], 2)} [{f(ci['low'], 2)}–{f(ci['high'], 2)}]"
+        a_, b_ = split(m)
+        fallback = f"{m['template_fallbacks']} ({m['fallback_share'] * 100:.1f}%)" if eid in ("E8", "E9") else "—"
+        rows.append(
+            f"| {labels[eid]} | {eid} | {m['sentences']} | {m['violations_produced']} | {m['violations_reaching_user']} | "
+            f"{txt} | {a_} | {b_} | {m['documents_with_violation']} | {fallback} |"
+        )
+    out["T11"] = "\n".join(rows)
+
+    types_order = ["direction_mismatch", "fabricated_finding", "omitted_recommendation", "ungrounded_number",
+                   "ungrounded_analyte", "missing_critical", "polarity_flip", "hedge_removed",
+                   "ungrounded_term_explanation", "prohibited_claim"]
+    rows = ["| Lloji i shkeljes | A (E6) | B (E7) | C (E8, drafte) | D (E9, drafte) |", "|---|---|---|---|---|"]
+    for t in types_order:
+        vals = [llm[e]["metrics"]["by_type_produced"].get(t, 0) for e in ("E6", "E7", "E8", "E9")]
+        if any(vals):
+            rows.append(f"| `{t}` | " + " | ".join(str(v) for v in vals) + " |")
+    out["T11_types"] = "\n".join(rows)
+
+if have_llm("E4"):
+    e4 = load(f"{LLM}/E4/result.json")["metrics"]
+    c = e4["counts"]
+
+    def ci_txt(key):
+        i = e4[key]
+        if "rule_of_three_low" in i:
+            return f"[95%: ≥ {f(i['rule_of_three_low'])}]"
+        return f"[95%: {f(i['low'])}–{f(i['high'])}]"
+
+    rows = [
+        "| Metrika | Vlera | Numëruesi |",
+        "|---|---|---|",
+        f"| Norma e ruajtjes së mohimit | {f(e4['negation_preservation'])} {ci_txt('ci95_negation_preservation')} | "
+        f"{c['negated_assertions'] - c['polarity_flips']} nga {c['negated_assertions']} pohime të mohuara |",
+        f"| Norma e ruajtjes së shprehjeve të pasigurisë | {f(e4['hedge_preservation'])} {ci_txt('ci95_hedge_preservation')} | "
+        f"{c['hedged_assertions'] - c['hedges_removed']} nga {c['hedged_assertions']} pohime me rezervë |",
+        f"| Norma e gjetjeve të shpikura | {f(e4['fabricated_findings_per_100_sentences'], 2)} për 100 fjali | "
+        f"{c['fabricated_findings']} gjetje në {e4['sentences']} fjali |",
+        f"| Norma e rekomandimeve të humbura | {f(1 - e4['recommendation_preservation'])} | "
+        f"{c['recommendations_omitted']} nga {c['recommendations']} rekomandime |",
+        "| Gjatësia mesatare e fjalisë, burim kundrejt dalje | nuk matet | — |",
+        "| Raporti i termave mjekësorë, burim kundrejt dalje | nuk matet | — |",
+        "| Vlerësimi i ekspertëve, shkallë Likert | nuk matet (nuk u krye rishikim ekspertësh) | — |",
+    ]
+    out["T9"] = "\n".join(rows)
 
 # ---- Tabela 12 / 13
 e10 = load("E10/result.json")["metrics"]
@@ -124,18 +193,27 @@ for inp, inl in (("sentence", "fjalia"), ("context", "fjalia + konteksti")):
         t1 = E11[(inp, rule)]["threshold"]
         detectors.append((f"Klasifikuesi XLM-R, {inl}, {rl} (prag {t1})", E11[(inp, rule)]["metrics"], KB[(inp, rule)]["metrics"]))
 
+for judge_dir, judge_label in (("E12", "Gjykatësi LLM: Claude Sonnet (E12)"), ("E12_haiku", "Gjykatësi LLM: Claude Haiku (E12, kontroll)")):
+    if (R / LLM / judge_dir / "result.json").exists() and (R / LLM / judge_dir / "kit_B.json").exists():
+        detectors.append((
+            judge_label,
+            load(f"{LLM}/{judge_dir}/result.json")["metrics"],
+            load(f"{LLM}/{judge_dir}/kit_B.json")["metrics"],
+        ))
+
 rows = ["| Qasja | Korpusi i korruptuar: P | R | F1 | Macro F1 | Të pastra të bllokuara | Grupi B: P | R | F1 | Macro F1 | Të pastra të bllokuara |", "|---|---|---|---|---|---|---|---|---|---|---|"]
 for label, syn, nat in detectors:
     s, n = syn["micro"], nat["micro"]
     rows.append(f"| {label} | {f(s['precision'])} | {f(s['recall'])} | {f(s['f1'])} | {f(syn['macro_f1'])} | {clean_blocked(syn, 30)} | {f(n['precision'])} | {f(n['recall'])} | {f(n['f1'])} | {f(nat['macro_f1'])} | {clean_blocked(nat, 30)} |")
-rows.append("| Modeli gjuhësor si gjykatës (E12) | **nuk matet** | | | | | **nuk matet** | | | | |")
 out["T12"] = "\n".join(rows)
 
 types = ["ungrounded_number", "ungrounded_analyte", "direction_mismatch", "polarity_flip", "hedge_removed", "fabricated_finding", "ungrounded_term_explanation", "prohibited_claim", "omitted_recommendation"]
 
 
 def table13(sel):
-    rows = ["| Lloji i defektit | Mbështetja | Rregullat | Fjalia, R1 | Fjalia, R2 | Fj.+konteksti, R1 | Fj.+konteksti, R2 |", "|---|---|---|---|---|---|---|"]
+    head = ["Lloji i defektit", "Mbështetja", "Rregullat", "Fjalia, R1", "Fjalia, R2", "Fj.+konteksti, R1", "Fj.+konteksti, R2"]
+    head += ["Sonnet", "Haiku"][: max(len(detectors) - 5, 0)]
+    rows = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for t in types:
         vals = []
         sup = None
@@ -170,6 +248,60 @@ for label, syn, nat in detectors:
     for br in ("A", "B"):
         rows.append(f"| {label} | {br} | {f(bs[br][3])} | {f(bs[br][4])} | {f(bn[br][3])} | {f(bn[br][4])} |")
 out["T_branch"] = "\n".join(rows)
+
+
+# ---- Auditi i pavarur i E8
+AUDIT = R / LLM / "AUDIT_E8" / "result.json"
+if AUDIT.exists():
+    audit = json.loads(AUDIT.read_text(encoding="utf-8"))
+    answers = audit["answers"]
+    sample = audit["generated_passed_verification"]
+    source_ids = {i for i in answers}  # të gjitha, më poshtë ndahen sipas kuadrit
+    # identifikuesit e teksteve të gjeneruara = ata që nuk janë kontrolli me shabllon
+    control_missing = audit["template_fallback_control"]
+    from math import sqrt
+
+    def wilson(k, n, z=1.96):
+        if n == 0:
+            return None
+        p_ = k / n
+        centre = (p_ + z * z / (2 * n)) / (1 + z * z / n)
+        half = z * sqrt(p_ * (1 - p_) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+        return centre - half, centre + half
+
+    CORE = {"direction_mismatch", "polarity_flip", "hedge_removed", "omitted_recommendation", "missing_critical", "prohibited_claim"}
+    HARD = CORE | {"ungrounded_number", "ungrounded_analyte", "fabricated_finding"}
+    ALL = HARD | {"ungrounded_term_explanation", "other_unsupported"}
+    # ndarja gjeneruar/shabllon: te rezultati vetëm përmbledhjet; numërimi i detajuar vjen nga çelësi i batch-it
+    key = json.loads(Path(audit.get("key_path", "")).read_text(encoding="utf-8")) if audit.get("key_path") else None
+    generated_ids = None
+    if key is None:
+        # çelësi është te depoja pas ekzekutimit
+        for candidate in (ROOT / "evaluation" / "cache" / "audit_e8" / "key.json",):
+            if candidate.exists():
+                key = json.loads(candidate.read_text(encoding="utf-8"))
+    if key is not None:
+        generated_ids = [i for i, m in key["items"].items() if m["source"] == "generated"]
+    if generated_ids is not None:
+        n = len(generated_ids)
+        rows = ["| Kriteri i problemit | Tekste me problem | Pjesa (95% Wilson) |", "|---|---|---|"]
+        for label, labels in (
+            ("Çdo problem (përfshirë shpjegime termash dhe pohime të pambështetura)", ALL),
+            ("Problem i llojeve që rregullat synojnë (numër, analit, gjetje e shpikur, drejtim, polaritet, rezervë, rekomandim, pohim i ndaluar)", HARD),
+            ("Vetëm llojet me pasojë klinike (drejtim, polaritet, rezervë, rekomandim i humbur, vlerë kritike, pohim i ndaluar)", CORE),
+            ("Drejtim i gabuar (`direction_mismatch`)", {"direction_mismatch"}),
+        ):
+            k = sum(1 for i in generated_ids if any(pr["label"] in labels for pr in answers[i]))
+            lo, hi = wilson(k, n)
+            rows.append(f"| {label} | {k} nga {n} | {k / n:.3f} [{lo:.3f}–{hi:.3f}] |")
+        out["T_audit"] = "\n".join(rows)
+        by_label = audit["generated_passed_verification"]["problems_by_label"]
+        rows = ["| Lloji i problemit | Numri i problemeve |", "|---|---|"]
+        for lab, cnt in by_label.items():
+            rows.append(f"| `{lab}` | {cnt} |")
+        out["T_audit_labels"] = "\n".join(rows)
+        control = audit["template_fallback_control"]
+        out["audit_control"] = f"{control['texts_with_problem']} nga {control['answered']}"
 
 if len(sys.argv) > 2 and sys.argv[1] == "--json":
     Path(sys.argv[2]).write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")

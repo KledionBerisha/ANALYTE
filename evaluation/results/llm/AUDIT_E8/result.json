@@ -1,0 +1,643 @@
+{
+  "experiment": "audit-E8",
+  "judge": "claude-subagent",
+  "model": "Claude (subagent 'sonnet' i Claude Code; 5 batch-e me 20 elemente)",
+  "sample_seed": 11,
+  "unreadable_lines": [],
+  "generated_passed_verification": {
+    "items": 90,
+    "answered": 90,
+    "missing": [],
+    "texts_with_problem": 52,
+    "share_with_problem": 0.5778,
+    "problems_by_label": {
+      "other_unsupported": 31,
+      "ungrounded_term_explanation": 26,
+      "direction_mismatch": 24,
+      "fabricated_finding": 10,
+      "ungrounded_number": 8,
+      "prohibited_claim": 2,
+      "polarity_flip": 2,
+      "hedge_removed": 1
+    },
+    "texts_only_other_unsupported": 12,
+    "problems_of_rule_types": 73
+  },
+  "generated_digital": {
+    "items": 62,
+    "answered": 62,
+    "missing": [],
+    "texts_with_problem": 36,
+    "share_with_problem": 0.5806,
+    "problems_by_label": {
+      "ungrounded_term_explanation": 24,
+      "other_unsupported": 24,
+      "direction_mismatch": 13,
+      "ungrounded_number": 5,
+      "fabricated_finding": 4,
+      "polarity_flip": 2,
+      "prohibited_claim": 1,
+      "hedge_removed": 1
+    },
+    "texts_only_other_unsupported": 9,
+    "problems_of_rule_types": 50
+  },
+  "generated_scanned": {
+    "items": 28,
+    "answered": 28,
+    "missing": [],
+    "texts_with_problem": 16,
+    "share_with_problem": 0.5714,
+    "problems_by_label": {
+      "direction_mismatch": 11,
+      "other_unsupported": 7,
+      "fabricated_finding": 6,
+      "ungrounded_number": 3,
+      "ungrounded_term_explanation": 2,
+      "prohibited_claim": 1
+    },
+    "texts_only_other_unsupported": 3,
+    "problems_of_rule_types": 23
+  },
+  "template_fallback_control": {
+    "items": 10,
+    "answered": 10,
+    "missing": [],
+    "texts_with_problem": 0,
+    "share_with_problem": 0.0,
+    "problems_by_label": {},
+    "texts_only_other_unsupported": 0,
+    "problems_of_rule_types": 0
+  },
+  "answers": {
+    "A-000": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera të gjakut janë brenda intervalit normal."
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "Mjeku ka shënuar: Për vlerën e kaliumit të ulët, duhet vlerësuar arsyet"
+      },
+      {
+        "label": "prohibited_claim",
+        "quote": "mund të kërkohet kontroll i përsëritur ose trajtim nëse ka simptoma"
+      }
+    ],
+    "A-001": [
+      {
+        "label": "other_unsupported",
+        "quote": "Mjeku ka shënuar: Ky shpjegim është automatik dhe nuk zëvendëson vlerësimin e profesionistit shëndetësor."
+      }
+    ],
+    "A-002": [],
+    "A-003": [
+      {
+        "label": "direction_mismatch",
+        "quote": "14.9 është brenda, por mjeku shënon se eritrocitet janë mbi normën e zakonshme"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "eritrociteve** (qelizat e kuqe të gjakut)"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "glukozës në serum** (sheqeri në gjak)"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "Mjeku ka shënuar se kjo është një gjendje e vërtetuar."
+      }
+    ],
+    "A-004": [],
+    "A-005": [
+      {
+        "label": "other_unsupported",
+        "quote": "Në rezultate nuk shfaqet anemi, sepse vlera e hemoglobinës është 14.7"
+      }
+    ],
+    "A-006": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "TSH (hormoni i stimulimit të mëlçisë)"
+      }
+    ],
+    "A-007": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "numri i qelizave të bardha të gjakut është më i ulët se sa duhet"
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "tiroksinës së lirë (FT4)** është **2.39** dhe gjendet **mbi intervalin referent"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "Mjeku ka shënuar se ky rezultat është i vërtetuar dhe nuk është brenda intervalit të zakonshëm"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "por nuk ka shënuar asnjë ndryshim të veçantë"
+      }
+    ],
+    "A-008": [],
+    "A-009": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "numri i pllakave që ndihmojnë në pjekjen e gjakut është më i lartë se sa duhet"
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "Mjeku ka thënë se ky kombinim duhet vlerësuar nga ai."
+      },
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera janë brenda intervalit referent."
+      }
+    ],
+    "A-010": [],
+    "A-011": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Përqendrimi mesatar i hemoglobinës është 37.4 g/dL, brenda intervalit referent (32 - 36)."
+      }
+    ],
+    "A-012": [],
+    "A-013": [],
+    "A-014": [],
+    "A-015": [
+      {
+        "label": "ungrounded_number",
+        "quote": "vlera e **fosforit në serum** është **11.7 mg/dL**, e cila është **mbi intervalin referent** (8.6 - 10.2)"
+      }
+    ],
+    "A-016": [
+      {
+        "label": "other_unsupported",
+        "quote": "mënyra si punon mëlçia është e vlerësuar si e mirë"
+      }
+    ],
+    "A-017": [
+      {
+        "label": "ungrounded_number",
+        "quote": "vlera e magnezit është 2.0 mmol/L"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "Kjo mund të thotë se mjeku ka vërtetuar një gabim në vlerësim ose ka pasur një shënim të veçantë"
+      }
+    ],
+    "A-018": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Ky term shënon pjesën e gjakut të përbërë nga eritrocitet (qelizat e kuqe të gjakut)."
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Këto janë qelizat e bardha të gjakut, të cilat ndihmojnë në mbrojtjen e organizmit nga infeksionet."
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Urea është një substancë që prodhohet kur organizmi përpunon proteinat dhe shkon në vezikën e vezës"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Ky term lidhet me një numër më të lartë se normali i një lloji eritrocitesh të reja"
+      }
+    ],
+    "A-019": [],
+    "A-020": [],
+    "A-021": [
+      {
+        "label": "other_unsupported",
+        "quote": "nuk do të thotë se ka një problem shëndetësor"
+      }
+    ],
+    "A-022": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera janë brenda kufijve të zakonshme"
+      }
+    ],
+    "A-023": [],
+    "A-024": [],
+    "A-025": [],
+    "A-026": [
+      {
+        "label": "other_unsupported",
+        "quote": "Kjo do të thotë se, në përgjithësi, veshkat punojnë si duhet."
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "vlera e saj ndikon në vlerësimin e mënyrës si punojnë veshkat"
+      }
+    ],
+    "A-027": [],
+    "A-028": [
+      {
+        "label": "other_unsupported",
+        "quote": "analizave të gjakut dhe të lëngut të vërtetuar"
+      }
+    ],
+    "A-029": [
+      {
+        "label": "other_unsupported",
+        "quote": "nuk ka vlera që të konsiderohen kritike ose jashtë kufijve të rrezikut"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "Mjeku ka shënuar se ky është një gjendje e vërtetuar."
+      }
+    ],
+    "A-030": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Bilirubinë totale është një substancë që prodhohet kur trupi shkatërron qelizat e kuqe të gjakut"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "kjo nuk do të thotë se ka një problem të qartë"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "në nivelin e pranuar si normal për shumicën e njerëzve"
+      }
+    ],
+    "A-031": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera janë brenda normës së zakonshme, përveç fosforit në gjak"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "i cili është më i lartë se norma, por jo shumë"
+      }
+    ],
+    "A-032": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat që janë matur nuk kanë interval referent të dhënë"
+      }
+    ],
+    "A-033": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "TSH (hormon i vlerësuar për funksionin e gjëndrës thyreoide)"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "Nëse kjo është një gabim, ju duhet konsultuar me mjekun."
+      }
+    ],
+    "A-034": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Bilirubinë është një substancë që prodhohet kur trupi shkatërron globula të kuqe të vjetra"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Kolesterol total është një lloj yndyre që gjendet në gjak dhe në qelizat e trupit"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Trigliceridet janë një formë e yndyrës që gjendet në gjak dhe në ushqime"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Ferritina është një proteinë që ruan hekur në trup"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "Ky shënim nuk përputhet me vlerën e matur, e cila është mbi intervalin referent."
+      }
+    ],
+    "A-035": [],
+    "A-036": [],
+    "A-037": [],
+    "A-038": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "numri i qelizave të bardha të gjakut është më i lartë se sa duhet"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "numri i pllakave të gjakut është më i ulët se sa duhet"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "bilirubinës, një substancë që prodhohet kur gjaku shkatërrohet"
+      }
+    ],
+    "A-039": [
+      {
+        "label": "direction_mismatch",
+        "quote": "dy vlera që janë shumë më të larta se intervali i zakonshëm: bilirubinë totale dhe eritrocite"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Bilirubina totale është një substancë që shfaqet kur gjaku vjetërohet dhe veshkat e heqin nga trupi"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Eritrocitet janë qelizat e kuqe të gjakut që transportojnë oksigjen"
+      }
+    ],
+    "A-040": [],
+    "A-041": [
+      {
+        "label": "ungrounded_number",
+        "quote": "ka dy vlera që shkojnë jashtë kufijve të zakonshëm"
+      },
+      {
+        "label": "direction_mismatch",
+        "quote": "vlera është **34**, ndërsa intervali i zakonshëm është nga **32 deri në 36**, prandaj është **nën intervalin referent**"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "MCH** është një term që tregon sa hemoglobinë ka një qelizë gjaku"
+      }
+    ],
+    "A-042": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Vlerat e tjera të matura janë brenda intervalit referent, duke përfshirë hematokritin"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Albumina është një proteinë që ndihmon në mbajtjen e ujit dhe substancave të tjera në gjak"
+      }
+    ],
+    "A-043": [],
+    "A-044": [
+      {
+        "label": "direction_mismatch",
+        "quote": "nuk ka vlera që të kërkojnë vëmendje të veçantë ose të jenë jashtë kufijve të pranuar"
+      },
+      {
+        "label": "direction_mismatch",
+        "quote": "Vlerat e tjera nuk kanë interval referent për të parësuar, prandaj nuk interpretohen"
+      }
+    ],
+    "A-045": [],
+    "A-046": [],
+    "A-047": [
+      {
+        "label": "other_unsupported",
+        "quote": "por nuk janë të rrezikshme ose të rënda"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "pllaket e gjakut (trombocitet)"
+      }
+    ],
+    "A-048": [],
+    "A-049": [],
+    "A-050": [
+      {
+        "label": "other_unsupported",
+        "quote": "asnjëra nuk është nën ose jashtë kufijve të rrezikshëm"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "por nuk është e lartë në masë të rrezikshme"
+      }
+    ],
+    "A-051": [],
+    "A-052": [],
+    "A-053": [
+      {
+        "label": "ungrounded_number",
+        "quote": "vetëm dy vlera nuk janë brenda intervalit referent"
+      },
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera janë brenda intervalit referent."
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "Mjeku ka shënuar: Për këtë vlerë nuk u gjet interval referent, prandaj nuk interpretohet"
+      }
+    ],
+    "A-054": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera të analizave janë brenda intervalit referent, përveç këtyre dy vlerave."
+      }
+    ],
+    "A-055": [],
+    "A-056": [
+      {
+        "label": "ungrounded_number",
+        "quote": "dy vlera janë jashtë kufijve të zakonshëm"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "Vëllimi mesatar i qelizave të kuqe (volumi mesatar eritrocitar, ose MCV)"
+      }
+    ],
+    "A-057": [
+      {
+        "label": "other_unsupported",
+        "quote": "Ky test mat përqindjen e glukozës në gjak gjatë muajve të fundit"
+      },
+      {
+        "label": "prohibited_claim",
+        "quote": "shërben si një indikator për kontrollin e diabetit ose rrezikun e saj"
+      },
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "eritrocitet** (qelizat e gjakut të kuq)"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "kjo vlerë e fosfatazës alkaline duhet të ndjeket më tej"
+      }
+    ],
+    "A-058": [],
+    "A-059": [],
+    "A-060": [],
+    "A-061": [
+      {
+        "label": "ungrounded_term_explanation",
+        "quote": "**leukociteve** (qelizat e bardha të gjakut)"
+      }
+    ],
+    "A-062": [
+      {
+        "label": "direction_mismatch",
+        "quote": "nuk ka vlera që të jenë jashtë kufijve të zakonshëm për shëndet"
+      },
+      {
+        "label": "hedge_removed",
+        "quote": "Trigliceridet janë nën intervalin referent, por mjeku thotë se duhet të kontrollohen përsëri."
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "mjeku nuk e konsideron këtë si një gjendje të rrezikshme"
+      }
+    ],
+    "A-063": [],
+    "A-064": [],
+    "A-065": [
+      {
+        "label": "ungrounded_number",
+        "quote": "**Leukocite** janë 7.4 10⁴/µL"
+      }
+    ],
+    "A-066": [
+      {
+        "label": "direction_mismatch",
+        "quote": "vetëm dy vlera janë të vlerësuara me intervale referente dhe janë jashtë kufijve të tyre"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "Kjo vlerë tregon se ka një përmbajtje më të lartë se e zakonshme të hemoglobinës që lidhet me glukozën në gjak."
+      }
+    ],
+    "A-067": [],
+    "A-068": [],
+    "A-069": [
+      {
+        "label": "other_unsupported",
+        "quote": "Albumina është një proteinë që ndihmon në mbajtjen e ujit dhe substancave të tjera në gjak."
+      }
+    ],
+    "A-070": [
+      {
+        "label": "other_unsupported",
+        "quote": "nuk ka vlera që të konsiderohen kritike ose jashtë kufijve të rrezikshëm"
+      }
+    ],
+    "A-071": [],
+    "A-072": [],
+    "A-073": [
+      {
+        "label": "direction_mismatch",
+        "quote": "vetëm dy vlera janë jashtë kufijve të zakonshëm"
+      },
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera janë brenda kufijve të zakonshëm."
+      }
+    ],
+    "A-074": [
+      {
+        "label": "fabricated_finding",
+        "quote": "prodhimi i qelizave të kuqe të gjakut (eritropoezë) është në gjendje të mirë"
+      }
+    ],
+    "A-075": [],
+    "A-076": [
+      {
+        "label": "direction_mismatch",
+        "quote": "nuk ka vlera që të kërkojnë vëmendje të veçantë ose të jenë jashtë kufijve të sigurisë"
+      },
+      {
+        "label": "other_unsupported",
+        "quote": "nuk ka vlera që të kërkojnë vëmendje të veçantë ose të jenë jashtë kufijve të sigurisë"
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "Kaliumi në serum është i ulët, por kjo nuk është e qartë nëse ka rëndësi klinike."
+      }
+    ],
+    "A-077": [],
+    "A-078": [],
+    "A-079": [],
+    "A-080": [],
+    "A-081": [
+      {
+        "label": "ungrounded_number",
+        "quote": "Leukocite** janë 7.7 10⁴/µL"
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "Mjeku ka shënuar: *Kreatinina e lartë duhet të vlerësohet më tej.*"
+      }
+    ],
+    "A-082": [],
+    "A-083": [
+      {
+        "label": "direction_mismatch",
+        "quote": "shumë më e ulët se intervali referent (15 - 45). Kjo është një vlerë **dukshëm nën intervalin referent**"
+      },
+      {
+        "label": "direction_mismatch",
+        "quote": "Vlerat e tjera janë brenda intervalit referent."
+      }
+    ],
+    "A-084": [
+      {
+        "label": "polarity_flip",
+        "quote": "Mjeku ka shënuar: Hemoglobina mesatare eritrocitare është mbi intervalin referent."
+      }
+    ],
+    "A-085": [],
+    "A-086": [],
+    "A-087": [
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat tjera janë **brenda intervalit referent**, përveç **triiodotironinës së lirë**"
+      }
+    ],
+    "A-088": [
+      {
+        "label": "other_unsupported",
+        "quote": "çdo qelizë e kuqe të gjakut përmban më shumë hemoglobin se sa duhet"
+      }
+    ],
+    "A-089": [],
+    "A-090": [
+      {
+        "label": "ungrounded_number",
+        "quote": "ka dy vlera që janë **mbi intervalin referent**"
+      },
+      {
+        "label": "polarity_flip",
+        "quote": "Fosfataza alkaline është **mbi intervalin referent** (jo brenda, siç ishte shkruar më parë)."
+      }
+    ],
+    "A-091": [
+      {
+        "label": "fabricated_finding",
+        "quote": "Mjeku ka thënë se për këto vlera nuk ka intervale referente, prandaj nuk mund të interpretohen."
+      }
+    ],
+    "A-092": [],
+    "A-093": [
+      {
+        "label": "other_unsupported",
+        "quote": "por nuk janë në nivel të rrezikut"
+      }
+    ],
+    "A-094": [],
+    "A-095": [
+      {
+        "label": "direction_mismatch",
+        "quote": "vetëm një vlerë është jashtë normës"
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "Mjeku ka shënuar: *Kjo analizë përmban vlera jashtë normës. Ju duhet të konsultoni mjekun tuaj"
+      }
+    ],
+    "A-096": [
+      {
+        "label": "other_unsupported",
+        "quote": "Kjo është vetëm një vlerë që mjeku ka shënuar si e rëndësishme."
+      },
+      {
+        "label": "fabricated_finding",
+        "quote": "Mjeku ka vlerësuar **funksionin renal** (mënyra si punojnë veshkat) si të mirë në tërësi."
+      },
+      {
+        "label": "direction_mismatch",
+        "quote": "Të gjitha vlerat e tjera të matura, si **kaliumi, kloruri, kalcium"
+      }
+    ],
+    "A-097": [],
+    "A-098": [],
+    "A-099": []
+  },
+  "note": "kufi i poshtëm i gabimeve që rregullat humbin; gjykatësi është asistenti që ndihmoi ta ndërtojë sistemin"
+}

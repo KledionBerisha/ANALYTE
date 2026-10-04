@@ -1,0 +1,20 @@
+{"id": "A-060", "problems": []}
+{"id": "A-061", "problems": [{"label": "ungrounded_term_explanation", "quote": "**leukociteve** (qelizat e bardha të gjakut)"}]}
+{"id": "A-062", "problems": [{"label": "direction_mismatch", "quote": "nuk ka vlera që të jenë jashtë kufijve të zakonshëm për shëndet"}, {"label": "hedge_removed", "quote": "Trigliceridet janë nën intervalin referent, por mjeku thotë se duhet të kontrollohen përsëri."}, {"label": "other_unsupported", "quote": "mjeku nuk e konsideron këtë si një gjendje të rrezikshme"}]}
+{"id": "A-063", "problems": []}
+{"id": "A-064", "problems": []}
+{"id": "A-065", "problems": [{"label": "ungrounded_number", "quote": "**Leukocite** janë 7.4 10⁴/µL"}]}
+{"id": "A-066", "problems": [{"label": "direction_mismatch", "quote": "vetëm dy vlera janë të vlerësuara me intervale referente dhe janë jashtë kufijve të tyre"}, {"label": "other_unsupported", "quote": "Kjo vlerë tregon se ka një përmbajtje më të lartë se e zakonshme të hemoglobinës që lidhet me glukozën në gjak."}]}
+{"id": "A-067", "problems": []}
+{"id": "A-068", "problems": []}
+{"id": "A-069", "problems": [{"label": "other_unsupported", "quote": "Albumina është një proteinë që ndihmon në mbajtjen e ujit dhe substancave të tjera në gjak."}]}
+{"id": "A-070", "problems": [{"label": "other_unsupported", "quote": "nuk ka vlera që të konsiderohen kritike ose jashtë kufijve të rrezikshëm"}]}
+{"id": "A-071", "problems": []}
+{"id": "A-072", "problems": []}
+{"id": "A-073", "problems": [{"label": "direction_mismatch", "quote": "vetëm dy vlera janë jashtë kufijve të zakonshëm"}, {"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera janë brenda kufijve të zakonshëm."}]}
+{"id": "A-074", "problems": [{"label": "fabricated_finding", "quote": "prodhimi i qelizave të kuqe të gjakut (eritropoezë) është në gjendje të mirë"}]}
+{"id": "A-075", "problems": []}
+{"id": "A-076", "problems": [{"label": "direction_mismatch", "quote": "nuk ka vlera që të kërkojnë vëmendje të veçantë ose të jenë jashtë kufijve të sigurisë"}, {"label": "other_unsupported", "quote": "nuk ka vlera që të kërkojnë vëmendje të veçantë ose të jenë jashtë kufijve të sigurisë"}, {"label": "fabricated_finding", "quote": "Kaliumi në serum është i ulët, por kjo nuk është e qartë nëse ka rëndësi klinike."}]}
+{"id": "A-077", "problems": []}
+{"id": "A-078", "problems": []}
+{"id": "A-079", "problems": []}

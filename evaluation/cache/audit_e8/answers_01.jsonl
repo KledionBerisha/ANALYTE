@@ -1,0 +1,20 @@
+{"id": "A-020", "problems": []}
+{"id": "A-021", "problems": [{"label": "other_unsupported", "quote": "nuk do të thotë se ka një problem shëndetësor"}]}
+{"id": "A-022", "problems": [{"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera janë brenda kufijve të zakonshme"}]}
+{"id": "A-023", "problems": []}
+{"id": "A-024", "problems": []}
+{"id": "A-025", "problems": []}
+{"id": "A-026", "problems": [{"label": "other_unsupported", "quote": "Kjo do të thotë se, në përgjithësi, veshkat punojnë si duhet."}, {"label": "other_unsupported", "quote": "vlera e saj ndikon në vlerësimin e mënyrës si punojnë veshkat"}]}
+{"id": "A-027", "problems": []}
+{"id": "A-028", "problems": [{"label": "other_unsupported", "quote": "analizave të gjakut dhe të lëngut të vërtetuar"}]}
+{"id": "A-029", "problems": [{"label": "other_unsupported", "quote": "nuk ka vlera që të konsiderohen kritike ose jashtë kufijve të rrezikut"}, {"label": "other_unsupported", "quote": "Mjeku ka shënuar se ky është një gjendje e vërtetuar."}]}
+{"id": "A-030", "problems": [{"label": "ungrounded_term_explanation", "quote": "Bilirubinë totale është një substancë që prodhohet kur trupi shkatërron qelizat e kuqe të gjakut"}, {"label": "other_unsupported", "quote": "kjo nuk do të thotë se ka një problem të qartë"}, {"label": "other_unsupported", "quote": "në nivelin e pranuar si normal për shumicën e njerëzve"}]}
+{"id": "A-031", "problems": [{"label": "direction_mismatch", "quote": "Të gjitha vlerat e tjera janë brenda normës së zakonshme, përveç fosforit në gjak"}, {"label": "other_unsupported", "quote": "i cili është më i lartë se norma, por jo shumë"}]}
+{"id": "A-032", "problems": [{"label": "direction_mismatch", "quote": "Të gjitha vlerat që janë matur nuk kanë interval referent të dhënë"}]}
+{"id": "A-033", "problems": [{"label": "ungrounded_term_explanation", "quote": "TSH (hormon i vlerësuar për funksionin e gjëndrës thyreoide)"}, {"label": "other_unsupported", "quote": "Nëse kjo është një gabim, ju duhet konsultuar me mjekun."}]}
+{"id": "A-034", "problems": [{"label": "ungrounded_term_explanation", "quote": "Bilirubinë është një substancë që prodhohet kur trupi shkatërron globula të kuqe të vjetra"}, {"label": "ungrounded_term_explanation", "quote": "Kolesterol total është një lloj yndyre që gjendet në gjak dhe në qelizat e trupit"}, {"label": "ungrounded_term_explanation", "quote": "Trigliceridet janë një formë e yndyrës që gjendet në gjak dhe në ushqime"}, {"label": "ungrounded_term_explanation", "quote": "Ferritina është një proteinë që ruan hekur në trup"}, {"label": "other_unsupported", "quote": "Ky shënim nuk përputhet me vlerën e matur, e cila është mbi intervalin referent."}]}
+{"id": "A-035", "problems": []}
+{"id": "A-036", "problems": []}
+{"id": "A-037", "problems": []}
+{"id": "A-038", "problems": [{"label": "ungrounded_term_explanation", "quote": "numri i qelizave të bardha të gjakut është më i lartë se sa duhet"}, {"label": "ungrounded_term_explanation", "quote": "numri i pllakave të gjakut është më i ulët se sa duhet"}, {"label": "ungrounded_term_explanation", "quote": "bilirubinës, një substancë që prodhohet kur gjaku shkatërrohet"}]}
+{"id": "A-039", "problems": [{"label": "direction_mismatch", "quote": "dy vlera që janë shumë më të larta se intervali i zakonshëm: bilirubinë totale dhe eritrocite"}, {"label": "ungrounded_term_explanation", "quote": "Bilirubina totale është një substancë që shfaqet kur gjaku vjetërohet dhe veshkat e heqin nga trupi"}, {"label": "ungrounded_term_explanation", "quote": "Eritrocitet janë qelizat e kuqe të gjakut që transportojnë oksigjen"}]}
