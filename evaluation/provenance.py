@@ -53,12 +53,18 @@ def code_metadata() -> dict[str, Any]:
 
 
 def digest(paths: Iterable[Path], *, length: int = 16) -> str:
-    """Shuma kontrolluese e disa skedarëve, e varur nga emrat dhe nga përmbajtja e tyre."""
+    """Shuma kontrolluese e disa skedarëve, e varur nga emrat dhe nga përmbajtja e tyre.
+
+    Mbarimet e rreshtave (CRLF dhe LF) trajtohen njësoj: git i ndryshon ato kur skedari kalon nga një
+    kopje pune te një tjetër (`core.autocrlf`), dhe një identifikues që ndryshon me to nuk do ta
+    identifikonte të njëjtën lëndë në dy ekzekutime. Tabelat e burimeve (terminologjia, kombinimet)
+    kanë mbarime të përziera në kopjen e punës; `manifest.json` i korpusit hash-on bajtet e
+    papërpunuara dhe përputhet vetëm me kopjen ku u prodhua."""
     h = hashlib.sha256()
     for path in sorted(paths, key=lambda p: p.name):
         h.update(path.name.encode("utf-8"))
         h.update(b"\0")
-        h.update(path.read_bytes())
+        h.update(path.read_bytes().replace(b"\r\n", b"\n"))
         h.update(b"\0")
     return h.hexdigest()[:length]
 

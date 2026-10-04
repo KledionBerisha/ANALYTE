@@ -83,3 +83,16 @@ def test_the_classifier_result_carries_provenance_tied_to_the_predictions_it_rea
     # e njëjta lëndë → i njëjti version; parashikime të ndryshme → version tjetër
     assert meta["dataset"]["version"] == again["metadata"]["dataset"]["version"]
     assert meta["dataset"]["version"] != other["metadata"]["dataset"]["version"]
+
+
+def test_digest_does_not_depend_on_line_endings(tmp_path: Path):
+    """Git shndërron mbarimet e rreshtave mes kopjeve të punës; e njëjta përmbajtje duhet të japë të njëjtin id."""
+    files = {}
+    for name, content in (("lf", b"a,b\nc,d\n"), ("crlf", b"a,b\r\nc,d\r\n"), ("mixed", b"a,b\r\nc,d\n")):
+        directory = tmp_path / name
+        directory.mkdir()
+        files[name] = directory / "t.csv"
+        files[name].write_bytes(content)
+    assert provenance.digest([files["lf"]]) == provenance.digest([files["crlf"]]) == provenance.digest([files["mixed"]])
+    files["lf"].write_bytes(b"a,b\nc,e\n")
+    assert provenance.digest([files["lf"]]) != provenance.digest([files["crlf"]])  # përmbajtja tjetër ndryshon id-në
