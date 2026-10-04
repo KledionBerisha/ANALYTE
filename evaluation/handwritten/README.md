@@ -111,6 +111,9 @@ të gabojë në formën e shabllonit.
 
 ## C — Narrativë mjeku (rreth 60)
 
+**Prejardhja e C.** Skedari i tanishëm (60 rreshta) e dorëzoi autori më 2026-10-04, si punë të vet (sipas deklaratës së tij). `python -m evaluation.kit_c_report` e mat ndarë sipas llojit dhe numëron rreshtat identikë me fjali që gjeneruesi i prodhon: 19 nga 60. Mbi 41 fjalitë e tjera, 13 dalin plotësisht saktë. Një version i mëparshëm i dorëzuar i C ishte i zbrazët; një tjetër kishte 26 nga 60 rreshta identikë me gjeneruesin dhe nuk u instalua.
+
+
 **Skedari:** `C_narrativa.csv`
 
 | Kolona | Vlerat |

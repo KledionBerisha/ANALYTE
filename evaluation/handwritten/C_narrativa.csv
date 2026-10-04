@@ -1,1 +1,61 @@
 id,fjalia,lloji,polariteti,siguria,analiti,drejtimi,shenim
+C01,Nuk vërehet rritje e leukociteve.,finding,negated,confirmed,Leukocite,increased,
+C02,Nuk vërehet ulje e hemoglobinës në gjak.,finding,negated,confirmed,Hemoglobinë në gjak,decreased,
+C03,Nuk rezulton rritje e trombociteve.,finding,negated,confirmed,Trombocite,increased,
+C04,Nuk rezulton ulje e natriumit në serum.,finding,negated,confirmed,Natrium në serum,decreased,
+C05,Nuk vërehet rritje e kaliumit në serum.,finding,negated,confirmed,Kalium në serum,increased,
+C06,Nuk del ulje e kreatininës në serum.,finding,negated,confirmed,Kreatininë në serum,decreased,
+C07,Nuk rezulton rritje e kolesterolit total.,finding,negated,confirmed,Kolesterol total,increased,
+C08,Nuk vërehet ulje e kolesterolit LDL.,finding,negated,confirmed,Kolesterol LDL,decreased,
+C09,Nuk rezulton rritje e triglicerideve.,finding,negated,confirmed,Trigliceride,increased,
+C10,Nuk vërehet ulje e magnezit në serum.,finding,negated,confirmed,Magnez në serum,decreased,
+C11,Nuk rezulton rritje e fosfatazës alkaline.,finding,negated,confirmed,Fosfatazë alkaline,increased,
+C12,Nuk vërehet ulje e klorit në serum.,finding,negated,confirmed,Klor në serum,decreased,
+C13,Nuk rezulton rritje e vitaminës D 25-OH.,finding,negated,confirmed,Vitaminë D 25-OH,increased,
+C14,Nuk vërehet ulje e albuminës në serum.,finding,negated,confirmed,Albuminë në serum,decreased,
+C15,Nuk rezulton rritje e glukozës në serum.,finding,negated,confirmed,Glukozë në serum,increased,
+C16,Nuk përjashtohet rritja e TSH-së.,finding,affirmed,hedged,Hormoni stimulues i tiroides,increased,pseudo-negation
+C17,Nuk mund të mohohet ulja e FT4.,finding,affirmed,hedged,Tiroksinë e lirë,decreased,pseudo-negation
+C18,Nuk përjashtohet rritja e ALT-it.,finding,affirmed,hedged,Alanin aminotransferazë,increased,pseudo-negation
+C19,Nuk mund të mohohet ulja e MCHC-së.,finding,affirmed,hedged,Përqendrimi mesatar i hemoglobinës,decreased,pseudo-negation
+C20,Nuk përjashtohet rritja e Gama GT-së.,finding,affirmed,hedged,Gama-glutamil transferazë,increased,pseudo-negation
+C21,Nuk mund të mohohet ulja e hematokritit.,finding,affirmed,hedged,Hematokrit,decreased,pseudo-negation
+C22,Nuk përjashtohet rritja e acidit urik në serum.,finding,affirmed,hedged,Acid urik në serum,increased,pseudo-negation
+C23,Nuk mund të mohohet ulja e natriumit në serum.,finding,affirmed,hedged,Natrium në serum,decreased,pseudo-negation
+C24,Nuk përjashtohet rritja e HDL-kolesterolit.,finding,affirmed,hedged,Kolesterol HDL,increased,pseudo-negation
+C25,Nuk mund të mohohet ulja e proteinave totale.,finding,affirmed,hedged,Proteina totale,decreased,pseudo-negation
+C26,TSH mund të jetë mbi intervalin referent.,finding,affirmed,hedged,Hormoni stimulues i tiroides,increased,
+C27,FT4 duket nën intervalin referent.,finding,affirmed,hedged,Tiroksinë e lirë,decreased,
+C28,MCHC duket mbi intervalin referent.,finding,affirmed,hedged,Përqendrimi mesatar i hemoglobinës,increased,
+C29,Leukocitet mund të jenë mbi intervalin referent.,finding,affirmed,hedged,Leukocite,increased,
+C30,Trombocitet duken nën intervalin referent.,finding,affirmed,hedged,Trombocite,decreased,
+C31,Gama GT mund të jetë mbi intervalin referent.,finding,affirmed,hedged,Gama-glutamil transferazë,increased,
+C32,ALT duket mbi intervalin referent.,finding,affirmed,hedged,Alanin aminotransferazë,increased,
+C33,HDL-kolesteroli mund të jetë mbi intervalin referent.,finding,affirmed,hedged,Kolesterol HDL,increased,
+C34,Magnezi mund të jetë nën intervalin referent.,finding,affirmed,hedged,Magnez në serum,decreased,
+C35,Hematokriti mund të jetë nën intervalin referent.,finding,affirmed,hedged,Hematokrit,decreased,
+C36,Rekomandohet konsultë me mjekun specialist.,recommendation,affirmed,confirmed,,unspecified,
+C37,Rekomandohet vlerësim klinik i mëtejshëm.,recommendation,affirmed,confirmed,,unspecified,
+C38,Rekomandohet ndjekje e mëtejshme e vlerave.,recommendation,affirmed,confirmed,,unspecified,
+C39,Rekomandohet kontroll pas tre muajsh.,recommendation,affirmed,confirmed,,unspecified,
+C40,Rekomandohet përsëritja e analizave pas një muaji.,recommendation,affirmed,confirmed,,unspecified,
+C41,Nuk nevojitet kontroll i mëtejshëm për momentin.,recommendation,negated,confirmed,,unspecified,
+C42,Nuk rekomandohet përsëritja e analizave tani.,recommendation,negated,confirmed,,unspecified,
+C43,Mund të rekomandohet ndjekje e mëtejshme e vlerave.,recommendation,affirmed,hedged,,unspecified,
+C44,Nuk përjashtohet nevoja për konsultë me mjekun specialist.,recommendation,affirmed,hedged,,unspecified,
+C45,Nuk mund të mohohet nevoja për vlerësim klinik të mëtejshëm.,recommendation,affirmed,hedged,,unspecified,
+C46,TSH është mbi intervalin referent.,finding,affirmed,confirmed,Hormoni stimulues i tiroides,increased,
+C47,FT4 është nën intervalin referent.,finding,affirmed,confirmed,Tiroksinë e lirë,decreased,
+C48,MCH është nën intervalin referent.,finding,affirmed,confirmed,Hemoglobina mesatare eritrocitare,decreased,
+C49,MCHC është mbi intervalin referent.,finding,affirmed,confirmed,Përqendrimi mesatar i hemoglobinës,increased,
+C50,ALT-i del mbi intervalin referent.,finding,affirmed,confirmed,Alanin aminotransferazë,increased,
+C51,Gama GT rezulton mbi intervalin referent.,finding,affirmed,confirmed,Gama-glutamil transferazë,increased,
+C52,Kreatinina është mbi intervalin referent.,finding,affirmed,confirmed,Kreatininë në serum,increased,
+C53,Natriumi në serum është nën intervalin referent.,finding,affirmed,confirmed,Natrium në serum,decreased,
+C54,Kaliumi në serum del mbi intervalin referent.,finding,affirmed,confirmed,Kalium në serum,increased,
+C55,Leukocitet janë mbi intervalin referent.,finding,affirmed,confirmed,Leukocite,increased,
+C56,Eritrocitet rezultojnë nën intervalin referent.,finding,affirmed,confirmed,Eritrocite,decreased,
+C57,Trombocitet janë nën intervalin referent.,finding,affirmed,confirmed,Trombocite,decreased,
+C58,Kolesteroli total është mbi intervalin referent.,finding,affirmed,confirmed,Kolesterol total,increased,
+C59,LDL-kolesteroli del mbi intervalin referent.,finding,affirmed,confirmed,Kolesterol LDL,increased,
+C60,Trigliceridet janë nën intervalin referent.,finding,affirmed,confirmed,Trigliceride,decreased,

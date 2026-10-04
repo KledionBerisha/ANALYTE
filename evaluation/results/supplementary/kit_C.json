@@ -1,0 +1,714 @@
+{
+  "experiment": "kit-C",
+  "answers": "Dega B (nxjerrja e pohimeve) mbi fjali të shkruara nga autori",
+  "authorship": "fjalitë e C i shkroi autori (sipas deklaratës së tij)",
+  "all": {
+    "rows": 60,
+    "all_correct": 32,
+    "extracted": 49,
+    "per_field": {
+      "lloji": 39,
+      "polariteti": 46,
+      "siguria": 49,
+      "analiti": 39,
+      "drejtimi": 32
+    }
+  },
+  "by_group": {
+    "negacione të thjeshta": {
+      "rows": 15,
+      "all_correct": 0,
+      "extracted": 9,
+      "per_field": {
+        "lloji": 1,
+        "polariteti": 9,
+        "siguria": 9,
+        "analiti": 1,
+        "drejtimi": 0
+      }
+    },
+    "pseudo-negacione": {
+      "rows": 10,
+      "all_correct": 0,
+      "extracted": 8,
+      "per_field": {
+        "lloji": 6,
+        "polariteti": 5,
+        "siguria": 8,
+        "analiti": 6,
+        "drejtimi": 0
+      }
+    },
+    "me rezervë": {
+      "rows": 10,
+      "all_correct": 10,
+      "extracted": 10,
+      "per_field": {
+        "lloji": 10,
+        "polariteti": 10,
+        "siguria": 10,
+        "analiti": 10,
+        "drejtimi": 10
+      }
+    },
+    "rekomandime": {
+      "rows": 10,
+      "all_correct": 7,
+      "extracted": 7,
+      "per_field": {
+        "lloji": 7,
+        "polariteti": 7,
+        "siguria": 7,
+        "analiti": 7,
+        "drejtimi": 7
+      }
+    },
+    "pohime të drejtpërdrejta": {
+      "rows": 15,
+      "all_correct": 15,
+      "extracted": 15,
+      "per_field": {
+        "lloji": 15,
+        "polariteti": 15,
+        "siguria": 15,
+        "analiti": 15,
+        "drejtimi": 15
+      }
+    }
+  },
+  "failures": [
+    {
+      "id": "C01",
+      "sentence": "Nuk vërehet rritje e leukociteve.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "6690-2",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C02",
+      "sentence": "Nuk vërehet ulje e hemoglobinës në gjak.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "718-7",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C03",
+      "sentence": "Nuk rezulton rritje e trombociteve.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "777-3",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C04",
+      "sentence": "Nuk rezulton ulje e natriumit në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2951-2",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C05",
+      "sentence": "Nuk vërehet rritje e kaliumit në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2823-3",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C06",
+      "sentence": "Nuk del ulje e kreatininës në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2160-0",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C07",
+      "sentence": "Nuk rezulton rritje e kolesterolit total.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2093-3",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C08",
+      "sentence": "Nuk vërehet ulje e kolesterolit LDL.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "13457-7",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "13457-7",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C09",
+      "sentence": "Nuk rezulton rritje e triglicerideve.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2571-8",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C10",
+      "sentence": "Nuk vërehet ulje e magnezit në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2601-3",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C11",
+      "sentence": "Nuk rezulton rritje e fosfatazës alkaline.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "6768-6",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C12",
+      "sentence": "Nuk vërehet ulje e klorit në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2075-0",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C13",
+      "sentence": "Nuk rezulton rritje e vitaminës D 25-OH.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "1989-3",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C14",
+      "sentence": "Nuk vërehet ulje e albuminës në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "1751-7",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C15",
+      "sentence": "Nuk rezulton rritje e glukozës në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "2345-7",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C16",
+      "sentence": "Nuk përjashtohet rritja e TSH-së.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "3016-3",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "3016-3",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C17",
+      "sentence": "Nuk mund të mohohet ulja e FT4.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "3024-7",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "hedged",
+        "analiti": "3024-7",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C18",
+      "sentence": "Nuk përjashtohet rritja e ALT-it.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "1742-6",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "1742-6",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C19",
+      "sentence": "Nuk mund të mohohet ulja e MCHC-së.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "786-4",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "finding",
+        "polariteti": "negated",
+        "siguria": "hedged",
+        "analiti": "786-4",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C20",
+      "sentence": "Nuk përjashtohet rritja e Gama GT-së.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "2324-2",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "2324-2",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C21",
+      "sentence": "Nuk mund të mohohet ulja e hematokritit.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "4544-3",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C22",
+      "sentence": "Nuk përjashtohet rritja e acidit urik në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "3084-1",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C23",
+      "sentence": "Nuk mund të mohohet ulja e natriumit në serum.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "2951-2",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "term_mention",
+        "polariteti": "negated",
+        "siguria": "hedged",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C24",
+      "sentence": "Nuk përjashtohet rritja e HDL-kolesterolit.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "2085-9",
+        "drejtimi": "increased"
+      },
+      "predicted": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "2085-9",
+        "drejtimi": "unspecified"
+      },
+      "all_correct": false,
+      "extracted": true
+    },
+    {
+      "id": "C25",
+      "sentence": "Nuk mund të mohohet ulja e proteinave totale.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "finding",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "2885-2",
+        "drejtimi": "decreased"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C41",
+      "sentence": "Nuk nevojitet kontroll i mëtejshëm për momentin.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "recommendation",
+        "polariteti": "negated",
+        "siguria": "confirmed",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C44",
+      "sentence": "Nuk përjashtohet nevoja për konsultë me mjekun specialist.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "recommendation",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    },
+    {
+      "id": "C45",
+      "sentence": "Nuk mund të mohohet nevoja për vlerësim klinik të mëtejshëm.",
+      "identical_to_generator": false,
+      "expected": {
+        "lloji": "recommendation",
+        "polariteti": "affirmed",
+        "siguria": "hedged",
+        "analiti": "",
+        "drejtimi": "unspecified"
+      },
+      "predicted": {
+        "lloji": "asnjë",
+        "polariteti": "asnjë",
+        "siguria": "asnjë",
+        "analiti": "asnjë",
+        "drejtimi": "asnjë"
+      },
+      "all_correct": false,
+      "extracted": false
+    }
+  ],
+  "identical_to_generator": [
+    "C29",
+    "C31",
+    "C33",
+    "C36",
+    "C37",
+    "C38",
+    "C39",
+    "C40",
+    "C46",
+    "C48",
+    "C49",
+    "C51",
+    "C52",
+    "C55",
+    "C56",
+    "C57",
+    "C58",
+    "C59",
+    "C60"
+  ],
+  "not_identical": {
+    "rows": 41,
+    "all_correct": 13,
+    "extracted": 30,
+    "per_field": {
+      "lloji": 20,
+      "polariteti": 27,
+      "siguria": 30,
+      "analiti": 20,
+      "drejtimi": 13
+    }
+  },
+  "identical": {
+    "rows": 19,
+    "all_correct": 19,
+    "extracted": 19,
+    "per_field": {
+      "lloji": 19,
+      "polariteti": 19,
+      "siguria": 19,
+      "analiti": 19,
+      "drejtimi": 19
+    }
+  }
+}
