@@ -46,12 +46,17 @@ tests/                          njësi, fixture referues
 ## Shërbimi
 
 ```bash
-cp .env.example .env              # plotësoni dy sekretet, sipas udhëzimeve brenda
+cp .env.example .env              # plotësoni dy sekretet dhe postën (shih më poshtë)
 docker compose up -d --wait       # PostgreSQL (5433) dhe Redis
 cd backend && alembic upgrade head && cd ..
 uvicorn analyte.main:app --reload --app-dir backend/src
 arq analyte.orchestration.worker.WorkerSettings    # në terminal tjetër
 ```
+
+**Posta.** Llogaria aktivizohet me një lidhje të dërguar me email (ADR 0016), prandaj shërbimi nuk nis pa
+konfigurim posta. Në zhvillim, vendosni te `.env` kredencialet SMTP të një kutie prove të Mailtrap
+(`ANALYTE_SMTP_HOST`, `_PORT`, `_USERNAME`, `_PASSWORD`; shih `.env.example`), ose `ANALYTE_MAIL_BACKEND=console`
+për të parë lidhjen te log-u i shërbimit pa SMTP.
 
 Ndërfaqja: `cd frontend && npm install && npm run dev`, pastaj
 `http://localhost:3000`. Dokumentimi i API-së: `http://localhost:8000/docs`. Testi mbi PostgreSQL

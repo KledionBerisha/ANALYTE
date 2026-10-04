@@ -24,17 +24,15 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from analyte.domain.policy import POLICY_VERSION, RULES_VERSION
-
 from . import dataset as dataset_module
 from . import experiments as registry
+from . import provenance
 from .dataset import Dataset
 from .metrics import classification, crossref, extraction, prose, violations
 from .pipeline import (
@@ -172,7 +170,6 @@ def _llm_metadata(pipeline: Pipeline) -> dict[str, Any] | None:
 def _metadata(
     experiment: registry.Experiment, data: Dataset, pipeline: Pipeline
 ) -> dict[str, Any]:
-    revision, dirty = _git_state()
     return {
         "experiment_id": experiment.id,
         "pipeline": {"name": pipeline.name, "version": pipeline.version},
@@ -183,31 +180,9 @@ def _metadata(
             "documents": len(data),
             "channel": experiment.channel or "all",
         },
-        "code": {
-            "git_sha": revision,
-            "working_tree_dirty": dirty,
-            "rules_version": RULES_VERSION,
-            "policy_version": POLICY_VERSION,
-            "python": sys.version.split()[0],
-        },
+        "code": provenance.code_metadata(),
         "created_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
-
-
-def _git_state() -> tuple[str, bool | None]:
-    """Sha-ja e kodit dhe nëse pema e punës kishte ndryshime të paruajtura."""
-    try:
-        revision = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            capture_output=True, text=True, check=True, timeout=10,
-        ).stdout.strip()
-        status = subprocess.run(
-            ["git", "status", "--porcelain"],
-            capture_output=True, text=True, check=True, timeout=10,
-        ).stdout.strip()
-        return revision, bool(status)
-    except (subprocess.SubprocessError, OSError, FileNotFoundError):
-        return "unknown", None
 
 
 def _headline(metric: str, payload: dict[str, Any]) -> str:

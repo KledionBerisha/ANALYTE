@@ -32,6 +32,7 @@ export type CrossReference = Schemas["CrossReference"];
 export type PagesOut = Schemas["PagesOut"];
 export type Tokens = Schemas["Tokens"];
 export type UserOut = Schemas["UserOut"];
+export type RegisterOut = Schemas["RegisterOut"];
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -164,6 +165,24 @@ export const api = {
     } catch {
       // pa rrjet: seanca fshihet lokalisht dhe skadon vetë
     }
+  },
+
+  /**
+   * Dil kudo: revokon çdo seancë të përdoruesit te shërbimi. Ndryshe nga `endSession`, pret përgjigjen
+   * dhe e hedh gabimin: përdoruesi që e kërkon këtë duhet ta dijë nëse nuk u bë.
+   */
+  endAllSessions(): Promise<void> {
+    return api.json<void>("/auth/logout-all", { method: "POST" });
+  },
+
+  /** Konfirmon email-in me tokenin e lidhjes (vlen një herë). */
+  confirmEmail(token: string): Promise<void> {
+    return api.post<void>("/auth/confirm", { token });
+  },
+
+  /** Kërkon një lidhje të re konfirmimi. Përgjigja është e njëjtë për çdo email. */
+  resendConfirmation(email: string): Promise<RegisterOut> {
+    return api.post<RegisterOut>("/auth/resend-confirmation", { email });
   },
 
   remove(id: string) {

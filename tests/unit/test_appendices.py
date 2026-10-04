@@ -105,3 +105,63 @@ def test_example_appendix_renders_one_digital_and_one_scanned_document(tmp_path,
     assert "dokument_dixhital.png" in text and "dokument_skanuar.png" in text
     assert (tmp_path / "images" / "dokument_dixhital.png").stat().st_size > 10_000
     assert (tmp_path / "images" / "dokument_skanuar.png").stat().st_size > 10_000
+
+
+# --------------------------------------------------------------------
+# Shtojcat te teksti i plotë
+# --------------------------------------------------------------------
+
+
+def _write_appendix(directory: Path, letter: str, body: str) -> None:
+    (directory / f"{letter}_test.md").write_text(
+        f"<!-- koment -->\n\n## Shtojca {letter} — Titull\n\n{body}\n", encoding="utf-8"
+    )
+
+
+def test_sync_replaces_only_the_sections_that_differ_and_keeps_the_rest_of_the_thesis(tmp_path):
+    for letter, body in (("A", "tekst i ri"), ("B", "i pandryshuar")):
+        _write_appendix(tmp_path, letter, body)
+    thesis = tmp_path / "teza.md"
+    thesis.write_text(
+        "# Kapitulli\n\nteksti kryesor\n\n---\n\n"
+        "## Shtojca A — Titull\n\ntekst i vjetër\n\n---\n\n"
+        "## Shtojca B — Titull\n\ni pandryshuar\n",
+        encoding="utf-8",
+    )
+    assert appendices.sync_into_thesis(thesis, tmp_path) == ["A"]
+    text = thesis.read_text(encoding="utf-8")
+    assert "tekst i ri" in text and "tekst i vjetër" not in text
+    assert text.startswith("# Kapitulli\n\nteksti kryesor\n\n---\n\n")
+    assert "\n---\n\n## Shtojca B — Titull" in text  # ndarësi mes shtojcave mbetet
+    # një ekzekutim i dytë nuk ndryshon asgjë
+    assert appendices.sync_into_thesis(thesis, tmp_path) == []
+
+
+def test_the_thesis_appendices_are_the_generated_files():
+    """Teksti i plotë dhe skedarët e shtojcave nuk duhet të largohen: pas çdo ndërtimi,
+    `python scripts/build_appendices.py --thesis docs/thesis/teza_v3.md`."""
+    thesis = ROOT / "docs" / "thesis" / "teza_v3.md"
+    copy = thesis.read_text(encoding="utf-8")
+    scratch = thesis.parent / "_sync_check.md"
+    try:
+        scratch.write_text(copy, encoding="utf-8", newline="\n")
+        assert appendices.sync_into_thesis(scratch) == []
+    finally:
+        scratch.unlink(missing_ok=True)
+
+
+def test_result_files_are_listed_by_experiment_number_with_the_model_runs_last(tmp_path, monkeypatch):
+    """Tabela H.3 liston edhe E10, E11 (një rezultat për hyrje) dhe rezultatet me modelin te `llm/`."""
+    (tmp_path / "E10").mkdir()
+    (tmp_path / "E10" / "result.json").write_text(
+        '{"metadata": {"code": {"git_sha": "abcdef1234567890", "working_tree_dirty": false}, '
+        '"dataset": {"version": "v1"}}}',
+        encoding="utf-8",
+    )
+    (tmp_path / "E11" / "sentence").mkdir(parents=True)
+    (tmp_path / "E11" / "sentence" / "result.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "llm" / "E8").mkdir(parents=True)
+    (tmp_path / "llm" / "E8" / "result.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(appendices, "RESULTS", tmp_path)
+    labels = [p.parent.relative_to(tmp_path).as_posix() for p in appendices.result_files()]
+    assert labels == ["E10", "E11/sentence", "llm/E8"]

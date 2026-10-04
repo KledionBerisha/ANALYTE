@@ -25,13 +25,24 @@ DEFAULT_OUT = ROOT / "docs" / "thesis" / "figures"
 
 
 def _figures():
-    from scripts.figures import erd, evaluation_chain, modules, state_machine
+    from scripts.figures import concepts, erd, evaluation_chain, modules, results, state_machine
 
     return {
+        1: ("figura_01_fazat", concepts.figure_01),
+        2: ("figura_02_arkitektura", concepts.figure_02),
+        3: ("figura_03_dega_laboratorike", concepts.figure_03),
+        4: ("figura_04_dega_e_raportit", concepts.figure_04),
+        5: ("figura_05_shtresa_e_verifikimit", concepts.figure_05),
         6: ("figura_06_makina_e_gjendjeve", state_machine.build),
         7: ("figura_07_erd", erd.build),
         8: ("figura_08_struktura_modulare", modules.build),
+        9: ("figura_09_korpusi_sintetik", concepts.figure_09),
+        10: ("figura_10_korpusi_i_korruptuar", concepts.figure_10),
         11: ("figura_11_tubacioni_i_vleresimit", evaluation_chain.build),
+        18: ("figura_18_ablacioni", results.figure_18),
+        19: ("figura_19_matrica_e_statusit", results.figure_19),
+        20: ("figura_20_matricat_e_detektoreve", results.figure_20),
+        21: ("figura_21_llojet_e_shkeljeve", results.figure_21),
     }
 
 

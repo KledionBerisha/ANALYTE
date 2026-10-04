@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Logo } from "@/components/AppShell";
-import { ApiError } from "@/lib/api/client";
+import { api, ApiError } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth";
 
 type Mode = "login" | "register";
@@ -34,6 +34,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState<string | null>(null);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [resent, setResent] = useState(false);
   const copy = COPY[mode];
 
   useEffect(() => {
@@ -44,13 +47,68 @@ export function AuthForm({ mode }: { mode: Mode }) {
     event.preventDefault();
     setBusy(true);
     setError(null);
+    setNeedsConfirmation(false);
     try {
-      await (mode === "login" ? login(email, password) : register(email, password));
+      if (mode === "login") await login(email, password);
+      else setSent(await register(email, password));
     } catch (caught) {
+      // 403 vjen vetëm kur fjalëkalimi është i saktë dhe email-i s'është konfirmuar.
+      setNeedsConfirmation(caught instanceof ApiError && caught.status === 403);
       setError(caught instanceof ApiError ? caught.message : "Shërbimi nuk u arrit. Provoni sërish.");
     } finally {
       setBusy(false);
     }
+  }
+
+  async function resend() {
+    setResent(false);
+    try {
+      await api.resendConfirmation(email);
+      setResent(true);
+    } catch (caught) {
+      setError(caught instanceof ApiError ? caught.message : "Shërbimi nuk u arrit. Provoni sërish.");
+    }
+  }
+
+  if (sent !== null) {
+    return (
+      <div className="grid flex-1 place-items-center px-4 py-16">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 flex justify-center">
+            <Logo />
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h1 className="text-lg font-semibold text-slate-900">Kontrolloni email-in</h1>
+            <p role="status" className="mt-2 text-sm text-slate-600">
+              {sent}
+            </p>
+            <button
+              type="button"
+              onClick={resend}
+              className="mt-5 text-sm font-medium text-cyan-700 hover:underline"
+            >
+              Nuk e morët? Dërgoje sërish
+            </button>
+            {resent && (
+              <p role="status" className="mt-2 text-xs text-slate-500">
+                Nëse llogaria pret konfirmim, mesazhi u nis sërish.
+              </p>
+            )}
+            {error && (
+              <p role="alert" className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                {error}
+              </p>
+            )}
+          </div>
+          <p className="mt-4 text-center text-sm text-slate-500">
+            Pasi ta hapni lidhjen,{" "}
+            <Link href="/login" className="font-medium text-cyan-700 hover:underline">
+              hyni
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -95,6 +153,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
           {error && (
             <p role="alert" className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
               {error}
+            </p>
+          )}
+          {needsConfirmation && (
+            <p className="mt-2 text-sm text-slate-600">
+              <button type="button" onClick={resend} className="font-medium text-cyan-700 hover:underline">
+                Dërgo një lidhje të re konfirmimi
+              </button>
+              {resent && <span className="ml-2 text-xs text-slate-500">U nis, nëse llogaria pret konfirmim.</span>}
             </p>
           )}
 

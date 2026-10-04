@@ -32,6 +32,7 @@ from sqlalchemy import select
 from analyte.config import Settings
 from analyte.generation.templates import TemplateGenerator, build
 from analyte.main import create_app
+from tests.fixtures.mailbox import client_for, register_confirmed, token_in
 from analyte.orchestration.tasks import InlineRunner, Services
 from analyte.persistence.database import create_schema, make_engine, make_session_factory
 from analyte.persistence.storage import EncryptedStore
@@ -106,12 +107,12 @@ def _services(tmp: Path, generator=None) -> tuple[Settings, Services]:
 def world(tmp_path_factory):
     tmp = tmp_path_factory.mktemp("api")
     settings, services = _services(tmp)
-    client = TestClient(create_app(settings, services, InlineRunner(services)))
+    client = client_for(settings, services)
     return client, services, tmp
 
 
 def _headers(client: TestClient, email: str) -> dict[str, str]:
-    client.post("/auth/register", json={"email": email, "password": PASSWORD})
+    register_confirmed(client, email, PASSWORD)
     tokens = client.post("/auth/login", json={"email": email, "password": PASSWORD}).json()
     return {"Authorization": f"Bearer {tokens['access_token']}"}
 
@@ -140,11 +141,17 @@ def delivered(world, alice, pdfs):
 # --------------------------------------------------------------------
 
 
-def test_register_login_and_me(world):
+def test_register_confirm_login_and_me(world):
     client = world[0]
     created = client.post("/auth/register", json={"email": "Besa@Shembull.AL", "password": PASSWORD})
-    assert created.status_code == 201
-    assert created.json()["email"] == "besa@shembull.al"
+    assert created.status_code == 202
+    assert "email" not in created.json()  # përgjigja nuk tregon asgjë për llogarinë
+    # mesazhi shkon te adresa e normalizuar; llogaria nuk hyn para konfirmimit
+    assert [m.subject for m in client.outbox.to("besa@shembull.al")] == ["Konfirmoni email-in tuaj në ANALYTE"]
+    before = client.post("/auth/login", json={"email": "besa@shembull.al", "password": PASSWORD})
+    assert before.status_code == 403
+    register_token = token_in(client.outbox.to("besa@shembull.al")[-1])
+    assert client.post("/auth/confirm", json={"token": register_token}).status_code == 204
 
     tokens = client.post(
         "/auth/login", json={"email": "besa@shembull.al", "password": PASSWORD}
@@ -153,20 +160,19 @@ def test_register_login_and_me(world):
     assert me.json()["email"] == "besa@shembull.al"
 
 
-def test_duplicate_email_and_short_password_are_refused(world):
+def test_short_password_and_malformed_email_are_refused(world):
     client = world[0]
-    client.post("/auth/register", json={"email": "dupe@shembull.al", "password": PASSWORD})
-    assert client.post(
-        "/auth/register", json={"email": "dupe@shembull.al", "password": PASSWORD}
-    ).status_code == 409
     assert client.post(
         "/auth/register", json={"email": "short@shembull.al", "password": "shkurt"}
     ).status_code == 422
+    for bad in ("pa-at.shembull.al", "a@b", "a b@shembull.al", "a@shembull.al\nBcc: x@y.al", "a,b@shembull.al"):
+        assert client.post("/auth/register", json={"email": bad, "password": PASSWORD}).status_code == 422, bad
+    assert client.outbox.to("short@shembull.al") == []
 
 
 def test_login_failure_does_not_reveal_which_part_was_wrong(world):
     client = world[0]
-    client.post("/auth/register", json={"email": "gent@shembull.al", "password": PASSWORD})
+    register_confirmed(client, "gent@shembull.al", PASSWORD)
     wrong_password = client.post(
         "/auth/login", json={"email": "gent@shembull.al", "password": "gabim-gabim-gabim"}
     )
@@ -179,7 +185,7 @@ def test_login_failure_does_not_reveal_which_part_was_wrong(world):
 
 def test_refresh_and_access_tokens_are_not_interchangeable(world):
     client = world[0]
-    client.post("/auth/register", json={"email": "dea@shembull.al", "password": PASSWORD})
+    register_confirmed(client, "dea@shembull.al", PASSWORD)
     tokens = client.post("/auth/login", json={"email": "dea@shembull.al", "password": PASSWORD}).json()
 
     assert client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]}).status_code == 200
@@ -293,7 +299,7 @@ def test_double_failure_is_stored_as_a_fallback(tmp_path, pdfs):
             return f"{build(context)} Vlera e matur është 987654."
 
     settings, services = _services(tmp_path, Defective())
-    client = TestClient(create_app(settings, services, InlineRunner(services)))
+    client = client_for(settings, services)
     headers = _headers(client, "sp8@shembull.al")
     document_id = _upload(client, headers, pdfs["digital"]).json()["id"]
 
@@ -324,7 +330,7 @@ def test_state_is_visible_while_processing(tmp_path, pdfs):
             return build(context)
 
     settings, services = _services(tmp_path, Watching())
-    client = TestClient(create_app(settings, services, InlineRunner(services)))
+    client = client_for(settings, services)
     headers = _headers(client, "watch@shembull.al")
     _upload(client, headers, pdfs["digital"])
     assert seen == ["generating"]
@@ -338,7 +344,7 @@ def test_a_crash_is_recorded_not_hidden(tmp_path, pdfs, monkeypatch):
 
     monkeypatch.setattr(tasks, "process", broken)
     settings, services = _services(tmp_path)
-    client = TestClient(create_app(settings, services, InlineRunner(services)))
+    client = client_for(settings, services)
     headers = _headers(client, "crash@shembull.al")
     document_id = _upload(client, headers, pdfs["digital"]).json()["id"]
 

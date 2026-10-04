@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuth } from "@/lib/auth";
 
@@ -19,8 +19,18 @@ export function Logo() {
 
 /** Faqet e mbrojtura: pa seancë, drejt hyrjes. */
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
+  const { user, logout, logoutEverywhere } = useAuth();
   const router = useRouter();
+  const [signOutError, setSignOutError] = useState(false);
+
+  async function everywhere() {
+    setSignOutError(false);
+    try {
+      await logoutEverywhere();
+    } catch {
+      setSignOutError(true);
+    }
+  }
 
   useEffect(() => {
     if (user === null) router.replace("/login");
@@ -39,6 +49,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <div className="flex items-center gap-4 text-sm">
             <span className="hidden text-slate-500 sm:inline">{user.email}</span>
+            {signOutError && (
+              <span role="alert" className="text-xs text-rose-700">
+                Seancat nuk u mbyllën. Provoni sërish.
+              </span>
+            )}
+            <button
+              onClick={everywhere}
+              className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            >
+              Dil kudo
+            </button>
             <button
               onClick={logout}
               className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"

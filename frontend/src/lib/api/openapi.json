@@ -24,15 +24,92 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "202": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserOut"
+                  "$ref": "#/components/schemas/RegisterOut"
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/resend-confirmation": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Resend Confirmation",
+        "description": "Një lidhje e re për një llogari të pakonfirmuar. Përgjigja është e njëjtë me atë të regjistrimit.",
+        "operationId": "resend_confirmation_auth_resend_confirmation_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/confirm": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Confirm",
+        "description": "Konfirmon email-in me tokenin e lidhjes. Vlen një herë; një token i panjohur, i përdorur ose i\nskaduar kthen të njëjtën gabim.",
+        "operationId": "confirm_auth_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -137,6 +214,26 @@
         "summary": "Logout",
         "description": "Revokon seancën: tokenët e aksesit dhe të rifreskimit pushojnë menjëherë.",
         "operationId": "logout_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/logout-all": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout All",
+        "description": "Dil kudo: revokon çdo seancë të hapur të përdoruesit, edhe këtë, menjëherë.",
+        "operationId": "logout_all_auth_logout_all_post",
         "responses": {
           "204": {
             "description": "Successful Response"
@@ -1225,6 +1322,21 @@
         "title": "Certainty",
         "description": "Niveli i sigurisë i shprehur nga mjeku.\n\nHEDGED mbulon \"e mundshme\", \"sugjeruese për\", \"nuk përjashtohet\".\nHeqja e këtij niveli në thjeshtim është shkelje (rregulli R6)."
       },
+      "ConfirmIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "ConfirmIn"
+      },
       "Credentials": {
         "properties": {
           "email": {
@@ -1404,6 +1516,21 @@
           "offset"
         ],
         "title": "DocumentPage"
+      },
+      "EmailIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 320,
+            "minLength": 3,
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "EmailIn"
       },
       "ExplanationOut": {
         "properties": {
@@ -1588,6 +1715,20 @@
           "refresh_token"
         ],
         "title": "RefreshIn"
+      },
+      "RegisterOut": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "RegisterOut",
+        "description": "Përgjigjja e regjistrimit dhe e ridërgimit: e njëjtë për çdo email, që të mos tregojë\nnëse ai ka llogari (ADR 0016)."
       },
       "ReportAssertion": {
         "properties": {

@@ -1,6 +1,6 @@
 # 0014 — Seancat e revokueshme, rrotullimi i tokenëve dhe kufizimi i hyrjeve
 
-**Gjendja:** i zbatuar
+**Gjendja:** i zbatuar. Tre boshllëqet e renditura te «Pasojat» u mbyllën më 2026-10-04 (ADR 0016); teksti i tyre mbetet siç ishte shkruar, me shënim.
 
 ## Konteksti
 
@@ -98,14 +98,17 @@ dhe e ndëshkon përdoruesin me rifreskime më të shpeshta.
 - **Regjistrimi ende e tregon nëse një email ka llogari** (409). Kjo është
   e vërtetë dhe e hapur: hyrja e fsheh, regjistrimi jo, dhe kufizimi nuk e
   mbulon regjistrimin. Një ndryshim që e mbyll kërkon konfirmim me email,
-  që sistemi s'e ka.
+  që sistemi s'e ka. **[Mbyllur nga ADR 0016: konfirmim me email, regjistrim
+  që kthen gjithmonë të njëjtën 202.]**
 - **IPv6.** Një sulmues me një bllok /64 ndryshon adresën lirisht; kova e
   IP-së dhe e çiftit anashkalohen, dhe mbetet vetëm ajo e email-it.
+  **[Mbyllur nga ADR 0016: adresat IPv6 numërohen sipas /64.]**
 - **Çelësi i HMAC-it është sekreti i JWT-së.** Ndryshimi i tij pastron
   praktikisht numëruesit; nuk ka pasojë tjetër, sepse rreshtat jetojnë
   vetëm 15 minuta.
 - **Nuk ka "dil kudo"** (revokim i të gjitha seancave të një përdoruesi).
   Shtohet lehtë mbi `auth_sessions`, por s'ka ende pikë fundore.
+  **[Mbyllur nga ADR 0016: `POST /auth/logout-all`.]**
 
 ## Çfarë u provua
 

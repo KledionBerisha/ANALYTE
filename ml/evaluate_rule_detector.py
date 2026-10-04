@@ -23,11 +23,14 @@ import json
 import random
 from pathlib import Path
 
+from analyte.catalog import RESOURCES_DIR
 from analyte.domain.enums import ViolationType
 from analyte.domain.policy import RULES_VERSION
 from analyte.verification.pipeline import RULES, verify
+from data_generator.generate import GENERATOR_VERSION, RESOURCE_FILES
 from data_generator.ground_truth import build_document
 from data_generator.ids import IdFactory
+from evaluation import provenance
 from evaluation.metrics import detector
 from evaluation.metrics.detector import Judgement
 from ml.data.build_corruption_set import Sample, build_samples, write
@@ -43,6 +46,13 @@ def corpus(count: int, seed: int) -> list[tuple[str, object]]:
         document = build_document(rng, IdFactory(rng), scanned_share=0.0)
         out.append((str(document.document_id), document.context))
     return out
+
+
+def corpus_version(count: int, seed: int) -> str:
+    """Identifikuesi i korpusit të korruptuar: versioni i gjeneruesit, përmasat, fara dhe shuma e
+    tabelave burimore (një tabelë tjetër analitesh prodhon korpus tjetër)."""
+    sources = provenance.digest([RESOURCES_DIR / name for name in RESOURCE_FILES], length=8)
+    return f"{GENERATOR_VERSION}/corruption/s{seed}/n{count}/{sources}"
 
 
 def judge(samples: list[Sample], contexts: dict[str, object]) -> list[Judgement]:
@@ -90,6 +100,16 @@ def main(argv: list[str] | None = None) -> int:
                 "split": args.split,
                 "source_documents": args.n,
                 "seed": args.seed,
+                "metadata": provenance.metadata(
+                    "E10",
+                    {
+                        "name": "corruption-corpus",
+                        "version": corpus_version(args.n, args.seed),
+                        "seed": args.seed,
+                        "documents": args.n,
+                        "split": args.split,
+                    },
+                ),
                 "metrics": metrics,
             },
             ensure_ascii=False,

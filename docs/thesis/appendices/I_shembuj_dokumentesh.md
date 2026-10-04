@@ -27,9 +27,9 @@ Narrativa e mjekut (fillimi):
 
 ### Dokument i skanuar (`doc_00000.pdf`)
 
-![Faqja e parë e dokumentit i skanuar](appendices/images/dokument_skanuar.png)
+![Faqja e parë e dokumentit të skanuar](appendices/images/dokument_skanuar.png)
 
-*Figura I.2. Faqja e parë e një dokumenti i skanuar të korpusit sintetik*
+*Figura I.2. Faqja e parë e një dokumenti të skanuar të korpusit sintetik*
 
 E vërteta bazë për gjashtë gjetjet e para:
 

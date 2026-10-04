@@ -22,9 +22,9 @@ refuzohet pa e revokuar seancën. Kjo nuk i jep asgjë një vjedhësi: ai merr
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-from sqlalchemy import delete, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from analyte.audit import logger as audit
@@ -108,6 +108,23 @@ def rotate(db: Session, claims: TokenClaims, config: Settings, now: datetime) ->
         db.commit()
         raise _invalid()
     return _issue(db, auth_session, config, now)
+
+
+def revoke_all(db: Session, user_id: UUID, reason: str, now: datetime) -> int:
+    """Revokon çdo seancë të hapur të një përdoruesi (dil kudo). Kthen sa u revokuan.
+
+    Një ngjarje auditimi për të gjitha, jo një për seancë: numri është e vetmja gjë që ka rëndësi.
+    """
+    open_sessions = db.scalars(
+        select(AuthSessionRow).where(
+            AuthSessionRow.user_id == user_id, AuthSessionRow.revoked_at.is_(None)
+        )
+    ).all()
+    for auth_session in open_sessions:
+        auth_session.revoked_at = now
+        auth_session.revoked_reason = reason
+    audit.sessions_revoked_all(db, user_id, len(open_sessions))
+    return len(open_sessions)
 
 
 def revoke(db: Session, auth_session: AuthSessionRow, reason: str, now: datetime) -> None:

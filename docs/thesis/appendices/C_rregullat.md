@@ -29,7 +29,7 @@ shkelje mund të mësohen nga klasifikuesi i Fazës 7 dhe cilat jo.
 
 *Tabela C.2. Një shembull i vërtetë për çdo rregull që korruptuesit e prodhojnë, me provën që jep rregulli*
 
-Shembujt janë marrë nga korpusi i korruptuar (fara 42): fjalia që ndryshoi krahasuar me shabllonin e pastër, dhe prova e shkelësit të rregullit mbi të. R4 (vlera kritike që mungon) dhe R9 (shpjegimi i një termi të pashpjeguar) nuk kanë korruptues; R9 u mat vetëm mbi grupin B, ku nuk kapi asnjë nga 5 fjalitë (seksioni 6.7).
+Shembujt janë marrë nga korpusi i korruptuar (fara 42): fjalia që ndryshoi krahasuar me shabllonin e pastër, dhe prova e shkelësit të rregullit mbi të. R4 (vlera kritike që mungon) dhe R9 (shpjegimi i një termi të pashpjeguar) nuk kanë korruptues; R9 u mat vetëm mbi grupin B, ku kapi vetëm 1 nga 5 fjalitë (seksioni 6.7).
 
 | Rregulli | Lloji | Fjalia me defekt | Prova e rregullit |
 |---|---|---|---|

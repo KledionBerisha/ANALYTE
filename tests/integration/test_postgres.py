@@ -37,6 +37,7 @@ def client(tmp_path_factory, monkeypatch_module):
     from analyte.orchestration.tasks import InlineRunner, Services
     from analyte.persistence.database import make_engine, make_session_factory
     from analyte.persistence.storage import EncryptedStore
+    from tests.fixtures.mailbox import client_for
 
     admin_url, _, database = URL.rpartition("/")
     admin = create_engine(f"{admin_url}/postgres", isolation_level="AUTOCOMMIT")
@@ -64,7 +65,7 @@ def client(tmp_path_factory, monkeypatch_module):
         store=EncryptedStore(settings.storage_dir, settings.storage_key),
         generator=TemplateGenerator(),
     )
-    return TestClient(create_app(settings, services, InlineRunner(services)))
+    return client_for(settings, services)
 
 
 @pytest.fixture(scope="module")
@@ -75,6 +76,8 @@ def monkeypatch_module():
 
 
 def test_upload_to_explanation_on_postgres(client):
+    from tests.fixtures.mailbox import register_confirmed
+
     from data_generator.generate import render
     from data_generator.ground_truth import build_document
     from data_generator.ids import IdFactory
@@ -84,7 +87,7 @@ def test_upload_to_explanation_on_postgres(client):
     pdf, truth = render(document, seed=5, index=0)
 
     password = "fjalekalim-postgres-testi"
-    client.post("/auth/register", json={"email": "pg@shembull.al", "password": password})
+    register_confirmed(client, "pg@shembull.al", password)
     token = client.post("/auth/login", json={"email": "pg@shembull.al", "password": password}).json()
     headers = {"Authorization": f"Bearer {token['access_token']}"}
 

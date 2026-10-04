@@ -44,6 +44,7 @@ def main() -> int:
         storage_dir=storage,
         job_runner="inline",
         ocr=False,
+        mail_backend="console",  # skema nuk varet nga posta; asnjë email nuk dërgohet
     )
     services = Services(
         sessions=make_session_factory(make_engine(settings.database_url)),

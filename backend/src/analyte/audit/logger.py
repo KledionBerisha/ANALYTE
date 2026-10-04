@@ -40,6 +40,19 @@ def user_registered(session: Session, user_id: UUID) -> None:
     _record(session, "user.registered", {}, user_id=user_id)
 
 
+def email_confirmed(session: Session, user_id: UUID) -> None:
+    _record(session, "user.email_confirmed", {}, user_id=user_id)
+
+
+def mail_failed(session: Session, error_type: str) -> None:
+    """Vetëm lloji i gabimit të dërgimit. As adresa, as lidhja: log-u i auditimit nuk i mban (NFR5)."""
+    _record(session, "mail.failed", {"error_type": error_type})
+
+
+def sessions_revoked_all(session: Session, user_id: UUID, count: int) -> None:
+    _record(session, "auth.sessions_revoked_all", {"count": count}, user_id=user_id)
+
+
 def login_throttled(session: Session, bucket: str) -> None:
     """Vetëm cila kovë u mbush (`pair`, `ip`, `email`). As email-i, as IP-ja:
     log-u i auditimit nuk mban asnjërën (NFR5), edhe pse kufizimi i përdor."""

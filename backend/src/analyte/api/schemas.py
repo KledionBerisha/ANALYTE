@@ -29,6 +29,21 @@ class RefreshIn(BaseModel):
     refresh_token: str
 
 
+class RegisterOut(BaseModel):
+    """Përgjigjja e regjistrimit dhe e ridërgimit: e njëjtë për çdo email, që të mos tregojë
+    nëse ai ka llogari (ADR 0016)."""
+
+    message: str
+
+
+class EmailIn(BaseModel):
+    email: str = Field(min_length=3, max_length=320)
+
+
+class ConfirmIn(BaseModel):
+    token: str = Field(min_length=20, max_length=200)
+
+
 class Tokens(BaseModel):
     access_token: str
     refresh_token: str

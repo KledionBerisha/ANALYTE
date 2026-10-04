@@ -91,6 +91,44 @@ class UserRow(Base):
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
+    email_confirmed_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    """Bosh = email-i s'është konfirmuar dhe llogaria nuk hyn (ADR 0016)."""
+
+
+class EmailConfirmationRow(Base):
+    """Një lidhje konfirmimi e dërguar me email (ADR 0016).
+
+    Tokeni i vërtetë ndodhet vetëm te email-i; këtu ruhet HMAC-u i tij, kështu që një
+    kopje e bazës nuk jep lidhje të përdorshme. Vlen një herë dhe skadon.
+    """
+
+    __tablename__ = "email_confirmations"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_key: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
+    expires_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    used_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class RegistrationAttemptRow(Base):
+    """Një kërkesë regjistrimi ose ridërgimi, për kufizimin e email-eve që nis shërbimi (ADR 0016).
+
+    Si te `LoginFailureRow`: email-i dhe IP-ja ruhen vetëm si HMAC me çelës dhe rreshtat
+    fshihen kur dalin nga dritarja.
+    """
+
+    __tablename__ = "registration_attempts"
+    __table_args__ = (
+        Index("ix_registration_attempts_email_at", "email_key", "at"),
+        Index("ix_registration_attempts_ip_at", "ip_key", "at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    email_key: Mapped[str] = mapped_column(String(64))
+    ip_key: Mapped[str] = mapped_column(String(64))
+    at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
 
 
 class AuthSessionRow(Base):
@@ -107,7 +145,7 @@ class AuthSessionRow(Base):
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
     revoked_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
     revoked_reason: Mapped[str | None] = mapped_column(String(30))
-    """`logout` ose `refresh_reuse`."""
+    """`logout`, `logout_all` ose `refresh_reuse`."""
 
 
 class RefreshTokenRow(Base):

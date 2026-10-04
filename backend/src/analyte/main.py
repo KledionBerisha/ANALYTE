@@ -19,6 +19,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from analyte.config import Settings, get_settings
+from analyte.mail import Mailer, build_mailer
 from analyte.orchestration.tasks import (
     ArqRunner,
     InlineRunner,
@@ -34,6 +35,7 @@ def create_app(
     settings: Settings | None = None,
     services: Services | None = None,
     runner: JobRunner | None = None,
+    mailer: Mailer | None = None,
 ) -> FastAPI:
     settings = settings or get_settings()
     services = services or build_services(settings)
@@ -53,6 +55,8 @@ def create_app(
     app.state.sessions = services.sessions
     app.state.store = services.store
     app.state.runner = runner
+    # Pa ndërtuar mailer nga konfigurimi, shërbimi nuk nis: regjistrimi pa email do të dështonte në heshtje.
+    app.state.mailer = mailer or build_mailer(settings)
 
     app.add_middleware(
         CORSMiddleware,

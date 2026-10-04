@@ -44,6 +44,7 @@ from pathlib import Path
 from typing import Any
 
 from analyte.domain.enums import ViolationType
+from evaluation import provenance
 from evaluation.metrics import detector
 from evaluation.metrics.detector import Judgement
 
@@ -163,6 +164,17 @@ def evaluate(run_dir: Path, budget: float = FALSE_ALARM_BUDGET) -> dict[str, Any
             str(t): {k: round(v, 4) for k, v in point.items()} for t, point in curve.items()
         },
         "run": {k: v for k, v in run.items() if k != "labels"},
+        "metadata": provenance.metadata(
+            "E11",
+            {
+                # hyrja janë parashikimet e Colab-it; ato identifikohen me shumën e skedarëve që u lexuan
+                "name": f"colab-run/{run['input']}",
+                "version": "sha256:" + provenance.digest(
+                    [run_dir / "run.json", run_dir / "predictions_val.jsonl", run_dir / "predictions_test.jsonl"]
+                ),
+                "documents": len(test),
+            },
+        ),
     }
 
 

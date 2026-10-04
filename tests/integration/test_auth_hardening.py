@@ -25,7 +25,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 from starlette.requests import Request
 
-from analyte.api.throttle import client_ip
+from analyte.api.throttle import client_ip, network_of
+from tests.fixtures.mailbox import client_for, register_confirmed
 from analyte.config import Settings
 from analyte.generation.templates import TemplateGenerator
 from analyte.main import create_app
@@ -62,13 +63,11 @@ class World:
             store=EncryptedStore(self.settings.storage_dir, self.settings.storage_key),
             generator=TemplateGenerator(),
         )
-        self.client = TestClient(
-            create_app(self.settings, self.services, InlineRunner(self.services))
-        )
+        self.client = client_for(self.settings, self.services)
+        self.outbox = self.client.outbox
 
     def register(self, email: str) -> None:
-        response = self.client.post("/auth/register", json={"email": email, "password": PASSWORD})
-        assert response.status_code == 201, response.text
+        register_confirmed(self.client, email, PASSWORD)
 
     def login(self, email: str, password: str = PASSWORD, ip: str | None = None):
         headers = {"X-Forwarded-For": ip} if ip else {}
@@ -380,3 +379,99 @@ def test_the_revocation_survives_the_401_that_reports_it(tmp_path):
         session = db.scalars(select(AuthSessionRow)).one()
         assert session.revoked_at is not None
         assert session.revoked_reason == "refresh_reuse"
+
+
+# --------------------------------------------------------------------
+# IPv6: numërimi sipas prefiksit (ADR 0014)
+# --------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("address", "bits", "expected"),
+    [
+        ("2001:db8:1:2:aaaa:bbbb:cccc:dddd", 64, "2001:db8:1:2::/64"),
+        ("2001:db8:1:2::1", 64, "2001:db8:1:2::/64"),  # e njëjta rrjetë, adresë tjetër
+        ("2001:db8:1:3::1", 64, "2001:db8:1:3::/64"),  # /64 tjetër
+        ("2001:db8:1:2::1", 48, "2001:db8:1::/48"),
+        ("::ffff:203.0.113.7", 64, "203.0.113.7"),  # IPv4 e mapuar numërohet si IPv4
+        ("203.0.113.7", 64, "203.0.113.7"),  # IPv4 e plotë
+        ("panjohur", 64, "panjohur"),
+    ],
+)
+def test_addresses_are_counted_by_network(address, bits, expected):
+    assert network_of(address, bits) == expected
+
+
+def test_the_client_address_is_reduced_to_its_prefix():
+    scope = {
+        "type": "http",
+        "headers": [(b"x-forwarded-for", b"6.6.6.6, 2001:db8:1:2:aaaa:bbbb:cccc:dddd")],
+        "client": ("10.0.0.1", 50000),
+    }
+    assert client_ip(Request(scope), 1) == "2001:db8:1:2::/64"
+    assert client_ip(Request(scope), 1, 48) == "2001:db8:1::/48"
+
+
+def test_failures_from_one_slash_64_share_the_buckets(tmp_path):
+    w = World(tmp_path, trusted_proxy_hops=1)
+    w.register("viktima@shembull.al")
+    for i in range(5):  # pesë adresa të ndryshme, e njëjta /64
+        assert w.login("viktima@shembull.al", WRONG, ip=f"2001:db8:1:2::{i + 1}").status_code == 401
+    # i gjashti nga një adresë e gjashtë të së njëjtës /64 bllokohet, edhe me fjalëkalimin e saktë
+    assert w.login("viktima@shembull.al", PASSWORD, ip="2001:db8:1:2:ffff::9").status_code == 429
+    # një /64 tjetër nuk preket
+    assert w.login("viktima@shembull.al", PASSWORD, ip="2001:db8:1:3::1").status_code == 200
+
+
+def test_one_slash_64_cannot_spray_many_accounts_by_rotating_addresses(tmp_path):
+    w = World(tmp_path, trusted_proxy_hops=1, login_max_failures_ip=6)
+    for i in range(6):
+        assert w.login(f"nje{i}@shembull.al", WRONG, ip=f"2001:db8:1:2::{i + 1}").status_code == 401
+    assert w.login("tjeter@shembull.al", WRONG, ip="2001:db8:1:2::ff").status_code == 429
+    assert w.login("tjeter@shembull.al", WRONG, ip="2001:db8:9:9::1").status_code == 401
+
+
+# --------------------------------------------------------------------
+# Dil kudo
+# --------------------------------------------------------------------
+
+
+def _bearer(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}
+
+
+def test_logout_all_revokes_every_session_of_the_user_and_only_theirs(world):
+    world.register("tjeter@shembull.al")
+    first = world.tokens("viktima@shembull.al")
+    second = world.tokens("viktima@shembull.al")
+    third = world.tokens("viktima@shembull.al")
+    other = world.tokens("tjeter@shembull.al")
+
+    out = world.client.post("/auth/logout-all", headers=_bearer(first["access_token"]))
+    assert out.status_code == 204
+
+    for tokens in (first, second, third):
+        assert world.me(tokens["access_token"]).status_code == 401
+        assert world.refresh(tokens["refresh_token"]).status_code == 401
+    assert world.me(other["access_token"]).status_code == 200  # përdorues tjetër: i paprekur
+    assert [e.payload for e in world.audit("auth.sessions_revoked_all")] == [{"count": 3}]
+    with world.db() as db:
+        reasons = {s.revoked_reason for s in db.scalars(select(AuthSessionRow)) if s.revoked_at}
+        assert reasons == {"logout_all"}
+    # hyrja e re funksionon
+    assert world.login("viktima@shembull.al").status_code == 200
+
+
+def test_logout_all_counts_only_the_sessions_that_were_still_open(world):
+    first = world.tokens("viktima@shembull.al")
+    second = world.tokens("viktima@shembull.al")
+    world.client.post("/auth/logout", headers=_bearer(second["access_token"]))
+    world.client.post("/auth/logout-all", headers=_bearer(first["access_token"]))
+    assert [e.payload for e in world.audit("auth.sessions_revoked_all")] == [{"count": 1}]
+
+
+def test_logout_all_needs_a_valid_access_token(world):
+    assert world.client.post("/auth/logout-all").status_code == 401
+    tokens = world.tokens("viktima@shembull.al")
+    assert world.client.post("/auth/logout-all", headers=_bearer(tokens["refresh_token"])).status_code == 401
+    assert world.me(tokens["access_token"]).status_code == 200  # nuk u revokua asgjë

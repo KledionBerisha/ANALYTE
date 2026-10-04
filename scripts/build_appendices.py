@@ -19,6 +19,7 @@ from __future__ import annotations
 import csv
 import inspect
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -173,7 +174,7 @@ def appendix_c() -> str:
         "Shembujt janë marrë nga korpusi i korruptuar (fara 42): fjalia që ndryshoi krahasuar me "
         "shabllonin e pastër, dhe prova e shkelësit të rregullit mbi të. R4 (vlera kritike që "
         "mungon) dhe R9 (shpjegimi i një termi të pashpjeguar) nuk kanë korruptues; R9 u mat "
-        "vetëm mbi grupin B, ku nuk kapi asnjë nga 5 fjalitë (seksioni 6.7).",
+        "vetëm mbi grupin B, ku kapi vetëm 1 nga 5 fjalitë (seksioni 6.7).",
         "",
         "| Rregulli | Lloji | Fjalia me defekt | Prova e rregullit |",
         "|---|---|---|---|",
@@ -383,16 +384,19 @@ def appendix_h() -> str:
         "| Eksperimenti | Pipeline | Kodi (git) | Pema e punës | Korpusi |",
         "|---|---|---|---|---|",
     ]
-    for path in sorted(RESULTS.glob("E*/result.json"), key=lambda p: int(p.parent.name[1:])):
+    for path in result_files():
+        label = path.parent.relative_to(RESULTS).as_posix()
         meta = json.loads(path.read_text(encoding="utf-8")).get("metadata")
         if not meta:
-            lines.append(f"| {path.parent.name} | — | — | — | — (pa metadata) |")
+            lines.append(f"| {label} | — | — | — | — (pa metadata) |")
             continue
         code = meta["code"]
         dirty = "e papastër" if code["working_tree_dirty"] else "e pastër"
+        pipeline = (meta.get("pipeline") or {}).get("name")
+        dataset = (meta.get("dataset") or {}).get("version")
         lines.append(
-            f"| {path.parent.name} | `{meta['pipeline']['name']}` | `{code['git_sha'][:10]}` | {dirty} "
-            f"| `{meta['dataset']['version']}` |"
+            f"| {label} | {f'`{pipeline}`' if pipeline else '—'} | `{code['git_sha'][:10]}` | {dirty} "
+            f"| {f'`{dataset}`' if dataset else '—'} |"
         )
 
     runs = sorted(RESULTS.glob("E11/*/result.json"))
@@ -443,7 +447,7 @@ def appendix_i() -> str:
         "të prodhuar nga i njëjti gjenerues. Emrat e pacientëve në to janë të shpikur nga gjeneruesi.",
         "",
     ]
-    for scanned, label in ((False, "dixhital"), (True, "i skanuar")):
+    for scanned, label, plural_label in ((False, "dixhital", "dixhital"), (True, "i skanuar", "të skanuar")):
         entry = next(d for d in manifest["documents"] if d["is_scanned"] is scanned)
         truth = json.loads((data / entry["file"]).read_text(encoding="utf-8"))
         pdf = pymupdf.open(data / entry["pdf"])
@@ -454,9 +458,9 @@ def appendix_i() -> str:
         lines += [
             f"### Dokument {label} (`{Path(entry['pdf']).name}`)",
             "",
-            f"![Faqja e parë e dokumentit {label}](appendices/images/{name})",
+            f"![Faqja e parë e dokumentit {plural_label}](appendices/images/{name})",
             "",
-            f"*Figura I.{2 if scanned else 1}. Faqja e parë e një dokumenti {label} të korpusit sintetik*",
+            f"*Figura I.{2 if scanned else 1}. Faqja e parë e një dokumenti {plural_label} të korpusit sintetik*",
             "",
             "E vërteta bazë për gjashtë gjetjet e para:",
             "",
@@ -487,11 +491,61 @@ BUILDERS = {
 }
 
 
-def main() -> int:
+def result_files() -> list[Path]:
+    """Skedarët e rezultateve që hyjnë te Tabela H.3: eksperimentet kryesore, E11 (një për hyrje) dhe
+    ato me modelin gjuhësor te `llm/`. Radhitja: sipas numrit të eksperimentit, pastaj rezultatet e modelit."""
+    found = (
+        list(RESULTS.glob("E*/result.json"))
+        + list(RESULTS.glob("E11/*/result.json"))
+        + list(RESULTS.glob("llm/E*/result.json"))
+    )
+
+    def key(path: Path) -> tuple[bool, int, str]:
+        relative = path.parent.relative_to(RESULTS)
+        experiment = next(part for part in relative.parts if re.match(r"E\d+", part))
+        return relative.parts[0] == "llm", int(re.match(r"E(\d+)", experiment).group(1)), relative.as_posix()
+
+    return sorted(set(found), key=key)
+
+
+def sync_into_thesis(thesis: Path, directory: Path = OUT) -> list[str]:
+    """Zëvendëson te teksti i plotë çdo seksion `## Shtojca X — …` me skedarin e shtojcës përkatëse.
+
+    Shtojcat jetojnë në dy vende (skedarët e veçantë dhe teksti i plotë); pa këtë hap ato largohen.
+    Kthen shkronjat e shtojcave që ndryshuan.
+    """
+    text = thesis.read_text(encoding="utf-8")
+    heads = list(re.finditer(r"^## Shtojca ([A-I]) — .*$", text, re.M))
+    changed = []
+    for index in reversed(range(len(heads))):  # nga fundi, që pozicionet e mëparshme të mos lëvizin
+        head = heads[index]
+        end = heads[index + 1].start() if index + 1 < len(heads) else len(text)
+        span = text[head.start():end]
+        core = re.sub(r"\n---\s*$", "", span.rstrip())
+        suffix = span[len(core):]
+        source = next(directory.glob(f"{head.group(1)}_*.md")).read_text(encoding="utf-8")
+        body = source[source.index("## Shtojca"):].rstrip()
+        if body != core.rstrip():
+            changed.append(head.group(1))
+            text = text[:head.start()] + body + suffix + text[end:]
+    thesis.write_text(text, encoding="utf-8", newline="\n")
+    return sorted(changed)
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="build_appendices")
+    parser.add_argument("--thesis", type=Path, default=None,
+                        help="pas ndërtimit, përditëso edhe seksionet e shtojcave te ky skedar (p.sh. docs/thesis/teza_v3.md)")
+    args = parser.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
     for name, build in BUILDERS.items():
         (OUT / name).write_text(HEADER + build(), encoding="utf-8", newline="\n")
         print(f"shkruar docs/thesis/appendices/{name}")
+    if args.thesis:
+        changed = sync_into_thesis(args.thesis)
+        print(f"{args.thesis}: shtojcat e ndryshuara: {', '.join(changed) or 'asnjë'}")
     return 0
 
 

@@ -267,3 +267,158 @@ def test_the_command_rejects_an_unknown_figure(tmp_path):
 
     with pytest.raises(SystemExit, match="999"):
         build_figures.main(["999", "--out", str(tmp_path)])
+
+
+# --------------------------------------------------------------------
+# Figurat 18–21: numrat vijnë nga skedarët e rezultateve
+# --------------------------------------------------------------------
+
+
+def _results_module():
+    pytest.importorskip("matplotlib")
+    from scripts.figures import results
+
+    return results
+
+
+def test_ablation_reads_the_four_conditions_from_the_result_files():
+    results = _results_module()
+    rows = results.ablation()
+    assert [r["letter"] for r in rows] == ["A", "B", "C", "D"]
+    assert [r["experiment"] for r in rows] == ["E6", "E7", "E8", "E9"]
+    # kushti C nuk ka asnjë shkelje te përdoruesi; vetëm ai mban kufirin e sipërm të rregullës së tre
+    assert rows[2]["rate"] == 0 and rows[2]["upper_bound"] is not None
+    assert all(r["upper_bound"] is None for r in rows if r["experiment"] != "E8")
+    # kampioni është i njëjti në të katër kushtet; shkeljet ulen nga A në B
+    assert rows[0]["rate"] > rows[1]["rate"] > rows[3]["rate"] > rows[2]["rate"]
+
+
+def test_status_matrix_adds_up_to_the_values_E3_matched():
+    results = _results_module()
+    classes, counts = results.status_matrix()
+    assert classes == results.STATUS_ORDER
+    per_class = results._load(results.RESULTS / "E3" / "result.json")["metrics"]["overall"]["per_class"]
+    assert [sum(row) for row in counts] == [per_class[c]["support"] for c in classes]
+    assert sum(map(sum, counts)) == results._load(results.RESULTS / "E3" / "result.json")["metrics"]["overall"]["total"]
+
+
+def test_present_classes_keeps_a_fixed_order_and_refuses_unknown_ones():
+    results = _results_module()
+    matrix = {"polarity_flip->clean": 1, "clean->clean": 2, "hedge_removed->hedge_removed": 3}
+    assert results.present_classes(matrix) == ["clean", "polarity_flip", "hedge_removed"]
+    with pytest.raises(results.MissingResult, match="klasa pa vend"):
+        results.present_classes({"clean->invented_type": 1})
+
+
+def test_confusion_counts_fills_missing_cells_with_zero():
+    results = _results_module()
+    counts = results.confusion_counts({"a->a": 2, "a->b": 1}, ["a", "b"])
+    assert counts == [[2, 1], [0, 0]]
+
+
+def test_shares_are_percentages_of_the_condition_total():
+    results = _results_module()
+    shares = results.shares({"x": 1, "y": 3, "z": 0})
+    assert shares == {"x": 25.0, "y": 75.0, "z": 0.0}
+    assert results.shares({"x": 0}) == {}
+
+
+def test_a_missing_result_stops_the_figure_with_a_message(tmp_path):
+    results = _results_module()
+    with pytest.raises(results.MissingResult, match="mungon"):
+        results.ablation(tmp_path)
+
+
+def test_detector_figures_read_the_same_numbers_as_chapter_6():
+    results = _results_module()
+    data = results.detectors()
+    # vlerat e Tabelës 12: rregullat 0.993 / 0.795, klasifikuesi 0.385 / 0.015, Sonnet 1.000 / 1.000
+    assert round(data["Rregullat"]["synthetic"]["macro_f1"], 3) == 0.993
+    assert round(data["Rregullat"]["natural"]["macro_f1"], 3) == 0.795
+    assert round(data["Klasifikuesi XLM-R"]["synthetic"]["macro_f1"], 3) == 0.385
+    assert round(data["Klasifikuesi XLM-R"]["natural"]["macro_f1"], 3) == 0.015
+    assert data["Gjykatësi Claude Sonnet"]["natural"]["macro_f1"] == 1.0
+
+
+# --------------------------------------------------------------------
+# Figurat 1–5, 9, 10: ç'është shkruar në kuti vjen nga burimi
+# --------------------------------------------------------------------
+
+
+def _concepts_module():
+    pytest.importorskip("matplotlib")
+    from scripts.figures import concepts
+
+    return concepts
+
+
+def _texts(fig) -> str:
+    """Çdo tekst i vizatuar në figurë, si një varg."""
+    return "\n".join(t.get_text() for ax in fig.axes for t in ax.texts)
+
+
+def test_rule_ranges_come_from_the_rule_catalogue():
+    concepts = _concepts_module()
+    assert concepts.rule_ranges() == {"A": "R1–R4", "B": "R5–R9"}
+
+
+def test_figure_5_names_the_rules_and_the_attempt_limit_from_the_code():
+    concepts = _concepts_module()
+    fig, ranges = concepts.figure_05()
+    text = _texts(fig)
+    assert ranges["A"] in text and ranges["B"] in text
+    assert f"pas {concepts.MAX_GENERATION_ATTEMPTS} përpjekjesh" in text
+
+
+def test_figure_4_draws_every_cross_reference_state_and_no_other():
+    concepts = _concepts_module()
+    from analyte.domain.enums import CrossReferenceState
+
+    fig, info = concepts.figure_04()
+    assert len(info["states"]) == len(CrossReferenceState)
+    assert set(concepts.CROSS_LABELS) == set(CrossReferenceState)
+    text = _texts(fig)
+    assert all(label in text for label in info["states"])
+
+
+def test_figure_3_and_4_quote_the_real_sizes_of_the_tables():
+    concepts = _concepts_module()
+    from analyte.catalog import load_patterns, load_terminology
+
+    text3 = _texts(concepts.figure_03()[0])
+    text4 = _texts(concepts.figure_04()[0])
+    assert f"{len(load_patterns())} rregulla" in text3
+    assert f"({len(load_terminology())} terma)" in text4
+
+
+def test_figure_9_quotes_the_number_of_analytes_in_the_catalogue():
+    concepts = _concepts_module()
+    from analyte.catalog import load_analytes
+
+    fig, info = concepts.figure_09()
+    assert info["analytes"] == len(load_analytes())
+    assert f"{info['analytes']} analite" in _texts(fig)
+
+
+def test_figure_10_draws_one_box_per_corruptor_and_the_real_split():
+    concepts = _concepts_module()
+    from ml.data.build_corruption_set import CORRUPTORS, SPLIT_WEIGHTS
+
+    fig, info = concepts.figure_10()
+    assert len(info["defects"]) == len(CORRUPTORS) == 7
+    assert abs(sum(SPLIT_WEIGHTS) - 1.0) < 1e-9
+    text = "\n".join(t.get_text() for t in fig.axes[0].texts)
+    for defect in info["defects"]:
+        assert defect in text
+    assert "train 70%" in text and "val 15%" in text and "test 15%" in text
+
+
+def test_corruption_split_really_is_the_one_the_figure_states():
+    """Figura 10 thotë 70/15/15; `_split_for` duhet ta bëjë këtë mbi çdo 20 dokumente."""
+    pytest.importorskip("matplotlib")
+    from ml.data.build_corruption_set import _split_for
+
+    counts = {"train": 0, "val": 0, "test": 0}
+    for index in range(200):
+        counts[_split_for(index)] += 1
+    assert counts == {"train": 140, "val": 30, "test": 30}

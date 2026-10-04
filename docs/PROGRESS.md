@@ -1,14 +1,14 @@
 # ANALYTE — progress so far
 
-*State as of 2026-10-04, on top of commit `4f5ea17` (LLM generation, E4/E6–E9 with the real model, E12 judges and the batch tooling are committed there). Newer and not yet committed: the independent audit of E8 (`evaluation/audit_batches.py`, `evaluation/results/llm/AUDIT_E8/`, `evaluation/cache/audit_e8/`), ADR 0015, the LLM section of the README, Chapter 6/7 rewritten around the model results (Abstract, §6.4, §6.6, §6.7, §6.10, §7.1, §7.3, §7.6, §7.8, Appendix D regenerated from the real prompts), and `scripts/build_chapter6_tables.py` extended to the LLM results.*
+*State as of 2026-10-04, on top of commit `289cac5`. **Uncommitted:** email confirmation, registration that no longer reveals accounts, IPv6 /64 throttling and sign-out-everywhere (ADR 0016, migration `0003`, backend + frontend + tests); the thesis text rewritten to what was built (§5.7 classifier, §5.10, §5.12, §6.1, §7.6, Table 1); Figures 1–5, 9, 10 and 18–21 (`scripts/figures/concepts.py`, `scripts/figures/results.py`) and their wiring into the thesis; provenance metadata for E10/E11 (`evaluation/provenance.py`); tests for both; corrections to this file and to `docs/thesis/README.md`. Everything else is committed: the model path (ADR 0015), the real-model experiments E4/E6–E9, the E12 judges, the audit of E8, set C, Chapters 6–7, the Abstract and Appendix D.*
 
 ANALYTE extracts laboratory values and physician statements from Albanian
 medical PDFs, interprets them deterministically, writes a patient-facing
 explanation that may use only that interpretation (`GroundingContext`), and
 verifies the explanation automatically before anyone sees it.
 
-**Tests:** 539 pass, 1 skipped (`python -m pytest`, 2026-10-04), plus 1 PostgreSQL integration test (`make test-postgres`, run against migration 0002 on 2026-09-30).
-**Architecture decisions:** 15 ADRs in `docs/adr/` (0015: the language model, prompt, cache and judges).
+**Tests:** 607 pass, 1 skipped (`python -m pytest`, 2026-10-04), plus the PostgreSQL integration test (`make test-postgres`: all 94 integration tests passed on PostgreSQL 16 against migration `0003` on 2026-10-05; the migration also checked on PostgreSQL: old accounts grandfathered as confirmed, downgrade and re-upgrade clean).
+**Architecture decisions:** 16 ADRs in `docs/adr/` (0015: the language model, prompt, cache and judges; 0016: email confirmation and the closed ADR 0014 gaps).
 
 ## Where we stand
 
@@ -17,7 +17,16 @@ verifies the explanation automatically before anyone sees it.
 | **Done and verified** | The whole system (extraction incl. OCR, interpretation, patterns, narrative branch, verification rules, state machine, API with hardened auth, frontend) and the **language-model path**: client with response cache (`ministral-14b-2512`, Mistral free plan), versioned prompt `p1`, E6 baseline, Claude-judge batches, independent audit. Experiments E1–E12 and set B measured, all re-runnable; the model experiments were re-run from a clean checkout of `4f5ea17` with no new calls (E6: 2, for two documents that had no valid response the first time). |
 | **Measured, with the honest reading** | The rules reach macro F1 **0.993** on the synthetic corpus but **0.795** on the author's natural-sentence set B (weak spots: diagnosis/treatment/prognosis, short direction phrases, unexplained-term explanations). The trained classifier is **close to useless on natural text** (0.015–0.177) and false-alarms on OCR text (E9: 10.2% of documents). OCR reads 125 of 2 370 values wrong and accepts them. |
 | **Main result (PK5)** | Violations reaching the user, per 100 sentences, with the real model: **54.4** without grounding (E6), **9.5** grounded (E7), **0.000** (95% ≤ 0.034) grounded + rules + one retry (E8) — at the price of **25%** of documents falling back to the template; the sentence classifier (E9) raises that to 60% for no measured gain. **The 0.000 counts only what the rules see**: the independent audit of 90 delivered texts finds a rule-type problem in **36% (26–46%)**, direction errors in 23%, and some problem of any kind in 58%. H1 holds in the measured form, not as a guarantee; H2 is not confirmed. |
-| **Not done** | Real documents (E13, no ethics approval), user study (E14/PK7), local model (E15), expert review, Chapter 3 and 40–60 references, sources for the 82 terms and 11 combination rules, handwritten sets A and C, the OCR plausibility check, chat, figures 1–5, 9, 10, 12–21 (18–21 can now be drawn from the results), a second judge independent of the system's builder. |
+| **Not done** | Real documents (E13, no ethics approval), user study (E14/PK7), local model (E15), expert review, Chapter 3 and 40–60 references, sources for the 82 terms and 11 combination rules, **handwritten set A** (the author is rewriting it), the OCR plausibility check, chat, figures 12–16 (UI screenshots; 17 would be the chat, which is not built), a second judge independent of the system's builder. |
+
+---
+
+## Resuming in a new session
+
+- **Working conventions** (memory notes in `~/.claude/projects/.../memory/`): never commit or push (the author does; give a one-sentence English commit message); no `Co-Authored-By`/"Generated with" lines; chat in English, code comments and thesis text in Albanian; **never invent citations** (leave `[REFERENCË — plotësohet]`); report every metric with its caveat and say when a method changed after a result was seen; state authorship exactly as the evidence supports (set B overlap, set C declared by the author); experiments for the thesis are re-run from a **clean git worktree** (`git worktree add --detach <dir> HEAD`, with `data/` and `ml/artifacts/` linked and `.env` copied), `--out` outside it.
+- **LLM:** `.env` holds `ANALYTE_LLM_PROVIDER=mistral`, `ANALYTE_LLM_MODEL=ministral-14b-2512`, `ANALYTE_LLM_API_KEY` (never print or paste it). Free-plan facts: gemini-3.8-flash = 20 requests/day; Mistral small/medium/large have a 0 limit on the free plan; ministral-14b-2512 = 30 requests/min. Every model answer is cached in `evaluation/cache/llm/` (committed), so reruns need no calls. E12 and the audit use Claude subagents (`evaluation/judge_batches.py`, `evaluation/audit_batches.py`); no API.
+- **Where things are:** thesis `docs/thesis/teza_v3.md` (Chapter 6 tables from `python scripts/build_chapter6_tables.py`; Appendices by `python scripts/build_appendices.py`); decisions `docs/adr/` (0015 = the model path); results `evaluation/results/` (`llm/` for the real-model runs, `supplementary/kit_C.json` for set C); handwritten sets `evaluation/handwritten/` (B and C installed, A empty).
+- **Editing tip:** long Python in Bash heredocs mangles backslashes — write patch scripts with the file tool; keep LF line endings in `teza_v3.md`.
 
 ---
 
@@ -36,7 +45,7 @@ verifies the explanation automatically before anyone sees it.
 | 9 — Web application | ✅ backend + frontend done (the service can use the model, but chat is not built) |
 | 10 — User study (PK7) | ⛔ not started |
 | 11 — Analysis / discussion | ⛔ not started |
-| 12 — Thesis writing | ⚠️ `docs/thesis/teza_v3.md`: Chapters 5, 6 and 7 written from the code and the result files (H1 confirmed in the measured form only, H2 not confirmed), Abstract, §7.1/§7.3/§7.6/§7.8 and Appendices A–I done; Chapter 3 incomplete, 4 references verified, Figures 12–21 not drawn |
+| 12 — Thesis writing | ⚠️ `docs/thesis/teza_v3.md`: Chapters 5, 6 and 7 written from the code and the result files (H1 confirmed in the measured form only, H2 not confirmed), Abstract, §7.1/§7.3/§7.6/§7.8 and Appendices A–I done; Chapter 3 incomplete, 4 references verified; Figures 1–11 and 18–21 generated from code, 12–16 (UI screenshots) not made |
 | 0 / 1 — ethics, mentor, Chapter 3 | author's side |
 
 ---
@@ -110,8 +119,8 @@ corpus `gen-1.0/s42/n500/37d8b080` (500 documents, 168 scanned) unless noted.
 - `orchestration/` — the state machine (Figure 6 as a transition table), regeneration loop, template fallback, job runner, arq worker.
 
 ### Service layer
-- `api/` — FastAPI: auth (JWT + Argon2, equal-time login failure, **login throttling, revocable sessions, single-use refresh tokens with reuse detection, logout** — ADR 0014), upload, history, status, findings, assertions, cross-references, explanation (always with its verification summary), verification details, page images, terminology. Errors as RFC 7807. Chat returns 501.
-- `persistence/` — SQLAlchemy tables mirroring the domain (exact decimals), repository with round-trip tests, Alembic migration `0001`, encrypted file storage (Fernet; the filename is encrypted too).
+- `api/` — FastAPI: auth (JWT + Argon2, equal-time login failure, **login throttling with IPv6 counted by /64, revocable sessions, single-use refresh tokens with reuse detection, logout and sign-out-everywhere** — ADR 0014; **email confirmation: registration always answers 202 with the same body, the mail is sent after the response, links are single-use, expire, and are stored only as HMAC; registration/resend have their own throttle** — ADR 0016; `mail.py`: SMTP (Mailtrap in development), console, in-memory), upload, history, status, findings, assertions, cross-references, explanation (always with its verification summary), verification details, page images, terminology. Errors as RFC 7807. Chat returns 501.
+- `persistence/` — SQLAlchemy tables mirroring the domain (exact decimals), repository with round-trip tests, Alembic migrations `0001`–`0003`, encrypted file storage (Fernet; the filename is encrypted too).
 - `audit/` — audit log that structurally cannot record names, emails or lab values.
 - Infrastructure: `docker-compose.yml` (PostgreSQL on 5433, Redis), `.env.example`, `Makefile`.
 
@@ -120,8 +129,8 @@ Next.js 16, Albanian UI: sign-in, upload, history, live processing steps,
 critical-value banner (SP4), OCR warning at the top, explanation with a
 verification badge, physician quotes set apart, findings table where clicking
 a value outlines its source row on the original page, "discuss with your
-doctor" contradictions, and a full "how this was checked" panel. API types
-are generated from OpenAPI.
+doctor" contradictions, a full "how this was checked" panel, registration that asks you to check your
+email, a `/confirm` page for the link, and "Dil kudo". API types are generated from OpenAPI.
 
 ### Evaluation and ML
 - `evaluation/` — harness, metrics PK1–PK6, bootstrap CIs (document-level, rule of three at 0 events), ablation pipelines E6–E9 (`ungrounded.py` is the E6 baseline and the only code that shows a model the document text), `llm_judge.py` (API judge), `judge_batches.py` (E12 with Claude subagents), `audit_batches.py` (audit of E8), the response cache `evaluation/cache/`, a guard that refuses to file one ablation under another's ID.
@@ -132,7 +141,7 @@ are generated from OpenAPI.
 - ADRs 0001–0015 (`docs/adr/`).
 - `docs/thesis/teza_v3.md`: the full thesis text with the Chapter 5 drafts merged (5.2.1, 5.3, 5.4, 5.8.1, 5.11.2) and corrected against the code; the original `teza_v2.md` is untouched. Appendices A–I in `docs/thesis/appendices/` (`python scripts/build_appendices.py`).
 - Tables T1–T5 generated from source (`scripts/build_tables.py`).
-- Figures 6, 7, 8 and 11 generated from code (`python scripts/build_figures.py` → `docs/thesis/figures/`, PNG + SVG): the state machine from `TRANSITIONS`, the ER diagram from the table metadata, the module dependency matrix from real imports, and the evaluation pipeline with each experiment's status taken from the result files that exist.
+- Figures 6, 7, 8 and 11 generated from code (`python scripts/build_figures.py` → `docs/thesis/figures/`, PNG + SVG): the state machine from `TRANSITIONS`, the ER diagram from the table metadata, the module dependency matrix from real imports, and the evaluation pipeline with each experiment's status taken from the result files that exist. Figures 1–5, 9 and 10 (concept diagrams, `scripts/figures/concepts.py`) take the numbers and names in their boxes from the catalogue (rules, defect types, cross-reference states, attempt limit, analyte/term/pattern counts) and tests check them; Figures 18–21 (`scripts/figures/results.py`) read the result files and fail if one is missing. They are drawings of measured values, not measurements; the layout is by hand and was checked by eye.
 
 ---
 
@@ -148,6 +157,9 @@ are generated from OpenAPI.
 | 2026-10-02 | Write set B themselves (replacing a model-drafted version), and finish the thesis "tonight" — scoped to what does not need an LLM, ethics or a user study. |
 | 2026-10-03 | Use a free provider only: Gemini (20 requests/day) and Cerebras/OpenAI/Anthropic were ruled out; generator is Mistral `ministral-14b-2512` on the free plan (ADR 0015). |
 | 2026-10-03 | Use Claude (Sonnet, with Haiku as a check) as the E12 judge through Claude Code subagents instead of an API; add an independent audit of E8. |
+| 2026-10-04 | Set C (60 narrative sentences) accepted as the author's own (declared). A second narrative set (C2) was drafted and then **dropped by the author — do not use or suggest it**; it was deleted from the repository. |
+| 2026-10-04 | The chat stays "not built" (future work). Registration gets email confirmation through Mailtrap; the other ADR 0014 gaps (IPv6 /64, sign-out-everywhere) are fixed after it; the thesis is changed to say what was actually built (§5.7 classifier: defect type, not NLI; §5.12: audit log vs processing trace, account system). |
+| 2026-10-04 | Set A: the author will rewrite it. Two submitted versions were not installed (a verbatim reformatting of the contexts; then templated prose with five rotating openers and meta-sentences about the conversion). |
 
 ---
 
@@ -156,23 +168,23 @@ are generated from OpenAPI.
 | # | Item | Unblocks |
 |---|---|---|
 | 1 | **Decide how the thesis describes how set B was prepared**, given that 12 of its 105 rows (doctor quotes only) coincide with an earlier model-drafted version (disclosed in `evaluation/handwritten/README.md` and ADR 0009) | the PK6 section of Chapter 6 |
-| 2 | Handwritten set **A** — 25 explanations (`A_shpjegimet.md`, currently empty) | false-alarm rate on natural text; LLM quality baseline |
-| 4 | ~~Handwritten set C~~ **done 2026-10-04** (60 rows, author's declaration); handwritten set **A** is still empty — a file submitted the same day was a reformatting of the contexts and was not installed | false-alarm rate on natural prose; LLM quality baseline |
-| 5 | **OCR plausibility check** — add sourced physiological limits, or declare the scanned channel unsafe to interpret | the 62 wrong-direction / 11 false-critical cases |
-| 6 | Confirm the 11 combinations in T5 and give each a source | patterns in the thesis |
-| 7 | Sources for the 82 terminology entries | T3, SP6 credibility |
-| 8 | A **second judge independent of the system's builder** (or a human) for E12 and the audit; a human Albanian speaker's reading of ~20 generated explanations | PK3, the independence caveats in §6.7.2 |
-| 9 | Ethics submission | E13 |
-| 10 | Chapter 3, §7.1/§7.3/§7.8, review of `teza_v3.md` (Chapter 6 and the new Abstract/§7.6 are written from the result files and need your reading), remaining figures, and the thesis **title**, which still says the explanations are "generated by large language models" although no LLM was used | the thesis |
+| 2 | **Handwritten set A** (`evaluation/handwritten/A_shpjegimet.md`, currently empty). Write in your own words from `A_kontekstet.md` only, one section per context (`## A01`…). About **10 genuinely different explanations are worth more than 25 templated ones** (the evaluator accepts any number). Each: critical-value notice first when there is one (SP4); only numbers, analytes and terms present in the context; no diagnosis/treatment/prognosis; a value without an interval is said to be uninterpreted (SP5); a term marked "does not explain" is named but not explained (SP6); **each doctor statement as its own sentence in the form `Mjeku ka shënuar: “…”.`** (not a bullet list without periods), with negation, hedge and recommendation intact; a closing note for the health professional in your own words. Then run `python -m evaluation.kits check` and look at every flag. | the rules' false-alarm rate on natural prose; an Albanian baseline for the model |
+| 3 | **OCR plausibility check** — add sourced physiological limits, or declare the scanned channel unsafe to interpret | the 62 wrong-direction / 11 false-critical cases |
+| 4 | **Sources for the 11 combination rules** (`resources/patterns.csv`, column `source_ref`, all `[REFERENCË — plotësohet]`): P01 Hb↓+ferritin↓, P02 Hb↓+MCV↓, P03 Hb↓+B12↓, P04 glucose↑+HbA1c↑, P05 creatinine↑+urea↑, P06 ALT↑+AST↑, P07 ALP↑+GGT↑, P08 TSH↑+fT4↓, P09 TSH↓+fT4↑, P10 WBC↑+CRP↑, P11 LDL↑+HDL↓. For each, a guideline or standard laboratory-medicine reference **you have read** (society guidelines for anaemia, diabetes, thyroid, kidney, liver, lipids are the kinds to look in); confirm the arrow directions; have your mentor or a clinician review; remove any rule you cannot source. Never cite what you have not read. | patterns in the thesis |
+| 5 | **Sources for the 82 terminology entries** (`resources/terminology.csv`, column `source_ref`, all `[BURIMI — plotësohet…]`; 46 conditions, 17 measurements, 7 processes, 12 others): one source per term that supports the Albanian lay explanation in `explanation_sq` (kinds to look in: MeSH descriptors, MedlinePlus, NHS patient pages for plain-language definitions; LOINC documentation for what a test measures; say when the Albanian wording is your own translation). A term you cannot source should be **deleted** — it then becomes an "unexplained term" (SP6). Check that no explanation contains a number or a diagnostic claim. | T3, SP6 credibility |
+| 6 | A **second judge independent of the system's builder** (or a human) for E12 and the audit; a human Albanian speaker's reading of ~20 generated explanations | PK3, the independence caveats in §6.7.2 |
+| 7 | Ethics submission | E13 |
+| ~~7b~~ | ~~Mailtrap credentials~~ **done 2026-10-05**: a real registration went through the Mailtrap sandbox, the message arrived, the link confirmed the account (ADR 0016). Not tested: a production SMTP provider or delivery to a real mailbox. | — |
+| 8 | Chapter 3 and the reference list, review of `teza_v3.md` (Chapters 6–7 and the Abstract are written from the result files and need your reading), Figures 12–16 (UI screenshots), the cover page, and the thesis **title**: it says the explanations are "generated by large language models", which is accurate now (`ministral-14b-2512` was used) — confirm it is the title you want and that it promises no more than the thesis shows (no real documents, no user study) | the thesis |
 
 ---
 
 ## 7. Possible next steps without the author
 
-1. Figures still to draw by hand or by script: 1 (phases), 2–5 (architecture and pipelines), 9–10 (corpus generation, corrupted corpus), and now 18–21 (ablation, confusion matrices, violation types) from `evaluation/results/`.
-2. A reproducible script that exports the six thesis screenshots (Figures 12–17) from the running UI.
-3. Remaining gaps recorded in ADR 0014: registration still reveals whether an email has an account (409), no "sign out everywhere", and IPv6 /64 rotation weakens the per-address limits.
-4. Audit E9's delivered texts the same way as E8's, to see whether the classifier catches real errors the rules miss; add a rules + LLM-judge combination condition; re-run E10/E11 from a clean checkout with git state recorded.
+1. ~~Draw Figures 18–21 and 1–5, 9, 10~~ **done 2026-10-04** (see §4); look at them and say what to change.
+2. A reproducible script that exports the UI screenshots (Figures 12–16). Not started: it needs a headless browser (Playwright: a package and a browser download, so it waits for the author's go-ahead) and the stack running. Docker is off on the author's machine; SQLite with `ANALYTE_JOB_RUNNER=inline` and a local Tesseract would do.
+3. ~~ADR 0014 gaps~~ **done 2026-10-04** (ADR 0016). What the account system still does not have: password reset, two-factor login, automatic resend of a mail lost after the token was saved, a `Referrer-Policy` header on the confirm page; all listed in ADR 0016 and §7.6 item 11.
+4. Audit E9's delivered texts the same way as E8's, to see whether the classifier catches real errors the rules miss; add a rules + LLM-judge combination condition; re-run E10/E11 from a clean checkout (they now record the git state, §7b).
 
 ---
 
@@ -184,7 +196,7 @@ Re-run on 2026-10-02 from a clean checkout of `37b5be4` (`working_tree_dirty: fa
 - Supplementary numbers quoted in Chapter 5 (E3 and E5 on the digital subset, E5 without OCR) are in `evaluation/results/supplementary/ch5_digital_and_no_ocr.json`.
 - **Model experiments (2026-10-04):** E4, E6, E7, E8 and E9 re-run from a clean checkout of `4f5ea17` (`working_tree_dirty: false`), reading the committed response cache; results in `evaluation/results/llm/`. E7, E8, E9 and E4 reproduce the development run exactly with 0 new calls. E6 made 2 new calls (two documents without a valid response in the first run; failed calls are never cached) and differs from the development run by 0.05/100 (54.385 vs 54.439): the two added documents and, probably, a few documents generated twice concurrently while the cache was filled in parallel (cause not isolated); the clean-checkout number is the one reported.
 - **E12 and the audit have no git sha:** they are scored by `judge_batches.py`/`audit_batches.py` from the saved `answers_*.jsonl` and the key files in `evaluation/cache/`; the judge is not deterministic.
-- **Still open:** E10's result has no provenance metadata (no git sha, no corpus version), and E11's was computed from Colab predictions with evaluation code that was uncommitted when it ran. Re-run `python -m ml.evaluate_rule_detector --n 200 --split test` and the two `ml.evaluate_classifier` commands after committing, and add the git state to their output.
+- **E10 and E11 provenance (code ready, re-run pending):** `evaluation/provenance.py` now writes the git sha, dirty flag and a dataset identifier into both results (E10: generator version, seed, size and a checksum of the source tables; E11: a checksum of the Colab predictions it read). A run into a scratch folder gave exactly the committed E10 metrics. **After the next commit**, re-run from a clean worktree with `--out` outside it: `python -m ml.evaluate_rule_detector --n 200 --split test --out <dir>` and `python -m ml.evaluate_classifier --run ml/artifacts/runs/sentence --out <dir>` (and `runs/context`), then replace `evaluation/results/E10` and `E11`; the figures and Table 12 do not change (the metrics are the same).
 - **Package-level cycle `audit ↔ orchestration ↔ persistence`** (Figure 8): `audit.logger` imports `orchestration.states.Transition`, and `persistence.repository` imports `Delivery`/`Explanation` from `orchestration.process`, while `orchestration.tasks` imports both. There is no cycle at module level. Moving those three types into `domain/` would remove it; §5.9 of `teza_v3.md` now states the cycle.
 
 ---

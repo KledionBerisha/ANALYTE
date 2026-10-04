@@ -2,7 +2,7 @@
 
 ## Shtojca G — Skema SQL e bazës së të dhënave
 
-Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 16 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
+Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 18 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
 
 ```sql
 CREATE TABLE audit_events (
@@ -29,11 +29,24 @@ CREATE INDEX ix_login_failures_email_at ON login_failures (email_key, at);
 
 CREATE INDEX ix_login_failures_ip_at ON login_failures (ip_key, at);
 
+CREATE TABLE registration_attempts (
+	id SERIAL NOT NULL, 
+	email_key VARCHAR(64) NOT NULL, 
+	ip_key VARCHAR(64) NOT NULL, 
+	at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+);
+
+CREATE INDEX ix_registration_attempts_email_at ON registration_attempts (email_key, at);
+
+CREATE INDEX ix_registration_attempts_ip_at ON registration_attempts (ip_key, at);
+
 CREATE TABLE users (
 	id UUID NOT NULL, 
 	email VARCHAR(320) NOT NULL, 
 	password_hash VARCHAR(255) NOT NULL, 
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	email_confirmed_at TIMESTAMP WITH TIME ZONE, 
 	PRIMARY KEY (id)
 );
 
@@ -68,6 +81,21 @@ CREATE TABLE documents (
 );
 
 CREATE INDEX ix_documents_user_id ON documents (user_id);
+
+CREATE TABLE email_confirmations (
+	id UUID NOT NULL, 
+	user_id UUID NOT NULL, 
+	token_key VARCHAR(64) NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	expires_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	used_at TIMESTAMP WITH TIME ZONE, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX ix_email_confirmations_token_key ON email_confirmations (token_key);
+
+CREATE INDEX ix_email_confirmations_user_id ON email_confirmations (user_id);
 
 CREATE TABLE cross_references (
 	id UUID NOT NULL, 

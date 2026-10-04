@@ -45,10 +45,36 @@ class Settings(BaseSettings):
     """Dështime nga një IP, pavarësisht email-it — kundër provës së shumë llogarive."""
     login_max_failures_email: int = 20
     """Dështime për një email nga çdo IP — kundër provës së shpërndarë."""
+    ipv6_prefix_bits: int = 64
+    """Adresat IPv6 numërohen sipas këtij prefiksi, jo adresë më adresë: një sulmues me një bllok
+    /64 ndryshon adresën lirisht, dhe pa këtë çdo adresë do t'i hapte kovat e IP-së nga e para
+    (ADR 0014). Adresat IPv4 numërohen të plota."""
     trusted_proxy_hops: int = 0
     """Sa ndërmjetës të besuar qëndrojnë para shërbimit. 0 = adresa e lidhjes;
     n > 0 = e n-ta nga e djathta te `X-Forwarded-For`. Mos e rrit pa proxy:
     koka mund ta shkruajë kushdo."""
+
+    mail_backend: Literal["smtp", "console"] = "smtp"
+    """`smtp` dërgon me SMTP (në zhvillim, kutia e provës e Mailtrap). `console` shkruan mesazhin te log-u
+    dhe është vetëm për zhvillim pa SMTP: log-u mban adresën dhe lidhjen e konfirmimit (ADR 0016)."""
+    smtp_host: str = ""
+    """P.sh. `sandbox.smtp.mailtrap.io`. Bosh me `smtp` = shërbimi nuk nis (nuk ka email në heshtje)."""
+    smtp_port: int = 587
+    smtp_security: Literal["starttls", "ssl", "none"] = "starttls"
+    smtp_username: str = ""
+    smtp_password: SecretStr | None = None
+    mail_from: str = "ANALYTE <noreply@analyte.local>"
+    frontend_url: str = "http://localhost:3000"
+    """Baza e lidhjeve në email: `{frontend_url}/confirm?token=…`."""
+    confirm_token_hours: int = 24
+    """Sa vlen lidhja e konfirmimit. Përdoret një herë."""
+    register_window_minutes: int = 60
+    register_max_per_ip: int = 10
+    """Kërkesa regjistrimi ose ridërgimi nga një IP brenda dritares: kufizon sa email-e mund të nisë
+    një vend. Numërohen të gjitha kërkesat, jo vetëm ato me email të ri, që kufizimi të mos tregojë
+    nëse një email ka llogari."""
+    register_max_per_email: int = 3
+    """Kërkesa për një email nga çdo IP brenda dritares: kufizon sa mesazhe merr një adresë."""
 
     job_runner: Literal["inline", "arq"] = "arq"
     """`inline` e përpunon dokumentin brenda kërkesës — vetëm për teste dhe

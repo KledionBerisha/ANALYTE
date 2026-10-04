@@ -17,6 +17,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from analyte.config import Settings
+from analyte.mail import Mailer
 from analyte.persistence.tables import AuthSessionRow, DocumentRow, UserRow
 from analyte.security import TokenError, read_token
 
@@ -27,6 +28,10 @@ _bearer = HTTPBearer(auto_error=False)
 
 def settings(request: Request) -> Settings:
     return request.app.state.settings
+
+
+def mailer(request: Request) -> Mailer:
+    return request.app.state.mailer
 
 
 def session(request: Request) -> Iterator[Session]:

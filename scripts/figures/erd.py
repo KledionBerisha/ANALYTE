@@ -36,6 +36,8 @@ POSITIONS: dict[str, tuple[float, float]] = {
     "auth_sessions": (0.95, 2.45),
     "refresh_tokens": (0.95, 1.1),
     "login_failures": (3.0, 0.8),
+    "registration_attempts": (3.0, 2.3),
+    "email_confirmations": (3.0, 5.7),
     "documents": (3.25, 3.6),
 }
 """Vendosjet e shkruara me dorë. Fëmijët e `documents` nuk janë këtu: ata

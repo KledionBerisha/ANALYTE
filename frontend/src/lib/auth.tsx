@@ -11,13 +11,23 @@
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
-import { api, session, type Tokens, type UserOut, whenSessionLost } from "./api/client";
+import {
+  api,
+  type RegisterOut,
+  session,
+  type Tokens,
+  type UserOut,
+  whenSessionLost,
+} from "./api/client";
 
 type Auth = {
   user: UserOut | null | undefined;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  /** Kthen mesazhin e shërbimit; llogaria nuk hyn derisa email-i të konfirmohet (ADR 0016). */
+  register: (email: string, password: string) => Promise<string>;
   logout: () => void;
+  /** Revokon çdo seancë te shërbimi, pastaj del këtu. Hedh gabim nëse shërbimi nuk u arrit. */
+  logoutEverywhere: () => Promise<void>;
 };
 
 const AuthContext = createContext<Auth | null>(null);
@@ -56,16 +66,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(await api.json<UserOut>("/auth/me"));
   }, []);
 
-  const register = useCallback(
-    async (email: string, password: string) => {
-      await api.post<UserOut>("/auth/register", { email, password });
-      await login(email, password);
-    },
-    [login],
-  );
+  // Regjistrimi nuk hap seancë: llogaria aktivizohet vetëm pasi të hapet lidhja te email-i.
+  const register = useCallback(async (email: string, password: string) => {
+    return (await api.post<RegisterOut>("/auth/register", { email, password })).message;
+  }, []);
+
+  // Pret shërbimin: «dil kudo» që dështon në heshtje do të linte seancat e hapura.
+  const logoutEverywhere = useCallback(async () => {
+    await api.endAllSessions();
+    leave();
+  }, [leave]);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, login, register, logout, logoutEverywhere }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

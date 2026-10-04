@@ -21,6 +21,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/resend-confirmation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend Confirmation
+         * @description Një lidhje e re për një llogari të pakonfirmuar. Përgjigja është e njëjtë me atë të regjistrimit.
+         */
+        post: operations["resend_confirmation_auth_resend_confirmation_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm
+         * @description Konfirmon email-in me tokenin e lidhjes. Vlen një herë; një token i panjohur, i përdorur ose i
+         *     skaduar kthen të njëjtën gabim.
+         */
+        post: operations["confirm_auth_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -69,6 +110,26 @@ export interface paths {
          * @description Revokon seancën: tokenët e aksesit dhe të rifreskimit pushojnë menjëherë.
          */
         post: operations["logout_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Logout All
+         * @description Dil kudo: revokon çdo seancë të hapur të përdoruesit, edhe këtë, menjëherë.
+         */
+        post: operations["logout_all_auth_logout_all_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -462,6 +523,11 @@ export interface components {
          * @enum {string}
          */
         Certainty: "confirmed" | "hedged";
+        /** ConfirmIn */
+        ConfirmIn: {
+            /** Token */
+            token: string;
+        };
         /** Credentials */
         Credentials: {
             /** Email */
@@ -538,6 +604,11 @@ export interface components {
             /** Offset */
             offset: number;
         };
+        /** EmailIn */
+        EmailIn: {
+            /** Email */
+            email: string;
+        };
         /** ExplanationOut */
         ExplanationOut: {
             /**
@@ -613,6 +684,15 @@ export interface components {
         RefreshIn: {
             /** Refresh Token */
             refresh_token: string;
+        };
+        /**
+         * RegisterOut
+         * @description Përgjigjja e regjistrimit dhe e ridërgimit: e njëjtë për çdo email, që të mos tregojë
+         *     nëse ai ka llogari (ADR 0016).
+         */
+        RegisterOut: {
+            /** Message */
+            message: string;
         };
         /**
          * ReportAssertion
@@ -815,13 +895,77 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
-            201: {
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserOut"];
+                    "application/json": components["schemas"]["RegisterOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resend_confirmation_auth_resend_confirmation_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisterOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_auth_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -901,6 +1045,24 @@ export interface operations {
         };
     };
     logout_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    logout_all_auth_logout_all_post: {
         parameters: {
             query?: never;
             header?: never;

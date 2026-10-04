@@ -36,6 +36,15 @@
 | E8 | `e8[template]+ocr` | `37b5be45b3` | e pastër | `gen-1.0/s42/n500/37d8b080` |
 | E9 | `e9[template]+ocr+xlm-roberta-base/sentence/sentence@0.85` | `37b5be45b3` | e pastër | `gen-1.0/s42/n500/37d8b080` |
 | E10 | — | — | — | — (pa metadata) |
+| E11/context | — | — | — | — (pa metadata) |
+| E11/sentence | — | — | — | — (pa metadata) |
+| llm/E4 | `e8[mistral:ministral-14b-2512:p1]+ocr` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |
+| llm/E6 | `e6[mistral:ministral-14b-2512:u1]+ocr` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |
+| llm/E7 | `e7[mistral:ministral-14b-2512:p1]+ocr` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |
+| llm/E8 | `e8[mistral:ministral-14b-2512:p1]+ocr` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |
+| llm/E9 | `e9[mistral:ministral-14b-2512:p1]+ocr+xlm-roberta-base/sentence/sentence@0.85` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |
+| llm/E12 | — | — | — | — (pa metadata) |
+| llm/E12_haiku | — | — | — | — (pa metadata) |
 
 *Tabela H.4. Klasifikuesi XLM-RoBERTa (trajnuar në Colab) dhe pragjet e zgjedhura mbi validimin*
 
