@@ -156,7 +156,7 @@ def figure_02():
     path(ax, [(a.cx, a.bottom), (a.cx, 3.7), (ctx.cx - 0.8, 3.7)], head=False)
     path(ax, [(b.cx, b.bottom), (b.cx, 3.7)], head=False)
     style.arrow(ax, (ctx.cx - 0.8, 3.7), (ctx.cx - 0.8, ctx.bottom))
-    gen = node(ax, cx, 2.15, w, 1.2, "Gjenerimi", "model gjuhësor (merr vetëm GroundingContext)\nose shablloni determinist", MODEL)
+    gen = node(ax, cx, 2.15, w, 1.2, "Gjenerimi", "shablloni determinist në aplikacion; modeli gjuhësor në eksperimente\n(merr vetëm GroundingContext)", MODEL)
     ver = node(ax, cx, 0.35, w, 1.3, f"Shtresa e verifikimit", f"R1–R9 + SP1–SP3, pastaj klasifikuesi; deri në {MAX_GENERATION_ATTEMPTS} përpjekje", KEY)
     # rrjedha
     style.arrow(ax, (cx - 0.5, pres.bottom), (cx - 0.5, api.top))

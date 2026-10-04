@@ -422,3 +422,37 @@ def test_corruption_split_really_is_the_one_the_figure_states():
     for index in range(200):
         counts[_split_for(index)] += 1
     assert counts == {"train": 140, "val": 30, "test": 30}
+
+
+def test_figure_11_accepts_results_whose_metadata_has_no_pipeline(monkeypatch):
+    """E10 dhe E11 shkruajnë metadata me kodin dhe të dhënat, por pa `pipeline` (ato s'kalojnë nga harness-i)."""
+    pytest.importorskip("matplotlib")
+    from scripts.figures import evaluation_chain as chain
+
+    results = {
+        "E10": {"metadata": {"code": {"git_sha": "a" * 40, "working_tree_dirty": False},
+                             "dataset": {"version": "v", "seed": 1}}},
+        "E3": {"metadata": {"pipeline": {"name": "grounding"}, "code": {"git_sha": "a" * 40, "working_tree_dirty": False},
+                            "dataset": {"version": "v", "seed": 1}}},
+    }
+    monkeypatch.setattr(chain, "load_results", lambda *a, **k: results)
+    fig, *_ = chain.build()
+    assert "grounding" in "\n".join(t.get_text() for ax in fig.axes for t in ax.texts)
+
+
+def test_results_of_the_language_model_runs_count_as_measured_without_replacing_template_ones(tmp_path):
+    """E4, E6 dhe E12 kanë rezultat vetëm te `llm/`; E7 ka të dyja dhe mban atë me shabllon."""
+    for relative, marker in (
+        ("E7/result.json", "shabllon"),
+        ("llm/E7/result.json", "model"),
+        ("llm/E4/result.json", "model"),
+        ("llm/E12/result.json", "model"),
+        ("llm/E12_haiku/result.json", "kontroll"),
+        ("llm/AUDIT_E8/result.json", "audit"),  # nuk është eksperiment i regjistrit
+    ):
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{"marker": "%s"}' % marker, encoding="utf-8")
+    found = evaluation_chain.load_results(tmp_path)
+    assert sorted(found) == ["E12", "E4", "E7"]
+    assert found["E7"]["marker"] == "shabllon" and found["E12"]["marker"] == "model"

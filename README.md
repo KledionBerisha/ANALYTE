@@ -58,6 +58,9 @@ konfigurim posta. Në zhvillim, vendosni te `.env` kredencialet SMTP të një ku
 (`ANALYTE_SMTP_HOST`, `_PORT`, `_USERNAME`, `_PASSWORD`; shih `.env.example`), ose `ANALYTE_MAIL_BACKEND=console`
 për të parë lidhjen te log-u i shërbimit pa SMTP.
 
+Pamjet e ndërfaqes për punim (Figurat 12–16) nxirren nga aplikacioni që punon: `pip install -e ".[screenshots]"` dhe
+`python scripts/export_screenshots.py` (Playwright; shfletuesi i vetë ose Edge/Chrome i instaluar, `--channel msedge`).
+
 Ndërfaqja: `cd frontend && npm install && npm run dev`, pastaj
 `http://localhost:3000`. Dokumentimi i API-së: `http://localhost:8000/docs`. Testi mbi PostgreSQL
 të vërtetë: `make test-postgres`.

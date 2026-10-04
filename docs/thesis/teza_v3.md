@@ -449,7 +449,7 @@ Garancia qendrore e arkitekturës nuk zbatohet përmes udhëzimeve por përmes k
 | Terminologjia standarde | Nënbashkësi LOINC | Normalizimi i emrave të analiteve |
 | Përpunimi gjuhësor | Fjalorë dhe rregulla leksikore | Segmentimi, zbulimi i termave, i mohimit dhe i pasigurisë |
 | Klasifikuesi i verifikimit | XLM-RoBERTa | Zbulimi semantik i përmbajtjes së pambështetur |
-| Gjenerimi i gjuhës | Mistral `ministral-14b-2512` përmes klientit të përgjithshëm me cache; shabllon determinist si rezervë | Formulimi i shpjegimeve |
+| Gjenerimi i gjuhës | Në eksperimente: Mistral `ministral-14b-2512` përmes klientit të përgjithshëm me cache. Në aplikacionin e uebit: vetëm shablloni determinist (modeli nuk është i lidhur me shërbimin) | Formulimi i shpjegimeve |
 | Përpunimi në sfond | arq, Redis | Punët asinkrone të përpunimit të dokumenteve |
 | Paketimi | Docker, docker-compose | Mjedisi i riprodhueshëm i ekzekutimit |
 | Testimi | pytest | Teste njësie, integrimi dhe golden-file |
@@ -1258,7 +1258,7 @@ Sistemi mban dy gjurma të ndara.
 
 Çdo vlerë numerike e këtij kapitulli lexohet nga një skedar rezultatesh te `evaluation/results/`, dhe tabelat 7–13 dhe 16 gjenerohen prej tyre nga `scripts/build_chapter6_tables.py`, pa kopjim me dorë. Pjesa që nuk është matur është thënë si e tillë: nuk u kryen E13 (dokumente reale), E14 (studimi me përdorues) dhe E15 (modeli lokal kundrejt atij në re), dhe seksionet përkatëse e thonë këtë në vend që të japin një vlerë.
 
-**Prejardhja.** E1, E2, E3 dhe E5 u ekzekutuan më 2026-10-02 nga një kopje e pastër e commit-it `37b5be4` (`working_tree_dirty: false`), mbi korpusin `gen-1.0/s42/n500/37d8b080` (500 dokumente, prej tyre 332 dixhitale dhe 168 të skanuara); po ashtu E7–E9 me shabllonin si gjenerues (`evaluation/results/E7`–`E9`). Eksperimentet me modelin gjuhësor (E4, E6, E7, E8, E9; `evaluation/results/llm/`) u ekzekutuan më 2026-10-04 nga një kopje e pastër e commit-it `4f5ea17`, mbi të njëjtin korpus. Gjeneruesi është Mistral `ministral-14b-2512` në planin falas, me kërkesën `p1` për kushtet B–D dhe `u1` për kushtin A, temperaturë 0 (ADR 0015). Përgjigjet e modelit lexohen nga cache-i i commit-uar (`evaluation/cache/llm/`): katër nga pesë ekzekutimet e pastra nuk bënë asnjë thirrje të re; E6 bëri dy, për dy dokumente që në ekzekutimin e parë nuk kishin marrë përgjigje të vlefshme (përgjigjet e dështuara nuk ruhen kurrë). Tre rezultate kanë prejardhje më të dobët. Skedari i E10 nuk mban shenjë të git-it as të versionit të korpusit; ai u ekzekutua me katalogun `r1.3` mbi 200 dokumente burimore (ndarja e testit, 192 mostra, fara 42). Parashikimet e E11 u prodhuan në Colab (GPU Tesla T4, `xlm-roberta-base`, 3 epoka, fara 42) dhe kodi i vlerësimit nuk ishte i commit-uar kur u ekzekutuan, ashtu si vlerësuesi i grupit B. Dhe E12 dhe auditi i E8 nuk kanë sha git: gjykatësi është një model Claude i thirrur nga Claude Code si subagjent, kështu që rezultati rillogaritet nga përgjigjet e ruajtura (`answers_*.jsonl`) dhe çelësin e etiketave, jo nga një ekzekutim i përsëritshëm i kodit (§6.7.2). E10 dhe E11 duhen ekzekutuar përsëri nga një kopje e pastër para dorëzimit.
+**Prejardhja.** E1, E2, E3 dhe E5 u ekzekutuan më 2026-10-02 nga një kopje e pastër e commit-it `37b5be4` (`working_tree_dirty: false`), mbi korpusin `gen-1.0/s42/n500/37d8b080` (500 dokumente, prej tyre 332 dixhitale dhe 168 të skanuara); po ashtu E7–E9 me shabllonin si gjenerues (`evaluation/results/E7`–`E9`). Eksperimentet me modelin gjuhësor (E4, E6, E7, E8, E9; `evaluation/results/llm/`) u ekzekutuan më 2026-10-04 nga një kopje e pastër e commit-it `4f5ea17`, mbi të njëjtin korpus. Gjeneruesi është Mistral `ministral-14b-2512` në planin falas, me kërkesën `p1` për kushtet B–D dhe `u1` për kushtin A, temperaturë 0 (ADR 0015). Përgjigjet e modelit lexohen nga cache-i i commit-uar (`evaluation/cache/llm/`): katër nga pesë ekzekutimet e pastra nuk bënë asnjë thirrje të re; E6 bëri dy, për dy dokumente që në ekzekutimin e parë nuk kishin marrë përgjigje të vlefshme (përgjigjet e dështuara nuk ruhen kurrë). E10 dhe E11 u ekzekutuan më 2026-10-05 nga një kopje e pastër e commit-it `34fa710` (`working_tree_dirty: false`), dhe rezultatet e tyre mbajnë sha-n e kodit dhe një identifikues të të dhënave: për E10 versioni i gjeneruesit, fara, madhësia dhe një shumë kontrolluese e tabelave burimore që nuk varet nga mbarimet e rreshtave; për E11 një shumë kontrolluese e parashikimeve të Colab-it që u lexuan. Metrikat dolën identike me ato të mëparshme. Katër rezultate kanë prejardhje më të dobët. Parashikimet e E11 u prodhuan në Colab (GPU Tesla T4, `xlm-roberta-base`, 3 epoka, fara 42), dhe `run.json` ruan versionet e bibliotekave por jo sha-n e kodit të trajnimit. Rezultati i klasifikuesit dhe ai i gjykatësve mbi grupin B (`kit_B.json`) nuk mbajnë metadata; rezultati i rregullave mbi B rillogaritet nga `python -m evaluation.kits check` dhe nuk ruhet si skedar. Dhe E12 dhe auditi i E8 nuk kanë sha git: gjykatësi është një model Claude i thirrur nga Claude Code si subagjent, kështu që rezultati rillogaritet nga përgjigjet e ruajtura (`answers_*.jsonl`) dhe çelësin e etiketave, jo nga një ekzekutim i përsëritshëm i kodit (§6.7.2). Korpusi i vetë (`data/v1`) ka një kufizim: `manifest.json` ruan shumat kontrolluese të bajteve të papërpunuara të `resources/*.csv`, dhe për `terminology.csv` e `patterns.csv` ato përputhen vetëm me kopjen e punës ku u prodhuan, jo me një kopje të re nga git (mbarimet e rreshtave ndryshojnë me `core.autocrlf`). Harness-i e lexon versionin nga manifesti dhe nuk e rillogarit, kështu që asnjë rezultat nuk preket, por versioni `gen-1.0/s42/n500/37d8b080` nuk rindërtohet dot nga një kopje e re në këtë makinë.
 
 **Pasiguria.** E4, E6, E7, E8 dhe E9 kanë intervale besimi (bootstrap në nivel dokumenti, 2 000 rimostrime); auditi i E8 ka intervale Wilson 95%. Të gjitha vlerat e tjera janë vlerësime pikësore. Grupi B ka 105 fjali dhe 5 deri 10 për çdo lloj defekti, ndaj një fjali e vetme e ndryshon F1 të një lloji me 0.05 deri 0.2, dhe asnjë diferencë mes dy detektorëve mbi B nuk është provuar statistikisht.
 
@@ -1281,17 +1281,39 @@ Sistemi është zbatuar i plotë përveç chat-it të lidhur me dokumentin, që 
 | Tabela terminologjike | 82 terma shqip, pa burime të shënuara (Shtojca A) |
 | Kombinimet ndërmjet analiteve | 11 rregulla, pa burime të shënuara (Tabela B.3) |
 | Katalogu i verifikimit | `r1.3`: R1–R9 dhe SP1–3, dhjetë lloje shkeljesh (Tabela 5) |
-| Modeli gjuhësor | Mistral `ministral-14b-2512` (plan falas) përmes `ChatClient` me cache të përgjigjeve në depo, kufizim shpejtësie dhe rifreskim; kërkesa `p1` merr vetëm `GroundingContext` (ADR 0015, Shtojca D) |
+| Modeli gjuhësor | Mistral `ministral-14b-2512` (plan falas) përmes `ChatClient` me cache të përgjigjeve në depo, kufizim shpejtësie dhe rifreskim; kërkesa `p1` merr vetëm `GroundingContext` (ADR 0015, Shtojca D). **Përdoret vetëm nga harness-i i vlerësimit**: aplikacioni i uebit gjeneron me shabllonin determinist (§7.6, pika 12) |
 | Gjykatësit e detektimit | Claude Sonnet dhe Haiku (subagjentë), 15 batch-e me 20 mostra secili, dhe një audit i tekstit të dorëzuar (§6.7.2, §6.6.1) |
 | Kanali i leximit | Tekst dixhital dhe OCR (Tesseract 5, `eng`, `--psm 6`, 200 dpi) |
 | Shërbimi | API me autentikim të forcuar (konfirmim email-i, kufizim hyrjesh dhe regjistrimesh, seanca të revokueshme, dil kudo), regjistër auditimi, ruajtje e enkriptuar (ADR 0013, 0014, 0016) |
 | Ndërfaqja | Next.js në shqip: regjistrimi me konfirmim email-i, hyrja, dil kudo, ngarkimi, historiku, hapat e përpunimit, njoftimi për vlera kritike, paralajmërimi i OCR-së, shpjegimi me treguesin e verifikimit, tabela e gjetjeve ku një klikim hedh dritë mbi rreshtin burimor |
 | Vendimet arkitekturore | 16 ADR (`docs/adr/`) |
-| Testet | 607 kalojnë, 1 anashkalohet (testi i integrimit me PostgreSQL ekzekutohet me `make test-postgres`) |
+| Testet | 615 kalojnë, 1 anashkalohet (testi i integrimit me PostgreSQL ekzekutohet me `make test-postgres`) |
 
 Korpusi sintetik i vlerësimit ka 500 dokumente (332 dixhitale, 168 të skanuara, 556 faqe), me 9 860 gjetje laboratorike, 2 749 pohime narrative dhe 36 dokumente me të paktën një vlerë kritike. Korpusi i korruptuar del nga 1 500 dokumente për trajnimin dhe validimin e klasifikuesit dhe nga 200 dokumente burimore për testin (192 mostra, E10 dhe E11); rrjedhja e dokumenteve ndërmjet trajnimit dhe validimit është zero (`E11/leakage.json`).
 
-*Figura 12–16. Pamje të ndërfaqes së përdoruesit.* **[FIGURË — plotësohet: pamjet merren nga ndërfaqja në punë; nuk janë prodhuar ende.]** *Figura 17 nuk prodhohet: chat-i nuk është ndërtuar.*
+Pamjet 12–16 janë prodhuar nga aplikacioni që punon (`python scripts/export_screenshots.py`) mbi një dokument sintetik (`doc_00335.pdf`, korpusi `gen-1.0/s42/n500/37d8b080`; dixhital, me një vlerë kritike dhe një kundërshtim raport–laborator) dhe një përdorues prove. Shpjegimi është ai i **shabllonit determinist**, jo i modelit gjuhësor: aplikacioni nuk e thërret modelin (§7.6, pika 12). Emrat e pacientëve në dokument janë të shpikur nga gjeneruesi.
+
+*Figura 12. Faqja e autentikimit të sistemit.*
+
+![Figura 12](figures/figura_12_faqja_e_hyrjes.png)
+
+*Figura 13. Hapat e përpunimit të dokumentit të ngarkuar, ndërsa ndodhin; çdo shenjë e plotësuar është një kalim i regjistruar në shërbim. Përpunimi u ngadalësua qëllimisht (4 sekonda te gjeneruesi) që hapi i tanishëm të duket.*
+
+![Figura 13](figures/figura_13_perpunimi.png)
+
+*Figura 14. Gjetjet laboratorike të strukturuara: vlera, intervali referent dhe statusi; klikimi mbi një vlerë e theksoi rreshtin burimor te faqja origjinale.*
+
+![Figura 14](figures/figura_14_gjetjet.png)
+
+*Figura 15. Shpjegimi në gjuhë të thjeshtë me treguesin e verifikimit, dhe fjalët e mjekut të vendosura veçmas, fjalë për fjalë.*
+
+![Figura 15](figures/figura_15_shpjegimi.png)
+
+*Figura 16. Krahasimi i raportit mjekësor me rezultatet laboratorike: fjalia e mjekut që nuk përputhet me vlerën e matur, e shfaqur si «për t'u diskutuar me mjekun».*
+
+![Figura 16](figures/figura_16_krahasimi.png)
+
+*Figura 17 nuk prodhohet: chat-i nuk është ndërtuar.*
 
 ## 6.2 Saktësia e nxjerrjes së të dhënave laboratorike
 
@@ -1737,7 +1759,7 @@ Kufizimet renditen nga më e rëndësishmja. Secila thotë çfarë nuk dihet, jo
 
 **6. Klasifikuesi mëson shabllonin.** 100% e formave të fjalive me defekt të validimit ishin tashmë në trajnim, dhe çdo gjetje e shpikur fillon me të njëjtën shprehje. Rezultati mbi korpusin sintetik nuk është dëshmi e zbulimit të defektit. Klasifikuesi u trajnua një herë (një farë, tri epoka, GPU Tesla T4), pa variancë ndërmjet ekzekutimeve; pragu i dytë u shtua pasi testi ishte parë. Efekti i tij mbi tekstin e modelit (E9) matet vetëm me rregullat, jo nga një auditor i pavarur.
 
-**7. Pasiguria statistikore dhe prejardhja.** E4 dhe E6–E9 kanë intervale besimi; vlerat e tjera (E10, E11, grupi B, E12) janë pikësore, me mostra të vogla: te E10 `hedge_removed` ka 3 mostra dhe `polarity_flip` 12. E10 nuk mban shenjën e git-it; E11 dhe grupi B u ekzekutuan me kod që nuk ishte ende i commit-uar; E12 dhe auditi nuk kanë sha git. Katër metoda u ndryshuan pasi rezultati i mëparshëm ishte parë (§6, hyrja).
+**7. Pasiguria statistikore dhe prejardhja.** E4 dhe E6–E9 kanë intervale besimi; vlerat e tjera (E10, E11, grupi B, E12) janë pikësore, me mostra të vogla: te E10 `hedge_removed` ka 3 mostra dhe `polarity_flip` 12. E10 dhe E11 mbajnë tani sha-n e një kopjeje të pastër, por parashikimet e E11 vijnë nga Colab pa sha të kodit të trajnimit; grupi B (klasifikuesi dhe gjykatësit) nuk mban metadata; E12 dhe auditi nuk kanë sha git; dhe versioni i korpusit nuk rindërtohet nga një kopje e re për shkak të mbarimeve të rreshtave (§5.11.2.4). Katër metoda u ndryshuan pasi rezultati i mëparshëm ishte parë (§6, hyrja).
 
 **8. OCR-ja është rrezik sigurie, jo vetëm saktësie.** Me Tesseract, një konfigurim, 125 nga 2 370 vlera të nxjerra nga skanimet janë të gabuara dhe pranohen, dhe 62 marrin status të interpretuar gabim, 11 prej tyre kritike të rreme. Nuk ka kontroll besueshmërie me kufij fiziologjikë me burim, dhe deri sa të ketë, interpretimi i kanalit të skanuar nuk duhet të konsiderohet i sigurt. Pohimet narrative të dokumenteve të skanuara nuk rikthehen (28 nga 87 kundërshtime humbën), dhe shkaku nuk u hetua.
 
@@ -1746,6 +1768,8 @@ Kufizimet renditen nga më e rëndësishmja. Secila thotë çfarë nuk dihet, jo
 **10. Burimet.** Tabela terminologjike ka 82 terma dhe nuk mbulon çdo term të mundshëm mjekësor; asnjë nga 82 termat dhe asnjë nga 11 rregullat e kombinimit nuk ka burim të shënuar, dhe asnjë nuk është vlerësuar klinikisht. Paneli ka 38 analite, dhe rezultatet laboratorike jonumerike nuk mbulohen fare. Chat-i i lidhur me dokumentin nuk është ndërtuar.
 
 **11. Llogaria është e forcuar, jo e plotë.** Konfirmimi me email, kufizimi i regjistrimeve dhe i hyrjeve, seancat e revokueshme dhe «dil kudo» janë të provuara me teste (përfshirë prishje të qëllimshme që testet i kapën), por: nuk ka rivendosje fjalëkalimi dhe as autentikim me dy faktorë; dërgimi i email-it bëhet nga një detyrë në sfond pa rindërgim automatik, kështu që nëse procesi ndalet pasi ruajti tokenin dhe para se ta dërgojë, përdoruesi kërkon lidhje të re; dërgimi me SMTP u provua me një transport të simuluar, në një provë nga fillimi te fundi me regjistrimin në konsol, dhe një herë kundrejt kutisë së provës të Mailtrap (mesazhi mbërriti dhe lidhja konfirmoi llogarinë), por jo kundrejt një kutie të vërtetë apo një ofruesi prodhimi; regjistrimi i një email-i të tjetrit para zotëruesit mbetet i mundshëm deri në konfirmim (ai që regjistron i fundit mban fjalëkalimin, dhe llogaria nuk hyn pa lidhjen te kutia), dhe 3 kërkesa në orë për një email mund t'i përdorë dikush tjetër për ta vonuar regjistrimin e tij (ADR 0016). Asnjë nga këto nuk prek matjet e Kapitullit 6.
+
+**12. Aplikacioni i uebit nuk thërret modelin gjuhësor.** `build_services` ndërton gjithmonë `TemplateGenerator`; cilësimi `ANALYTE_LLM_PROVIDER` lexohet vetëm nga harness-i i vlerësimit (E4, E6–E9, E12). Pra pamjet e ndërfaqes (Figurat 12–16) tregojnë shpjegimin e shabllonit, jo tekst të modelit; shtegu «model, verifikim, rigjenerim, shabllon rezervë» është i ekzekutuar dhe i matur te eksperimentet, jo te aplikacioni. Lidhja e tij me shërbimin është e vogël në kod, por do të dërgonte te një ofrues i jashtëm vlera laboratorike dhe citime të mjekut të pacientëve të vërtetë, çka kërkon vendim etik (§3.7.3) dhe nuk është bërë.
 
 ## 7.7 Mundësitë për zhvillime të mëtejshme
 
@@ -2533,9 +2557,9 @@ CREATE INDEX ix_violations_verification_result_id ON violations (verification_re
 | E7 | `e7[template]+ocr` | `37b5be45b3` | e pastër | `gen-1.0/s42/n500/37d8b080` |
 | E8 | `e8[template]+ocr` | `37b5be45b3` | e pastër | `gen-1.0/s42/n500/37d8b080` |
 | E9 | `e9[template]+ocr+xlm-roberta-base/sentence/sentence@0.85` | `37b5be45b3` | e pastër | `gen-1.0/s42/n500/37d8b080` |
-| E10 | — | — | — | — (pa metadata) |
-| E11/context | — | — | — | — (pa metadata) |
-| E11/sentence | — | — | — | — (pa metadata) |
+| E10 | — | `34fa710dad` | e pastër | `gen-1.0/corruption/s42/n200/721eec16` |
+| E11/context | — | `34fa710dad` | e pastër | `sha256:8739cea7964e688a` |
+| E11/sentence | — | `34fa710dad` | e pastër | `sha256:520d9914587172c8` |
 | llm/E4 | `e8[mistral:ministral-14b-2512:p1]+ocr` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |
 | llm/E6 | `e6[mistral:ministral-14b-2512:u1]+ocr` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |
 | llm/E7 | `e7[mistral:ministral-14b-2512:p1]+ocr` | `4f5ea177c6` | e pastër | `gen-1.0/s42/n500/37d8b080` |

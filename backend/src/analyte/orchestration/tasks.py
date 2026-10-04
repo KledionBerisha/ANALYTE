@@ -174,8 +174,9 @@ def build_services(settings: Any) -> Services:
     return Services(
         sessions=make_session_factory(make_engine(settings.database_url)),
         store=EncryptedStore(settings.storage_dir, settings.storage_key),
-        # Modeli gjuhësor mungon ende (vendim i autorit, 2026-09-27); shablloni
-        # determinist është gjeneruesi, dhe emri i tij ruhet me çdo përpjekje.
+        # Aplikacioni gjeneron me shabllonin determinist; modeli gjuhësor (`LlmGenerator`) përdoret vetëm nga
+        # harness-i i vlerësimit. Të dhënat e pacientëve të vërtetë nuk i dërgohen një ofruesi të jashtëm pa
+        # një vendim etik (docs/ethics). Emri i gjeneruesit ruhet me çdo përpjekje.
         generator=TemplateGenerator(),
         ocr=ocr,
     )

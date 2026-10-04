@@ -369,9 +369,11 @@ def test_smtp_security_modes(fake_smtp):
 
 
 def test_the_service_refuses_to_start_without_mail_configuration(tmp_path):
+    # Pa `.env`: kopja e zhvilluesit mund të ketë kredencialet e vërteta të Mailtrap, dhe ky test pyet pikërisht mungesën e tyre.
     settings = Settings(
-        database_url=f"sqlite:///{tmp_path / 'a.db'}", jwt_secret="t" * 48,
+        _env_file=None, database_url=f"sqlite:///{tmp_path / 'a.db'}", jwt_secret="t" * 48,
         storage_key=Fernet.generate_key().decode(), storage_dir=tmp_path / "s", job_runner="inline", ocr=False,
+        mail_backend="smtp", smtp_host="",
     )
     with pytest.raises(mail.MailConfigError, match="ANALYTE_SMTP_HOST"):
         mail.build_mailer(settings)

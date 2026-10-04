@@ -6,6 +6,24 @@
   "split": "test",
   "source_documents": 200,
   "seed": 42,
+  "metadata": {
+    "experiment_id": "E10",
+    "dataset": {
+      "name": "corruption-corpus",
+      "version": "gen-1.0/corruption/s42/n200/721eec16",
+      "seed": 42,
+      "documents": 200,
+      "split": "test"
+    },
+    "code": {
+      "git_sha": "34fa710dad1b70bf43c8f2beb0fab26e4cc4cf47",
+      "working_tree_dirty": false,
+      "rules_version": "r1.3",
+      "policy_version": "sp1.0",
+      "python": "3.12.3"
+    },
+    "created_at": "2026-10-04T22:15:41+00:00"
+  },
   "metrics": {
     "samples": 192,
     "confusion": {

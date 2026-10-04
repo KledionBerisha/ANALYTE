@@ -17,6 +17,7 @@ pakomituara (sha nuk e përcakton kodin); `pjesore` kur metadata mungon.
 from __future__ import annotations
 
 import json
+import re
 import textwrap
 from pathlib import Path
 from typing import Any
@@ -38,6 +39,11 @@ def load_results(directory: Path = RESULTS) -> dict[str, dict[str, Any]]:
     found: dict[str, dict[str, Any]] = {}
     for path in sorted(directory.glob("E*/result.json")) + sorted(directory.glob("E*/*/result.json")):
         experiment_id = path.relative_to(directory).parts[0]
+        found.setdefault(experiment_id, json.loads(path.read_text(encoding="utf-8")))
+    # Eksperimentet me modelin gjuhësor (E4, E6, E12 dhe versionet e E7–E9 me modelin) jetojnë te `llm/`.
+    # Një eksperiment që ka rezultat vetëm atje është i matur; ai që ka të dyja mban atë me shabllon.
+    for path in sorted(directory.glob("llm/E*/result.json")):
+        experiment_id = path.parent.name.split("_")[0]  # `E12_haiku` është kontrolli i E12
         found.setdefault(experiment_id, json.loads(path.read_text(encoding="utf-8")))
     return found
 
@@ -83,8 +89,14 @@ def _flow(ax, top: float, results: dict[str, dict]) -> float:
     """Katër kutitë e rrjedhës; kthen pjesën e poshtme të shiritit."""
     metadata = next((r["metadata"] for r in results.values() if r.get("metadata")), {})
     dataset = metadata.get("dataset", {})
-    pipelines = sorted({r["metadata"]["pipeline"]["name"] for r in results.values()
-                        if r.get("metadata")})
+    # E10 dhe E11 dalin nga skriptet e `ml/`, jo nga harness-i: metadata e tyre nuk ka `pipeline`.
+    # Emri i plotë i një pipeline-i mban modelin, kërkesën dhe pragun (`e9[mistral:…:p1]+ocr+xlm-…@0.85`); figura
+    # tregon vetëm familjen, që të mos mbushet kutia.
+    pipelines = sorted({
+        re.split(r"[\[+]", r["metadata"]["pipeline"]["name"])[0]
+        for r in results.values()
+        if (r.get("metadata") or {}).get("pipeline")
+    })
     metrics = sorted({e.metric for e in registry.EXPERIMENTS})
 
     stages = [
@@ -179,7 +191,7 @@ def _status_cell(ax, x: float, cy: float, status: str) -> None:
 
 def _legend(ax, y: float) -> None:
     lines = (
-        "i matur = ekziston evaluation/results/E*/result.json.  gati = mund të ekzekutohet, por s'ka rezultat.",
+        "i matur = ekziston një result.json te evaluation/results/E*/ ose evaluation/results/llm/E*/.  gati = mund të ekzekutohet, por s'ka rezultat.",
         "gjurma: e plotë = version korpusi dhe git sha;  pa commit = prodhuar me ndryshime të pakomituara",
         "(sha nuk e përcakton kodin);  pjesore = pa metadata të plota.",
     )

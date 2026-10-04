@@ -19,6 +19,9 @@ generate = ["reportlab>=4.0", "pymupdf>=1.24", "pillow>=10.0", "numpy>=1.26"]
 ocr = ["pymupdf>=1.24", "pillow>=10.0", "numpy>=1.26"]
 # Figurat e punimit, të ndërtuara nga kodi: `python scripts/build_figures.py`.
 figures = ["matplotlib>=3.8"]
+# Pamjet e ndërfaqes për punim: `python scripts/export_screenshots.py` (Playwright; shfletuesi: Chromium i vetes
+# ose Edge/Chrome i instaluar).
+screenshots = ["playwright>=1.45"]
 # Shërbimi: API, baza, radha e punëve. Testet e API-së ekzekutohen mbi
 # SQLite dhe punë të menjëhershme; PostgreSQL dhe Redis nevojiten vetëm për
 # `make dev` dhe për testin e integrimit.
