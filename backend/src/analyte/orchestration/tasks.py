@@ -157,9 +157,30 @@ class ArqRunner:
             await pool.aclose()
 
 
+def build_generator(settings: Any):
+    """Gjeneruesi i aplikacionit: shablloni determinist, ose modeli gjuhësor kur `ANALYTE_SERVICE_GENERATOR=model` (ADR 0017).
+
+    **Modeli është zgjedhje e shprehur, jo parazgjedhje.** Me `template` (parazgjedhja), edhe nëse `.env` ka ofruesin për
+    eksperimentet, shpjegimi del nga shablloni dhe asnjë e dhënë nuk del nga sistemi. Me `model`, konteksti i strukturuar (vlera laboratorike, statuse, citime të mjekut; kurrë emri, mosha, gjinia
+    apo dokumenti i papërpunuar) i dërgohet ofruesit për çdo dokument, dhe kjo duhet të jetë vendim i mirëmenduar (docs/ethics).
+
+    **Pa cache në disk.** Harness-i i vlerësimit i ruan përgjigjet e modelit te depoja (`evaluation/cache/llm`), që eksperimentet
+    të përsëriten; këtu kërkesat dhe përgjigjet përmbajnë të dhëna të pacientëve të vërtetë, dhe asnjë kopje e tyre nuk shkruhet
+    në disk. Klienti ndërtohet pa `cache_dir`.
+
+    `model` pa ofrues, model ose çelës (konfigurim i paplotë) hedh `ProviderError` kur shërbimi nis, jo gjatë një dokumenti.
+    """
+    from analyte.generation.templates import TemplateGenerator
+
+    if getattr(settings, "service_generator", "template") != "model":
+        return TemplateGenerator()
+    from analyte.generation.llm import LlmGenerator, build_client
+
+    return LlmGenerator(build_client(settings))
+
+
 def build_services(settings: Any) -> Services:
     """Shërbimet nga konfigurimi — i njëjti ndërtim për API-në dhe punëtorin."""
-    from analyte.generation.templates import TemplateGenerator
     from analyte.persistence.database import make_engine, make_session_factory
 
     ocr = None
@@ -174,9 +195,6 @@ def build_services(settings: Any) -> Services:
     return Services(
         sessions=make_session_factory(make_engine(settings.database_url)),
         store=EncryptedStore(settings.storage_dir, settings.storage_key),
-        # Aplikacioni gjeneron me shabllonin determinist; modeli gjuhësor (`LlmGenerator`) përdoret vetëm nga
-        # harness-i i vlerësimit. Të dhënat e pacientëve të vërtetë nuk i dërgohen një ofruesi të jashtëm pa
-        # një vendim etik (docs/ethics). Emri i gjeneruesit ruhet me çdo përpjekje.
-        generator=TemplateGenerator(),
+        generator=build_generator(settings),
         ocr=ocr,
     )

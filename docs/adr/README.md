@@ -27,3 +27,4 @@ del gjithmonë më i pastër dhe më i qëllimshëm seç ishte.
 | [0014](0014-seancat-rifreskimi-dhe-kufizimi-i-hyrjeve.md) | Seancat e revokueshme, rrotullimi i tokenëve dhe kufizimi i hyrjeve | i zbatuar |
 | [0015](0015-modeli-gjuhesor-kerkesa-cache-dhe-gjykatesit.md) | Modeli gjuhësor: ofruesi, kërkesa, cache dhe gjykatësit | i zbatuar; rezultatet te Kapitulli 6 |
 | [0016](0016-konfirmimi-i-emailit-dhe-mbyllja-e-boshlleqeve-te-0014.md) | Konfirmimi i email-it, regjistrimi që nuk zbulon llogari, IPv6 /64 dhe dil kudo | i zbatuar; provuar me Mailtrap |
+| [0017](0017-modeli-gjuhesor-te-aplikacioni-i-uebit.md) | Modeli gjuhësor te aplikacioni i uebit: zgjedhje e shprehur, pa cache, me njoftim | i zbatuar; i fikur si parazgjedhje |

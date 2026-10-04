@@ -7,8 +7,8 @@ Pamjet e ndërfaqes për punim (Figurat 12–16), nga aplikacioni që punon.
     python scripts/export_screenshots.py --out /tmp/pamjet --document data/v1/documents/doc_00335.pdf
 
 Skripti nuk prek asgjë të vërtetë: ndez shërbimin në proces me bazë SQLite të përkohshme, sekrete të
-rastësishme, postë në kujtesë dhe gjeneruesin determinist (kjo është ajo që bën aplikacioni; modeli
-gjuhësor nuk është i lidhur me të, shih §7.6 pika 12), dhe ndez serverin e zhvillimit të ndërfaqes. Regjistron
+rastësishme, postë në kujtesë dhe gjeneruesin determinist (parazgjedhja e aplikacionit; modeli është zgjedhje e shprehur,
+ADR 0017, dhe pamjet nuk duhet të varen nga një ofrues i jashtëm), dhe ndez serverin e zhvillimit të ndërfaqes. Regjistron
 një përdorues provë, e konfirmon me lidhjen nga posta e kujtesës, hyn përmes formularit, ngarkon një dokument të
 korpusit sintetik dhe ruan pamjet:
 

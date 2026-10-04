@@ -37,11 +37,11 @@ miratimi:
 
 ## 4. Çfarë do të pyeste një bord (boshllëqe të njohura, pa e zbutur)
 
-1. **Dërgimi te një ofrues i jashtëm.** Sot asnjë e dhënë e vërtetë nuk del nga sistemi: modeli gjuhësor (Mistral, plan falas)
-   thirret vetëm nga harness-i i vlerësimit, mbi dokumente sintetike, dhe aplikacioni i uebit gjeneron me shabllon.
-   Nëse modeli lidhet me aplikacionin, ose përdoret te E13/E14, konteksti (vlera laboratorike dhe citime të mjekut)
-   do të dërgohej te ofruesi. Nëse një citim përmban emër ose detaj identifikues, ai do të dilte jashtë sistemit. Punimi nuk
-   ka një hap që ta heq. Kushtet e planit falas për ruajtjen dhe përdorimin e të dhënave për trajnim **[konfirmo
+1. **Dërgimi te një ofrues i jashtëm.** Modeli gjuhësor (Mistral, plan falas) u lidh me aplikacionin më 2026-10-05, por është
+   i fikur si parazgjedhje (`ANALYTE_SERVICE_GENERATOR=template`; ADR 0017), dhe deri sot ka punuar vetëm mbi dokumente sintetike
+   (eksperimentet dhe një provë). Kur ndizet (`=model`), konteksti i çdo dokumenti të ngarkuar (vlera laboratorike, intervale,
+   statuse, citime të mjekut; jo emri, mosha, gjinia apo skedari; pa cache në disk) i dërgohet ofruesit. Nëse një citim
+   përmban emër ose detaj identifikues, ai del jashtë sistemit. Punimi nuk ka një hap që ta heq. Kushtet e planit falas për ruajtjen dhe përdorimin e të dhënave për trajnim **[konfirmo
    nga kushtet e ofruesit; mos supozo]**. Alternativa e përmendur te §3.7.3 është një model lokal (E15), i pamatur.
 2. **Citimet e mjekut nuk çidentifikohen.** Rregullat kontrollojnë që citimi të ruhet, jo që të mos përmbajë identifikues.
 3. **Regjistrimi tregon nëse një email ka llogari** (ADR 0014); mbyllja kërkon konfirmim me email, që sistemi s'e ka.

@@ -85,6 +85,11 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    service_generator: Literal["template", "model"] = "template"
+    """Ç'gjeneron shpjegimet te aplikacioni i uebit (ADR 0017). `template` (parazgjedhja) nuk dërgon asnjë të dhënë jashtë
+    sistemit. `model` i dërgon ofruesit konteksti i strukturuar i çdo dokumenti, dhe kërkon `llm_provider`, `llm_model` dhe
+    `llm_api_key`. E ndarë nga `llm_provider` me qëllim: ofruesi duhet te `.env` edhe për eksperimentet (harness-i), dhe
+    kushdo që i ekzekuton ato nuk duhet t'u dërgojë ngarkimet e vërteta një ofruesi pa e vendosur këtë shprehimisht."""
     llm_provider: str = ""
     """`gemini`, `mistral`, `groq`, `cerebras`, `openrouter` ose `openai_compatible` (me
     `llm_base_url`). Bosh = pa model: gjeneruesi është shablloni."""

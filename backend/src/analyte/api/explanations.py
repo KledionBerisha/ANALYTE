@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from analyte.domain.enums import AnalyteStatus, ProcessingState
 from analyte.domain.models import GroundingContext
 from analyte.domain.policy import CRITICAL_BANNER_SQ, DISCLAIMER_SQ
+from analyte.generation.templates import TemplateGenerator
 from analyte.persistence import repository
 from analyte.persistence.tables import DocumentRow, ExplanationRow, VerificationRow
 
@@ -35,6 +36,10 @@ router = APIRouter(prefix="/documents/{document_id}", tags=["explanations"])
 OCR_NOTICE_SQ = (
     "Ky dokument u lexua nga një fotografi e skanuar. Disa vlera mund të jenë "
     "lexuar gabim; krahasojini me dokumentin origjinal para se të mbështeteni tek to."
+)
+MODEL_NOTICE_SQ = (
+    "Ky shpjegim u shkrua nga një model gjuhësor dhe u kontrollua automatikisht kundrejt vlerave të nxjerra nga dokumenti. "
+    "Kontrolli kap vetëm një pjesë të gabimeve të mundshme: krahasojeni me dokumentin origjinal dhe flisni me mjekun para se të mbështeteni tek ai."
 )
 FALLBACK_NOTICE_SQ = (
     "Shpjegimi i gjeneruar nuk kaloi kontrollin automatik; po shfaqet shpjegimi "
@@ -88,6 +93,9 @@ def notices(document: DocumentRow, context: GroundingContext, row: ExplanationRo
         )
     if row.is_fallback:
         out.append(Notice(code="fallback", text=FALLBACK_NOTICE_SQ))
+    elif row.generator != TemplateGenerator.name:
+        # Teksti i dorëzuar është i një modeli gjuhësor (ADR 0017); shablloni, dhe shablloni rezervë, nuk e kanë këtë njoftim.
+        out.append(Notice(code="model", text=MODEL_NOTICE_SQ))
     return out
 
 

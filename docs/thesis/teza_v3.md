@@ -449,7 +449,7 @@ Garancia qendrore e arkitekturës nuk zbatohet përmes udhëzimeve por përmes k
 | Terminologjia standarde | Nënbashkësi LOINC | Normalizimi i emrave të analiteve |
 | Përpunimi gjuhësor | Fjalorë dhe rregulla leksikore | Segmentimi, zbulimi i termave, i mohimit dhe i pasigurisë |
 | Klasifikuesi i verifikimit | XLM-RoBERTa | Zbulimi semantik i përmbajtjes së pambështetur |
-| Gjenerimi i gjuhës | Në eksperimente: Mistral `ministral-14b-2512` përmes klientit të përgjithshëm me cache. Në aplikacionin e uebit: vetëm shablloni determinist (modeli nuk është i lidhur me shërbimin) | Formulimi i shpjegimeve |
+| Gjenerimi i gjuhës | Shablloni determinist (parazgjedhja e aplikacionit); Mistral `ministral-14b-2512` përmes klientit të përgjithshëm, në eksperimente (me cache) dhe në aplikacion kur zgjidhet shprehimisht (`ANALYTE_SERVICE_GENERATOR=model`, pa cache; ADR 0017) | Formulimi i shpjegimeve |
 | Përpunimi në sfond | arq, Redis | Punët asinkrone të përpunimit të dokumenteve |
 | Paketimi | Docker, docker-compose | Mjedisi i riprodhueshëm i ekzekutimit |
 | Testimi | pytest | Teste njësie, integrimi dhe golden-file |
@@ -1252,6 +1252,8 @@ Sistemi mban dy gjurma të ndara.
 
 **Llogaria dhe hyrja** (ADR 0014, 0016). Llogaria aktivizohet vetëm pasi email-i të konfirmohet me një lidhje të dërguar me SMTP (në zhvillim, kutia e provës e Mailtrap); lidhja vlen një herë dhe skadon, dhe ruhet vetëm si HMAC. Regjistrimi kthen gjithmonë të njëjtën përgjigje, qoftë email-i i ri, i regjistruar apo i pakonfirmuar, dhe mesazhi dërgohet pas përgjigjes, që as përmbajtja as koha të mos tregojnë nëse ka llogari; zotëruesi i kutisë merr mesazhin që i përgjigjet rastit. Hyrja e dështuar ka një përgjigje të vetme, dhe tri kova (çifti email–IP, IP-ja, email-i) kufizojnë shpeshtësinë e përpjekjeve; adresat IPv6 numërohen sipas prefiksit /64, që një bllok adresash të mos i anashkalojë kovat. Regjistrimet dhe ridërgimet kanë kovat e veta (10 për IP dhe 3 për email në orë), që shërbimi të mos bëhet pikë për të mbushur kutinë e dikujt. Fjalëkalimet ruhen me Argon2id; seancat janë të revokueshme dhe tokeni i rifreskimit vlen një herë, me zbulim të ripërdorimit; përdoruesi mund të mbyllë seancën e tij ose të gjitha seancat («dil kudo»). Nuk ka rivendosje fjalëkalimi dhe nuk ka autentikim me dy faktorë (§7.6).
 
+**Gjenerimi në aplikacion** (ADR 0017). Parazgjedhja është shablloni determinist dhe asnjë e dhënë nuk del nga sistemi. Modeli ndizet vetëm me `ANALYTE_SERVICE_GENERATOR=model`, një çelës i ndarë nga ofruesi që eksperimentet kërkojnë te `.env`. Atëherë ofruesit i dërgohet vetëm konteksti i strukturuar (vlera, intervale, statuse, termat dhe citimet e mjekut; kurrë emri, mosha, gjinia apo skedari), pa cache në disk, me të njëjtin cikël verifikim, një rigjenerim dhe shabllon rezervë, dhe teksti i modelit mban njoftimin se e shkroi një model dhe se kontrolli kap vetëm një pjesë të gabimeve. Ndryshe nga eksperimentet, këtu të dhënat mund të jenë të pacientëve të vërtetë, çka kërkon vendim etik (§3.7.3, `docs/ethics`).
+
 ---
 
 # 6 REZULTATET
@@ -1281,17 +1283,17 @@ Sistemi është zbatuar i plotë përveç chat-it të lidhur me dokumentin, që 
 | Tabela terminologjike | 82 terma shqip, pa burime të shënuara (Shtojca A) |
 | Kombinimet ndërmjet analiteve | 11 rregulla, pa burime të shënuara (Tabela B.3) |
 | Katalogu i verifikimit | `r1.3`: R1–R9 dhe SP1–3, dhjetë lloje shkeljesh (Tabela 5) |
-| Modeli gjuhësor | Mistral `ministral-14b-2512` (plan falas) përmes `ChatClient` me cache të përgjigjeve në depo, kufizim shpejtësie dhe rifreskim; kërkesa `p1` merr vetëm `GroundingContext` (ADR 0015, Shtojca D). **Përdoret vetëm nga harness-i i vlerësimit**: aplikacioni i uebit gjeneron me shabllonin determinist (§7.6, pika 12) |
+| Modeli gjuhësor | Mistral `ministral-14b-2512` (plan falas) përmes `ChatClient` me cache të përgjigjeve në depo, kufizim shpejtësie dhe rifreskim; kërkesa `p1` merr vetëm `GroundingContext` (ADR 0015, Shtojca D). Te eksperimentet përdoret gjithmonë; te aplikacioni i uebit vetëm kur zgjidhet shprehimisht (`ANALYTE_SERVICE_GENERATOR=model`, pa cache në disk, me njoftim për pacientin; ADR 0017), dhe parazgjedhja është shablloni (§7.6, pika 12) |
 | Gjykatësit e detektimit | Claude Sonnet dhe Haiku (subagjentë), 15 batch-e me 20 mostra secili, dhe një audit i tekstit të dorëzuar (§6.7.2, §6.6.1) |
 | Kanali i leximit | Tekst dixhital dhe OCR (Tesseract 5, `eng`, `--psm 6`, 200 dpi) |
 | Shërbimi | API me autentikim të forcuar (konfirmim email-i, kufizim hyrjesh dhe regjistrimesh, seanca të revokueshme, dil kudo), regjistër auditimi, ruajtje e enkriptuar (ADR 0013, 0014, 0016) |
 | Ndërfaqja | Next.js në shqip: regjistrimi me konfirmim email-i, hyrja, dil kudo, ngarkimi, historiku, hapat e përpunimit, njoftimi për vlera kritike, paralajmërimi i OCR-së, shpjegimi me treguesin e verifikimit, tabela e gjetjeve ku një klikim hedh dritë mbi rreshtin burimor |
-| Vendimet arkitekturore | 16 ADR (`docs/adr/`) |
-| Testet | 615 kalojnë, 1 anashkalohet (testi i integrimit me PostgreSQL ekzekutohet me `make test-postgres`) |
+| Vendimet arkitekturore | 17 ADR (`docs/adr/`) |
+| Testet | 628 kalojnë, 1 anashkalohet (testi i integrimit me PostgreSQL ekzekutohet me `make test-postgres`) |
 
 Korpusi sintetik i vlerësimit ka 500 dokumente (332 dixhitale, 168 të skanuara, 556 faqe), me 9 860 gjetje laboratorike, 2 749 pohime narrative dhe 36 dokumente me të paktën një vlerë kritike. Korpusi i korruptuar del nga 1 500 dokumente për trajnimin dhe validimin e klasifikuesit dhe nga 200 dokumente burimore për testin (192 mostra, E10 dhe E11); rrjedhja e dokumenteve ndërmjet trajnimit dhe validimit është zero (`E11/leakage.json`).
 
-Pamjet 12–16 janë prodhuar nga aplikacioni që punon (`python scripts/export_screenshots.py`) mbi një dokument sintetik (`doc_00335.pdf`, korpusi `gen-1.0/s42/n500/37d8b080`; dixhital, me një vlerë kritike dhe një kundërshtim raport–laborator) dhe një përdorues prove. Shpjegimi është ai i **shabllonit determinist**, jo i modelit gjuhësor: aplikacioni nuk e thërret modelin (§7.6, pika 12). Emrat e pacientëve në dokument janë të shpikur nga gjeneruesi.
+Pamjet 12–16 janë prodhuar nga aplikacioni që punon (`python scripts/export_screenshots.py`) mbi një dokument sintetik (`doc_00335.pdf`, korpusi `gen-1.0/s42/n500/37d8b080`; dixhital, me një vlerë kritike dhe një kundërshtim raport–laborator) dhe një përdorues prove. Shpjegimi është ai i **shabllonit determinist**, parazgjedhja e aplikacionit: skripti ndërton shërbimet e veta me të, që pamjet të mos varen nga një ofrues i jashtëm. Me modelin e lidhur (§7.6, pika 12), shumë dokumente (te eksperimentet rreth 25%) dalin me shabllonin rezervë dhe njoftimin përkatës. Emrat e pacientëve në dokument janë të shpikur nga gjeneruesi.
 
 *Figura 12. Faqja e autentikimit të sistemit.*
 
@@ -1769,7 +1771,7 @@ Kufizimet renditen nga më e rëndësishmja. Secila thotë çfarë nuk dihet, jo
 
 **11. Llogaria është e forcuar, jo e plotë.** Konfirmimi me email, kufizimi i regjistrimeve dhe i hyrjeve, seancat e revokueshme dhe «dil kudo» janë të provuara me teste (përfshirë prishje të qëllimshme që testet i kapën), por: nuk ka rivendosje fjalëkalimi dhe as autentikim me dy faktorë; dërgimi i email-it bëhet nga një detyrë në sfond pa rindërgim automatik, kështu që nëse procesi ndalet pasi ruajti tokenin dhe para se ta dërgojë, përdoruesi kërkon lidhje të re; dërgimi me SMTP u provua me një transport të simuluar, në një provë nga fillimi te fundi me regjistrimin në konsol, dhe një herë kundrejt kutisë së provës të Mailtrap (mesazhi mbërriti dhe lidhja konfirmoi llogarinë), por jo kundrejt një kutie të vërtetë apo një ofruesi prodhimi; regjistrimi i një email-i të tjetrit para zotëruesit mbetet i mundshëm deri në konfirmim (ai që regjistron i fundit mban fjalëkalimin, dhe llogaria nuk hyn pa lidhjen te kutia), dhe 3 kërkesa në orë për një email mund t'i përdorë dikush tjetër për ta vonuar regjistrimin e tij (ADR 0016). Asnjë nga këto nuk prek matjet e Kapitullit 6.
 
-**12. Aplikacioni i uebit nuk thërret modelin gjuhësor.** `build_services` ndërton gjithmonë `TemplateGenerator`; cilësimi `ANALYTE_LLM_PROVIDER` lexohet vetëm nga harness-i i vlerësimit (E4, E6–E9, E12). Pra pamjet e ndërfaqes (Figurat 12–16) tregojnë shpjegimin e shabllonit, jo tekst të modelit; shtegu «model, verifikim, rigjenerim, shabllon rezervë» është i ekzekutuar dhe i matur te eksperimentet, jo te aplikacioni. Lidhja e tij me shërbimin është e vogël në kod, por do të dërgonte te një ofrues i jashtëm vlera laboratorike dhe citime të mjekut të pacientëve të vërtetë, çka kërkon vendim etik (§3.7.3) dhe nuk është bërë.
+**12. Modeli në aplikacion është i fikur si parazgjedhje dhe i pa-provuar mbi të dhëna reale.** `ANALYTE_SERVICE_GENERATOR=model` e ndez (ADR 0017); pa të, `build_services` ndërton `TemplateGenerator`, edhe kur `.env` ka ofruesin për eksperimentet. Shtegu «model, verifikim, rigjenerim, shabllon rezervë» është provuar me një ofrues të simuluar (13 teste) dhe një herë me Mistral të vërtetë mbi një dokument sintetik, ku verifikimi e refuzoi dy herë (4 dhe 1 shkelje) dhe doli shablloni rezervë; cilësia e tekstit të modelit mbi dokumente reale nuk u mat (E13). Me modelin e ndezur, të dhënat e pacientëve dalin te një ofrues i jashtëm: kushtet e planit falas për ruajtjen dhe përdorimin e tyre, pëlqimi dhe çidentifikimi i citimeve të mjekut nuk janë vendosur. Pamjet e ndërfaqes (Figurat 12–16) janë prodhuar me shabllonin.
 
 ## 7.7 Mundësitë për zhvillime të mëtejshme
 
