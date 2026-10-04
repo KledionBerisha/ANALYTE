@@ -10,7 +10,7 @@ dorë fillon të largohet nga kodi që ditën e dytë.
 
 Dalja shkon te `docs/thesis/appendices/` dhe rigjenerohet sa herë burimet
 ndryshojnë. Shtojcat që s'mund të plotësohen sepse komponenti nuk ekziston
-(D: kërkesat e modelit gjuhësor; E: dokumente reale; F: studimi me përdorues)
+(E: dokumente reale; F: studimi me përdorues)
 e thonë këtë shprehimisht, jo me vendmbajtës të heshtur.
 """
 
@@ -192,16 +192,102 @@ def appendix_c() -> str:
 # --------------------------------------------------------------------
 
 
+def _llm_run() -> dict | None:
+    """Parametrat e ekzekutimit të vërtetë me model, nga skedari i rezultatit (jo nga `.env`)."""
+    for name in ("E8", "E7", "E9", "E6"):
+        path = RESULTS / "llm" / name / "result.json"
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8")).get("metadata", {}).get("llm")
+    return None
+
+
+def _example_prompt() -> tuple[str, str]:
+    """Kërkesa e vërtetë për një dokument të korpusit, dhe blloku i rishkrimit për një shkelje të vërtetë."""
+    import random
+
+    from analyte.domain.policy import DISCLAIMER_SQ
+    from analyte.generation import templates
+    from analyte.generation.prompt import build_prompt
+    from analyte.verification.pipeline import verify
+    from data_generator.ground_truth import build_document
+    from data_generator.ids import IdFactory
+
+    for index in range(200):
+        rng = random.Random(f"appendix-d/{index}")
+        context = build_document(rng, IdFactory(rng), scanned_share=0.0).context
+        if context.critical_findings() and context.assertions and context.glossary:
+            break
+    else:  # pragma: no cover
+        raise AssertionError("asnjë dokument me vlerë kritike, pohime dhe fjalor")
+
+    first = build_prompt(context).user
+    defective = templates.build(context).replace(
+        DISCLAIMER_SQ, f"Vlera e matur është 987654. {DISCLAIMER_SQ}"
+    )
+    second = build_prompt(context, verify(context, defective).violations).user
+    feedback = second[second.index("Shpjegimi i mëparshëm") :].split("\n\nShkruaje shpjegimin.")[0]
+    return first, feedback
+
+
 def appendix_d() -> str:
+    from analyte.generation.prompt import PROMPT_VERSION, SYSTEM
+    from evaluation import llm_judge, ungrounded
+
+    run = _llm_run()
+    user, feedback = _example_prompt()
+    if run is not None:
+        parameters = (
+            "| Parametri | Vlera |\n|---|---|\n"
+            f"| Ofruesi | `{run['provider']}` |\n"
+            f"| Modeli | `{run['model']}` |\n"
+            f"| Temperatura | {run['temperature']} |\n"
+            f"| Arsyetimi (`thinking`) | `{run['thinking']}` (dërgohet vetëm te Gemini) |\n"
+            f"| Kufiri i daljes | {run['max_output_tokens']} shenja |\n"
+        )
+    else:
+        parameters = (
+            "*Parametrat e ekzekutimit nuk janë ende të regjistruar: nuk ka rezultat të "
+            "`evaluation/results/llm/`.*\n"
+        )
     return (
         "## Shtojca D — Kërkesat për modelin gjuhësor\n\n"
-        "**Nuk ka kërkesa për t'u treguar.** Sistemi nuk përdor ende model gjuhësor: gjeneruesi "
-        "i vetëm i zbatuar është shablloni determinist (`generation/templates.py`), që ndërton "
-        "tekstin drejtpërdrejt nga `GroundingContext`. Ndërfaqja ekziston (protokolli "
-        "`Generator`, dhe kontrata që funksioni i kërkesës merr vetëm kontekstin; shih seksionin "
-        "5.2.1), por adaptori i një ofruesi dhe kërkesat e versionuara nuk janë shkruar. Kjo "
-        "shtojcë plotësohet kur të ekzistojnë; deri atëherë eksperimentet E4, E6, E7 dhe E12 "
-        "mbeten të pamatura ose maten vetëm me shabllonin si kufi i njohur.\n"
+        "Të gjitha kërkesat dalin nga kodi që i dërgon, jo nga një kopje e shkruar me dorë. Modeli "
+        "merr vetëm `GroundingContext` (§5.2.1): asnjë kërkesë nuk ka parametër për dokumentin "
+        "(një test e kontrollon). Përjashtim i vetëm është kushti A i ablacionit (E6), që sheh "
+        "tekstin e dokumentit me qëllim, si bazë krahasuese.\n\n"
+        "### Tabela D.1. Parametrat e ekzekutimit\n\n"
+        + parameters
+        + f"\nVersionet e kërkesave: gjeneruesi `{PROMPT_VERSION}`, kushti A "
+        f"`{ungrounded.UNGROUNDED_PROMPT_VERSION}`, gjykatësi `{llm_judge.JUDGE_VERSION}`. Çdo "
+        "përgjigje e modelit ruhet në `evaluation/cache/llm/` me kërkesën e plotë, prandaj çdo "
+        "numër i Kapitullit 6 rikrijohet pa thirrje të reja.\n\n"
+        "### D.2. Udhëzimet e gjeneruesit (kushtet B, C dhe D)\n\n"
+        "Fjalë për fjalë, nga `generation/prompt.py`:\n\n"
+        f"```text\n{SYSTEM}\n```\n\n"
+        "**Vendim dizajni që duhet deklaruar.** Rregulli 3 e drejton modelin te shprehjet e "
+        "pozicionit që verifikuesi i njeh («mbi intervalin referent», «nën intervalin referent»). "
+        "Rregulli R3 e njeh drejtimin vetëm në ato forma, dhe një model që shkruan «i lartë» do ta "
+        "kalonte R3 pa u parë. Pra kushtet B–D maten me një kërkesë që i përshtatet kontratës së "
+        "verifikuesit; një kërkesë pa këtë kufizim do të prodhonte më shumë gabime drejtimi të "
+        "padukshme për rregullat, jo më pak.\n\n"
+        "### D.3. Një kërkesë e vërtetë për një dokument të korpusit\n\n"
+        "Pjesa që ndryshon nga dokumenti në dokument (konteksti). Dokumenti është ndërtuar nga "
+        "fara `appendix-d`; emrat e analiteve, vlerat dhe pohimet janë ato të kontekstit.\n\n"
+        f"```text\n{user}\n```\n\n"
+        "### D.4. Blloku i rigjenerimit\n\n"
+        "Kur përpjekja e parë refuzohet, e dyta merr shkeljet e saj (fjalia e daljes dhe arsyeja "
+        "e rregullit, asgjë nga dokumenti). Shembull i vërtetë: shablloni me një numër të shpikur.\n\n"
+        f"```text\n{feedback}\n```\n\n"
+        "### D.5. Kërkesa naive e kushtit A (E6)\n\n"
+        "Pa udhëzime sigurie, pa strukturë dhe pa kontekst të bazuar; modeli merr tekstin e "
+        "dokumentit.\n\n"
+        f"```text\n{ungrounded.SYSTEM}\n\n"
+        "Ky është dokumenti mjekësor i pacientit:\n\n[teksti i dokumentit]\n\n"
+        "Shpjegoja pacientit çfarë thotë ky dokument, në gjuhë të thjeshtë.\n```\n\n"
+        "### D.6. Gjykatësi i E12\n\n"
+        "Gjykatësi merr po atë kontekst dhe po atë tekst si rregullat, dhe përkufizimet e "
+        "rregullave nga katalogu (jo kodin e tyre):\n\n"
+        f"```text\n{llm_judge.SYSTEM}\n```\n"
     )
 
 

@@ -1,0 +1,11 @@
+{
+ "judge_version": "j1",
+ "items": 297,
+ "chunks": 15,
+ "chunk_size": 20,
+ "shuffle_seed": 7,
+ "sources": {
+  "E10": 192,
+  "B": 105
+ }
+}

@@ -64,9 +64,20 @@ def test_appendix_c_examples_show_the_rule_actually_firing():
 
 
 def test_appendices_that_cannot_be_filled_say_so_explicitly():
-    for build in (appendices.appendix_d, appendices.appendix_e, appendices.appendix_f):
-        text = build()
-        assert "Nuk aplikohet" in text or "Nuk ka kërkesa" in text
+    for build in (appendices.appendix_e, appendices.appendix_f):
+        assert "Nuk aplikohet" in build()
+
+
+def test_appendix_d_shows_the_real_prompts_not_copies():
+    from analyte.generation.prompt import PROMPT_VERSION, SYSTEM
+    from evaluation import llm_judge, ungrounded
+
+    text = appendices.appendix_d()
+    assert SYSTEM in text and ungrounded.SYSTEM in text and llm_judge.SYSTEM in text
+    assert f"`{PROMPT_VERSION}`" in text
+    assert "KONTEKSTI" in text  # kërkesa e vërtetë për një dokument
+    assert "987654" in text and "Shpjegimi i mëparshëm u refuzua" in text  # blloku i rigjenerimit
+    assert "Nuk ka kërkesa" not in text
 
 
 def test_table_labels_carry_the_appendix_letter():

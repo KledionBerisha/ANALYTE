@@ -13,7 +13,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -58,6 +58,28 @@ class Settings(BaseSettings):
     """Lexo dokumentet e skanuara me Tesseract kur motori gjendet."""
 
     cors_origins: list[str] = ["http://localhost:3000"]
+
+    llm_provider: str = ""
+    """`gemini`, `mistral`, `groq`, `cerebras`, `openrouter` ose `openai_compatible` (me
+    `llm_base_url`). Bosh = pa model: gjeneruesi është shablloni."""
+    llm_base_url: str = ""
+    llm_model: str = ""
+    """Emri i saktë i modelit, i fiksuar (jo `-preview`): një rezultat nuk
+    atribuohet dot te një model që ndryshon pa dije."""
+    llm_api_key: SecretStr | None = None
+    llm_judge_model: str = ""
+    """Modeli i gjykatësit të E12. Bosh = përdoret `llm_model`, çka e bën
+    modelin gjykatës të daljes së vet; kufizimi duhet raportuar."""
+    llm_judge_provider: str = ""
+    llm_judge_api_key: SecretStr | None = None
+    llm_judge_base_url: str = ""
+    """Gjykatësi mund të jetë ofrues tjetër; bosh = i njëjti me gjeneruesin."""
+    llm_temperature: float = 0.0
+    llm_thinking: str = "low"
+    """Niveli i arsyetimit të brendshëm (`thinkingLevel`); bosh = parazgjedhja e ofruesit."""
+    llm_requests_per_minute: int = 10
+    llm_max_output_tokens: int = 4096
+    llm_timeout_seconds: int = 120
 
 
 @lru_cache(maxsize=1)

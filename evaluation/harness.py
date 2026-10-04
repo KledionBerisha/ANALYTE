@@ -120,6 +120,9 @@ def run_experiment(
         )
 
     outputs = [(case.truth, pipeline.run(case.document_input)) for case in scoped.cases]
+    llm = _llm_metadata(pipeline)
+    if llm is not None:
+        metadata["llm"] = llm
 
     if experiment.metric in CONTEXT_METRICS:
         pairs = [(truth, output.context) for truth, output in outputs]
@@ -132,6 +135,38 @@ def run_experiment(
         return ExperimentResult(experiment, metadata, None)
 
     return ExperimentResult(experiment, metadata, metrics)
+
+
+def _llm_client(pipeline: Pipeline) -> Any | None:
+    """Klienti i modelit që përdor pipeline-i, ose `None` (shablloni, rregullat)."""
+    return getattr(getattr(pipeline, "generator", None), "client", None)
+
+
+def _llm_metadata(pipeline: Pipeline) -> dict[str, Any] | None:
+    """Modeli dhe parametrat e tij, bashkë me kostot e ekzekutimit.
+
+    Pa to, një rezultat i LLM-së nuk atribuohet dot: i njëjti emër modeli me
+    temperaturë ose arsyetim tjetër jep tekst tjetër. `usage` numëron thirrjet e
+    reja kundrejt atyre nga cache-i: ekzekutimi i dytë i të njëjtit eksperiment
+    duhet të tregojë zero thirrje."""
+    client = _llm_client(pipeline)
+    if client is None:
+        return None
+    from analyte.generation.prompt import PROMPT_VERSION
+
+    from .ungrounded import UNGROUNDED_PROMPT_VERSION
+
+    return {
+        "provider": client.provider,
+        "model": client.model,
+        "temperature": client.temperature,
+        "thinking": client.thinking,
+        "max_output_tokens": client.max_output_tokens,
+        "prompt_version": (
+            UNGROUNDED_PROMPT_VERSION if getattr(pipeline, "ablation", "") == "E6" else PROMPT_VERSION
+        ),
+        "usage": client.usage.to_json(),
+    }
 
 
 def _metadata(
@@ -309,15 +344,64 @@ def write_summary(results: list[ExperimentResult], out_dir: Path) -> Path:
 # --------------------------------------------------------------------
 
 
-GENERATORS = ("template",)
-"""Gjeneruesit e njohur nga CLI. Modeli gjuhësor shtohet këtu kur të ketë."""
+GENERATORS = ("template", "llm")
+"""Gjeneruesit e njohur nga CLI: shablloni dhe modeli gjuhësor nga `.env`."""
+
+LLM_CACHE = Path("evaluation/cache/llm")
+"""Përgjigjet e modelit, një skedar për kërkesë. Ruhen me qëllim në depo: pa to,
+një rezultat nuk rikrijohet pa thirrje të reja ndaj një model që mund të
+tërhiqet (shih `analyte.generation.llm`)."""
 
 
-def build_generator(name: str):
+class RunAborted(BaseException):
+    """Ofruesi nuk u arrit: ekzekutimi ndalet, nuk numërohet si gabim i modelit.
+
+    Është `BaseException` me qëllim: cikli gjenerim → verifikim kap `Exception`
+    dhe një ofrues i rënë do të dukej si dështim i modelit, do ta çonte dokumentin
+    te shablloni dhe do ta hidhte poshtë ekzekutimin pa e thënë. Përgjigjet e
+    dhëna deri atëherë janë në cache, ndaj një ekzekutim i ri vazhdon aty ku u ndal."""
+
+
+class StrictClient:
+    """Klienti i modelit që e kthen `ProviderUnavailable` në `RunAborted`."""
+
+    def __init__(self, client: Any) -> None:
+        self._client = client
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._client, name)
+
+    def complete(self, system: str, user: str):
+        from analyte.generation.llm import ProviderUnavailable
+
+        try:
+            return self._client.complete(system, user)
+        except ProviderUnavailable as error:
+            raise RunAborted(str(error)) from None
+
+
+def build_llm_client(*, model: str | None = None, cache: Path = LLM_CACHE) -> StrictClient:
+    """Klienti nga `.env`; ndalon qysh këtu nëse mungon ofruesi, modeli ose çelësi."""
+    from analyte.config import get_settings
+    from analyte.generation.llm import ProviderError, build_client
+
+    try:
+        return StrictClient(build_client(get_settings(), model=model, cache_dir=cache))
+    except ProviderError as error:
+        raise SystemExit(f"--generator llm: {error}") from None
+    except Exception as error:  # konfigurim i paplotë (p.sh. sekretet e shërbimit)
+        raise SystemExit(f"--generator llm: konfigurimi nuk lexohet: {type(error).__name__}") from None
+
+
+def build_generator(name: str, cache: Path = LLM_CACHE):
     if name == "template":
         from analyte.generation.templates import TemplateGenerator
 
         return TemplateGenerator()
+    if name == "llm":
+        from analyte.generation.llm import LlmGenerator
+
+        return LlmGenerator(build_llm_client(cache=cache))
     raise SystemExit(f"gjenerues i panjohur '{name}'; njihen: {', '.join(GENERATORS)}")
 
 
@@ -367,15 +451,22 @@ def build_pipeline(
     generator: str = "template",
     ocr: bool = False,
     classifier: Path | None = None,
+    cache: Path = LLM_CACHE,
 ) -> Pipeline:
     engine = build_ocr(ocr)
     suffix = "+ocr" if engine is not None else ""
+    if name == "e6":
+        if generator != "llm":
+            raise SystemExit("e6 (pa bazim) kërkon --generator llm: shablloni nuk ka çfarë të lexojë")
+        from .ungrounded import UngroundedPipeline
+
+        return UngroundedPipeline(client=build_llm_client(cache=cache), ocr=engine)
     if name in {"e7", "e8", "e9"}:
         predictor, threshold = build_classifier(classifier) if name == "e9" else (None, None)
         if name == "e9" and predictor is None:
             raise SystemExit("e9 kërkon --classifier me dosjen e ekzekutimit nga Colab")
         return GenerationPipeline(
-            build_generator(generator),
+            build_generator(generator, cache),
             ablation=name.upper(),
             ocr=engine,
             classifier=predictor,
@@ -390,7 +481,7 @@ def build_pipeline(
     if name == "grounding":
         return GroundingPipeline(name=f"grounding{suffix}", ocr=engine)
     raise SystemExit(
-        f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e7, e8, e9"
+        f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e6, e7, e8, e9"
     )
 
 
@@ -402,13 +493,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dataset", type=Path, required=True, help="dosja e korpusit")
     parser.add_argument("--experiment", default="all", help="ID e eksperimentit ose 'all'")
     parser.add_argument(
-        "--pipeline", default="empty", help="empty | oracle | branch_a | grounding | e7 | e8 | e9"
+        "--pipeline", default="empty", help="empty | oracle | branch_a | grounding | e6 | e7 | e8 | e9"
     )
     parser.add_argument(
         "--classifier", type=Path, default=None, help="dosja e ekzekutimit të Colab-it, për e9"
     )
     parser.add_argument(
-        "--generator", default="template", help="gjeneruesi për e7 dhe e8: template"
+        "--generator", default="template", help="gjeneruesi për e6–e9: template | llm"
+    )
+    parser.add_argument(
+        "--llm-cache", type=Path, default=LLM_CACHE, help="dosja e përgjigjeve të modelit"
     )
     parser.add_argument(
         "--ocr", action="store_true", help="lexo dokumentet e skanuara me Tesseract"
@@ -420,7 +514,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     data = dataset_module.load(args.dataset, limit=args.limit)
-    pipeline = build_pipeline(args.pipeline, data, args.generator, args.ocr, args.classifier)
+    pipeline = build_pipeline(
+        args.pipeline, data, args.generator, args.ocr, args.classifier, args.llm_cache
+    )
 
     chosen = (
         list(registry.EXPERIMENTS)
@@ -428,7 +524,18 @@ def main(argv: list[str] | None = None) -> int:
         else [registry.get(args.experiment)]
     )
 
-    results = [run_experiment(experiment, data, pipeline) for experiment in chosen]
+    try:
+        results = [run_experiment(experiment, data, pipeline) for experiment in chosen]
+    except RunAborted as stop:
+        client = _llm_client(pipeline)
+        used = f" ({client.usage.to_json()})" if client is not None else ""
+        print(
+            f"\nEkzekutimi u NDAL, nuk u vlerësua: {stop}{used}\n"
+            "Përgjigjet e dhëna janë në cache; ekzekutoje po atë komandë më vonë (p.sh. pas "
+            "rivendosjes së kuotës) dhe ai vazhdon aty ku u ndal.",
+            file=sys.stderr,
+        )
+        return 2
     for result in results:
         write_result(result, args.out)
         print(f"{result.experiment.id}: {result.headline()}")

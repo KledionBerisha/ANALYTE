@@ -1,0 +1,183 @@
+{
+  "experiment": "E12",
+  "detector": "llm_judge",
+  "judge_version": "j1",
+  "judge": "claude-subagent",
+  "model": "Claude (subagent 'sonnet' i Claude Code, 15 batch-e me 20 elemente; modeli i saktë nuk fiksohet nga API)",
+  "temperature": "nuk fiksohet (subagjent)",
+  "judge_equals_generator": false,
+  "answer_problems": [],
+  "note": "gjykatësi është asistenti që ndihmoi ta ndërtojë sistemin; përgjigjet janë te answers_*.jsonl",
+  "samples": 192,
+  "unparsed": 0,
+  "missing": [],
+  "metrics": {
+    "samples": 192,
+    "confusion": {
+      "total": 192,
+      "accuracy": 1.0,
+      "matrix": {
+        "clean->clean": 30,
+        "direction_mismatch->direction_mismatch": 27,
+        "fabricated_finding->fabricated_finding": 30,
+        "hedge_removed->hedge_removed": 3,
+        "omitted_recommendation->omitted_recommendation": 30,
+        "polarity_flip->polarity_flip": 12,
+        "ungrounded_analyte->ungrounded_analyte": 30,
+        "ungrounded_number->ungrounded_number": 30
+      },
+      "per_class": {
+        "clean": {
+          "tp": 30,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 30
+        },
+        "direction_mismatch": {
+          "tp": 27,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 27
+        },
+        "fabricated_finding": {
+          "tp": 30,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 30
+        },
+        "hedge_removed": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 3
+        },
+        "omitted_recommendation": {
+          "tp": 30,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 30
+        },
+        "polarity_flip": {
+          "tp": 12,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12
+        },
+        "ungrounded_analyte": {
+          "tp": 30,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 30
+        },
+        "ungrounded_number": {
+          "tp": 30,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 30
+        }
+      }
+    },
+    "per_defect_type": {
+      "direction_mismatch": {
+        "tp": 27,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 27
+      },
+      "fabricated_finding": {
+        "tp": 30,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 30
+      },
+      "hedge_removed": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3
+      },
+      "omitted_recommendation": {
+        "tp": 30,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 30
+      },
+      "polarity_flip": {
+        "tp": 12,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 12
+      },
+      "ungrounded_analyte": {
+        "tp": 30,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 30
+      },
+      "ungrounded_number": {
+        "tp": 30,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 30
+      }
+    },
+    "micro": {
+      "tp": 162,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 162
+    },
+    "macro_f1": 1.0,
+    "false_alarms_on_clean": 0
+  },
+  "split": "test",
+  "dataset": "corruption-test"
+}

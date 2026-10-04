@@ -1,0 +1,210 @@
+{
+  "experiment": "E12",
+  "detector": "llm_judge",
+  "judge_version": "j1",
+  "judge": "claude-subagent",
+  "model": "Claude Haiku (subagent 'haiku' i Claude Code; 15 batch-e; kontroll i dytë i E12)",
+  "temperature": "nuk fiksohet (subagjent)",
+  "judge_equals_generator": false,
+  "answer_problems": [
+    "answers_08.jsonl:1: rresht i palexueshëm",
+    "answers_10.jsonl:1: rresht i palexueshëm",
+    "answers_11.jsonl:1: rresht i palexueshëm",
+    "answers_13.jsonl:1: rresht i palexueshëm"
+  ],
+  "note": "gjykatësi është asistenti që ndihmoi ta ndërtojë sistemin; përgjigjet janë te answers_*.jsonl",
+  "samples": 192,
+  "unparsed": 7,
+  "missing": [
+    "E10-010",
+    "E10-017",
+    "E10-038",
+    "E10-071",
+    "E10-125",
+    "E10-171",
+    "E10-190"
+  ],
+  "metrics": {
+    "samples": 192,
+    "confusion": {
+      "total": 192,
+      "accuracy": 0.5208,
+      "matrix": {
+        "clean->clean": 25,
+        "clean->fabricated_finding": 2,
+        "clean->polarity_flip": 1,
+        "clean->ungrounded_analyte": 2,
+        "direction_mismatch->clean": 14,
+        "direction_mismatch->direction_mismatch": 13,
+        "fabricated_finding->clean": 17,
+        "fabricated_finding->fabricated_finding": 13,
+        "hedge_removed->clean": 1,
+        "hedge_removed->hedge_removed": 2,
+        "omitted_recommendation->clean": 20,
+        "omitted_recommendation->direction_mismatch": 1,
+        "omitted_recommendation->omitted_recommendation": 7,
+        "omitted_recommendation->ungrounded_analyte": 2,
+        "polarity_flip->clean": 6,
+        "polarity_flip->polarity_flip": 6,
+        "ungrounded_analyte->clean": 9,
+        "ungrounded_analyte->direction_mismatch": 1,
+        "ungrounded_analyte->ungrounded_analyte": 19,
+        "ungrounded_analyte->ungrounded_number": 1,
+        "ungrounded_number->clean": 15,
+        "ungrounded_number->ungrounded_number": 15
+      },
+      "per_class": {
+        "clean": {
+          "tp": 25,
+          "fp": 82,
+          "fn": 5,
+          "precision": 0.2336,
+          "recall": 0.8333,
+          "f1": 0.365,
+          "support": 30
+        },
+        "direction_mismatch": {
+          "tp": 13,
+          "fp": 2,
+          "fn": 14,
+          "precision": 0.8667,
+          "recall": 0.4815,
+          "f1": 0.619,
+          "support": 27
+        },
+        "fabricated_finding": {
+          "tp": 13,
+          "fp": 2,
+          "fn": 17,
+          "precision": 0.8667,
+          "recall": 0.4333,
+          "f1": 0.5778,
+          "support": 30
+        },
+        "hedge_removed": {
+          "tp": 2,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.6667,
+          "f1": 0.8,
+          "support": 3
+        },
+        "omitted_recommendation": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 23,
+          "precision": 1.0,
+          "recall": 0.2333,
+          "f1": 0.3784,
+          "support": 30
+        },
+        "polarity_flip": {
+          "tp": 6,
+          "fp": 1,
+          "fn": 6,
+          "precision": 0.8571,
+          "recall": 0.5,
+          "f1": 0.6316,
+          "support": 12
+        },
+        "ungrounded_analyte": {
+          "tp": 19,
+          "fp": 4,
+          "fn": 11,
+          "precision": 0.8261,
+          "recall": 0.6333,
+          "f1": 0.717,
+          "support": 30
+        },
+        "ungrounded_number": {
+          "tp": 15,
+          "fp": 1,
+          "fn": 15,
+          "precision": 0.9375,
+          "recall": 0.5,
+          "f1": 0.6522,
+          "support": 30
+        }
+      }
+    },
+    "per_defect_type": {
+      "direction_mismatch": {
+        "tp": 13,
+        "fp": 2,
+        "fn": 14,
+        "precision": 0.8667,
+        "recall": 0.4815,
+        "f1": 0.619,
+        "support": 27
+      },
+      "fabricated_finding": {
+        "tp": 13,
+        "fp": 2,
+        "fn": 17,
+        "precision": 0.8667,
+        "recall": 0.4333,
+        "f1": 0.5778,
+        "support": 30
+      },
+      "hedge_removed": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.6667,
+        "f1": 0.8,
+        "support": 3
+      },
+      "omitted_recommendation": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 23,
+        "precision": 1.0,
+        "recall": 0.2333,
+        "f1": 0.3784,
+        "support": 30
+      },
+      "polarity_flip": {
+        "tp": 6,
+        "fp": 1,
+        "fn": 6,
+        "precision": 0.8571,
+        "recall": 0.5,
+        "f1": 0.6316,
+        "support": 12
+      },
+      "ungrounded_analyte": {
+        "tp": 19,
+        "fp": 4,
+        "fn": 11,
+        "precision": 0.8261,
+        "recall": 0.6333,
+        "f1": 0.717,
+        "support": 30
+      },
+      "ungrounded_number": {
+        "tp": 15,
+        "fp": 1,
+        "fn": 15,
+        "precision": 0.9375,
+        "recall": 0.5,
+        "f1": 0.6522,
+        "support": 30
+      }
+    },
+    "micro": {
+      "tp": 75,
+      "fp": 10,
+      "fn": 87,
+      "precision": 0.8824,
+      "recall": 0.463,
+      "f1": 0.6073,
+      "support": 162
+    },
+    "macro_f1": 0.6251339668130209,
+    "false_alarms_on_clean": 5
+  },
+  "split": "test",
+  "dataset": "corruption-test"
+}

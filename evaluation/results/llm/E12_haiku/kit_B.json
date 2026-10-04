@@ -1,0 +1,228 @@
+{
+  "experiment": "E12",
+  "detector": "llm_judge",
+  "judge_version": "j1",
+  "judge": "claude-subagent",
+  "model": "Claude Haiku (subagent 'haiku' i Claude Code; 15 batch-e; kontroll i dytë i E12)",
+  "temperature": "nuk fiksohet (subagjent)",
+  "judge_equals_generator": false,
+  "answer_problems": [
+    "answers_08.jsonl:1: rresht i palexueshëm",
+    "answers_10.jsonl:1: rresht i palexueshëm",
+    "answers_11.jsonl:1: rresht i palexueshëm",
+    "answers_13.jsonl:1: rresht i palexueshëm"
+  ],
+  "note": "gjykatësi është asistenti që ndihmoi ta ndërtojë sistemin; përgjigjet janë te answers_*.jsonl",
+  "samples": 105,
+  "unparsed": 2,
+  "missing": [
+    "B-031",
+    "B-039"
+  ],
+  "metrics": {
+    "samples": 105,
+    "confusion": {
+      "total": 105,
+      "accuracy": 0.5048,
+      "matrix": {
+        "clean->clean": 21,
+        "clean->fabricated_finding": 1,
+        "clean->ungrounded_analyte": 4,
+        "clean->ungrounded_number": 4,
+        "direction_mismatch->clean": 4,
+        "direction_mismatch->direction_mismatch": 4,
+        "direction_mismatch->fabricated_finding": 2,
+        "fabricated_finding->clean": 3,
+        "fabricated_finding->direction_mismatch": 1,
+        "fabricated_finding->fabricated_finding": 5,
+        "fabricated_finding->ungrounded_analyte": 1,
+        "hedge_removed->clean": 5,
+        "hedge_removed->hedge_removed": 4,
+        "hedge_removed->polarity_flip": 1,
+        "polarity_flip->clean": 3,
+        "polarity_flip->fabricated_finding": 1,
+        "polarity_flip->polarity_flip": 6,
+        "prohibited_claim->clean": 4,
+        "prohibited_claim->prohibited_claim": 4,
+        "prohibited_claim->ungrounded_analyte": 2,
+        "ungrounded_analyte->clean": 4,
+        "ungrounded_analyte->fabricated_finding": 5,
+        "ungrounded_analyte->polarity_flip": 1,
+        "ungrounded_number->clean": 4,
+        "ungrounded_number->ungrounded_number": 6,
+        "ungrounded_term_explanation->clean": 2,
+        "ungrounded_term_explanation->ungrounded_term_explanation": 3
+      },
+      "per_class": {
+        "clean": {
+          "tp": 21,
+          "fp": 29,
+          "fn": 9,
+          "precision": 0.42,
+          "recall": 0.7,
+          "f1": 0.525,
+          "support": 30
+        },
+        "direction_mismatch": {
+          "tp": 4,
+          "fp": 1,
+          "fn": 6,
+          "precision": 0.8,
+          "recall": 0.4,
+          "f1": 0.5333,
+          "support": 10
+        },
+        "fabricated_finding": {
+          "tp": 5,
+          "fp": 9,
+          "fn": 5,
+          "precision": 0.3571,
+          "recall": 0.5,
+          "f1": 0.4167,
+          "support": 10
+        },
+        "hedge_removed": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 6,
+          "precision": 1.0,
+          "recall": 0.4,
+          "f1": 0.5714,
+          "support": 10
+        },
+        "polarity_flip": {
+          "tp": 6,
+          "fp": 2,
+          "fn": 4,
+          "precision": 0.75,
+          "recall": 0.6,
+          "f1": 0.6667,
+          "support": 10
+        },
+        "prohibited_claim": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 6,
+          "precision": 1.0,
+          "recall": 0.4,
+          "f1": 0.5714,
+          "support": 10
+        },
+        "ungrounded_analyte": {
+          "tp": 0,
+          "fp": 7,
+          "fn": 10,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "ungrounded_number": {
+          "tp": 6,
+          "fp": 4,
+          "fn": 4,
+          "precision": 0.6,
+          "recall": 0.6,
+          "f1": 0.6,
+          "support": 10
+        },
+        "ungrounded_term_explanation": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 2,
+          "precision": 1.0,
+          "recall": 0.6,
+          "f1": 0.75,
+          "support": 5
+        }
+      }
+    },
+    "per_defect_type": {
+      "direction_mismatch": {
+        "tp": 4,
+        "fp": 1,
+        "fn": 6,
+        "precision": 0.8,
+        "recall": 0.4,
+        "f1": 0.5333,
+        "support": 10
+      },
+      "fabricated_finding": {
+        "tp": 5,
+        "fp": 9,
+        "fn": 5,
+        "precision": 0.3571,
+        "recall": 0.5,
+        "f1": 0.4167,
+        "support": 10
+      },
+      "hedge_removed": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 6,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714,
+        "support": 10
+      },
+      "polarity_flip": {
+        "tp": 6,
+        "fp": 2,
+        "fn": 4,
+        "precision": 0.75,
+        "recall": 0.6,
+        "f1": 0.6667,
+        "support": 10
+      },
+      "prohibited_claim": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 6,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714,
+        "support": 10
+      },
+      "ungrounded_analyte": {
+        "tp": 0,
+        "fp": 7,
+        "fn": 10,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 10
+      },
+      "ungrounded_number": {
+        "tp": 6,
+        "fp": 4,
+        "fn": 4,
+        "precision": 0.6,
+        "recall": 0.6,
+        "f1": 0.6,
+        "support": 10
+      },
+      "ungrounded_term_explanation": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 2,
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.75,
+        "support": 5
+      }
+    },
+    "micro": {
+      "tp": 32,
+      "fp": 23,
+      "fn": 43,
+      "precision": 0.5818,
+      "recall": 0.4267,
+      "f1": 0.4923,
+      "support": 75
+    },
+    "macro_f1": 0.5136904761904761,
+    "false_alarms_on_clean": 9
+  },
+  "dataset": "kit-B",
+  "authorship": "fjalitë e B i shkroi autori (sipas deklaratës së tij)"
+}

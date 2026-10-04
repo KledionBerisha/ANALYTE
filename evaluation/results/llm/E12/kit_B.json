@@ -1,0 +1,202 @@
+{
+  "experiment": "E12",
+  "detector": "llm_judge",
+  "judge_version": "j1",
+  "judge": "claude-subagent",
+  "model": "Claude (subagent 'sonnet' i Claude Code, 15 batch-e me 20 elemente; modeli i saktë nuk fiksohet nga API)",
+  "temperature": "nuk fiksohet (subagjent)",
+  "judge_equals_generator": false,
+  "answer_problems": [],
+  "note": "gjykatësi është asistenti që ndihmoi ta ndërtojë sistemin; përgjigjet janë te answers_*.jsonl",
+  "samples": 105,
+  "unparsed": 0,
+  "missing": [],
+  "metrics": {
+    "samples": 105,
+    "confusion": {
+      "total": 105,
+      "accuracy": 1.0,
+      "matrix": {
+        "clean->clean": 30,
+        "direction_mismatch->direction_mismatch": 10,
+        "fabricated_finding->fabricated_finding": 10,
+        "hedge_removed->hedge_removed": 10,
+        "polarity_flip->polarity_flip": 10,
+        "prohibited_claim->prohibited_claim": 10,
+        "ungrounded_analyte->ungrounded_analyte": 10,
+        "ungrounded_number->ungrounded_number": 10,
+        "ungrounded_term_explanation->ungrounded_term_explanation": 5
+      },
+      "per_class": {
+        "clean": {
+          "tp": 30,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 30
+        },
+        "direction_mismatch": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "fabricated_finding": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "hedge_removed": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "polarity_flip": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "prohibited_claim": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "ungrounded_analyte": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "ungrounded_number": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "ungrounded_term_explanation": {
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5
+        }
+      }
+    },
+    "per_defect_type": {
+      "direction_mismatch": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "fabricated_finding": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "hedge_removed": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "polarity_flip": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "prohibited_claim": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "ungrounded_analyte": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "ungrounded_number": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "ungrounded_term_explanation": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5
+      }
+    },
+    "micro": {
+      "tp": 75,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 75
+    },
+    "macro_f1": 1.0,
+    "false_alarms_on_clean": 0
+  },
+  "dataset": "kit-B",
+  "authorship": "fjalitë e B i shkroi autori (sipas deklaratës së tij)"
+}
