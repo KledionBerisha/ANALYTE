@@ -1,0 +1,70 @@
+{
+  "kit": "A",
+  "source": "evaluation/handwritten/A_shpjegimet.md",
+  "sha256_lf_normalised": "f56ff28ca8472134d1a3207fc739c68040c22d2aa222e4af1870c9694b9a0e70",
+  "installed": "2026-10-05",
+  "provenance": "deklaratë e autorit (shih evaluation/handwritten/README.md); skedari nuk e vërteton",
+  "report": {
+    "explanations": 25,
+    "flagged": 5,
+    "false_alarm_share": 0.2,
+    "by_explanation": {
+      "A01": [],
+      "A02": [],
+      "A03": [],
+      "A04": [],
+      "A05": [],
+      "A06": [],
+      "A07": [],
+      "A08": [],
+      "A09": [],
+      "A10": [],
+      "A11": [
+        {
+          "type": "ungrounded_analyte",
+          "sentence": "Kolesteroli HDL është 72 mg/dL, mbi 40 – 69.",
+          "evidence": "analiti 2093-3 nuk është matur në këtë dokument"
+        }
+      ],
+      "A12": [],
+      "A13": [],
+      "A14": [
+        {
+          "type": "ungrounded_analyte",
+          "sentence": "Kolesteroli HDL është 95 mg/dL, mbi 50 – 85.",
+          "evidence": "analiti 2093-3 nuk është matur në këtë dokument"
+        }
+      ],
+      "A15": [],
+      "A16": [
+        {
+          "type": "ungrounded_analyte",
+          "sentence": "Kolesteroli LDL është 36 mg/dL, nën 50 – 130.",
+          "evidence": "analiti 2093-3 nuk është matur në këtë dokument"
+        }
+      ],
+      "A17": [],
+      "A18": [
+        {
+          "type": "ungrounded_number",
+          "sentence": "Vitamina D 25-OH është 138.4 ng/mL, mbi 30.0 – 100.0.",
+          "evidence": "numri 25 nuk gjendet ndër vlerat e nxjerra"
+        }
+      ],
+      "A19": [],
+      "A20": [
+        {
+          "type": "ungrounded_number",
+          "sentence": "Vitamina D 25-OH është 17.8 ng/mL, nën 30.0 – 100.0.",
+          "evidence": "numri 25 nuk gjendet ndër vlerat e nxjerra"
+        }
+      ],
+      "A21": [],
+      "A22": [],
+      "A23": [],
+      "A24": [],
+      "A25": []
+    }
+  },
+  "reading": "5 nga 25 shpjegime shënohen; të 5 janë alarme të rreme të rregullave (trajta e shquar 'Kolesteroli HDL/LDL' lexohet si kolesterol total; '25' te 'Vitamina D 25-OH' lexohet si numër i pabazuar)."
+}

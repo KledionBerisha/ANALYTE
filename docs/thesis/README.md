@@ -40,7 +40,7 @@ nuk është në të (ADR 0013); ndarja e korpusit sipas dokumentit nuk e ndalon 
 rezultateve (përfshirë modelin gjuhësor `ministral-14b-2512`, gjykatësit dhe auditin); punimi nuk ka
 dokumente reale dhe nuk ka studim me përdorues. Kapitulli 3 ka vende të pashkruara dhe 4
 referenca; figura 17 nuk prodhohet (chat-i nuk është
-ndërtuar); burimet e terminologjisë dhe të kombinimeve mungojnë; grupi A i fjalive me dorë është bosh.
+ndërtuar); burimet e terminologjisë dhe të kombinimeve mungojnë; grupi A (25 shpjegime) u instalua më 2026-10-05 sipas deklaratës së autorit dhe u mat për alarme të rreme (5 nga 25; §6.7.1).
 
 ## Tabelat
 

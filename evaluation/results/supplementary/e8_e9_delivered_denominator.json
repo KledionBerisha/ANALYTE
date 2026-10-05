@@ -1,0 +1,71 @@
+{
+  "what": "E8 dhe E9 mbi fjalitë e TEKSTIT TË DORËZUAR (modeli ose shablloni rezervë), krahas emëruesit të harness-it (fjalitë e të gjitha drafteve të modelit).",
+  "provenance": "Llogaritur më 2026-10-05 nga kodi i HEAD 318e5bb (pa ndryshime kodi; ndryshuan vetëm dokumentet), me --ocr, nga cache-i i modelit (0 thirrje të reja), duke regjistruar `explain().text`. NUK është ekzekutim nga kopje e pastër dhe nuk zëvendëson E8/E9 të commit-it 4f5ea17: shkeljet dhe fjalitë e harness-it dolën identike (8892/0 dhe 10359/41).",
+  "E8": {
+    "documents": 500,
+    "by_delivery": {
+      "generated": {
+        "documents": 374,
+        "sentences": 4463,
+        "violations": 0
+      },
+      "template": {
+        "documents": 126,
+        "sentences": 3444,
+        "violations": 0
+      }
+    },
+    "delivered_sentences": 7907,
+    "violations_in_delivered_text": 0,
+    "rate_per_100_delivered_sentences": 0.0,
+    "rule_of_three_per_100_delivered": 0.0379,
+    "draft_sentences_all_attempts": 8892,
+    "harness_sentences": 8892,
+    "harness_reaching_user": 0,
+    "new_model_calls": {
+      "calls": 0,
+      "cache_hits": 746,
+      "retries": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "thought_tokens": 0
+    },
+    "model_text_only": {
+      "sentences": 4463,
+      "violations": 0,
+      "rule_of_three_per_100": 0.0672
+    },
+    "template_share_of_delivered_sentences": 0.4356
+  },
+  "E9": {
+    "documents": 500,
+    "by_delivery": {
+      "generated": {
+        "documents": 198,
+        "sentences": 2047,
+        "violations": 0
+      },
+      "template": {
+        "documents": 302,
+        "sentences": 8407,
+        "violations": 41
+      }
+    },
+    "delivered_sentences": 10454,
+    "violations_in_delivered_text": 41,
+    "rate_per_100_delivered_sentences": 0.3922,
+    "rule_of_three_per_100_delivered": null,
+    "draft_sentences_all_attempts": 10359,
+    "harness_sentences": 10359,
+    "harness_reaching_user": 41,
+    "new_model_calls": {
+      "calls": 0,
+      "cache_hits": 879,
+      "retries": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "thought_tokens": 0
+    },
+    "template_share_of_delivered_sentences": 0.8042
+  }
+}

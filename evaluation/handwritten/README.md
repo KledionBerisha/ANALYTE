@@ -23,6 +23,26 @@ do të gabonte një model gjuhësor.
 
 ## A — Shpjegime referuese (25)
 
+**Prejardhja e A.** Skedari i tanishëm e dorëzoi autori më 2026-10-05. Autori deklaron se lexoi vetëm
+`A_kontekstet.md`, nxori kërkesat për A01–A25, hartoi shpjegimet dhe pastaj e rishikoi skedarin pasi Claude i dha
+vërejtje për versionet e mëparshme (proza origjinale; çdo pohim i mjekut fjali e plotë më vete). Skedari nuk e
+vërteton këtë deklaratë. Versionet e mëparshme nuk u instaluan: një riformatim fjalë për fjalë i kontekstit (150 nga
+150 citime dhe fjali identike), një prozë e shabllonizuar me fjali meta për konvertimin, një version me shenja citimi
+të një mjeti (`[cite: 1]`); një version paralel i së njëjtës ditë ndryshonte fjalët e mjekut në 6 citime dhe shtonte
+terma që nuk ishin në raport (nuk u zgjodh). Versioni i instaluar ka 0 fjali identike me fjali të kontekstit dhe
+citimet e mjekut janë fjalë për fjalë; ka 25 shpjegime, njoftimi kritik para çdo shpjegimi (SP4), vlerat pa interval
+të painterpretuara (SP5), termat që nuk shpjegohen vetëm të emërtuar (SP6), dhe çdo pohim i mjekut si fjali më vete.
+Kufizim: ai është i pavarur nga gjeneruesi vetëm në formulim; vlerat, intervalet, përkufizimet e termave dhe citimet
+vijnë nga po ato tabela, kriteret e prozës i dha Claude, dhe fjalitë e mbylljes për profesionistin e ndjekin
+përmbajtjen e shënimeve të versionit të mëparshëm. Prozë shumë njëtrajtëshme: 25 riformulime të një përkufizimi
+të vetëm të «intervalit referent» dhe shprehja «Termi X është vetëm i emërtuar këtu» përsëriten.
+
+**Rezultati** (`python -m evaluation.kits check`, ruajtur te `evaluation/results/supplementary/kit_A.json`):
+rregullat shënojnë **5 nga 25** shpjegime (20%) dhe të 5 janë alarme të rreme të rregullave: te A11, A14, A16
+«Kolesteroli HDL/LDL» (trajta e shquar) lexohet si kolesterol total, dhe te A18, A20 «25» te «Vitamina D 25-OH»
+lexohet si numër i pabazuar. Të njëjtat dy alarme ishin gjetur te B (ADR 0009). Rregullat nuk u ndryshuan.
+Grupi nuk ka defekte të futura, prandaj nuk jep precision as recall.
+
 **Skedari:** `A_shpjegimet.md`, nën titullin `## A01` … `## A25`.
 **Konteksti:** `A_kontekstet.md` — lexoni vetëm atë që është aty.
 

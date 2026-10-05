@@ -151,6 +151,18 @@ e kap pjesërisht (F1 0.22 dhe 0.26), por duke bllokuar pothuajse çdo tekst.
    e tij është shtuar pas parë rezultateve.
 
 
+## Grupi A (2026-10-05)
+
+25 shpjegime referuese (`evaluation/handwritten/A_shpjegimet.md`), dorëzuar nga autori sipas deklaratës së tij
+(lexoi vetëm `A_kontekstet.md`, hartoi dhe rishikoi pasi Claude i dha vërejtje për versionet e mëparshme; skedari
+nuk e vërteton). Rregullat `r1.3` ekzekutohen mbi to pa ndryshim: **5 nga 25 shënohen (20%)**, të 5 alarme të rreme
+(«Kolesteroli HDL/LDL» te A11, A14, A16 lexohet si kolesterol total; «25» te «Vitamina D 25-OH» te A18, A20 lexohet
+si numër i pabazuar), të njëjtat dy shkaqe si te B. Grupi nuk ka defekte të futura: jep vetëm shkallën e alarmeve
+të rreme mbi prozë të riformuluar, jo precision apo recall. Nuk është i pavarur nga gjeneruesi (vlerat, termat dhe
+citimet vijnë nga po ato tabela). Versionet e mëparshme (riformatim fjalë për fjalë; prozë e shabllonizuar; shenja
+`[cite: 1]`; ndryshim i 6 citimeve të mjekut) nuk u instaluan. Rezultati: `evaluation/results/supplementary/kit_A.json`.
+Rregullat nuk u rregulluan pas këtij rezultati; kjo do të ishte ndryshim pas parë rezultatit dhe duhet raportuar.
+
 ## Grupi B dhe E9 (2026-10-02)
 
 **Grupi B.** 105 fjali natyrale (`evaluation/handwritten/B_fjalite.csv`) për 25 kontekste, me etiketën e secilës,
