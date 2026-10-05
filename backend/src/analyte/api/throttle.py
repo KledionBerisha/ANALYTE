@@ -108,7 +108,9 @@ def _buckets(
     )
 
 
-def check(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
+def check(
+    db: Session, config: Settings, keys: Keys, now: datetime, title: str = "Shumë përpjekje hyrjeje"
+) -> None:
     """Hedh 429 nëse një kovë është e mbushur; përndryshe nuk bën asgjë."""
     window = timedelta(minutes=config.login_window_minutes)
     unlock: datetime | None = None
@@ -128,13 +130,15 @@ def check(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
     seconds = max(1, ceil((unlock - now).total_seconds()))
     raise Problem(
         429,
-        "Shumë përpjekje hyrjeje",
+        title,
         f"Provoni sërish pas rreth {ceil(seconds / 60)} minutash.",
         headers={"Retry-After": str(seconds)},
     )
 
 
-def record_failure(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
+def record_failure(
+    db: Session, config: Settings, keys: Keys, now: datetime, scope: str = ""
+) -> None:
     """Regjistron një dështim dhe e ruan menjëherë.
 
     Ruhet me `commit` këtu, jo nga sesioni i kërkesës: ai e kthen prapa çdo
@@ -154,7 +158,8 @@ def record_failure(db: Session, config: Settings, keys: Keys, now: datetime) -> 
         if count == limit:
             # Një herë për mbushje: kërkesat e refuzuara pas kësaj nuk shkruajnë
             # asgjë, prandaj log-u nuk mbushet nga një sulm që vazhdon.
-            audit.login_throttled(db, name)
+            label = "user" if scope == "mfa" and name == "email" else name
+            audit.login_throttled(db, f"{scope}_{label}" if scope else label)
     db.commit()
 
 
@@ -193,9 +198,19 @@ def _registration_buckets(
 
 def check_registration(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
     """Hedh 429 nëse një kovë regjistrimi është e mbushur. E njëjta përgjigje për email me llogari ose pa."""
+    _check_attempts(db, config, _registration_buckets(config, keys), now)
+
+
+def _check_attempts(
+    db: Session,
+    config: Settings,
+    buckets: tuple[tuple[ColumnElement[bool], int], ...],
+    now: datetime,
+) -> None:
+    """Kontrolli i përbashkët i kovave mbi `registration_attempts` (regjistrim, rivendosje, formë rivendosjeje)."""
     window = timedelta(minutes=config.register_window_minutes)
     unlock: datetime | None = None
-    for condition, limit in _registration_buckets(config, keys):
+    for condition, limit in buckets:
         recent = db.scalars(
             select(RegistrationAttemptRow.at)
             .where(condition, RegistrationAttemptRow.at >= now - window)
@@ -223,3 +238,63 @@ def record_registration(db: Session, config: Settings, keys: Keys, now: datetime
     db.execute(delete(RegistrationAttemptRow).where(RegistrationAttemptRow.at < now - window))
     db.add(RegistrationAttemptRow(email_key=keys.email, ip_key=keys.ip, at=now))
     db.commit()
+
+
+# --------------------------------------------------------------------
+# Rivendosja e fjalëkalimit (ADR 0018)
+# --------------------------------------------------------------------
+
+
+def reset_keys(email: str, ip: str, config: Settings) -> Keys:
+    """Kovat e kërkesave për rivendosje. Etiketat ndryshojnë nga ato të regjistrimit, prandaj kovat janë të ndara
+    (një kërkesë rivendosjeje nuk e mbush kufirin e regjistrimit, dhe anasjelltas) edhe pse tabela është e njëjta.
+    Kufijtë janë ata të regjistrimit: çdo kërkesë nis një email."""
+    return Keys(
+        email=keyed_hash(config.jwt_secret, "reset-email", email),
+        ip=keyed_hash(config.jwt_secret, "reset-ip", ip),
+    )
+
+
+def reset_submit_key(ip: str, config: Settings) -> Keys:
+    """Dorëzimi i formës së rivendosjes nuk ka email: numërohet vetëm sipas IP-së."""
+    return Keys(email="-", ip=keyed_hash(config.jwt_secret, "reset-submit-ip", ip))
+
+
+def check_reset_submit(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
+    """Para se tokeni të kontrollohet, jo pas: një IP nuk provon pafund lidhje."""
+    _check_attempts(
+        db, config, ((RegistrationAttemptRow.ip_key == keys.ip, config.reset_submit_max_per_ip),), now
+    )
+
+
+# --------------------------------------------------------------------
+# Hapi i dytë i hyrjes (ADR 0018)
+# --------------------------------------------------------------------
+
+
+def mfa_keys(user_id: object, ip: str, config: Settings) -> Keys:
+    """Kodet e gabuara numërohen te `login_failures` si dështimet e fjalëkalimit, por me etiketa të veta: një kod i gabuar
+    nuk e mbush kovën e fjalëkalimit, dhe anasjelltas. Kova «email» është këtu ajo e përdoruesit."""
+    return Keys(
+        email=keyed_hash(config.jwt_secret, "mfa-user", str(user_id)),
+        ip=keyed_hash(config.jwt_secret, "mfa-ip", ip),
+    )
+
+
+def _mfa_limits(config: Settings) -> Settings:
+    return config.model_copy(
+        update={
+            "login_max_failures_pair": config.mfa_max_failures_pair,
+            "login_max_failures_ip": config.mfa_max_failures_ip,
+            "login_max_failures_email": config.mfa_max_failures_user,
+        }
+    )
+
+
+def check_mfa(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
+    """Para se kodi të kontrollohet: një çift i bllokuar refuzohet edhe me kodin e saktë."""
+    check(db, _mfa_limits(config), keys, now, title="Shumë kode të gabuara")
+
+
+def record_mfa_failure(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
+    record_failure(db, _mfa_limits(config), keys, now, scope="mfa")

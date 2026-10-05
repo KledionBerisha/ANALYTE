@@ -10,6 +10,9 @@ Pohimet më të rëndësishme:
     ofrues që dështon nuk e humbet dokumentin.
   - **Çfarë i dërgohet ofruesit:** konteksti i strukturuar, kurrë emri i pacientit apo i skedarit.
   - **Pacienti e di:** teksti i modelit mban njoftimin përkatës; shablloni dhe shablloni rezervë jo.
+
+Që nga ADR 0019 modeli përdoret vetëm për ngarkimet me pëlqim të shprehur dhe që kalojnë portën e çidentifikimit;
+ato kushte provohen te `test_data_protection.py`. Këtu çdo ngarkim jep pëlqimin.
 """
 
 from __future__ import annotations
@@ -69,7 +72,7 @@ class FakeClient:
 
 
 def _app(tmp: Path, generator):
-    settings = _settings(tmp)
+    settings = _settings(tmp, service_generator="model")  # pëlqimi pyetet vetëm kur modeli është i ndezur (ADR 0019)
     engine = make_engine(settings.database_url)
     create_schema(engine)
     services = Services(
@@ -83,8 +86,14 @@ def _app(tmp: Path, generator):
     return client, {"Authorization": f"Bearer {token}"}
 
 
-def _upload(client, headers, pdf: bytes) -> str:
-    response = client.post("/documents", headers=headers, files={"file": (FILENAME, pdf, "application/pdf")})
+def _upload(client, headers, pdf: bytes, consent: bool = True) -> str:
+    """Këto teste provojnë rrugën e modelit, prandaj pacienti jep pëlqimin (ADR 0019); pa të shih `test_data_protection.py`."""
+    response = client.post(
+        "/documents",
+        headers=headers,
+        files={"file": (FILENAME, pdf, "application/pdf")},
+        data={"model_consent": "true" if consent else "false"},
+    )
     assert response.status_code == 202, response.text
     return response.json()["id"]
 

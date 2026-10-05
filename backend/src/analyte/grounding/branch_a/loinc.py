@@ -73,6 +73,71 @@ def resolve(name: str) -> str | None:
     return None if code in (None, AMBIGUOUS) else code
 
 
+MIN_INFLECTED_LENGTH = 5
+"""Fjala e parë duhet të ketë të paktën kaq shkronja para se të provohet trajta e shquar: shkurtesat (K, P, Na, Ca, Pt) nuk
+lakohen, dhe heqja e një mbaresë prej tyre do të përputhej rastësisht me një shkurtesë tjetër."""
+
+
+def _token_variants(token: str) -> list[str]:
+    """Trajtat e pashquara të mundshme të një fjale (pas normalizimit ë → e)."""
+    if len(token) < MIN_INFLECTED_LENGTH:
+        return []
+    out: list[str] = []
+    if token.endswith("a"):
+        out.append(token[:-1] + "e")  # Hemoglobina → Hemoglobine(ë)
+    if token.endswith("ja"):
+        out.append(token[:-2] + "e")  # Ureja → Ure(a)
+    for ending in ("ve", "it", "ut", "in", "un"):  # leukociteve, klorit, kalciumit, natriumin
+        if token.endswith(ending):
+            out.append(token[: -len(ending)])
+    for ending in ("es", "en"):  # hemoglobinës, hemoglobinën → hemoglobine
+        if token.endswith(ending):
+            out.append(token[:-1])
+    for ending in ("i", "u", "t"):  # Kolesteroli, Natriumi, Leukocitet
+        if token.endswith(ending):
+            out.append(token[: -len(ending)])
+    return [variant for variant in dict.fromkeys(out) if len(variant) >= 4]
+
+
+def inflected_candidates(name: str) -> tuple[str, ...]:
+    """Trajtat e pashquara të mundshme të një emri të lakuar ("Kolesteroli HDL" → "Kolesterol HDL").
+
+    Lakimi prek fjalën e parë dhe të fundit (emri kryesor, ose emri i gjinisë së dytë si te "alanin aminotransferazës"). Tabela
+    mban emrin si "Hemoglobinë në gjak" ose "Kolesterol HDL"; teksti i gjeneruar e shkruan "Hemoglobina në gjak",
+    "hemoglobinës", "leukociteve", "klorit", "Kolesteroli HDL". Mbaresat që i lidhin janë në `_token_variants`.
+    """
+    original_tokens = normalize_name(name).split(" ")
+    # "të" e lidh emrin në rasën gjinore ("përqendrimit mesatar të hemoglobinës") ku tabela ka "i": të dyja trajtat provohen.
+    versions = [original_tokens]
+    if "te" in original_tokens[1:]:
+        versions.append(["i" if token == "te" else token for token in original_tokens])
+    candidates: list[str] = []
+    for tokens in versions:
+        first = [tokens[0], *_token_variants(tokens[0])]
+        last = [tokens[-1], *_token_variants(tokens[-1])] if len(tokens) > 1 else [tokens[-1]]
+        for head in first:
+            for tail in last:
+                if len(tokens) == 1:
+                    candidates.append(head)
+                else:
+                    candidates.append(" ".join([head, *tokens[1:-1], tail]))
+    original = " ".join(original_tokens)
+    return tuple(c for c in dict.fromkeys(candidates) if c != original)
+
+
+def resolve_inflected(name: str) -> str | None:
+    """Si `resolve`, por pranon edhe trajtën e shquar të emrit (`r1.4`).
+
+    Përputhja mbetet e saktë: një trajtë e lakuar pranohet vetëm kur ajo e pashquara është një formë e njohur dhe vetëm një
+    analit e pretendon. "Kaliumi" dhe "Kalciumi" nuk ngatërrohen, sepse asnjëra nuk bëhet tjetra me heqjen e një mbarese.
+    """
+    code = resolve(name)
+    if code is not None:
+        return code
+    hits = {_index().get(candidate) for candidate in inflected_candidates(name)} - {None, AMBIGUOUS}
+    return hits.pop() if len(hits) == 1 else None
+
+
 def is_known(name: str) -> bool:
     return resolve(name) is not None
 

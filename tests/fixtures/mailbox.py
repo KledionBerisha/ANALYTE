@@ -17,6 +17,7 @@ from analyte.main import create_app
 from analyte.orchestration.tasks import InlineRunner, Services
 
 _TOKEN = re.compile(r"/confirm\?token=([A-Za-z0-9_\-]+)")
+_RESET = re.compile(r"/reset-password\?token=([A-Za-z0-9_\-]+)")
 
 
 def client_for(settings: Settings, services: Services, runner=None) -> TestClient:
@@ -30,6 +31,12 @@ def client_for(settings: Settings, services: Services, runner=None) -> TestClien
 def token_in(message: Message) -> str:
     match = _TOKEN.search(message.body)
     assert match, f"mesazhi nuk ka lidhje konfirmimi: {message.subject!r}"
+    return match.group(1)
+
+
+def reset_token_in(message: Message) -> str:
+    match = _RESET.search(message.body)
+    assert match, f"mesazhi nuk ka lidhje rivendosjeje: {message.subject!r}"
     return match.group(1)
 
 

@@ -45,9 +45,13 @@ class Grounding:
         return not self.context.is_empty()
 
 
-def build(document_id: UUID, pages: tuple[PageText, ...]) -> Grounding:
-    """Ndërton kontekstin nga faqet e lexuara të një dokumenti."""
-    findings = extract(pages)
+def build(document_id: UUID, pages: tuple[PageText, ...], *, ocr_guard: bool = True) -> Grounding:
+    """Ndërton kontekstin nga faqet e lexuara të një dokumenti.
+
+    `ocr_guard` ndez kontrollin e besueshmërisë për faqet e OCR-së (ADR 0020). Shërbimi e ka të ndezur; eksperimentet e
+    ngrira (E7–E9, të matura para tij) e kalojnë të fikur, që cache-i i modelit dhe rezultatet e tyre të mbeten të vlefshme.
+    """
+    findings = extract(pages, ocr_guard=ocr_guard)
     narrative = branch_b_assertions.find_report_text(pages)
 
     assertions = branch_b_assertions.extract_assertions(narrative)

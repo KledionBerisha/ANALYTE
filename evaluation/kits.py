@@ -47,7 +47,13 @@ from analyte.domain.enums import (
     ViolationType,
 )
 from analyte.domain.models import GroundingContext
-from analyte.domain.policy import ATTRIBUTION_PREFIX_SQ, DISCLAIMER_SQ, sentence_local_violations
+from analyte.domain.policy import (
+    ATTRIBUTION_PREFIX_SQ,
+    DISCLAIMER_SQ,
+    LEGACY_RULES_VERSION,
+    RULES_VERSIONS,
+    sentence_local_violations,
+)
 from analyte.generation.templates import build as build_template
 from analyte.grounding.branch_a import loinc
 from analyte.grounding.branch_a.patterns import detect as detect_patterns
@@ -305,13 +311,15 @@ class RowError:
 
 
 def check_explanations(
-    explanations: dict[str, str], contexts: dict[str, GroundingContext]
+    explanations: dict[str, str],
+    contexts: dict[str, GroundingContext],
+    rules: str = LEGACY_RULES_VERSION,
 ) -> dict[str, Any]:
     """Rregullat mbi shpjegimet e autorit: çdo shkelje është alarm i rremë
     ose gabim i autorit, dhe të dyja duhen parë me sy."""
     report = {}
     for kit_id, text in sorted(explanations.items()):
-        result = verify(contexts[kit_id], text)
+        result = verify(contexts[kit_id], text, rules=rules)
         report[kit_id] = [
             {"type": v.type.value, "sentence": v.sentence, "evidence": v.evidence}
             for v in result.violations
@@ -326,7 +334,9 @@ def check_explanations(
 
 
 def check_sentences(
-    rows: list[dict[str, str]], contexts: dict[str, GroundingContext]
+    rows: list[dict[str, str]],
+    contexts: dict[str, GroundingContext],
+    rules: str = LEGACY_RULES_VERSION,
 ) -> tuple[dict[str, Any], list[RowError]]:
     """PK6 mbi fjalitë e B-së.
 
@@ -353,7 +363,7 @@ def check_sentences(
             errors.append(RowError(row["id"], str(problem)))
             continue
         actual = None if row["etiketa"] == "clean" else ViolationType(row["etiketa"])
-        judgements.append(Judgement(actual, _single_label(verify(context, text).violations)))
+        judgements.append(Judgement(actual, _single_label(verify(context, text, rules=rules).violations)))
 
     return detector.measure(judgements), errors
 
@@ -477,13 +487,14 @@ def duplicate_rows(rows: list[dict[str, str]]) -> list[list[str]]:
     return [ids for ids in groups.values() if len(ids) > 1]
 
 
-def check(directory: Path = KIT_DIR) -> dict[str, Any]:
+def check(directory: Path = KIT_DIR, rules: str = LEGACY_RULES_VERSION) -> dict[str, Any]:
     contexts = dict(kit_contexts())
     b_rows = read_rows(directory / "B_fjalite.csv", B_COLUMNS, B_OPTIONAL)
-    b_metrics, b_errors = check_sentences(b_rows, contexts)
+    b_metrics, b_errors = check_sentences(b_rows, contexts, rules)
     c_metrics, c_errors = check_narrative(read_rows(directory / "C_narrativa.csv", C_COLUMNS))
     return {
-        "A": check_explanations(read_explanations(directory / "A_shpjegimet.md"), contexts),
+        "rules_version": rules,
+        "A": check_explanations(read_explanations(directory / "A_shpjegimet.md"), contexts, rules),
         "B": b_metrics,
         "B_duplicates": duplicate_rows(b_rows),
         "C": c_metrics,
@@ -497,6 +508,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="evaluation.kits")
     parser.add_argument("command", choices=("build", "check"))
     parser.add_argument("--dir", type=Path, default=KIT_DIR)
+    parser.add_argument(
+        "--rules",
+        default=LEGACY_RULES_VERSION,
+        choices=RULES_VERSIONS,
+        help="versioni i katalogut të rregullave; r1.3 është ai me të cilin u raportuan A dhe B",
+    )
     args = parser.parse_args(argv)
 
     if args.command == "build":
@@ -504,7 +521,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"shkruar {path}")
         return 0
 
-    report = check(args.dir)
+    report = check(args.dir, args.rules)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0
 

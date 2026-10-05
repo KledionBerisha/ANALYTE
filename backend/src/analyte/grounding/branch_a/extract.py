@@ -34,7 +34,7 @@ from analyte.domain.enums import AnalyteStatus, ReferenceSource
 from analyte.domain.models import AnalyteFinding, BoundingBox
 from analyte.ingestion.pdf_text import PageText, TextRow
 
-from . import loinc, reference
+from . import loinc, ocr_guard as guard, reference
 from .classify import classify
 from .normalize import normalize_unit, parse_number, split_value_and_unit, to_canonical
 
@@ -80,6 +80,8 @@ class Extraction:
     findings: tuple[AnalyteFinding, ...]
     rejected: tuple[tuple[str, str], ...]
     patient_sex: Sex | None
+    corrections: tuple[tuple[str, str], ...] = ()
+    """Rreshtat e mbajtur por me një korrigjim nga kontrolli i OCR-së (ADR 0020): intervali i dëmtuar u zëvendësua."""
 
     def rejection_counts(self) -> dict[str, int]:
         counts: dict[str, int] = {}
@@ -88,11 +90,15 @@ class Extraction:
         return dict(sorted(counts.items()))
 
 
-def extract(pages: tuple[PageText, ...], *, new_id=uuid4) -> Extraction:
-    """Nxjerr gjetjet nga faqet e lexuara."""
+def extract(pages: tuple[PageText, ...], *, new_id=uuid4, ocr_guard: bool = True) -> Extraction:
+    """Nxjerr gjetjet nga faqet e lexuara.
+
+    `ocr_guard` zbaton kontrollet e besueshmërisë (`ocr_guard.py`) mbi faqet e lexuara me OCR; faqet e tekstit nuk preken.
+    """
     sex = find_patient_sex(pages)
     findings: list[AnalyteFinding] = []
     rejected: list[tuple[str, str]] = []
+    corrections: list[tuple[str, str]] = []
     seen: set[str] = set()
 
     for page in pages:
@@ -101,7 +107,9 @@ def extract(pages: tuple[PageText, ...], *, new_id=uuid4) -> Extraction:
             if raw is None:
                 continue
 
-            finding, motive = _to_finding(raw, sex, new_id)
+            finding, motive = _to_finding(
+                raw, sex, new_id, guarded=ocr_guard and page.ocr, corrections=corrections
+            )
             if finding is None:
                 rejected.append((raw.name, motive))
             elif finding.analyte_code in seen:
@@ -111,7 +119,7 @@ def extract(pages: tuple[PageText, ...], *, new_id=uuid4) -> Extraction:
                 seen.add(finding.analyte_code)
                 findings.append(finding)
 
-    return Extraction(tuple(findings), tuple(rejected), sex)
+    return Extraction(tuple(findings), tuple(rejected), sex, tuple(corrections))
 
 
 def find_patient_sex(pages: tuple[PageText, ...]) -> Sex | None:
@@ -196,7 +204,12 @@ def _looks_like_prose(text: str) -> bool:
 
 
 def _to_finding(
-    raw: RawRow, sex: Sex | None, new_id
+    raw: RawRow,
+    sex: Sex | None,
+    new_id,
+    *,
+    guarded: bool = False,
+    corrections: list[tuple[str, str]] | None = None,
 ) -> tuple[AnalyteFinding | None, str]:
     code = loinc.resolve(raw.name)
     if code is None:
@@ -220,6 +233,24 @@ def _to_finding(
 
     value_canonical, unit_canonical = converted
     resolution = reference.resolve(analyte, raw.interval_text, raw.unit_text, sex)
+
+    if guarded:
+        if resolution.source is ReferenceSource.DOCUMENT and guard.damaged_interval(
+            analyte, resolution.low, resolution.high
+        ):
+            # Presja humbi te intervali i shtypur: ai hidhet dhe përdoret tabela, ose gjetja mbetet pa interval.
+            if corrections is not None:
+                corrections.append((raw.name, "interval i dëmtuar nga OCR; zëvendësuar me tabelën"))
+            resolution = reference.resolve(analyte, None, raw.unit_text, sex)
+        if resolution.has_bounds and guard.lost_decimal(
+            analyte,
+            raw.value_text,
+            raw.unit_text,
+            value_canonical,
+            resolution.low,
+            resolution.high,
+        ):
+            return None, "vlerë e dyshimtë (OCR): presja dhjetore mungon"
 
     if not resolution.has_bounds:
         return _uninterpretable(raw, analyte, value, code, new_id), ""

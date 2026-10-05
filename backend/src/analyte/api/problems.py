@@ -16,6 +16,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from . import headers
+
 MEDIA_TYPE = "application/problem+json"
 log = logging.getLogger("analyte.api")
 
@@ -69,4 +71,8 @@ def install(app: FastAPI) -> None:
     @app.exception_handler(Exception)
     async def _unexpected(request: Request, error: Exception) -> JSONResponse:
         log.error("gabim i papritur: %s", type(error).__name__)
-        return _response(500, "Gabim i brendshëm", "", "about:blank", request.url.path)
+        # Këtë përgjigje e nxjerr Starlette përtej middleware-it të kokave, prandaj i shtohen këtu.
+        return _response(
+            500, "Gabim i brendshëm", "", "about:blank", request.url.path,
+            headers.for_path(request.url.path),
+        )

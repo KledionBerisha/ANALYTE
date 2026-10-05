@@ -127,6 +127,23 @@ def revoke_all(db: Session, user_id: UUID, reason: str, now: datetime) -> int:
     return len(open_sessions)
 
 
+def revoke_others(db: Session, user_id: UUID, keep: UUID, reason: str, now: datetime) -> int:
+    """Revokon çdo seancë të hapur të përdoruesit përveç `keep`. Përdoret kur aktivizohet hapi i dytë: seancat e hapura
+    para tij u hapën vetëm me fjalëkalim, dhe nuk duhet të mbeten të vlefshme pa të (ADR 0018)."""
+    others = db.scalars(
+        select(AuthSessionRow).where(
+            AuthSessionRow.user_id == user_id,
+            AuthSessionRow.revoked_at.is_(None),
+            AuthSessionRow.id != keep,
+        )
+    ).all()
+    for auth_session in others:
+        auth_session.revoked_at = now
+        auth_session.revoked_reason = reason
+    audit.sessions_revoked_all(db, user_id, len(others))
+    return len(others)
+
+
 def revoke(db: Session, auth_session: AuthSessionRow, reason: str, now: datetime) -> None:
     if auth_session.revoked_at is not None:
         return

@@ -345,7 +345,7 @@ def appendix_g() -> str:
 
 
 def appendix_h() -> str:
-    from analyte.domain.policy import POLICY_VERSION, RULES_VERSION
+    from analyte.domain.policy import LEGACY_RULES_VERSION, POLICY_VERSION, RULES_VERSION
     from analyte.ingestion import ocr
     from evaluation.metrics import base
 
@@ -372,7 +372,9 @@ def appendix_h() -> str:
         "",
         "| Parametri | Vlera |",
         "|---|---|",
-        f"| Katalogu i rregullave | `{RULES_VERSION}` |",
+        f"| Katalogu i rregullave | `{LEGACY_RULES_VERSION}` te eksperimentet e ngrira (E4, E6–E11, grupet A, B, C); "
+        f"`{RULES_VERSION}` te shërbimi (ADR 0021) |",
+        "| Kontrolli i besueshmërisë i OCR-së | i fikur te eksperimentet e ngrira; i ndezur te shërbimi (ADR 0020) |",
         f"| Politika e sigurisë | `{POLICY_VERSION}` |",
         f"| OCR | Tesseract, gjuha `{ocr.DEFAULT_LANGUAGE}`, `--psm {ocr.DEFAULT_PSM}`, "
         f"{ocr.DEFAULT_DPI} dpi |",

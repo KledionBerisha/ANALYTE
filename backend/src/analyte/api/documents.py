@@ -13,14 +13,20 @@ shtresën e tekstit as metadatat e skedarit origjinal.
 **Fshirja fshin gjithçka përveç gjurmës.** Skedari i koduar, konteksti,
 shpjegimet dhe verifikimet shkojnë; ngjarjet e auditimit mbeten, sepse nuk
 mbajnë të dhëna shëndetësore dhe janë e vetmja dëshmi se dokumenti u
-përpunua dhe u fshi.
+përpunua dhe u fshi. Fshirja kalon nga `erasure`, e njëjta rrugë me
+fshirjen e llogarisë dhe me afatin e ruajtjes (ADR 0019).
+
+**Pëlqimi për modelin është për çdo ngarkim.** Fusha `model_consent` e formularit
+(parazgjedhja: jo) vlen vetëm kur shërbimi e ka modelin të ndezur; përndryshe
+ruhet jo. Pa të, dokumenti nuk dërgohet kurrë te ofruesi (ADR 0019).
 """
 
 from __future__ import annotations
 
 import hashlib
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, File, Request, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Request, Response, UploadFile
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -28,6 +34,7 @@ from sqlalchemy.orm import Session
 from analyte.audit import logger as audit
 from analyte.config import Settings
 from analyte.domain.enums import ProcessingState
+from analyte import erasure
 from analyte.persistence.tables import AuditEventRow, DocumentRow, JobRow, UserRow
 
 from . import deps
@@ -55,6 +62,7 @@ def _out(request: Request, document: DocumentRow) -> DocumentOut:
         state_reason=document.state_reason,
         channel=document.channel,
         terminal=ProcessingState(document.state).is_terminal,
+        model_consent=document.model_consent,
     )
 
 
@@ -62,6 +70,7 @@ def _out(request: Request, document: DocumentRow) -> DocumentOut:
 def upload(
     request: Request,
     file: UploadFile = File(...),
+    model_consent: bool = Form(False),
     user: UserRow = Depends(deps.current_user),
     db: Session = Depends(deps.session),
     config: Settings = Depends(deps.settings),
@@ -75,22 +84,38 @@ def upload(
 
     store = request.app.state.store
     digest = hashlib.sha256(content).hexdigest()
+    # Pëlqimi pyetet vetëm kur shërbimi e ka modelin të ndezur; një klient që dërgon `true` te një shërbim pa model nuk
+    # krijon pëlqim për një dërgim që nuk ndodh.
+    model_offered = config.service_generator == "model"
+    consent = model_offered and model_consent
+    now = datetime.now(UTC)
+    storage_path = store.put(content)
     document = DocumentRow(
         user_id=user.id,
         filename_encrypted=store.encrypt_text(file.filename or "dokument.pdf"),
         mime=file.content_type or "application/octet-stream",
         sha256=digest,
         size_bytes=len(content),
-        storage_path=store.put(content),
+        storage_path=storage_path,
         state=ProcessingState.UPLOADED.value,
+        model_consent=consent,
+        model_consent_at=now if consent else None,
     )
-    db.add(document)
-    db.flush()
-    job = JobRow(document_id=document.id, state=ProcessingState.UPLOADED.value)
-    db.add(job)
-    audit.document_uploaded(db, document.id, user.id, len(content), digest)
-    # Puna lexon dokumentin me sesionin e vet; ai duhet të jetë në bazë.
-    db.commit()
+    try:
+        db.add(document)
+        db.flush()
+        job = JobRow(document_id=document.id, state=ProcessingState.UPLOADED.value)
+        db.add(job)
+        audit.document_uploaded(db, document.id, user.id, len(content), digest)
+        if model_offered:
+            audit.model_consent_recorded(db, document.id, user.id, consent)
+        # Puna lexon dokumentin me sesionin e vet; ai duhet të jetë në bazë.
+        db.commit()
+    except Exception:
+        # Skedari u shkrua para rreshtit: pa rresht (p.sh. llogaria u fshi pikërisht tani) nuk do ta fshinte kush.
+        db.rollback()
+        store.delete(storage_path)
+        raise
 
     try:
         request.app.state.runner.submit(document.id)
@@ -100,7 +125,9 @@ def upload(
         raise Problem(503, "Përpunimi nuk mund të niste", "provoni sërish më vonë") from None
 
     db.refresh(document)
-    return UploadOut(id=document.id, job_id=job.id, state=document.state)
+    return UploadOut(
+        id=document.id, job_id=job.id, state=document.state, model_consent=document.model_consent
+    )
 
 
 @router.get("", response_model=DocumentPage)
@@ -132,14 +159,10 @@ def get(request: Request, document: DocumentRow = Depends(deps.owned_document)) 
 def remove(
     request: Request,
     document: DocumentRow = Depends(deps.owned_document),
-    user: UserRow = Depends(deps.current_user),
     db: Session = Depends(deps.session),
 ) -> Response:
-    storage_path, document_id = document.storage_path, document.id
-    db.delete(document)
-    audit.document_deleted(db, document_id, user.id)
+    erasure.erase_documents(db, request.app.state.store, [document])
     db.commit()
-    request.app.state.store.delete(storage_path)
     return Response(status_code=204)
 
 

@@ -1,0 +1,7 @@
+# Tabelat burimore hashohen si bajte të papërpunuara kur ndërtohet korpusi (data_generator/generate.py ruan
+# SHA-256 te data/v1/manifest.json, dhe versioni i korpusit del prej tyre). Me `core.autocrlf=true` git ua
+# ndryshon mbarimet e rreshtave gjatë checkout-it, kështu që një kopje e re nuk përputhej me manifestin.
+# `-text` e ndalon çdo konvertim: git ruan dhe kthen saktësisht bajtet që u hashuan.
+# Mbarimet e përziera te terminology.csv janë të qëllimshme (ruhen siç janë); mos i normalizoni pa e
+# ribërë korpusin, sepse versioni do të ndryshonte.
+resources/*.csv -text

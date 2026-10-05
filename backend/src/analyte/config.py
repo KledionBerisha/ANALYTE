@@ -76,6 +76,36 @@ class Settings(BaseSettings):
     register_max_per_email: int = 3
     """Kërkesa për një email nga çdo IP brenda dritares: kufizon sa mesazhe merr një adresë."""
 
+    reset_token_minutes: int = 60
+    """Sa vlen lidhja e rivendosjes së fjalëkalimit. Më e shkurtër se ajo e konfirmimit: një lidhje e tillë hap
+    llogarinë, jo vetëm e aktivizon (ADR 0018). Përdoret një herë."""
+    reset_submit_max_per_ip: int = 20
+    """Dorëzime të formës së rivendosjes nga një IP brenda `register_window_minutes`, të suksesshme ose jo."""
+
+    mfa_challenge_minutes: int = 5
+    """Sa vlen sfida e dhënë pas fjalëkalimit të saktë, që hapi i dytë i hyrjes të mbarojë (ADR 0018)."""
+    mfa_max_failures_pair: int = 5
+    """Kode të gabuara për një çift (përdorues, IP) brenda `login_window_minutes`."""
+    mfa_max_failures_ip: int = 20
+    mfa_max_failures_user: int = 10
+    """Kode të gabuara për një përdorues nga çdo IP. Më i ulët se kufiri i fjalëkalimit: hapësira e një kodi me gjashtë
+    shifra është vetëm një milion, dhe kodi kontrollohet vetëm pasi fjalëkalimi është i saktë."""
+    mfa_recovery_codes: int = 8
+    mfa_issuer: str = "ANALYTE"
+    """Emri që shfaq aplikacioni i vërtetimit pranë kodit."""
+
+    mail_send_attempts: int = 3
+    """Sa herë provohet dërgimi i një mesazhi para se të lihet si i padërguar (ADR 0018)."""
+    mail_retry_backoff_seconds: float = 2.0
+    """Pritja para provës së dytë; dyfishohet me secilën tjetër."""
+    mail_resend_after_minutes: int = 10
+    """Një mesazh i padërguar merret nga kalimi periodik vetëm pasi ka kaluar kjo kohë: dërgimi në sfond ka mbaruar deri atëherë."""
+    mail_auto_reissue_per_day: int = 2
+    """Sa lidhje të reja mund të nxjerrë kalimi periodik automatikisht për një përdorues në 24 orë: kufi që ai të mos
+    përdoret për të mbushur një kuti postare."""
+    mail_delivery_retention_days: int = 30
+    """Sa mbahen regjistrimet e dërgimit (pa adresa); pastaj fshihen nga kalimi periodik."""
+
     job_runner: Literal["inline", "arq"] = "arq"
     """`inline` e përpunon dokumentin brenda kërkesës — vetëm për teste dhe
     prova; `arq` e dërgon te radha dhe kërkesa kthehet menjëherë (NFR4)."""
@@ -84,6 +114,11 @@ class Settings(BaseSettings):
     """Lexo dokumentet e skanuara me Tesseract kur motori gjendet."""
 
     cors_origins: list[str] = ["http://localhost:3000"]
+
+    document_retention_days: int = Field(default=0, ge=0)
+    """Sa ditë ruhet një dokument pas ngarkimit (ADR 0019). 0 = ruhet derisa pronari ta fshijë (e fikur, parazgjedhja).
+    Me një vlerë më të madhe, punëtori fshin çdo orë dokumentet më të vjetra, me të njëjtën rrugë si fshirja nga
+    pronari: skedari i koduar, gjetjet, shpjegimet. Vendimi për afatin është i autorit, jo i kodit."""
 
     service_generator: Literal["template", "model"] = "template"
     """Ç'gjeneron shpjegimet te aplikacioni i uebit (ADR 0017). `template` (parazgjedhja) nuk dërgon asnjë të dhënë jashtë

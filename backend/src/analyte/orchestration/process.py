@@ -30,13 +30,13 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from uuid import UUID
 
 from analyte.domain.enums import ProcessingState as S
 from analyte.domain.models import GroundingContext, VerificationResult, Violation
 from analyte.domain.policy import MAX_GENERATION_ATTEMPTS
+from analyte.domain.processing import Attempt, Delivery, Explanation
 from analyte.generation import templates
 from analyte.generation.base import Generator
 from analyte.grounding.context import build as build_grounding
@@ -51,55 +51,6 @@ Verifier = Callable[[GroundingContext, str], VerificationResult]
 Ocr = Callable[[Path], tuple[PageText, ...]]
 
 
-class Delivery(str, Enum):
-    """Nga erdhi teksti që pa pacienti."""
-
-    GENERATED = "generated"
-    TEMPLATE = "template"
-
-
-@dataclass(frozen=True, slots=True)
-class Attempt:
-    """Një përpjekje gjenerimi dhe vendimi mbi të.
-
-    Një përpjekje që dështoi me përjashtim nuk ka as tekst as verifikim,
-    por ka gabimin — dhe numërohet si përpjekje e plotë.
-    """
-
-    number: int
-    generator: str
-    text: str | None
-    verification: VerificationResult | None
-    error: str | None = None
-
-    @property
-    def passed(self) -> bool:
-        return self.verification is not None and self.verification.passed
-
-    @property
-    def violations(self) -> tuple[Violation, ...]:
-        return self.verification.violations if self.verification else ()
-
-    def failure(self) -> str:
-        """Pse përpjekja nuk u dorëzua, në një rresht për regjistrin."""
-        if self.error is not None:
-            return f"gjeneruesi dështoi: {self.error}"
-        kinds = sorted({v.type.value for v in self.violations})
-        return f"{len(self.violations)} shkelje: {', '.join(kinds)}"
-
-
-@dataclass(frozen=True, slots=True)
-class Explanation:
-    """Teksti i dorëzuar bashkë me rrugën që e prodhoi."""
-
-    text: str
-    delivery: Delivery
-    attempts: tuple[Attempt, ...]
-    verification: VerificationResult
-    """Verifikimi i tekstit të dorëzuar — i përpjekjes që kaloi, ose i
-    shabllonit."""
-
-
 @dataclass(frozen=True, slots=True)
 class Outcome:
     """Gjendja përfundimtare e një dokumenti dhe gjithçka që u prodhua."""
@@ -109,6 +60,11 @@ class Outcome:
     channel: Channel | None = None
     context: GroundingContext | None = None
     explanation: Explanation | None = None
+    model_use: str | None = None
+    """Çfarë ndodhi me modelin gjuhësor (ADR 0019): `used`, `no_consent`, `identifying_content`; None kur modeli
+    nuk ishte në lojë."""
+    model_gate_kinds: tuple[str, ...] = ()
+    """Llojet që gjeti porta e çidentifikimit, kur `model_use` është `identifying_content`."""
 
     @property
     def state(self) -> S:
@@ -119,6 +75,18 @@ class Outcome:
         return self.transitions[-1].reason
 
 
+@dataclass(frozen=True, slots=True)
+class GeneratorChoice:
+    """Gjeneruesi që do të përdoret për një kontekst, dhe pse (ADR 0019)."""
+
+    generator: Generator
+    model_use: str | None = None
+    gate_kinds: tuple[str, ...] = ()
+
+
+Chooser = Callable[[GroundingContext], GeneratorChoice]
+
+
 def process(
     document_id: UUID,
     path: Path,
@@ -127,6 +95,7 @@ def process(
     ocr: Ocr | None = None,
     verifier: Verifier = verify,
     log: StateLog | None = None,
+    choose: Chooser | None = None,
 ) -> Outcome:
     """Drejton një dokument nga ngarkimi te një gjendje përfundimtare.
 
@@ -135,6 +104,9 @@ def process(
     kishte asgjë" janë dy përgjigje të ndryshme për pacientin.
 
     `log` jepet nga shërbimi kur kalimet duhet të shkruhen ndërsa ndodhin.
+
+    `choose` zgjedh gjeneruesin pasi konteksti ekziston (pëlqimi i pacientit dhe porta e çidentifikimit, ADR 0019);
+    pa të përdoret `generator` siç është.
     """
     log = log or StateLog()
 
@@ -172,8 +144,17 @@ def process(
     log.advance(
         S.GROUNDED, f"{len(context.findings)} gjetje, {len(context.assertions)} pohime"
     )
-    explanation = explain(context, generator, verifier=verifier, log=log)
-    return Outcome(document_id, log.transitions, routing.channel, context, explanation)
+    choice = choose(context) if choose is not None else GeneratorChoice(generator)
+    explanation = explain(context, choice.generator, verifier=verifier, log=log)
+    return Outcome(
+        document_id,
+        log.transitions,
+        routing.channel,
+        context,
+        explanation,
+        model_use=choice.model_use,
+        model_gate_kinds=choice.gate_kinds,
+    )
 
 
 def explain(

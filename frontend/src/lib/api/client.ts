@@ -33,6 +33,11 @@ export type PagesOut = Schemas["PagesOut"];
 export type Tokens = Schemas["Tokens"];
 export type UserOut = Schemas["UserOut"];
 export type RegisterOut = Schemas["RegisterOut"];
+export type MfaChallenge = Schemas["MfaChallenge"];
+export type TwoFactorStatus = Schemas["TwoFactorStatus"];
+export type TwoFactorEnrollment = Schemas["TwoFactorEnrollment"];
+export type RecoveryCodes = Schemas["RecoveryCodes"];
+export type PrivacyConfig = Schemas["PrivacyConfig"];
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -142,9 +147,14 @@ export const api = {
     });
   },
 
-  upload(file: File) {
+  /**
+   * Ngarkon dokumentin. `modelConsent` është pëlqimi i shprehur për dërgimin te ofruesi i modelit, vetëm për këtë
+   * ngarkim (ADR 0019); pa të (parazgjedhja) dokumenti nuk dërgohet kurrë te ofruesi.
+   */
+  upload(file: File, modelConsent = false) {
     const form = new FormData();
     form.append("file", file);
+    form.append("model_consent", modelConsent ? "true" : "false");
     return api.json<Schemas["UploadOut"]>("/documents", { method: "POST", body: form });
   },
 
@@ -183,6 +193,44 @@ export const api = {
   /** Kërkon një lidhje të re konfirmimi. Përgjigja është e njëjtë për çdo email. */
   resendConfirmation(email: string): Promise<RegisterOut> {
     return api.post<RegisterOut>("/auth/resend-confirmation", { email });
+  },
+
+  /** Kërkon lidhjen e rivendosjes së fjalëkalimit. Përgjigja është e njëjtë për çdo email (ADR 0018). */
+  forgotPassword(email: string): Promise<RegisterOut> {
+    return api.post<RegisterOut>("/auth/forgot-password", { email });
+  },
+
+  /** Vendos fjalëkalimin e ri me tokenin e lidhjes (vlen një herë). Pas suksesit çdo seancë mbyllet. */
+  resetPassword(token: string, password: string): Promise<void> {
+    return api.post<void>("/auth/reset-password", { token, password });
+  },
+
+  /** Hapi i dytë i hyrjes: sfida nga `/auth/login` dhe një kod (aplikacioni ose rimëkëmbjeje). */
+  verifyLogin(challenge: string, code: string): Promise<Tokens> {
+    return api.post<Tokens>("/auth/login/verify", { challenge, code });
+  },
+
+  twoFactorStatus(): Promise<TwoFactorStatus> {
+    return api.json<TwoFactorStatus>("/auth/2fa");
+  },
+
+  /** Nis regjistrimin: sekreti dhe URI-ja kthehen vetëm këtu, një herë. */
+  twoFactorEnroll(): Promise<TwoFactorEnrollment> {
+    return api.post<TwoFactorEnrollment>("/auth/2fa/enroll", {});
+  },
+
+  /** Aktivizon me kodin e parë; kthen kodet e rimëkëmbjes, që shfaqen vetëm një herë. */
+  twoFactorConfirm(code: string): Promise<RecoveryCodes> {
+    return api.post<RecoveryCodes>("/auth/2fa/confirm", { code });
+  },
+
+  twoFactorDisable(password: string, code: string): Promise<void> {
+    return api.post<void>("/auth/2fa/disable", { password, code });
+  },
+
+  /** Çfarë dërgohet jashtë sistemit dhe sa ruhet; i hapur, sepse faqja e ngarkimit pyet para se të ngarkojë. */
+  privacyConfig(): Promise<PrivacyConfig> {
+    return api.json<PrivacyConfig>("/privacy/config");
   },
 
   remove(id: string) {

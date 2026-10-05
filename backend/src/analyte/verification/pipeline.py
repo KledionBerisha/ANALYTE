@@ -18,9 +18,8 @@ from collections.abc import Callable, Iterator
 from uuid import UUID, uuid4
 
 from analyte.domain.models import GroundingContext, VerificationResult, Violation
-from analyte.domain.policy import RULES_VERSION
 
-from . import rules_exact, rules_policy, rules_prose
+from . import rules_exact, rules_policy, rules_prose, ruleset
 
 Rule = Callable[[GroundingContext, str], Iterator[Violation]]
 
@@ -43,22 +42,27 @@ def verify(
     text: str,
     *,
     explanation_id: UUID | None = None,
+    rules: str | None = None,
 ) -> VerificationResult:
     """Zbaton katalogun e plotë të rregullave mbi një tekst.
 
     Kohëzgjatja matet dhe ruhet: verifikimi qëndron ndërmjet gjenerimit
     dhe dorëzimit, prandaj kostoja e tij është pjesë e sjelljes së
     sistemit dhe jo hollësi zbatimi.
+
+    `rules` zgjedh versionin e katalogut (`r1.3` të ngrirë, ose `r1.4`); pa të përdoret ai i
+    parazgjedhur. Versioni i përdorur ruhet në rezultat.
     """
     started = time.perf_counter()
     violations: list[Violation] = []
-    for _, rule in RULES:
-        violations.extend(rule(context, text))
+    with ruleset.using(rules) as version:
+        for _, rule in RULES:
+            violations.extend(rule(context, text))
     duration = int((time.perf_counter() - started) * 1000)
 
     return VerificationResult(
         explanation_id=explanation_id or uuid4(),
         violations=tuple(violations),
-        rules_version=RULES_VERSION,
+        rules_version=version,
         duration_ms=duration,
     )

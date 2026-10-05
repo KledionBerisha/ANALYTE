@@ -144,6 +144,17 @@ python -m evaluation.harness --dataset data/v1 --generator llm --ocr --pipeline 
 python -m evaluation.harness --dataset data/v1 --generator llm --ocr --pipeline e8 --experiment E4   # PK3
 ```
 
+Rezultatet e ngrira janë me katalogun e rregullave `r1.3` dhe pa kontrollin e besueshmërisë të OCR-së (ADR 0020, 0021): ato janë parazgjedhja e
+harness-it, dhe shërbimi përdor `r1.4` dhe kontrollin. Matjet shtesë (rezultatet te `evaluation/results/supplementary/`):
+
+```bash
+python -m evaluation.harness --dataset data/v1 --pipeline grounding --ocr --ocr-guard --out /tmp/guard   # E1/E2/E3/E5 me kontrollin
+python -m evaluation.ocr_guard_report     # 168 dokumentet e skanuara, pa kontroll dhe me kontroll mbi të njëjtat faqe
+python -m evaluation.compare_rules        # r1.3 kundrejt r1.4: shablloni, E10, grupet A dhe B, auditi i E8
+python -m evaluation.kits check --rules r1.4
+python scripts/verify_corpus.py           # tabelat burimore kundrejt manifestit të korpusit
+```
+
 Çdo përgjigje e modelit ruhet te `evaluation/cache/llm/` (një skedar për kërkesë, çelës
 hash-i i kërkesës së plotë) dhe versionohet në git: një ekzekutim i dytë nuk bën asnjë thirrje dhe jep
 po atë tekst. Nëse ofruesi bie ose kuota mbaron, ekzekutimi ndalet (jo numërohet si gabim i modelit)

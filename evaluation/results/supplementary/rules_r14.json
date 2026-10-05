@@ -1,0 +1,907 @@
+{
+  "what": "r1.4 kundrejt r1.3 mbi shabllonin, E10, grupet A dhe B, dhe auditin e E8 (ADR 0021)",
+  "metadata": {
+    "git_sha": "674281c4edc91e2dbc172053c002dde9c02567cd",
+    "working_tree_dirty": true,
+    "rules_version": "r1.3 dhe r1.4",
+    "policy_version": "sp1.0",
+    "python": "3.12.3"
+  },
+  "template": {
+    "r1.3": {
+      "documents": 500,
+      "documents_with_violations": 0
+    },
+    "r1.4": {
+      "documents": 500,
+      "documents_with_violations": 0
+    }
+  },
+  "E10_test": {
+    "r1.3": {
+      "samples": 192,
+      "macro_f1": 0.9925413543294821,
+      "micro": {
+        "tp": 160,
+        "fp": 1,
+        "fn": 2,
+        "precision": 0.9938,
+        "recall": 0.9877,
+        "f1": 0.9907,
+        "support": 162
+      },
+      "false_alarms_on_clean": 0
+    },
+    "r1.4": {
+      "samples": 192,
+      "macro_f1": 1.0,
+      "micro": {
+        "tp": 162,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 162
+      },
+      "false_alarms_on_clean": 0
+    }
+  },
+  "kits": {
+    "r1.3": {
+      "A_flagged": 5,
+      "A_explanations": 25,
+      "B_macro_f1": 0.7951609793715056,
+      "B_micro": {
+        "tp": 58,
+        "fp": 1,
+        "fn": 17,
+        "precision": 0.9831,
+        "recall": 0.7733,
+        "f1": 0.8657,
+        "support": 75
+      },
+      "B_false_alarms_on_clean": 1,
+      "B_f1_by_type": {
+        "direction_mismatch": 0.6667,
+        "fabricated_finding": 0.9474,
+        "hedge_removed": 1.0,
+        "polarity_flip": 1.0,
+        "prohibited_claim": 0.4615,
+        "ungrounded_analyte": 1.0,
+        "ungrounded_number": 0.9524,
+        "ungrounded_term_explanation": 0.3333
+      }
+    },
+    "r1.4": {
+      "A_flagged": 0,
+      "A_explanations": 25,
+      "B_macro_f1": 0.8427800269905533,
+      "B_micro": {
+        "tp": 63,
+        "fp": 0,
+        "fn": 12,
+        "precision": 1.0,
+        "recall": 0.84,
+        "f1": 0.913,
+        "support": 75
+      },
+      "B_false_alarms_on_clean": 0,
+      "B_f1_by_type": {
+        "direction_mismatch": 1.0,
+        "fabricated_finding": 0.9474,
+        "hedge_removed": 1.0,
+        "polarity_flip": 1.0,
+        "prohibited_claim": 0.4615,
+        "ungrounded_analyte": 1.0,
+        "ungrounded_number": 1.0,
+        "ungrounded_term_explanation": 0.3333
+      }
+    }
+  },
+  "audit_E8": {
+    "texts": 90,
+    "r1.3_flags": 0,
+    "r1.4_flags": 25,
+    "audit_rule_type_problem_texts": 40,
+    "of_which_r1.4_flags": 17,
+    "of_which_r1.4_flags_a_type_the_audit_named": 14,
+    "audit_clean_texts": 38,
+    "r1.4_flags_among_audit_clean": 2,
+    "r1.4_flag_types": {
+      "direction_mismatch": 16,
+      "ungrounded_number": 5,
+      "ungrounded_term_explanation": 9,
+      "ungrounded_analyte": 1
+    },
+    "per_text": [
+      {
+        "id": "A-000",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "fabricated_finding",
+          "prohibited_claim"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-001",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-002",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-003",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_number",
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-004",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-005",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-006",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-007",
+        "audit_rule_labels": [
+          "fabricated_finding",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch",
+          "ungrounded_number"
+        ]
+      },
+      {
+        "id": "A-009",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "fabricated_finding",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-010",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-011",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-012",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-014",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-015",
+        "audit_rule_labels": [
+          "ungrounded_number"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_number"
+        ]
+      },
+      {
+        "id": "A-016",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-017",
+        "audit_rule_labels": [
+          "ungrounded_number"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-018",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-019",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-020",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-021",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-022",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-023",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-024",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-025",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-026",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-027",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-028",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-029",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-030",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-031",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-032",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-033",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-034",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-035",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-036",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-038",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-039",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-040",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-041",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "ungrounded_number",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-042",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_analyte"
+        ]
+      },
+      {
+        "id": "A-043",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-044",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-045",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-047",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-049",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-050",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_number",
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-052",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-053",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "fabricated_finding",
+          "ungrounded_number"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-054",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-055",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-056",
+        "audit_rule_labels": [
+          "ungrounded_number",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-057",
+        "audit_rule_labels": [
+          "prohibited_claim",
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch",
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-060",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-061",
+        "audit_rule_labels": [
+          "ungrounded_term_explanation"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch",
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-062",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "hedge_removed"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-063",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-065",
+        "audit_rule_labels": [
+          "ungrounded_number"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-066",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-067",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-068",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-069",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-070",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-072",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-073",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-074",
+        "audit_rule_labels": [
+          "fabricated_finding"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-075",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-076",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "fabricated_finding"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-077",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-078",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-079",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-080",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-081",
+        "audit_rule_labels": [
+          "fabricated_finding",
+          "ungrounded_number"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-082",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-083",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-084",
+        "audit_rule_labels": [
+          "polarity_flip"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-085",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-086",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-087",
+        "audit_rule_labels": [
+          "direction_mismatch"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-088",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch",
+          "ungrounded_number"
+        ]
+      },
+      {
+        "id": "A-089",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-090",
+        "audit_rule_labels": [
+          "polarity_flip",
+          "ungrounded_number"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "ungrounded_term_explanation"
+        ]
+      },
+      {
+        "id": "A-091",
+        "audit_rule_labels": [
+          "fabricated_finding"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-092",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-093",
+        "audit_rule_labels": [],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-094",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-095",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "fabricated_finding"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": [
+          "direction_mismatch"
+        ]
+      },
+      {
+        "id": "A-096",
+        "audit_rule_labels": [
+          "direction_mismatch",
+          "fabricated_finding"
+        ],
+        "audit_any": true,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-097",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-098",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      },
+      {
+        "id": "A-099",
+        "audit_rule_labels": [],
+        "audit_any": false,
+        "r1.3": [],
+        "r1.4": []
+      }
+    ]
+  },
+  "note": "r1.4 u hartua pasi u panë gabimet e grupeve A, B, të auditit dhe të E10: ato nuk janë më mostra të pastra për të. Numrat tregojnë sa kap defektet e njohura dhe sa mban pastërtinë e shabllonit, jo përgjithësimin."
+}

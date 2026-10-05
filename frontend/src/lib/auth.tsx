@@ -13,6 +13,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 
 import {
   api,
+  type MfaChallenge,
   type RegisterOut,
   session,
   type Tokens,
@@ -22,7 +23,10 @@ import {
 
 type Auth = {
   user: UserOut | null | undefined;
-  login: (email: string, password: string) => Promise<void>;
+  /** Kthen `null` kur seanca u hap, ose sfidën kur llogaria ka hap të dytë (ADR 0018): atëherë vazhdon `verify`. */
+  login: (email: string, password: string) => Promise<string | null>;
+  /** Hapi i dytë i hyrjes: sfida dhe një kod i aplikacionit ose i rimëkëmbjes. */
+  verify: (challenge: string, code: string) => Promise<void>;
   /** Kthen mesazhin e shërbimit; llogaria nuk hyn derisa email-i të konfirmohet (ADR 0016). */
   register: (email: string, password: string) => Promise<string>;
   logout: () => void;
@@ -62,7 +66,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [leave]);
 
   const login = useCallback(async (email: string, password: string) => {
-    session.save(await api.post<Tokens>("/auth/login", { email, password }));
+    const reply = await api.post<Tokens | MfaChallenge>("/auth/login", { email, password });
+    if ("mfa_required" in reply) return reply.challenge;
+    session.save(reply);
+    setUser(await api.json<UserOut>("/auth/me"));
+    return null;
+  }, []);
+
+  const verify = useCallback(async (challenge: string, code: string) => {
+    session.save(await api.verifyLogin(challenge, code));
     setUser(await api.json<UserOut>("/auth/me"));
   }, []);
 
@@ -78,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [leave]);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, logoutEverywhere }}>
+    <AuthContext.Provider value={{ user, login, verify, register, logout, logoutEverywhere }}>
       {children}
     </AuthContext.Provider>
   );

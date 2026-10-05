@@ -75,6 +75,8 @@ class PageText:
 
     number: int
     rows: tuple[TextRow, ...]
+    ocr: bool = False
+    """Faqja u lexua me OCR, jo nga shtresa e tekstit. OCR-ja humb presje dhjetore; teksti i PDF-së jo (ADR 0020)."""
 
     @property
     def character_count(self) -> int:

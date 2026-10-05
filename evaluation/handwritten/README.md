@@ -10,6 +10,9 @@ python -m evaluation.kits build   # rishkruan vetëm A_kontekstet.md
 python -m evaluation.kits check   # mat gjithçka që është plotësuar
 ```
 
+`check` përdor katalogun `r1.3` si parazgjedhje (me të u raportuan A dhe B); `--rules r1.4` e kalon te versioni i përmirësuar (ADR 0021), por
+A dhe B nuk janë më mostra të pastra për të, sepse r1.4 u hartua pasi u panë gabimet e tyre.
+
 `build` nuk mbishkruan asnjë skedar që plotësoni ju. `check` mund të
 ekzekutohet në çdo moment: rreshtat bosh anashkalohen, dhe rreshtat me
 gabim formati raportohen me arsyen në vend që të ndalin matjen.

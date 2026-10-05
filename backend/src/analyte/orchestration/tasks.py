@@ -29,6 +29,7 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from analyte.audit import logger as audit
@@ -38,6 +39,7 @@ from analyte.persistence.database import session_scope
 from analyte.persistence.storage import EncryptedStore
 from analyte.persistence.tables import DocumentRow, JobRow
 
+from . import model_gate
 from .process import Ocr, process
 from .states import StateLog, Transition
 
@@ -78,6 +80,7 @@ def run_document(services: Services, document_id: UUID) -> None:
         if document is None:
             return  # u fshi para se puna të nisej
         storage_path = document.storage_path
+        consent = document.model_consent
         _latest_job(session, document_id).started_at = _now()
 
     terminal: list[Transition] = []
@@ -98,6 +101,7 @@ def run_document(services: Services, document_id: UUID) -> None:
                 services.generator,
                 ocr=services.ocr,
                 log=StateLog(listener=on_transition),
+                choose=model_gate.chooser(services.generator, consent),
             )
     except Exception as error:
         with session_scope(services.sessions) as session:
@@ -109,18 +113,33 @@ def run_document(services: Services, document_id: UUID) -> None:
             audit.processing_failed(session, document_id, error)
         return
 
-    with session_scope(services.sessions) as session:
-        document = session.get(DocumentRow, document_id)
-        if document is None:
-            return
-        document.channel = outcome.channel.value if outcome.channel else None
-        if outcome.context is not None:
-            repository.save_context(session, outcome.context)
-        if outcome.explanation is not None:
-            repository.save_explanation(session, document_id, outcome.explanation)
-        for step in terminal:
-            _apply(session, document_id, step)
-        _latest_job(session, document_id).finished_at = _now()
+    try:
+        with session_scope(services.sessions) as session:
+            document = session.get(DocumentRow, document_id)
+            if document is None:
+                return
+            document.channel = outcome.channel.value if outcome.channel else None
+            if outcome.model_use is not None:
+                document.model_use = outcome.model_use
+                document.model_gate_kinds = ",".join(outcome.model_gate_kinds) or None
+                audit.model_use_decided(
+                    session, document_id, outcome.model_use, outcome.model_gate_kinds
+                )
+            if outcome.context is not None:
+                repository.save_context(session, outcome.context)
+            if outcome.explanation is not None:
+                repository.save_explanation(session, document_id, outcome.explanation)
+            for step in terminal:
+                _apply(session, document_id, step)
+            _latest_job(session, document_id).finished_at = _now()
+    except IntegrityError:
+        # Pronari e fshiu dokumentin (ose afati i ruajtjes e fshiu) pikërisht ndërsa rezultatet po shkruheshin: çelësi
+        # i huaj refuzon rreshtat e rinj dhe transaksioni kthehet prapa. Nuk ka asgjë për t'u ruajtur; çdo gjë tjetër
+        # është defekt dhe ngrihet (ADR 0019).
+        with session_scope(services.sessions) as session:
+            if session.get(DocumentRow, document_id) is None:
+                return
+        raise
 
 
 class JobRunner(Protocol):
@@ -162,7 +181,8 @@ def build_generator(settings: Any):
 
     **Modeli është zgjedhje e shprehur, jo parazgjedhje.** Me `template` (parazgjedhja), edhe nëse `.env` ka ofruesin për
     eksperimentet, shpjegimi del nga shablloni dhe asnjë e dhënë nuk del nga sistemi. Me `model`, konteksti i strukturuar (vlera laboratorike, statuse, citime të mjekut; kurrë emri, mosha, gjinia
-    apo dokumenti i papërpunuar) i dërgohet ofruesit për çdo dokument, dhe kjo duhet të jetë vendim i mirëmenduar (docs/ethics).
+    apo dokumenti i papërpunuar) i dërgohet ofruesit **vetëm për dokumentet me pëlqim të shprehur të pacientit që kalojnë
+    portën e çidentifikimit** (ADR 0019, `model_gate`); të tjerët dalin me shabllon. Kjo duhet të jetë vendim i mirëmenduar (docs/ethics).
 
     **Pa cache në disk.** Harness-i i vlerësimit i ruan përgjigjet e modelit te depoja (`evaluation/cache/llm`), që eksperimentet
     të përsëriten; këtu kërkesat dhe përgjigjet përmbajnë të dhëna të pacientëve të vërtetë, dhe asnjë kopje e tyre nuk shkruhet

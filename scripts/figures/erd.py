@@ -37,7 +37,10 @@ POSITIONS: dict[str, tuple[float, float]] = {
     "refresh_tokens": (0.95, 1.1),
     "login_failures": (3.0, 0.8),
     "registration_attempts": (3.0, 2.3),
-    "email_confirmations": (3.0, 5.7),
+    "email_confirmations": (3.0, 5.45),
+    "password_resets": (3.0, 4.45),
+    "mail_deliveries": (3.0, 6.4),
+    "recovery_codes": (3.0, 1.55),
     "documents": (3.25, 3.6),
 }
 """Vendosjet e shkruara me dorë. Fëmijët e `documents` nuk janë këtu: ata

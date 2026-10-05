@@ -19,7 +19,8 @@
 
 | Parametri | Vlera |
 |---|---|
-| Katalogu i rregullave | `r1.3` |
+| Katalogu i rregullave | `r1.3` te eksperimentet e ngrira (E4, E6–E11, grupet A, B, C); `r1.4` te shërbimi (ADR 0021) |
+| Kontrolli i besueshmërisë i OCR-së | i fikur te eksperimentet e ngrira; i ndezur te shërbimi (ADR 0020) |
 | Politika e sigurisë | `sp1.0` |
 | OCR | Tesseract, gjuha `eng`, `--psm 6`, 200 dpi |
 | Rimostrimi bootstrap | 2000 rimostrime, fara 20260928, njësia është dokumenti |

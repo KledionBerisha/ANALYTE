@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from analyte.config import Settings
 from analyte.mail import Mailer
+from analyte.persistence.storage import EncryptedStore
 from analyte.persistence.tables import AuthSessionRow, DocumentRow, UserRow
 from analyte.security import TokenError, read_token
 
@@ -32,6 +33,10 @@ def settings(request: Request) -> Settings:
 
 def mailer(request: Request) -> Mailer:
     return request.app.state.mailer
+
+
+def store(request: Request) -> EncryptedStore:
+    return request.app.state.store
 
 
 def session(request: Request) -> Iterator[Session]:

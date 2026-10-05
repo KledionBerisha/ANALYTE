@@ -105,9 +105,11 @@ def verify_with_classifier(
     text: str,
     predictor: SentencePredictor,
     threshold: float,
+    *,
+    rules: str | None = None,
 ) -> VerificationResult:
     """Rregullat, pastaj klasifikuesi mbi fjalitë që rregullat i lanë të pastra."""
-    ruled = verify(context, text)
+    ruled = verify(context, text, rules=rules)
     flagged = frozenset(v.sentence for v in ruled.violations)
     extra = tuple(check(context, text, predictor, threshold, skip=flagged))
     return ruled.model_copy(

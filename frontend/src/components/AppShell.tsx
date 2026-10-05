@@ -54,6 +54,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 Seancat nuk u mbyllën. Provoni sërish.
               </span>
             )}
+            <Link
+              href="/security"
+              className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            >
+              Siguria
+            </Link>
             <button
               onClick={everywhere}
               className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"

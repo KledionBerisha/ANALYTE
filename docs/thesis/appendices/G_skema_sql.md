@@ -2,7 +2,7 @@
 
 ## Shtojca G — Skema SQL e bazës së të dhënave
 
-Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 18 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
+Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 21 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
 
 ```sql
 CREATE TABLE audit_events (
@@ -47,6 +47,9 @@ CREATE TABLE users (
 	password_hash VARCHAR(255) NOT NULL, 
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
 	email_confirmed_at TIMESTAMP WITH TIME ZONE, 
+	totp_secret_encrypted BYTEA, 
+	totp_enabled_at TIMESTAMP WITH TIME ZONE, 
+	totp_last_step INTEGER, 
 	PRIMARY KEY (id)
 );
 
@@ -76,6 +79,10 @@ CREATE TABLE documents (
 	channel VARCHAR(20), 
 	state VARCHAR(30) NOT NULL, 
 	state_reason TEXT NOT NULL, 
+	model_consent BOOLEAN DEFAULT false NOT NULL, 
+	model_consent_at TIMESTAMP WITH TIME ZONE, 
+	model_use VARCHAR(30), 
+	model_gate_kinds VARCHAR(200), 
 	PRIMARY KEY (id), 
 	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
 );
@@ -96,6 +103,54 @@ CREATE TABLE email_confirmations (
 CREATE UNIQUE INDEX ix_email_confirmations_token_key ON email_confirmations (token_key);
 
 CREATE INDEX ix_email_confirmations_user_id ON email_confirmations (user_id);
+
+CREATE TABLE mail_deliveries (
+	id UUID NOT NULL, 
+	user_id UUID NOT NULL, 
+	kind VARCHAR(20) NOT NULL, 
+	token_id UUID NOT NULL, 
+	origin VARCHAR(10) NOT NULL, 
+	status VARCHAR(12) NOT NULL, 
+	attempts INTEGER NOT NULL, 
+	last_error VARCHAR(80), 
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	last_attempt_at TIMESTAMP WITH TIME ZONE, 
+	sent_at TIMESTAMP WITH TIME ZONE, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_mail_deliveries_status_created ON mail_deliveries (status, created_at);
+
+CREATE INDEX ix_mail_deliveries_user_id ON mail_deliveries (user_id);
+
+CREATE TABLE password_resets (
+	id UUID NOT NULL, 
+	user_id UUID NOT NULL, 
+	token_key VARCHAR(64) NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	expires_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	used_at TIMESTAMP WITH TIME ZONE, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX ix_password_resets_token_key ON password_resets (token_key);
+
+CREATE INDEX ix_password_resets_user_id ON password_resets (user_id);
+
+CREATE TABLE recovery_codes (
+	id UUID NOT NULL, 
+	user_id UUID NOT NULL, 
+	code_key VARCHAR(64) NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	used_at TIMESTAMP WITH TIME ZONE, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
+	UNIQUE (code_key)
+);
+
+CREATE INDEX ix_recovery_codes_user_id ON recovery_codes (user_id);
 
 CREATE TABLE cross_references (
 	id UUID NOT NULL, 

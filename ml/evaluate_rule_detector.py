@@ -25,7 +25,7 @@ from pathlib import Path
 
 from analyte.catalog import RESOURCES_DIR
 from analyte.domain.enums import ViolationType
-from analyte.domain.policy import RULES_VERSION
+from analyte.domain.policy import LEGACY_RULES_VERSION, RULES_VERSIONS
 from analyte.verification.pipeline import RULES, verify
 from data_generator.generate import GENERATOR_VERSION, RESOURCE_FILES
 from data_generator.ground_truth import build_document
@@ -55,11 +55,13 @@ def corpus_version(count: int, seed: int) -> str:
     return f"{GENERATOR_VERSION}/corruption/s{seed}/n{count}/{sources}"
 
 
-def judge(samples: list[Sample], contexts: dict[str, object]) -> list[Judgement]:
+def judge(
+    samples: list[Sample], contexts: dict[str, object], rules: str = LEGACY_RULES_VERSION
+) -> list[Judgement]:
     """Ekzekuton rregullat mbi çdo mostër dhe kthen çiftet e etiketave."""
     judgements = []
     for sample in samples:
-        result = verify(contexts[sample.document_id], sample.text)
+        result = verify(contexts[sample.document_id], sample.text, rules=rules)
         judgements.append(Judgement(sample.defect, _single_label(result.violations)))
     return judgements
 
@@ -75,6 +77,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="ml.evaluate_rule_detector")
     parser.add_argument("--n", type=int, default=120, help="dokumente burimore")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--rules", default=LEGACY_RULES_VERSION, choices=RULES_VERSIONS, help="versioni i katalogut; r1.3 është i ngrirë"
+    )
     parser.add_argument("--split", default="test", help="test | val | train | all")
     parser.add_argument("--out", type=Path, default=Path("evaluation/results/E10"))
     parser.add_argument("--dump", type=Path, default=None, help="ruaj korpusin si JSONL")
@@ -87,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
         write(samples, args.dump)
 
     chosen = [s for s in samples if args.split == "all" or s.split == args.split]
-    metrics = detector.measure(judge(chosen, contexts))
+    metrics = detector.measure(judge(chosen, contexts, args.rules))
 
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "result.json").write_text(
@@ -95,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "experiment": "E10",
                 "detector": "rules",
-                "rules_version": RULES_VERSION,
+                "rules_version": args.rules,
                 "samples": len(chosen),
                 "split": args.split,
                 "source_documents": args.n,
@@ -109,6 +114,7 @@ def main(argv: list[str] | None = None) -> int:
                         "documents": args.n,
                         "split": args.split,
                     },
+                    args.rules,
                 ),
                 "metrics": metrics,
             },

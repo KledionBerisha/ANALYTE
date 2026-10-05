@@ -35,6 +35,8 @@ PSEUDO_NEGATIONS: tuple[str, ...] = (
     "nuk mund te perjashtohet",
     "nuk eshte e perjashtuar",
     "jo domosdoshmerisht",
+    "nuk mund te mohohet",
+    "nuk eshte e pamundur",
 )
 """Shprehje që përmbajnë shenjë mohuese por nuk mohojnë.
 

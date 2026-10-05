@@ -24,10 +24,9 @@ dhe në cilën përpjekje.
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
 
 from analyte.domain.enums import ProcessingState as S
+from analyte.domain.processing import Transition
 
 TRANSITIONS: dict[S, frozenset[S]] = {
     S.UPLOADED: frozenset({S.REJECTED, S.INGESTING}),
@@ -53,18 +52,6 @@ class IllegalTransition(ValueError):
     kapet: një orkestrues që tenton kalim të palejuar duhet të ndalet aty
     ku gabimi është ende i dukshëm.
     """
-
-
-@dataclass(frozen=True, slots=True)
-class Transition:
-    """Një hap i vetëm i regjistruar."""
-
-    source: S
-    target: S
-    reason: str
-    attempt: int | None = None
-    """Numri i përpjekjes së gjenerimit, për kalimet brenda ciklit."""
-    at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class StateLog:

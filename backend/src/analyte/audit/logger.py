@@ -17,7 +17,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from analyte.orchestration.states import Transition
+from analyte.domain.processing import Transition
 from analyte.persistence.tables import AuditEventRow
 
 
@@ -47,6 +47,29 @@ def email_confirmed(session: Session, user_id: UUID) -> None:
 def mail_failed(session: Session, error_type: str) -> None:
     """Vetëm lloji i gabimit të dërgimit. As adresa, as lidhja: log-u i auditimit nuk i mban (NFR5)."""
     _record(session, "mail.failed", {"error_type": error_type})
+
+
+def mail_reissued(session: Session, user_id: UUID, kind: str) -> None:
+    """Kalimi periodik lëshoi një token të ri sepse mesazhi i mëparshëm nuk u dërgua (ADR 0018). Vetëm lloji
+    (`confirmation` ose `password_reset`), pa adresë dhe pa lidhje."""
+    _record(session, "mail.reissued", {"kind": kind}, user_id=user_id)
+
+
+def password_reset(session: Session, user_id: UUID) -> None:
+    _record(session, "auth.password_reset", {}, user_id=user_id)
+
+
+def two_factor_enabled(session: Session, user_id: UUID) -> None:
+    _record(session, "auth.two_factor_enabled", {}, user_id=user_id)
+
+
+def two_factor_disabled(session: Session, user_id: UUID) -> None:
+    _record(session, "auth.two_factor_disabled", {}, user_id=user_id)
+
+
+def recovery_code_used(session: Session, user_id: UUID, remaining: int) -> None:
+    """Një kod rimëkëmbjes u shpenzua; `remaining` që ndërfaqja ta paralajmërojë kur mbeten pak."""
+    _record(session, "auth.recovery_code_used", {"remaining": remaining}, user_id=user_id)
 
 
 def sessions_revoked_all(session: Session, user_id: UUID, count: int) -> None:
@@ -104,3 +127,49 @@ def processing_failed(session: Session, document_id: UUID, error: BaseException)
 
 def document_deleted(session: Session, document_id: UUID, user_id: UUID) -> None:
     _record(session, "document.deleted", {}, document_id=document_id, user_id=user_id)
+
+
+def model_consent_recorded(session: Session, document_id: UUID, user_id: UUID, given: bool) -> None:
+    """Pëlqimi (ose mospëlqimi) për dërgimin te ofruesi i modelit, për këtë ngarkim (ADR 0019). Vetëm një
+    e vërtetë/gënjeshtër: asnjë përmbajtje dokumenti."""
+    _record(
+        session,
+        "document.model_consent",
+        {"given": given},
+        document_id=document_id,
+        user_id=user_id,
+    )
+
+
+def model_use_decided(
+    session: Session, document_id: UUID, use: str, kinds: tuple[str, ...] = ()
+) -> None:
+    """Çfarë ndodhi me modelin për një dokument: `used`, `no_consent` ose `identifying_content`. `kinds` janë
+    kodet e llojeve që gjeti porta e çidentifikimit (`name_like`, `date`…), kurrë vargjet e gjetura."""
+    _record(
+        session,
+        "document.model_use",
+        {"use": use, "kinds": list(kinds)},
+        document_id=document_id,
+    )
+
+
+def document_expired(session: Session, document_id: UUID, user_id: UUID, retention_days: int) -> None:
+    """Dokumenti u fshi sepse kaloi afatin e ruajtjes (`ANALYTE_DOCUMENT_RETENTION_DAYS`)."""
+    _record(
+        session,
+        "document.expired",
+        {"retention_days": retention_days},
+        document_id=document_id,
+        user_id=user_id,
+    )
+
+
+def user_erased(session: Session, documents: int) -> None:
+    """Llogaria u fshi me kërkesë të pronarit. Pa identifikuesin e përdoruesit: pas fshirjes ai nuk lidhet më me
+    asgjë, dhe ngjarja thotë vetëm sa dokumente u hoqën."""
+    _record(session, "user.erased", {"documents": documents})
+
+
+def user_exported(session: Session, user_id: UUID) -> None:
+    _record(session, "user.exported", {}, user_id=user_id)

@@ -117,7 +117,7 @@ class TesseractOcr:
                     estimate_skew(image), resample=_bilinear(), expand=False, fillcolor=255
                 )
                 rows = rows_from_tsv(self._run(image), number, scale=72.0 / self.dpi)
-                pages.append(PageText(number=number, rows=rows))
+                pages.append(PageText(number=number, rows=rows, ocr=True))
         return tuple(pages)
 
     def _run(self, image) -> str:

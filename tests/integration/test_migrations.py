@@ -53,3 +53,36 @@ def test_migrations_can_be_undone(tmp_path, monkeypatch):
             "SELECT name FROM sqlite_master WHERE type='table' AND name != 'alembic_version'"
         ).all()
     assert tables == []
+
+
+def test_0004_keeps_existing_accounts_without_a_second_factor_and_can_be_undone(tmp_path, monkeypatch):
+    from sqlalchemy import text
+
+    url = f"sqlite:///{tmp_path / 'u.db'}"
+    monkeypatch.setenv("ANALYTE_DATABASE_URL", url)
+    config = _config(url)
+    command.upgrade(config, "0003")
+    engine = create_engine(url)
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO users (id, email, password_hash, created_at, email_confirmed_at)"
+                " VALUES ('11111111-1111-1111-1111-111111111111', 'vjeter@shembull.al', 'x',"
+                " '2026-09-01 12:00:00', '2026-09-01 12:00:00')"
+            )
+        )
+    command.upgrade(config, "0004")
+    new_tables = {"password_resets", "recovery_codes", "mail_deliveries"}
+    with engine.connect() as connection:
+        row = connection.execute(
+            text("SELECT totp_secret_encrypted, totp_enabled_at, totp_last_step FROM users")
+        ).one()
+        tables = {n for (n,) in connection.exec_driver_sql("SELECT name FROM sqlite_master WHERE type='table'")}
+    assert tuple(row) == (None, None, None)
+    assert new_tables <= tables
+
+    command.downgrade(config, "0003")
+    with engine.connect() as connection:
+        assert connection.execute(text("SELECT email FROM users")).scalar() == "vjeter@shembull.al"
+        tables = {n for (n,) in connection.exec_driver_sql("SELECT name FROM sqlite_master WHERE type='table'")}
+    assert not new_tables & tables

@@ -1,10 +1,10 @@
 """
 Dërgimi i email-eve (ADR 0016).
 
-Shërbimi dërgon dy lloje mesazhesh: lidhjen e konfirmimit të email-it dhe
-njoftimin «ky email ka tashmë llogari». Të dyja dërgohen pas përgjigjes, nga një
-detyrë në sfond, që koha e SMTP-së të mos tregojë cili nga dy rastet ndodhi
-(`api/auth.py`).
+Shërbimi dërgon tri lloje mesazhesh: lidhjen e konfirmimit të email-it, lidhjen e
+rivendosjes së fjalëkalimit (ADR 0018) dhe njoftimin «ky email ka tashmë llogari».
+Të gjitha dërgohen pas përgjigjes, nga një detyrë në sfond, që koha e SMTP-së të
+mos tregojë cili rast ndodhi (`api/auth.py`, `outbox.py`).
 
 Tri realizime të një ndërfaqeje të vetme:
 
@@ -135,6 +135,17 @@ def confirmation_message(link: str, hours: int) -> tuple[str, str]:
         f"{link}\n\n"
         f"Lidhja vlen {hours} orë dhe përdoret një herë.\n\n"
         "Nëse nuk e keni kërkuar ju, mos e hapni lidhjen: llogaria nuk aktivizohet pa të.\n",
+    )
+
+
+def password_reset_message(link: str, minutes: int) -> tuple[str, str]:
+    return (
+        "Rivendosni fjalëkalimin tuaj në ANALYTE",
+        "Përshëndetje,\n\n"
+        "Dikush kërkoi të rivendosë fjalëkalimin e llogarisë suaj në ANALYTE. Për të vendosur një të ri, hapni lidhjen:\n\n"
+        f"{link}\n\n"
+        f"Lidhja vlen {minutes} minuta dhe përdoret një herë. Pasi ta përdorni, të gjitha seancat e hapura mbyllen.\n\n"
+        "Nëse nuk e keni kërkuar ju, mos e hapni lidhjen: fjalëkalimi juaj nuk ka ndryshuar dhe nuk nevojitet asnjë veprim.\n",
     )
 
 

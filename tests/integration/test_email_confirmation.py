@@ -296,7 +296,7 @@ class Broken:
 
 
 def test_a_mail_failure_does_not_change_the_response_and_leaves_a_trace_without_the_address(tmp_path):
-    w = World(tmp_path, mailer=Broken())
+    w = World(tmp_path, mailer=Broken(), mail_retry_backoff_seconds=0)  # pa pritje mes provave: teste të shpejta
     response = w.register("viktima@shembull.al")
     assert response.status_code == 202
     assert response.json() == {"message": auth_module.REGISTER_REPLY}

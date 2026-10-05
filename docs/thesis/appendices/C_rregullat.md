@@ -4,7 +4,7 @@
 
 ### Tabela C.1. Katalogu i rregullave të verifikimit
 
-Versioni i katalogut: `r1.3`. Ai regjistrohet në çdo
+Versioni i katalogut: `r1.4`. Ai regjistrohet në çdo
 rezultat verifikimi, prandaj rezultatet e vjetra mbeten të lexueshme
 edhe pasi katalogu ndryshon.
 

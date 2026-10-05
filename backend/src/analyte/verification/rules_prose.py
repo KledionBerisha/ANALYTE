@@ -18,6 +18,7 @@ dukshëm; një përafrim semantik do të fshihte se ku gabon rregulli.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterator
 
 from analyte.domain.enums import (
@@ -33,12 +34,14 @@ from analyte.domain.policy import (
     UNEXPLAINED_TERM_NOTICE_SQ,
     UNINTERPRETABLE_NOTICE_SQ,
 )
+from analyte.grounding.branch_a import loinc
 from analyte.grounding.branch_b import terminology
 from analyte.grounding.branch_b.assertions import find_direction
 from analyte.grounding.branch_b.hedging import certainty_of
 from analyte.grounding.branch_b.negation import polarity_of
-from analyte.textnorm import fold
+from analyte.textnorm import fold, words
 
+from . import ruleset
 from .base import analytes_in, is_attributed, sentences, violation
 
 
@@ -94,7 +97,7 @@ def check_polarity(context: GroundingContext, text: str) -> Iterator[Violation]:
         sentence = _sentence_for(assertion, text, context)
         if sentence is None:
             continue
-        if find_direction(sentence) is not assertion.direction:
+        if find_direction(sentence, extended=ruleset.modern()) is not assertion.direction:
             continue
         if polarity_of(sentence) is not assertion.polarity:
             yield violation(
@@ -213,6 +216,8 @@ def check_term_explanations(context: GroundingContext, text: str) -> Iterator[Vi
     shpjegim.
     """
     explanatory = ("do te thote", "quhet", "eshte nje gjendje", "nenkupton", "tregon se")
+    if ruleset.modern():
+        yield from _unsupported_glosses(context, text)
 
     for term in context.unexplained_terms:
         folded_term = fold(term)
@@ -226,3 +231,74 @@ def check_term_explanations(context: GroundingContext, text: str) -> Iterator[Vi
                     sentence.text,
                     f"termi “{term}” nuk gjendet në tabelën terminologjike",
                 )
+
+
+_PARENTHESIS = re.compile(r"\(([^()]{8,140})\)")
+_INTERVAL_WORDS = ("interval", "referent", "norma", "normal")
+
+
+def _unsupported_glosses(context: GroundingContext, text: str) -> Iterator[Violation]:
+    """R9 (`r1.4`) — një shpjegim në kllapa pas një analiti ose termi duhet të vijë nga fjalori.
+
+    Auditi i E8 gjeti shpjegime të shpikura të shkurtesave ("TSH (hormoni i stimulimit të mëlçisë)") që asnjë rregull nuk i
+    kontrollonte: R9 gjykonte vetëm termat jashtë tabelës të ndjekur nga një shprehje shpjeguese. Këtu gjykohet forma më e
+    zakonshme e shpikjes: kllapa me të paktën dy fjalë, pa shifra, pas një analiti, një shkurtese ose një termi njohur. Pranohet
+    kur teksti i saj përputhet me një shpjegim të fjalorit, është një emër tjetër i të njëjtit analit, ose flet për intervalin.
+    """
+    glossary = [fold(entry.explanation_sq) for entry in context.glossary]
+    for sentence in sentences(text):
+        if is_attributed(sentence.text):
+            continue
+        for match in _PARENTHESIS.finditer(sentence.text):
+            gloss = match.group(1).strip()
+            if any(ch.isdigit() for ch in gloss) or len(words(gloss)) < 2:
+                continue
+            folded = fold(gloss)
+            if any(word in folded for word in _INTERVAL_WORDS):
+                continue
+            head = words(sentence.text[: match.start()])[-3:]
+            if not _is_named(head):
+                continue
+            if loinc.resolve_inflected(gloss) is not None:
+                continue  # emër tjetër i të njëjtit analit
+            if _supported_by_glossary(folded, glossary):
+                continue
+            yield violation(
+                ViolationType.UNGROUNDED_TERM_EXPLANATION,
+                sentence.text,
+                f"shpjegimi “{gloss}” pas një analiti ose termi nuk gjendet te fjalori",
+            )
+
+
+def _is_named(head: list[tuple[str, int, int]]) -> bool:
+    """A është ajo që qëndron para kllapës një analit, një shkurtesë ose një term mjekësor?"""
+    if not head:
+        return False
+    last = head[-1][0]
+    if len(last) >= 2 and last.isupper():
+        return True  # shkurtesë: TSH, ALT, MCV
+    for size in range(len(head), 0, -1):
+        phrase = " ".join(word for word, _, _ in head[-size:])
+        if loinc.resolve_inflected(phrase) is not None or terminology.detect_terms(phrase):
+            return True
+    return False
+
+
+def _supported_by_glossary(folded_gloss: str, glossary: list[str]) -> bool:
+    """A vjen shpjegimi nga fjalori, edhe në trajtë tjetër gramatikore?
+
+    Pranohet kur përmban ose përmbahet te një shpjegim, ose kur së paku 70% e fjalëve të tij (me katër shkronja ose më
+    shumë) ndajnë temën (pesë shkronjat e para) me fjalë të një shpjegimi: "shkatërrimi i parakohshëm i qelizave të kuqe të
+    gjakut" kundrejt "shkatërrim i parakohshëm i qelizave të kuqe".
+    """
+    if any(folded_gloss in known or known in folded_gloss for known in glossary):
+        return True
+    gloss_words = [w for w in folded_gloss.split() if len(w) >= 4]
+    if not gloss_words:
+        return False
+    for known in glossary:
+        stems = {w[:5] for w in known.split() if len(w) >= 4}
+        matched = sum(1 for w in gloss_words if w[:5] in stems)
+        if matched / len(gloss_words) >= 0.7:
+            return True
+    return False

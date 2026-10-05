@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AppShell } from "@/components/AppShell";
+import { ModelConsent } from "@/components/ModelConsent";
 import { StateBadge } from "@/components/StateBadge";
-import { api, ApiError, type DocumentPage } from "@/lib/api/client";
+import { api, ApiError, type DocumentPage, type PrivacyConfig } from "@/lib/api/client";
 import { formatDate, formatSize } from "@/lib/labels";
 
 function Upload() {
@@ -15,22 +16,33 @@ function Upload() {
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [privacy, setPrivacy] = useState<PrivacyConfig | null>(null);
+  const [consent, setConsent] = useState(false);
+
+  // Nëse konfigurimi nuk merret, pyetja për modelin nuk shfaqet dhe pëlqimi mbetet "jo": shablloni është parazgjedhja.
+  useEffect(() => {
+    api.privacyConfig().then(setPrivacy).catch(() => setPrivacy(null));
+  }, []);
 
   async function send(file: File | undefined) {
     if (!file) return;
     setBusy(true);
     setError(null);
     try {
-      const uploaded = await api.upload(file);
+      const uploaded = await api.upload(file, privacy?.model_enabled === true && consent);
       router.push(`/documents/${uploaded.id}`);
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Ngarkimi dështoi.");
       setBusy(false);
+    } finally {
+      // Pëlqimi vlen për një ngarkim: kutia kthehet e pashënuar, që ngarkimi tjetër të pyesë sërish.
+      setConsent(false);
     }
   }
 
   return (
     <div>
+      <ModelConsent config={privacy} checked={consent} onChange={setConsent} disabled={busy} />
       <button
         type="button"
         onClick={() => input.current?.click()}

@@ -30,6 +30,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from analyte.domain.policy import LEGACY_RULES_VERSION, RULES_VERSIONS
+
 from . import dataset as dataset_module
 from . import experiments as registry
 from . import provenance
@@ -180,7 +182,7 @@ def _metadata(
             "documents": len(data),
             "channel": experiment.channel or "all",
         },
-        "code": provenance.code_metadata(),
+        "code": provenance.code_metadata(getattr(pipeline, "rules", LEGACY_RULES_VERSION)),
         "created_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
 
@@ -427,9 +429,12 @@ def build_pipeline(
     ocr: bool = False,
     classifier: Path | None = None,
     cache: Path = LLM_CACHE,
+    ocr_guard: bool = False,
+    rules: str = LEGACY_RULES_VERSION,
 ) -> Pipeline:
     engine = build_ocr(ocr)
     suffix = "+ocr" if engine is not None else ""
+    suffix += "+guard" if ocr_guard else ""
     if name == "e6":
         if generator != "llm":
             raise SystemExit("e6 (pa bazim) kërkon --generator llm: shablloni nuk ka çfarë të lexojë")
@@ -444,6 +449,8 @@ def build_pipeline(
             build_generator(generator, cache),
             ablation=name.upper(),
             ocr=engine,
+            ocr_guard=ocr_guard,
+            rules=rules,
             classifier=predictor,
             threshold=threshold,
         )
@@ -452,9 +459,9 @@ def build_pipeline(
     if name == "oracle":
         return OraclePipeline(truth=data.truth_by_id())
     if name == "branch_a":
-        return BranchAPipeline(name=f"branch_a{suffix}", ocr=engine)
+        return BranchAPipeline(name=f"branch_a{suffix}", ocr=engine, ocr_guard=ocr_guard)
     if name == "grounding":
-        return GroundingPipeline(name=f"grounding{suffix}", ocr=engine)
+        return GroundingPipeline(name=f"grounding{suffix}", ocr=engine, ocr_guard=ocr_guard)
     raise SystemExit(
         f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e6, e7, e8, e9"
     )
@@ -482,6 +489,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--ocr", action="store_true", help="lexo dokumentet e skanuara me Tesseract"
     )
+    parser.add_argument(
+        "--ocr-guard",
+        action="store_true",
+        help="ndiz kontrollin e besueshmërisë për faqet e OCR-së (ADR 0020); rezultatet e ngrira nuk e kanë",
+    )
+    parser.add_argument(
+        "--rules",
+        default=LEGACY_RULES_VERSION,
+        choices=RULES_VERSIONS,
+        help="versioni i katalogut të rregullave për E7–E9; r1.3 është i ngrirë, r1.4 ndryshon cilat drafte ndalohen",
+    )
     parser.add_argument("--limit", type=int, default=None, help="kufizo numrin e dokumenteve")
     parser.add_argument(
         "--out", type=Path, default=Path("evaluation/results"), help="dosja e rezultateve"
@@ -490,7 +508,14 @@ def main(argv: list[str] | None = None) -> int:
 
     data = dataset_module.load(args.dataset, limit=args.limit)
     pipeline = build_pipeline(
-        args.pipeline, data, args.generator, args.ocr, args.classifier, args.llm_cache
+        args.pipeline,
+        data,
+        args.generator,
+        args.ocr,
+        args.classifier,
+        args.llm_cache,
+        ocr_guard=args.ocr_guard,
+        rules=args.rules,
     )
 
     chosen = (

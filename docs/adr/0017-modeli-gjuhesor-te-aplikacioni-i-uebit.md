@@ -1,6 +1,6 @@
 # 0017 — Modeli gjuhësor te aplikacioni i uebit
 
-**Gjendja:** i zbatuar; i fikur si parazgjedhje. Provuar me një ofrues të simuluar (13 teste) dhe një herë me Mistral të vërtetë mbi një dokument sintetik.
+**Gjendja:** i zbatuar; i fikur si parazgjedhje. **Plotësuar nga ADR 0019:** me modelin e ndezur, një dokument dërgohet te ofruesi vetëm me pëlqim të shprehur për atë ngarkim dhe pasi kalon një portë çidentifikimi; teksti më poshtë që thotë se çdo dokument dërgohet, dhe se nuk ka hap që heq emrat nga citimet, vlente para ADR 0019. Provuar me një ofrues të simuluar (13 teste) dhe një herë me Mistral të vërtetë mbi një dokument sintetik.
 
 ## Konteksti
 

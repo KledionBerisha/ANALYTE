@@ -120,7 +120,10 @@ def _imported_modules(path: Path) -> set[str]:
     return names
 
 
-ALLOWED_TOP_LEVEL = {"enum", "typing", "datetime", "decimal", "uuid", "pydantic", "__future__"}
+ALLOWED_TOP_LEVEL = {
+    "enum", "typing", "datetime", "decimal", "uuid", "pydantic", "__future__",
+    "dataclasses",  # `processing.py` (Attempt, Explanation, Transition): dataclasa të ngrira, jo modele pydantic
+}
 
 
 @pytest.mark.parametrize("module_path", sorted(DOMAIN_DIR.glob("*.py")), ids=lambda p: p.name)

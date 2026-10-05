@@ -28,6 +28,7 @@ from typing import Any
 
 from analyte.domain.enums import ProcessingState
 from analyte.domain.models import GroundingContext
+from analyte.domain.policy import LEGACY_RULES_VERSION
 from analyte.ingestion.pdf_text import PageText
 
 from .pipeline import DocumentInput, PipelineOutput, _read_pages
@@ -85,7 +86,8 @@ class UngroundedPipeline:
                 failures=(failure,),
             )
 
-        grounding = build(document.document_id, pages)
+        # E6 u mat para kontrollit të OCR-së (ADR 0020); mbetet pa të që rezultati i ngrirë të vlejë.
+        grounding = build(document.document_id, pages, ocr_guard=False)
         context = grounding.context
         if not grounding.has_content:
             return PipelineOutput(context=context, state=ProcessingState.NO_FINDINGS)
@@ -102,7 +104,7 @@ class UngroundedPipeline:
                 failures=(f"{type(error).__name__}: {error}",),
             )
 
-        verification = verify(context, text)
+        verification = verify(context, text, rules=LEGACY_RULES_VERSION)  # E6 është matur me r1.3
         return PipelineOutput(
             context=context,
             explanation=text,

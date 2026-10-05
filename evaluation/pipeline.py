@@ -22,6 +22,7 @@ from uuid import UUID
 
 from analyte.domain.enums import ProcessingState
 from analyte.domain.models import GroundingContext, VerificationResult, Violation
+from analyte.domain.policy import LEGACY_RULES_VERSION
 
 if TYPE_CHECKING:
     from analyte.generation.base import Generator
@@ -173,6 +174,8 @@ class BranchAPipeline:
     name: str = "branch_a"
     version: str = "1"
     ocr: Any = None
+    ocr_guard: bool = False
+    """Kontrolli i besueshmërisë i OCR-së (ADR 0020). I fikur te eksperimentet e ngrira."""
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         from analyte.grounding.branch_a.extract import extract
@@ -185,7 +188,7 @@ class BranchAPipeline:
                 failures=(failure,),
             )
 
-        result = extract(pages)
+        result = extract(pages, ocr_guard=self.ocr_guard)
         context = GroundingContext(
             document_id=document.document_id, findings=result.findings
         )
@@ -212,6 +215,8 @@ class GroundingPipeline:
     name: str = "grounding"
     version: str = "1"
     ocr: Any = None
+    ocr_guard: bool = False
+    """Kontrolli i besueshmërisë i OCR-së (ADR 0020). I fikur te eksperimentet e ngrira."""
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         from analyte.grounding.context import build
@@ -224,7 +229,7 @@ class GroundingPipeline:
                 failures=(failure,),
             )
 
-        grounding = build(document.document_id, pages)
+        grounding = build(document.document_id, pages, ocr_guard=self.ocr_guard)
         return PipelineOutput(
             context=grounding.context,
             state=(
@@ -270,6 +275,9 @@ class GenerationPipeline:
     ablation: str = "E8"
     version: str = "1"
     ocr: Any = None
+    ocr_guard: bool = False
+    rules: str = LEGACY_RULES_VERSION
+    """Versioni i katalogut me të cilin verifikohet (r1.3 e ngrirë; shih `verification/ruleset.py`)."""
     classifier: Any = None
     """Parashikuesi i fjalive (`SentencePredictor`), vetëm për E9."""
     threshold: float | None = None
@@ -285,6 +293,7 @@ class GenerationPipeline:
     @property
     def name(self) -> str:
         suffix = "+ocr" if self.ocr is not None else ""
+        suffix += "+guard" if self.ocr_guard else ""
         if self.classifier is not None:
             suffix += f"+{self.classifier.version}@{self.threshold}"
         return f"{self.ablation.lower()}[{self.generator.name}]{suffix}"
@@ -293,18 +302,18 @@ class GenerationPipeline:
         from analyte.verification.pipeline import verify
 
         if self.classifier is None:
-            return verify
+            return lambda context, text: verify(context, text, rules=self.rules)
         from analyte.verification.classifier import verify_with_classifier
 
         return lambda context, text: verify_with_classifier(
-            context, text, self.classifier, self.threshold
+            context, text, self.classifier, self.threshold, rules=self.rules
         )
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         from analyte.orchestration.process import Attempt, Delivery, explain
         from analyte.verification.pipeline import verify
 
-        grounded = GroundingPipeline(ocr=self.ocr).run(document)
+        grounded = GroundingPipeline(ocr=self.ocr, ocr_guard=self.ocr_guard).run(document)
         if grounded.state is not ProcessingState.GROUNDED:
             return grounded
         context = grounded.context
@@ -318,7 +327,7 @@ class GenerationPipeline:
                     state=ProcessingState.GROUNDED,
                     failures=(f"{type(error).__name__}: {error}",),
                 )
-            verification = verify(context, text)
+            verification = verify(context, text, rules=self.rules)
             return PipelineOutput(
                 context=context,
                 explanation=text,

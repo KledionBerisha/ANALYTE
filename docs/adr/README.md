@@ -28,3 +28,8 @@ del gjithmonë më i pastër dhe më i qëllimshëm seç ishte.
 | [0015](0015-modeli-gjuhesor-kerkesa-cache-dhe-gjykatesit.md) | Modeli gjuhësor: ofruesi, kërkesa, cache dhe gjykatësit | i zbatuar; rezultatet te Kapitulli 6 |
 | [0016](0016-konfirmimi-i-emailit-dhe-mbyllja-e-boshlleqeve-te-0014.md) | Konfirmimi i email-it, regjistrimi që nuk zbulon llogari, IPv6 /64 dhe dil kudo | i zbatuar; provuar me Mailtrap |
 | [0017](0017-modeli-gjuhesor-te-aplikacioni-i-uebit.md) | Modeli gjuhësor te aplikacioni i uebit: zgjedhje e shprehur, pa cache, me njoftim | i zbatuar; i fikur si parazgjedhje |
+| [0018](0018-hardimi-i-llogarise.md) | Hardimi i llogarisë: rivendosja e fjalëkalimit, hapi i dytë (TOTP), rindërgimi i mesazheve dhe kokat e sigurisë | i zbatuar; i provuar me teste dhe mbi PostgreSQL |
+| [0019](0019-mbrojtja-e-te-dhenave.md) | Mbrojtja e të dhënave: pëlqimi për modelin, porta e çidentifikimit, fshirja, eksporti, afati i ruajtjes | i zbatuar teknikisht; vendimet ligjore të autorit të hapura |
+| [0020](0020-kontrolli-i-besueshmerise-i-ocr-se.md) | Kontrolli i besueshmërisë për vlerat e lexuara nga OCR-ja (presja dhjetore që humbet) | i zbatuar; i matur mbi korpusin sintetik |
+| [0021](0021-rregullat-r1-4.md) | Katalogu i rregullave `r1.4`: katër rregulla përmirësohen, `r1.3` mbetet i ngrirë | i zbatuar; mostrat e kontaminuara |
+| [0022](0022-klasifikuesi-nuk-vendoset.md) | Klasifikuesi i fjalive mbetet alternativë e vlerësuar, jo pjesë e verifikimit të vendosur | vendim; nuk u rihartua |

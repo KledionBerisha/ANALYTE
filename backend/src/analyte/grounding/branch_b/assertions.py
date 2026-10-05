@@ -56,11 +56,30 @@ RECOMMENDATION_MARKERS: tuple[str, ...] = (
     "keshillohet",
     "sugjerohet kontroll",
     "duhet perseritur",
+    "nevojitet",
+    "nevoja per",
+    "eshte e nevojshme",
+    "kerkohet",
+    "indikohet",
 )
+"""Shenjat e rekomandimit. Pesë të fundit shtuar për shqipen e vërtetë (grupi C): "nuk nevojitet kontroll", "nevoja për
+rikontroll" — mohimi i një rekomandimi mbetet rekomandim me polaritet të mohuar."""
 
 INCREASE_MARKERS: tuple[str, ...] = ("mbi intervalin", "e rritur", "te rritura", "i rritur")
 DECREASE_MARKERS: tuple[str, ...] = ("nen intervalin", "e ulet", "te ulura", "i ulet")
 NORMAL_MARKERS: tuple[str, ...] = ("brenda intervalit", "brenda kufijve", "normale")
+
+INCREASE_EXTENDED: tuple[str, ...] = (
+    "e larte", "i larte", "te larta", "te larte", "rritja e", "rritje e", "ngritja e", "ngritur",
+    "tejkalon", "mbi kufirin", "mbi normen", "u rrit", "rritet",
+)
+DECREASE_EXTENDED: tuple[str, ...] = (
+    "te ulta", "te ulet", "e ulur", "i ulur", "ulja e", "ulje e", "renia e", "u ul", "ulet",
+    "nen kufirin", "nen normen", "i reduktuar", "e reduktuar", "te reduktuara", "te reduktuar",
+)
+NORMAL_EXTENDED: tuple[str, ...] = ("brenda normes", "ne rregull", "brenda parametrave", "brenda vlerave referente")
+"""Fjalori i zgjeruar i drejtimit (`r1.4`, grupi C dhe auditi): mbiemrat e thjeshtë ("të larta"), emrat ("rritja e") dhe
+foljet ("u rrit"). Kërkohen si fjalë të plota, jo si nënvargje: "ulet" nuk duhet të gjendet brenda një fjale tjetër."""
 
 MAX_NAME_TOKENS = 3
 """Emri më i gjatë i analitit në tabelë ka tri fjalë."""
@@ -130,7 +149,12 @@ def find_analyte(sentence: str) -> str | None:
     return None
 
 
-def find_direction(sentence: str) -> Direction:
+def _has_word(folded: str, markers: tuple[str, ...]) -> bool:
+    padded = f" {folded} "
+    return any(f" {marker} " in padded for marker in markers)
+
+
+def find_direction(sentence: str, *, extended: bool = False) -> Direction:
     """Drejtimi i pohuar në fjali.
 
     Mohimi nuk e përmbys drejtimin këtu: "nuk rezulton mbi intervalin" ka
@@ -145,6 +169,14 @@ def find_direction(sentence: str) -> Direction:
         return Direction.DECREASED
     if any(marker in folded for marker in NORMAL_MARKERS):
         return Direction.NORMAL
+    if extended:
+        # Rendi i njëjtë (rritje, ulje, normal), por mbi fjalorin e zgjeruar dhe me fjalë të plota.
+        if _has_word(folded, INCREASE_EXTENDED):
+            return Direction.INCREASED
+        if _has_word(folded, DECREASE_EXTENDED):
+            return Direction.DECREASED
+        if _has_word(folded, NORMAL_EXTENDED):
+            return Direction.NORMAL
     return Direction.UNSPECIFIED
 
 
@@ -195,7 +227,7 @@ def extract_assertions(text: str, *, new_id: Callable[[], object] = uuid4) -> tu
                 id=new_id(),
                 text_span=span,
                 analyte_code=code if kind is AssertionKind.FINDING else None,
-                direction=find_direction(sentence.text),
+                direction=find_direction(sentence.text, extended=True),
                 polarity=negation.polarity_of(sentence.text),
                 certainty=hedging.certainty_of(sentence.text),
                 kind=kind,

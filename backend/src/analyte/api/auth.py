@@ -12,29 +12,34 @@ Llogaria nuk hyn derisa email-i të konfirmohet me lidhjen e dërguar. Hyrja me
 fjalëkalim të saktë por pa konfirmim kthen 403 me udhëzim; ajo arrihet vetëm nga
 dikush që e di fjalëkalimin, prandaj nuk zbulon asgjë për të tjerët.
 
-Seancat, rrotullimi i tokenëve të rifreskimit dhe dalja janë te
-`auth_sessions.py`; kufizimi i shpeshtësisë te `throttle.py`; të gjitha
-shpjegohen te ADR 0014 dhe 0016.
+**Rivendosja e fjalëkalimit** (ADR 0018) ndjek të njëjtat rregulla: `forgot-password` kthen gjithmonë të njëjtën
+202, lidhja ruhet vetëm si HMAC dhe vlen një herë, dhe pas suksesit çdo seancë e përdoruesit revokohet. Një
+rivendosje nuk e konfirmon një llogari të pakonfirmuar: për të, `forgot-password` dërgon lidhjen e konfirmimit.
+
+Hapi i dytë (TOTP) është te `two_factor.py`; hyrja këtu kthen një sfidë në vend të tokenëve kur llogaria e ka.
+Seancat, rrotullimi i tokenëve të rifreskimit dhe dalja janë te `auth_sessions.py`; kufizimi i shpeshtësisë te
+`throttle.py`; dërgimi i email-eve te `outbox.py`; të gjitha shpjegohen te ADR 0014, 0016 dhe 0018.
 """
 
 from __future__ import annotations
 
 import re
-import secrets
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, Request, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from analyte import mail
+from analyte import mail, outbox
 from analyte.audit import logger as audit
 from analyte.config import Settings
-from analyte.persistence.tables import EmailConfirmationRow, UserRow
+from analyte.persistence.tables import EmailConfirmationRow, PasswordResetRow, UserRow
 from analyte.security import (
     TokenError,
+    credential_binding,
     hash_password,
+    issue_challenge,
     keyed_hash,
     read_token,
     verify_password,
@@ -42,7 +47,17 @@ from analyte.security import (
 
 from . import auth_sessions, deps, throttle
 from .problems import Problem
-from .schemas import ConfirmIn, Credentials, EmailIn, RefreshIn, RegisterOut, Tokens, UserOut
+from .schemas import (
+    ConfirmIn,
+    Credentials,
+    EmailIn,
+    MfaChallenge,
+    RefreshIn,
+    RegisterOut,
+    ResetIn,
+    Tokens,
+    UserOut,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -57,6 +72,12 @@ REGISTER_REPLY = (
 )
 """E njëjta për çdo email (ADR 0016)."""
 
+RESET_REPLY = (
+    "Nëse email-i ka llogari, ju dërguam një mesazh me lidhjen për të vendosur një fjalëkalim të ri. "
+    "Nëse nuk e shihni, kontrolloni dosjen e mesazheve të padëshiruara."
+)
+"""E njëjta për çdo email, me llogari ose pa (ADR 0018)."""
+
 _EMAIL = re.compile(r"^[^@\s<>,;:\"'()\[\]\\]+@[^@\s<>,;:\"'()\[\]\\]+\.[^@\s<>,;:\"'()\[\]\\]+$")
 
 
@@ -67,41 +88,6 @@ def _normalize(email: str) -> str:
     if not _EMAIL.fullmatch(email):
         raise Problem(422, "Email i pavlefshëm")
     return email
-
-
-def _confirmation_link(config: Settings, token: str) -> str:
-    return f"{config.frontend_url.rstrip('/')}/confirm?token={token}"
-
-
-def _issue_confirmation(db: Session, user: UserRow, config: Settings, now: datetime) -> str:
-    """Një lidhje e re konfirmimi. Ato të mëparshme të papërdorura shfuqizohen: vlen vetëm e fundit."""
-    db.execute(
-        delete(EmailConfirmationRow).where(
-            EmailConfirmationRow.user_id == user.id, EmailConfirmationRow.used_at.is_(None)
-        )
-    )
-    token = secrets.token_urlsafe(32)
-    db.add(
-        EmailConfirmationRow(
-            user_id=user.id,
-            token_key=keyed_hash(config.jwt_secret, "email-confirm", token),
-            created_at=now,
-            expires_at=now + timedelta(hours=config.confirm_token_hours),
-        )
-    )
-    return token
-
-
-def _deliver(app: FastAPI, to: str, subject: str, body: str) -> None:
-    """Dërgon pas përgjigjes. Një dështim regjistrohet (vetëm lloji i gabimit) dhe nuk arrin te klienti:
-    përgjigja ka dalë tashmë, dhe e njëjta për çdo email."""
-    try:
-        app.state.mailer.send(to, subject, body)
-    except Exception as error:  # noqa: BLE001 — çdo dështim i transportit trajtohet njësoj
-        mail.log.warning("dërgimi i email-it dështoi: %s", type(error).__name__)
-        with app.state.sessions() as db:
-            audit.mail_failed(db, type(error).__name__)
-            db.commit()
 
 
 @router.post("/register", response_model=RegisterOut, status_code=202)
@@ -127,7 +113,7 @@ def register(
     # Argon2 shpenzohet në të tria rastet, që koha të mos tregojë cili ndodhi.
     password_hash = hash_password(body.password)
     user = db.scalars(select(UserRow).where(UserRow.email == email)).first()
-    message: tuple[str, str] | None = None
+    outgoing: outbox.Outgoing
 
     if user is None:
         user = UserRow(email=email, password_hash=password_hash)
@@ -139,25 +125,20 @@ def register(
             db.rollback()
             return RegisterOut(message=REGISTER_REPLY)
         audit.user_registered(db, user.id)
-        message = mail.confirmation_message(
-            _confirmation_link(config, _issue_confirmation(db, user, config, now)),
-            config.confirm_token_hours,
-        )
+        outgoing = outbox.prepare_confirmation(db, user, config, now)
     elif user.email_confirmed_at is None:
         # Regjistrimi i fundit fiton: fjalëkalimi zëvendësohet, që dikush që regjistroi email-in e një
         # tjetri më parë të mos e mbajë fjalëkalimin e llogarisë kur ajo konfirmohet.
         user.password_hash = password_hash
-        message = mail.confirmation_message(
-            _confirmation_link(config, _issue_confirmation(db, user, config, now)),
-            config.confirm_token_hours,
-        )
+        outgoing = outbox.prepare_confirmation(db, user, config, now)
     else:
-        message = mail.already_registered_message(f"{config.frontend_url.rstrip('/')}/login")
+        subject, body_text = mail.already_registered_message(f"{config.frontend_url.rstrip('/')}/login")
+        outgoing = outbox.Outgoing(email, subject, body_text)
 
     # Ruhet para dërgimit: mesazhi nuk duhet të mbërrijë përpara tokenit që e verifikon, dhe detyra në
     # sfond hap sesionin e vet, që nuk duhet të presë një shkrim të pambaruar të kësaj kërkese.
     db.commit()
-    background.add_task(_deliver, request.app, email, *message)
+    background.add_task(outbox.deliver, request.app, outgoing)
     return RegisterOut(message=REGISTER_REPLY)
 
 
@@ -181,13 +162,100 @@ def resend_confirmation(
     hash_password("kohë-e-barabartë")  # koha e njëjtë me regjistrimin, qoftë llogaria e pakonfirmuar apo jo
     user = db.scalars(select(UserRow).where(UserRow.email == email)).first()
     if user is not None and user.email_confirmed_at is None:
-        message = mail.confirmation_message(
-            _confirmation_link(config, _issue_confirmation(db, user, config, now)),
-            config.confirm_token_hours,
-        )
+        outgoing = outbox.prepare_confirmation(db, user, config, now)
         db.commit()  # si te regjistrimi: tokeni ruhet para se të nisë mesazhi
-        background.add_task(_deliver, request.app, email, *message)
+        background.add_task(outbox.deliver, request.app, outgoing)
     return RegisterOut(message=REGISTER_REPLY)
+
+
+@router.post("/forgot-password", response_model=RegisterOut, status_code=202)
+def forgot_password(
+    body: EmailIn,
+    request: Request,
+    background: BackgroundTasks,
+    db: Session = Depends(deps.session),
+    config: Settings = Depends(deps.settings),
+) -> RegisterOut:
+    """Kërkon lidhjen për të vendosur fjalëkalim të ri (ADR 0018). Përgjigja është e njëjtë për çdo email.
+
+    Një llogari e konfirmuar merr lidhjen e rivendosjes. Një e pakonfirmuar merr lidhjen e konfirmimit, jo atë të
+    rivendosjes: rivendosja nuk duhet të jetë rrugë anash konfirmimit. Një email pa llogari nuk merr asgjë.
+    """
+    email = _normalize(body.email)
+    now = datetime.now(UTC)
+    keys = throttle.reset_keys(
+        email, throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits), config
+    )
+    throttle.check_registration(db, config, keys, now)
+    throttle.record_registration(db, config, keys, now)
+
+    hash_password("kohë-e-barabartë")  # koha e njëjtë, qoftë llogaria e konfirmuar, e pakonfirmuar apo e munguar
+    user = db.scalars(select(UserRow).where(UserRow.email == email)).first()
+    if user is not None:
+        if user.email_confirmed_at is not None:
+            outgoing = outbox.prepare_password_reset(db, user, config, now)
+        else:
+            outgoing = outbox.prepare_confirmation(db, user, config, now)
+        db.commit()  # tokeni ruhet para se të nisë mesazhi
+        background.add_task(outbox.deliver, request.app, outgoing)
+    return RegisterOut(message=RESET_REPLY)
+
+
+@router.post("/reset-password", status_code=204)
+def reset_password(
+    body: ResetIn,
+    request: Request,
+    db: Session = Depends(deps.session),
+    config: Settings = Depends(deps.settings),
+) -> Response:
+    """Vendos fjalëkalimin e ri me tokenin e lidhjes (ADR 0018).
+
+    Vlen një herë dhe skadon. Një token i panjohur, i përdorur ose i skaduar kthen të njëjtën gabim. Fjalëkalimi
+    i ri hash-ohet para se tokeni të kontrollohet, që koha të mos tregojë nëse tokeni ishte i vlefshëm. Pas suksesit
+    çdo seancë e përdoruesit revokohet; hapi i dytë, nëse ka, mbetet i paprekur (një kuti postare e vjedhur nuk
+    e kalon).
+    """
+    now = datetime.now(UTC)
+    keys = throttle.reset_submit_key(
+        throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits), config
+    )
+    throttle.check_reset_submit(db, config, keys, now)
+    throttle.record_registration(db, config, keys, now)
+    if len(body.password) < config.min_password_length:
+        raise Problem(
+            422, "Fjalëkalim shumë i shkurtër", f"të paktën {config.min_password_length} shenja"
+        )
+    new_hash = hash_password(body.password)
+
+    invalid = Problem(400, "Lidhja e rivendosjes është e pavlefshme ose ka skaduar")
+    row = db.scalars(
+        select(PasswordResetRow).where(
+            PasswordResetRow.token_key == keyed_hash(config.jwt_secret, "password-reset", body.token)
+        )
+    ).first()
+    if row is None or row.expires_at <= now:
+        raise invalid
+    user = db.get(UserRow, row.user_id)
+    # Një llogari e pakonfirmuar nuk rivendoset: konfirmimi mbetet i vetmi rrugë për ta hapur (ADR 0018).
+    if user is None or user.email_confirmed_at is None:
+        raise invalid
+    spent = db.execute(
+        update(PasswordResetRow)
+        .where(PasswordResetRow.id == row.id, PasswordResetRow.used_at.is_(None))
+        .values(used_at=now)
+    ).rowcount
+    if spent == 0:
+        raise invalid
+
+    user.password_hash = new_hash
+    db.execute(
+        delete(PasswordResetRow).where(
+            PasswordResetRow.user_id == user.id, PasswordResetRow.used_at.is_(None)
+        )
+    )
+    auth_sessions.revoke_all(db, user.id, "password_reset", now)
+    audit.password_reset(db, user.id)
+    return Response(status_code=204)
 
 
 @router.post("/confirm", status_code=204)
@@ -223,13 +291,13 @@ def confirm(
     return Response(status_code=204)
 
 
-@router.post("/login", response_model=Tokens)
+@router.post("/login", response_model=Tokens | MfaChallenge)
 def login(
     body: Credentials,
     request: Request,
     db: Session = Depends(deps.session),
     config: Settings = Depends(deps.settings),
-) -> Tokens:
+) -> Tokens | MfaChallenge:
     now = datetime.now(UTC)
     email = body.email.strip().lower()
     keys = throttle.keys_for(
@@ -255,6 +323,14 @@ def login(
             "Hapni lidhjen që ju dërguam, ose kërkoni një të re.",
         )
     throttle.clear_pair(db, keys)
+    if user.totp_enabled_at is not None:
+        # Fjalëkalimi është i saktë: vetëm tani del një sfidë, që hapi i dytë të mos tregojë asgjë para saj (ADR 0018).
+        binding = credential_binding(config.jwt_secret, user.id, user.password_hash, user.totp_enabled_at)
+        return MfaChallenge(
+            challenge=issue_challenge(
+                user.id, binding, timedelta(minutes=config.mfa_challenge_minutes), config.jwt_secret
+            )
+        )
     return auth_sessions.open_session(db, user, config, now)
 
 

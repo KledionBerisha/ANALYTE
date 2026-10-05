@@ -41,6 +41,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Forgot Password
+         * @description Kërkon lidhjen për të vendosur fjalëkalim të ri (ADR 0018). Përgjigja është e njëjtë për çdo email.
+         *
+         *     Një llogari e konfirmuar merr lidhjen e rivendosjes. Një e pakonfirmuar merr lidhjen e konfirmimit, jo atë të
+         *     rivendosjes: rivendosja nuk duhet të jetë rrugë anash konfirmimit. Një email pa llogari nuk merr asgjë.
+         */
+        post: operations["forgot_password_auth_forgot_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset Password
+         * @description Vendos fjalëkalimin e ri me tokenin e lidhjes (ADR 0018).
+         *
+         *     Vlen një herë dhe skadon. Një token i panjohur, i përdorur ose i skaduar kthen të njëjtën gabim. Fjalëkalimi
+         *     i ri hash-ohet para se tokeni të kontrollohet, që koha të mos tregojë nëse tokeni ishte i vlefshëm. Pas suksesit
+         *     çdo seancë e përdoruesit revokohet; hapi i dytë, nëse ka, mbetet i paprekur (një kuti postare e vjedhur nuk
+         *     e kalon).
+         */
+        post: operations["reset_password_auth_reset_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/confirm": {
         parameters: {
             query?: never;
@@ -147,6 +195,105 @@ export interface paths {
         get: operations["me_auth_me_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status */
+        get: operations["status_auth_2fa_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa/enroll": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Enroll
+         * @description Nis regjistrimin: një sekret i ri, i dukshëm vetëm në këtë përgjigje. Thirrja e dytë para konfirmimit e
+         *     zëvendëson sekretin; pasi hapi i dytë aktivizohet, kjo pikë kthen 409 dhe sekreti nuk lexohet më.
+         */
+        post: operations["enroll_auth_2fa_enroll_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm
+         * @description Aktivizon hapin e dytë me kodin e parë të vlefshëm dhe kthen kodet e rimëkëmbjes, një herë.
+         */
+        post: operations["confirm_auth_2fa_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disable
+         * @description Çaktivizon hapin e dytë. Kërkon fjalëkalimin e tanishëm dhe një kod (aplikacioni ose rimëkëmbjeje): një token
+         *     aksesi i vjedhur vetëm nuk mjafton. Gabimet kufizohen si te hyrja.
+         */
+        post: operations["disable_auth_2fa_disable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/login/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify Login
+         * @description Hapi i dytë i hyrjes: sfida nga `login` dhe një kod. Hap seancën kur kodi vlen.
+         */
+        post: operations["verify_login_auth_login_verify_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -377,6 +524,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/privacy/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Privacy Config */
+        get: operations["privacy_config_privacy_config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/data": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Erase Account
+         * @description Fshin llogarinë dhe çdo dokument të saj, pas verifikimit të fjalëkalimit.
+         *
+         *     Pas kësaj tokenët e pronarit nuk vlejnë më (seancat shkojnë me llogarinë), prandaj një përsëritje e së njëjtës kërkesë
+         *     kthen 401, jo një gabim tjetër. Fjalëkalimi i gabuar kthen 403 dhe jo 401, që klienti të mos e marrë për seancë të
+         *     skaduar dhe të nisë një rifreskim.
+         */
+        delete: operations["erase_account_me_data_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export */
+        get: operations["export_me_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -496,6 +701,11 @@ export interface components {
         Body_upload_documents_post: {
             /** File */
             file: string;
+            /**
+             * Model Consent
+             * @default false
+             */
+            model_consent: boolean;
         };
         /**
          * BoundingBox
@@ -523,6 +733,11 @@ export interface components {
          * @enum {string}
          */
         Certainty: "confirmed" | "hedged";
+        /** CodeIn */
+        CodeIn: {
+            /** Code */
+            code: string;
+        };
         /** ConfirmIn */
         ConfirmIn: {
             /** Token */
@@ -568,6 +783,13 @@ export interface components {
          * @enum {string}
          */
         Direction: "increased" | "decreased" | "normal" | "unspecified";
+        /** DisableTwoFactorIn */
+        DisableTwoFactorIn: {
+            /** Password */
+            password: string;
+            /** Code */
+            code: string;
+        };
         /** DocumentOut */
         DocumentOut: {
             /**
@@ -592,6 +814,8 @@ export interface components {
             channel: string | null;
             /** Terminal */
             terminal: boolean;
+            /** Model Consent */
+            model_consent: boolean;
         };
         /** DocumentPage */
         DocumentPage: {
@@ -608,6 +832,11 @@ export interface components {
         EmailIn: {
             /** Email */
             email: string;
+        };
+        /** ErasureIn */
+        ErasureIn: {
+            /** Password */
+            password: string;
         };
         /** ExplanationOut */
         ExplanationOut: {
@@ -644,6 +873,29 @@ export interface components {
             /** Failed */
             failed: boolean;
         };
+        /** LoginVerifyIn */
+        LoginVerifyIn: {
+            /** Challenge */
+            challenge: string;
+            /** Code */
+            code: string;
+        };
+        /**
+         * MfaChallenge
+         * @description Përgjigjja e hyrjes kur llogaria ka hap të dytë: fjalëkalimi ishte i saktë, por seanca hapet vetëm pas
+         *     kodit (`POST /auth/login/verify`). Del vetëm pas fjalëkalimit të saktë, prandaj nuk tregon gjë për
+         *     llogaritë e tjera (ADR 0018).
+         */
+        MfaChallenge: {
+            /**
+             * Mfa Required
+             * @default true
+             * @constant
+             */
+            mfa_required: true;
+            /** Challenge */
+            challenge: string;
+        };
         /**
          * Notice
          * @description Një kufizim i shprehur nga sistemi. `code` e lejon ndërfaqen ta vendosë
@@ -670,6 +922,23 @@ export interface components {
          * @enum {string}
          */
         Polarity: "affirmed" | "negated";
+        /** PrivacyConfig */
+        PrivacyConfig: {
+            /** Model Enabled */
+            model_enabled: boolean;
+            /** Model Provider */
+            model_provider: string | null;
+            /** Retention Days */
+            retention_days: number;
+        };
+        /**
+         * RecoveryCodes
+         * @description Kodet e rimëkëmbjes. Shfaqen vetëm një herë: shërbimi mban vetëm HMAC-in e tyre.
+         */
+        RecoveryCodes: {
+            /** Recovery Codes */
+            recovery_codes: string[];
+        };
         /**
          * ReferenceSource
          * @description Nga erdhi intervali referent i përdorur për klasifikim.
@@ -723,6 +992,13 @@ export interface components {
             char_start: number;
             /** Char End */
             char_end: number;
+        };
+        /** ResetIn */
+        ResetIn: {
+            /** Token */
+            token: string;
+            /** Password */
+            password: string;
         };
         /** StatusOut */
         StatusOut: {
@@ -779,6 +1055,23 @@ export interface components {
             /** At */
             at: string;
         };
+        /**
+         * TwoFactorEnrollment
+         * @description Sekreti dhe URI-ja e aplikacionit. Shfaqen vetëm këtu, një herë; pasi regjistrimi të konfirmohet nuk lexohen më.
+         */
+        TwoFactorEnrollment: {
+            /** Secret */
+            secret: string;
+            /** Otpauth Uri */
+            otpauth_uri: string;
+        };
+        /** TwoFactorStatus */
+        TwoFactorStatus: {
+            /** Enabled */
+            enabled: boolean;
+            /** Recovery Codes Remaining */
+            recovery_codes_remaining: number;
+        };
         /** UploadOut */
         UploadOut: {
             /**
@@ -793,6 +1086,8 @@ export interface components {
             job_id: string;
             /** State */
             state: string;
+            /** Model Consent */
+            model_consent: boolean;
         };
         /** UserOut */
         UserOut: {
@@ -947,6 +1242,70 @@ export interface operations {
             };
         };
     };
+    forgot_password_auth_forgot_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisterOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_auth_reset_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     confirm_auth_confirm_post: {
         parameters: {
             query?: never;
@@ -997,7 +1356,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Tokens"];
+                    "application/json": components["schemas"]["Tokens"] | components["schemas"]["MfaChallenge"];
                 };
             };
             /** @description Validation Error */
@@ -1096,6 +1455,143 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserOut"];
+                };
+            };
+        };
+    };
+    status_auth_2fa_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TwoFactorStatus"];
+                };
+            };
+        };
+    };
+    enroll_auth_2fa_enroll_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TwoFactorEnrollment"];
+                };
+            };
+        };
+    };
+    confirm_auth_2fa_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecoveryCodes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disable_auth_2fa_disable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisableTwoFactorIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_login_auth_login_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginVerifyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tokens"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1584,6 +2080,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    privacy_config_privacy_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyConfig"];
+                };
+            };
+        };
+    };
+    erase_account_me_data_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ErasureIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_me_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };

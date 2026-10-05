@@ -27,7 +27,7 @@ from analyte.domain.models import (
     VerificationResult,
     Violation,
 )
-from analyte.orchestration.process import Delivery, Explanation
+from analyte.domain.processing import Delivery, Explanation
 
 from .tables import (
     AssertionRow,

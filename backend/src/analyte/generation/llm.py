@@ -427,6 +427,10 @@ class LlmGenerator:
     pa të një rezultat nuk atribuohet dot te konfigurimi që e prodhoi.
     """
 
+    sends_data_off_system = True
+    """Kërkesa i dërgohet një ofruesi të jashtëm. Shërbimi e përdor këtë shënim për të kërkuar pëlqimin e pacientit dhe
+    për të kaluar kontekstin nga porta e çidentifikimit para se të thirret (ADR 0019)."""
+
     def __init__(self, client: ChatClient) -> None:
         self.client = client
         self.name = f"{client.provider}:{client.model}:{PROMPT_VERSION}"

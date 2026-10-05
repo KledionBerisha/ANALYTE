@@ -42,6 +42,7 @@ from sqlalchemy import (
     Text,
     TypeDecorator,
     Uuid,
+    false,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -93,6 +94,14 @@ class UserRow(Base):
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
     email_confirmed_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
     """Bosh = email-i s'është konfirmuar dhe llogaria nuk hyn (ADR 0016)."""
+    totp_secret_encrypted: Mapped[bytes | None] = mapped_column(LargeBinary)
+    """Sekreti TOTP në base32, i koduar me të njëjtin çelës Fernet si skedarët (ADR 0018). I plotë por
+    jo i aktivizuar (`totp_enabled_at` bosh) = regjistrimi nisi dhe pret kodin e parë."""
+    totp_enabled_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    """Bosh = hyrja nuk kërkon hapin e dytë."""
+    totp_last_step: Mapped[int | None] = mapped_column(Integer)
+    """Hapi i fundit 30-sekondësh i pranuar. Një kod pranohet vetëm për hap më të madh, që i njëjti kod
+    të mos përdoret dy herë (rilojimi)."""
 
 
 class EmailConfirmationRow(Base):
@@ -110,6 +119,71 @@ class EmailConfirmationRow(Base):
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
     expires_at: Mapped[datetime] = mapped_column(UtcDateTime)
     used_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class PasswordResetRow(Base):
+    """Një lidhje rivendosjeje fjalëkalimi e dërguar me email (ADR 0018).
+
+    Si `EmailConfirmationRow`: tokeni i vërtetë ndodhet vetëm te email-i, këtu ruhet HMAC-u i tij; vlen një herë
+    dhe skadon.
+    """
+
+    __tablename__ = "password_resets"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_key: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
+    expires_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    used_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class RecoveryCodeRow(Base):
+    """Një kod rimëkëmbjeje i hapit të dytë (ADR 0018). Vlen një herë; ruhet vetëm si HMAC me çelës.
+
+    Kodi ka mjaft entropi (50 bit) që HMAC-u të mjaftojë pa Argon2, dhe kontrollohet pas kufizimit të
+    përpjekjeve. HMAC-u lidhet me përdoruesin: i njëjti kod te dy llogari nuk jep të njëjtin çelës.
+    """
+
+    __tablename__ = "recovery_codes"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    code_key: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
+    used_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class MailDeliveryRow(Base):
+    """Regjistri i dërgimit të një mesazhi me lidhje (konfirmim ose rivendosje) — ADR 0018.
+
+    Nuk mban adresë, lidhje apo tekst: adresa nxirret nga `users` në çastin e dërgimit, dhe tokeni i
+    pastër nuk ruhet askund (vetëm HMAC-u te tabela e tokenit), prandaj një mesazh i humbur nuk
+    rindërgohet i njëjti: kalimi periodik lëshon një token të ri. `token_id` nuk është çelës i huaj, sepse
+    tregon një nga dy tabelat sipas `kind`.
+
+    `status`: `pending` (pret), `sent`, `superseded` (u zëvendësua nga një token i ri i kalimit periodik),
+    `expired` (tokeni u përdor, skadoi ose u shfuqizua: s'ka çfarë të dërgohet), `skipped` (kufiri ditor
+    i rilëshimeve automatike u mbush).
+    """
+
+    __tablename__ = "mail_deliveries"
+    __table_args__ = (Index("ix_mail_deliveries_status_created", "status", "created_at"),)
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    """`confirmation` ose `password_reset`."""
+    token_id: Mapped[UUID] = mapped_column(Uuid)
+    origin: Mapped[str] = mapped_column(String(10))
+    """`request` (nga kërkesa e përdoruesit) ose `sweep` (nga kalimi periodik)."""
+    status: Mapped[str] = mapped_column(String(12), default="pending")
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    last_error: Mapped[str | None] = mapped_column(String(80))
+    """Vetëm lloji i gabimit të transportit (emri i klasës), jo mesazhi."""
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
+    last_attempt_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    sent_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
 
 
 class RegistrationAttemptRow(Base):
@@ -145,7 +219,7 @@ class AuthSessionRow(Base):
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=_now)
     revoked_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
     revoked_reason: Mapped[str | None] = mapped_column(String(30))
-    """`logout`, `logout_all` ose `refresh_reuse`."""
+    """`logout`, `logout_all`, `refresh_reuse`, `password_reset` ose `two_factor_enabled`."""
 
 
 class RefreshTokenRow(Base):
@@ -197,6 +271,18 @@ class DocumentRow(Base):
     state: Mapped[str] = mapped_column(String(30))
     """Gjendja e fundit, e shkruar me çdo kalim — burimi i `/status`."""
     state_reason: Mapped[str] = mapped_column(Text, default="")
+
+    model_consent: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    """Pëlqimi i shprehur i pacientit, për këtë ngarkim, që përmbajtja e strukturuar të dërgohet te ofruesi i modelit
+    (ADR 0019). Parazgjedhja është jo. Pa të, dokumenti nuk dërgohet kurrë te ofruesi."""
+    model_consent_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    """Koha e dhënies së pëlqimit; bosh kur nuk u dha."""
+    model_use: Mapped[str | None] = mapped_column(String(30))
+    """Çfarë ndodhi me modelin për këtë dokument: `used`, `no_consent` ose `identifying_content`. Bosh kur modeli
+    nuk ishte në lojë (shërbimi gjeneron me shabllon) ose dokumenti nuk arriti te gjenerimi."""
+    model_gate_kinds: Mapped[str | None] = mapped_column(String(200))
+    """Llojet e të dhënave që porta e çidentifikimit gjeti (`name_like,date`), kur `model_use` është
+    `identifying_content`. Vetëm kodet, kurrë vargjet e gjetura."""
 
     jobs: Mapped[list[JobRow]] = relationship(
         back_populates="document", cascade="all, delete-orphan", passive_deletes=True

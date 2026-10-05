@@ -47,7 +47,7 @@ Arkitektura zbatohet njëkohësisht në dy fusha me natyrë thelbësisht të ndr
 
 Vlerësimi u krye mbi një korpus sintetik prej 500 dokumentesh laboratorike shqip (332 dixhitale dhe 168 të skanuara), të gjeneruar posaçërisht për këtë punim dhe të pajisur me të vërtetë bazë të plotë; mbi një korpus të korruptuar për matjen e detektorëve; dhe mbi 105 fjali natyrale dhe 25 shpjegime referuese të dorëzuara nga autori; 12 nga 105 fjalitë (vetëm citime të mjekut) janë identike me rreshta të një drafti të mëparshëm të hartuar nga Claude, i zëvendësuar (§6.7.1). Modeli gjuhësor është një model i vetëm i vogël me plan falas (Mistral Ministral 14B), dhe gjykatësi i detektimit është një model Claude. **Punimi nuk validohet mbi dokumente reale dhe nuk përfshin studim me përdorues.**
 
-**Rezultatet.** Mbi dokumentet dixhitale nxjerrja dhe klasifikimi i statusit dalin 1.000; kjo vlerë mat lidhjen e tubacionit mbi një korpus të pastër dhe jo vështirësinë e dokumenteve reale. Mbi skanimet e simuluara F1 i nxjerrjes është 0.670 dhe saktësia e statusit 0.881: nga 2 370 vlera të nxjerra, 125 janë të gabuara dhe pranohen, dhe 62 marrin status të interpretuar gabim, ndër to 11 kritike të rreme. Në eksperimentin kryesor, norma e shkeljeve që arrijnë te përdoruesi është 54.4 për 100 fjali pa bazim, 9.5 me bazim, dhe 0.000 (kufiri i sipërm 95%: 0.034) me bazim dhe verifikim me rregulla, por 25% e dokumenteve u çuan te shablloni rezervë. Emëruesi i kësaj norme janë fjalitë e të gjitha drafteve të modelit; mbi tekstin e dorëzuar kufiri i sipërm është 0.038, por 44% e atij teksti është shabllon, dhe mbi fjalitë e vetë modelit (4 463) kufiri është 0.067. Kjo numëron vetëm shkeljet që rregullat shohin: një audit i pavarur i 90 teksteve që kaluan verifikimin gjeti një problem të llojeve që rregullat synojnë te 36% e tyre (intervali 26–46%), ndër to drejtim të gabuar te 23%. Detektori me rregulla arrin macro F1 0.993 mbi korpusin e korruptuar dhe 0.795 mbi fjalitë natyrale; klasifikuesi XLM-RoBERTa 0.015–0.177 mbi fjalitë natyrale, sepse mëson shabllonet e gjeneruesit; gjykatësi Claude Sonnet 1.000 mbi të dyja mostrat dhe Claude Haiku 0.625 dhe 0.514, pra cilësia e gjykatësit e përcakton rezultatin. Dega e nxjerrjes së pohimeve të mjekut, e testuar mbi 60 fjali të dorëzuara nga autori (sipas deklaratës së tij), nxjerr saktë të gjitha fushat te 32 nga 60, por vetëm te 13 nga 41 fjali që nuk janë identike me ato të gjeneruesit; ajo dështon te negacionet dhe pseudo-negacionet e shprehura me emra («rritja e»). Hipoteza e parë konfirmohet në formën e matur (verifikimi ul shkeljet që zbulon) por jo si garanci që asnjë pohim i pambështetur nuk arrin te përdoruesi; e dyta, që detektori është më i saktë për degën laboratorike, nuk konfirmohet.
+**Rezultatet.** Mbi dokumentet dixhitale nxjerrja dhe klasifikimi i statusit dalin 1.000; kjo vlerë mat lidhjen e tubacionit mbi një korpus të pastër dhe jo vështirësinë e dokumenteve reale. Mbi skanimet e simuluara F1 i nxjerrjes është 0.670 dhe saktësia e statusit 0.881: nga 2 370 vlera të nxjerra, 125 janë të gabuara dhe pranohen, dhe 62 marrin status të interpretuar gabim, ndër to 11 kritike të rreme. Në eksperimentin kryesor, norma e shkeljeve që arrijnë te përdoruesi është 54.4 për 100 fjali pa bazim, 9.5 me bazim, dhe 0.000 (kufiri i sipërm 95%: 0.034) me bazim dhe verifikim me rregulla, por 25% e dokumenteve u çuan te shablloni rezervë. Emëruesi i kësaj norme janë fjalitë e të gjitha drafteve të modelit; mbi tekstin e dorëzuar kufiri i sipërm është 0.038, por 44% e atij teksti është shabllon, dhe mbi fjalitë e vetë modelit (4 463) kufiri është 0.067. Kjo numëron vetëm shkeljet që rregullat shohin: një audit i pavarur i 90 teksteve që kaluan verifikimin gjeti një problem të llojeve që rregullat synojnë te 36% e tyre (intervali 26–46%), ndër to drejtim të gabuar te 23%. Detektori me rregulla arrin macro F1 0.993 mbi korpusin e korruptuar dhe 0.795 mbi fjalitë natyrale; klasifikuesi XLM-RoBERTa 0.015–0.177 mbi fjalitë natyrale, sepse mëson shabllonet e gjeneruesit; gjykatësi Claude Sonnet 1.000 mbi të dyja mostrat dhe Claude Haiku 0.625 dhe 0.514, pra cilësia e gjykatësit e përcakton rezultatin. Një kontroll besueshmërie për OCR-në, i projektuar pasi u panë gabimet e E3, ul statusët e interpretuar gabim nga 62 në 2 për çmimin e 18 rreshtave të humbur, dhe një katalog i përmirësuar rregullash (`r1.4`, i hartuar pasi u panë gabimet e grupeve dhe të auditit) ngre macro F1 mbi grupin B nga 0.795 në 0.843 dhe kap 17 nga 40 teksteve që auditi i gjeti me problem të llojeve të rregullave; të dyja janë matur mbi mostra që ndikuan hartimin e tyre, dhe eksperimentet e ngrira E7–E9 nuk i përdorin. Dega e nxjerrjes së pohimeve të mjekut, e testuar mbi 60 fjali të dorëzuara nga autori (sipas deklaratës së tij), nxjerr saktë të gjitha fushat te 32 nga 60, por vetëm te 13 nga 41 fjali që nuk janë identike me ato të gjeneruesit; ajo dështon te negacionet dhe pseudo-negacionet e shprehura me emra («rritja e»). Hipoteza e parë konfirmohet në formën e matur (verifikimi ul shkeljet që zbulon) por jo si garanci që asnjë pohim i pambështetur nuk arrin te përdoruesi; e dyta, që detektori është më i saktë për degën laboratorike, nuk konfirmohet.
 
 Punimi trajton gjithashtu zbatueshmërinë e qasjes në gjuhën shqipe, për të cilën nuk ekziston asnjë model klinik i paratrajnuar i përpunimit të gjuhës natyrore, dhe dokumenton pasojat arkitekturore të kësaj mungese.
 
@@ -1062,7 +1062,7 @@ Nëse miratimi etik nuk jepet ose vonohet përtej afatit, punimi vazhdon mbi kor
 
 Aplikacioni është organizuar në module me përgjegjësi të ndara qartë. Moduli i domenit përmban modelet e të dhënave dhe nuk varet nga asnjë modul tjetër, gjë që e mban kontratën e të dhënave të qëndrueshme ndërsa pjesa tjetër e sistemit evoluon. Moduli i ngarkimit merret me leximin e dokumenteve dhe njohjen optike. Moduli i bazimit përmban të dyja degët e përpunimit. Moduli i gjenerimit përmban përshtatësin e modelit gjuhësor dhe kërkesat e versionuara. Moduli i verifikimit përmban rregullat dhe klasifikuesin. Moduli i orkestrimit menaxhon makinën e gjendjeve dhe punët asinkrone. Moduli i qëndrueshmërisë menaxhon bazën e të dhënave, ndërsa moduli i auditimit regjistron çdo hap të përpunimit.
 
-Kjo ndarje u kontrollua kundrejt importeve të vërteta. Figura 8 është matricë varësish e ndërtuar nga kodi (`scripts/build_figures.py`), dhe tregon se moduli i domenit nuk importon asnjë modul tjetër të aplikacionit, siç pretendohet më sipër. Ajo tregon edhe një devijim: ekziston një varësi rrethore në nivel paketash mes auditimit, orkestrimit dhe qëndrueshmërisë (`audit.logger` importon `orchestration.states`, `persistence.repository` importon `orchestration.process`, dhe `orchestration.tasks` importon të dyja). Nuk ka cikël në nivel moduli, por ndarja e pastër e përgjegjësive nuk është plotësisht e vërtetë; zgjidhja është zhvendosja e tri llojeve të përbashkëta në paketën e domenit, dhe nuk është bërë.
+Kjo ndarje u kontrollua kundrejt importeve të vërteta. Figura 8 është matricë varësish e ndërtuar nga kodi (`scripts/build_figures.py`), dhe tregon se moduli i domenit nuk importon asnjë modul tjetër të aplikacionit, siç pretendohet më sipër. Një version i mëparshëm i kodit tregonte edhe një devijim: një varësi rrethore në nivel paketash mes auditimit, orkestrimit dhe qëndrueshmërisë (`audit.logger` importonte `orchestration.states`, `persistence.repository` importonte `orchestration.process`, dhe `orchestration.tasks` importonte të dyja). Tri llojet e përbashkëta (`Transition`, `Delivery`, `Explanation`, së bashku me `Attempt`) u zhvendosën te `domain.processing`, dhe `orchestration` i ri-eksporton; Figura 8 nuk ka më varësi që kthehet mbrapa, dhe `tests/unit/test_architecture.py` e ruan këtë (domeni nuk importon asgjë; nuk ka cikël paketash).
 
 Ndarja e gjeneruesit të të dhënave dhe e infrastrukturës së vlerësimit në module të veçanta jashtë aplikacionit kryesor pasqyron faktin se ato i shërbejnë kërkimit dhe jo produktit.
 
@@ -1254,13 +1254,20 @@ Sistemi mban dy gjurma të ndara.
 
 **Gjenerimi në aplikacion** (ADR 0017). Parazgjedhja është shablloni determinist dhe asnjë e dhënë nuk del nga sistemi. Modeli ndizet vetëm me `ANALYTE_SERVICE_GENERATOR=model`, një çelës i ndarë nga ofruesi që eksperimentet kërkojnë te `.env`. Atëherë ofruesit i dërgohet vetëm konteksti i strukturuar (vlera, intervale, statuse, termat dhe citimet e mjekut; kurrë emri, mosha, gjinia apo skedari), pa cache në disk, me të njëjtin cikël verifikim, një rigjenerim dhe shabllon rezervë, dhe teksti i modelit mban njoftimin se e shkroi një model dhe se kontrolli kap vetëm një pjesë të gabimeve. Ndryshe nga eksperimentet, këtu të dhënat mund të jenë të pacientëve të vërtetë, çka kërkon vendim etik (§3.7.3, `docs/ethics`).
 
+
+**Hardimi i llogarisë** (ADR 0018). Rivendosja e fjalëkalimit, hapi i dytë i hyrjes dhe rindërgimi i mesazheve janë të zbatuara dhe të provuara me teste (përfshirë prishje të qëllimshme). Kërkesat për rivendosje kthejnë gjithmonë të njëjtën përgjigje, tokenët ruhen vetëm si HMAC dhe shpenzohen një herë me një UPDATE të kushtëzuar; pas rivendosjes çdo seancë e përdoruesit revokohet, dhe rivendosja nuk e konfirmon kurrë një llogari të pakonfirmuar (një llogari e tillë merr lidhje konfirmimi, jo rivendosjeje). Hapi i dytë është TOTP sipas RFC 6238 (SHA-1, 30 s, 6 shifra, dritare ±1), i realizuar me bibliotekën standarde dhe i provuar me vektorët e RFC-së; sekreti ruhet i koduar me çelësin Fernet të ruajtjes dhe kodet e rimëkëmbjes (8, njëpërdorimshe) vetëm si HMAC me çelës; një hap kohe i pranuar nuk pranohet dy herë, dhe kodet e gabuara kufizohen para se të kontrollohen. Mesazhet me lidhje kanë një regjistër dërgimi pa adresa; një mesazh që nuk u dërgua rindërgohet nga punëtori me një token të ri (i vjetri nuk rikthehet, sepse ruhet vetëm HMAC-i), me kufi ditor për përdorues. API-ja dhe ndërfaqja vendosin `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff` dhe `X-Frame-Options: DENY`.
+
+**Mbrojtja e të dhënave** (ADR 0019). Kontrollet teknike i bëjnë vendimet e autorit të zbatueshme, jo pohime për kushtet e ofruesve. Modeli është i fikur si parazgjedhje; kur shërbimi e ka të ndezur, një dokument dërgohet te ofruesi vetëm nëse pacienti ka shënuar një kuti pëlqimi për atë ngarkim (e pashënuar si parazgjedhje, e ruajtur me kohë dhe e regjistruar te regjistri i auditimit pa të dhëna personale). Pa pëlqim shpjegimi del nga shablloni determinist dhe asnjë kërkesë nuk i dërgohet ofruesit. Edhe me pëlqim, citimet e mjekut dhe termat e pashpjeguar kalojnë një portë çidentifikimi që dështon e mbyllur: nëse shënohet emër, titull, datë, telefon, email, numër i gjatë, identifikues, moshë ose adresë, dokumenti nuk dërgohet fare dhe pacienti merr njoftim. Citimi nuk redaktohet kurrë, sepse R5, R6 dhe R8 e krahasojnë daljen me citimin origjinal dhe pacienti duhet ta shohë të pandryshuar. Pacienti mund ta fshijë një dokument ose gjithë llogarinë (me fjalëkalimin aktual) dhe t'i eksportojë të dhënat e veta; afati i ruajtjes është i konfigurueshëm (i fikur si parazgjedhje). Fshirja heq rreshtat, gjithçka të derivuar dhe skedarin e koduar; regjistri i auditimit mbetet pa identifikues përdoruesi dhe pa sha të skedarit. Baza ligjore, kushtet e ofruesit dhe miratimi etik nuk vendosen nga sistemi dhe mbeten vendim i autorit [REFERENCË — plotësohet].
+
+**Çfarë përdor shërbimi dhe çfarë u mat** (ADR 0020, 0021). Shërbimi verifikon me katalogun `r1.4` dhe lexon faqet e OCR-së me kontrollin e besueshmërisë; eksperimentet e ngrira (E4, E6–E11, grupet A, B, C) u matën me `r1.3` dhe pa kontrollin, që rezultatet dhe cache-i i përgjigjeve të modelit të mbeten të vlefshme. Dallimi shkon te pipeline-t e harness-it (`rules="r1.3"`, `ocr_guard=False` si parazgjedhje) dhe matjet e `r1.4` dhe të kontrollit raportohen veçmas (§6.3.1, §6.7.3). Klasifikuesi i fjalive nuk është pjesë e shërbimit (ADR 0022).
+
 ---
 
 # 6 REZULTATET
 
 Çdo vlerë numerike e këtij kapitulli lexohet nga një skedar rezultatesh te `evaluation/results/`, dhe tabelat 7–13 dhe 16 gjenerohen prej tyre nga `scripts/build_chapter6_tables.py`, pa kopjim me dorë. Pjesa që nuk është matur është thënë si e tillë: nuk u kryen E13 (dokumente reale), E14 (studimi me përdorues) dhe E15 (modeli lokal kundrejt atij në re), dhe seksionet përkatëse e thonë këtë në vend që të japin një vlerë.
 
-**Prejardhja.** E1, E2, E3 dhe E5 u ekzekutuan më 2026-10-02 nga një kopje e pastër e commit-it `37b5be4` (`working_tree_dirty: false`), mbi korpusin `gen-1.0/s42/n500/37d8b080` (500 dokumente, prej tyre 332 dixhitale dhe 168 të skanuara); po ashtu E7–E9 me shabllonin si gjenerues (`evaluation/results/E7`–`E9`). Eksperimentet me modelin gjuhësor (E4, E6, E7, E8, E9; `evaluation/results/llm/`) u ekzekutuan më 2026-10-04 nga një kopje e pastër e commit-it `4f5ea17`, mbi të njëjtin korpus. Gjeneruesi është Mistral `ministral-14b-2512` në planin falas, me kërkesën `p1` për kushtet B–D dhe `u1` për kushtin A, temperaturë 0 (ADR 0015). Përgjigjet e modelit lexohen nga cache-i i commit-uar (`evaluation/cache/llm/`): katër nga pesë ekzekutimet e pastra nuk bënë asnjë thirrje të re; E6 bëri dy, për dy dokumente që në ekzekutimin e parë nuk kishin marrë përgjigje të vlefshme (përgjigjet e dështuara nuk ruhen kurrë). E10 dhe E11 u ekzekutuan më 2026-10-05 nga një kopje e pastër e commit-it `34fa710` (`working_tree_dirty: false`), dhe rezultatet e tyre mbajnë sha-n e kodit dhe një identifikues të të dhënave: për E10 versioni i gjeneruesit, fara, madhësia dhe një shumë kontrolluese e tabelave burimore që nuk varet nga mbarimet e rreshtave; për E11 një shumë kontrolluese e parashikimeve të Colab-it që u lexuan. Metrikat dolën identike me ato të mëparshme. Katër rezultate kanë prejardhje më të dobët. Parashikimet e E11 u prodhuan në Colab (GPU Tesla T4, `xlm-roberta-base`, 3 epoka, fara 42), dhe `run.json` ruan versionet e bibliotekave por jo sha-n e kodit të trajnimit. Rezultati i klasifikuesit dhe ai i gjykatësve mbi grupin B (`kit_B.json`) nuk mbajnë metadata; rezultati i rregullave mbi B rillogaritet nga `python -m evaluation.kits check` dhe nuk ruhet si skedar. Dhe E12 dhe auditi i E8 nuk kanë sha git: gjykatësi është një model Claude i thirrur nga Claude Code si subagjent, kështu që rezultati rillogaritet nga përgjigjet e ruajtura (`answers_*.jsonl`) dhe çelësin e etiketave, jo nga një ekzekutim i përsëritshëm i kodit (§6.7.2). Korpusi i vetë (`data/v1`) ka një kufizim: `manifest.json` ruan shumat kontrolluese të bajteve të papërpunuara të `resources/*.csv`, dhe për `terminology.csv` e `patterns.csv` ato përputhen vetëm me kopjen e punës ku u prodhuan, jo me një kopje të re nga git (mbarimet e rreshtave ndryshojnë me `core.autocrlf`). Harness-i e lexon versionin nga manifesti dhe nuk e rillogarit, kështu që asnjë rezultat nuk preket, por versioni `gen-1.0/s42/n500/37d8b080` nuk rindërtohet dot nga një kopje e re në këtë makinë.
+**Prejardhja.** E1, E2, E3 dhe E5 u ekzekutuan më 2026-10-02 nga një kopje e pastër e commit-it `37b5be4` (`working_tree_dirty: false`), mbi korpusin `gen-1.0/s42/n500/37d8b080` (500 dokumente, prej tyre 332 dixhitale dhe 168 të skanuara); po ashtu E7–E9 me shabllonin si gjenerues (`evaluation/results/E7`–`E9`). Eksperimentet me modelin gjuhësor (E4, E6, E7, E8, E9; `evaluation/results/llm/`) u ekzekutuan më 2026-10-04 nga një kopje e pastër e commit-it `4f5ea17`, mbi të njëjtin korpus. Gjeneruesi është Mistral `ministral-14b-2512` në planin falas, me kërkesën `p1` për kushtet B–D dhe `u1` për kushtin A, temperaturë 0 (ADR 0015). Përgjigjet e modelit lexohen nga cache-i i commit-uar (`evaluation/cache/llm/`): katër nga pesë ekzekutimet e pastra nuk bënë asnjë thirrje të re; E6 bëri dy, për dy dokumente që në ekzekutimin e parë nuk kishin marrë përgjigje të vlefshme (përgjigjet e dështuara nuk ruhen kurrë). E10 dhe E11 u ekzekutuan më 2026-10-05 nga një kopje e pastër e commit-it `34fa710` (`working_tree_dirty: false`), dhe rezultatet e tyre mbajnë sha-n e kodit dhe një identifikues të të dhënave: për E10 versioni i gjeneruesit, fara, madhësia dhe një shumë kontrolluese e tabelave burimore që nuk varet nga mbarimet e rreshtave; për E11 një shumë kontrolluese e parashikimeve të Colab-it që u lexuan. Metrikat dolën identike me ato të mëparshme. Katër rezultate kanë prejardhje më të dobët. Parashikimet e E11 u prodhuan në Colab (GPU Tesla T4, `xlm-roberta-base`, 3 epoka, fara 42), dhe `run.json` ruan versionet e bibliotekave por jo sha-n e kodit të trajnimit. Rezultati i klasifikuesit dhe ai i gjykatësve mbi grupin B (`kit_B.json`) nuk mbajnë metadata; rezultati i rregullave mbi B rillogaritet nga `python -m evaluation.kits check` dhe nuk ruhet si skedar. Dhe E12 dhe auditi i E8 nuk kanë sha git: gjykatësi është një model Claude i thirrur nga Claude Code si subagjent, kështu që rezultati rillogaritet nga përgjigjet e ruajtura (`answers_*.jsonl`) dhe çelësin e etiketave, jo nga një ekzekutim i përsëritshëm i kodit (§6.7.2). Korpusi i vetë (`data/v1`) pati një kufizim që u mbyll më 2026-10-05: `manifest.json` ruan shumat kontrolluese të bajteve të papërpunuara të `resources/*.csv`, dhe me `core.autocrlf=true` një kopje e re nga git kishte mbarime rreshtash të ndryshme për `terminology.csv` dhe `patterns.csv`, kështu që versioni `gen-1.0/s42/n500/37d8b080` nuk rindërtohej. Skedari `.gitattributes` (`resources/*.csv -text`) e ndalon konvertimin dhe depoja ruan tani saktësisht bajtet që u hashuan; `python scripts/verify_corpus.py` i krahason tabelat me manifestin, dhe u provua në një kopje të re që të pesë përputhen (para kësaj, 2 nga 5 nuk përputheshin). Versioni i korpusit nuk ndryshoi, prandaj asnjë rezultat nuk u ribë. Kufizim i mbetur: kur autori plotëson burimet te `terminology.csv` ose `patterns.csv`, shuma e tyre ndryshon dhe korpusi duhet ribërë ose manifesti ripërcaktuar.
 
 **Pasiguria.** E4, E6, E7, E8 dhe E9 kanë intervale besimi (bootstrap në nivel dokumenti, 2 000 rimostrime); auditi i E8 ka intervale Wilson 95%. Të gjitha vlerat e tjera janë vlerësime pikësore. Grupi B ka 105 fjali dhe 5 deri 10 për çdo lloj defekti, ndaj një fjali e vetme e ndryshon F1 të një lloji me 0.05 deri 0.2, dhe asnjë diferencë mes dy detektorëve mbi B nuk është provuar statistikisht.
 
@@ -1288,8 +1295,8 @@ Sistemi është zbatuar i plotë përveç chat-it të lidhur me dokumentin, që 
 | Kanali i leximit | Tekst dixhital dhe OCR (Tesseract 5, `eng`, `--psm 6`, 200 dpi) |
 | Shërbimi | API me autentikim të forcuar (konfirmim email-i, kufizim hyrjesh dhe regjistrimesh, seanca të revokueshme, dil kudo), regjistër auditimi, ruajtje e enkriptuar (ADR 0013, 0014, 0016) |
 | Ndërfaqja | Next.js në shqip: regjistrimi me konfirmim email-i, hyrja, dil kudo, ngarkimi, historiku, hapat e përpunimit, njoftimi për vlera kritike, paralajmërimi i OCR-së, shpjegimi me treguesin e verifikimit, tabela e gjetjeve ku një klikim hedh dritë mbi rreshtin burimor |
-| Vendimet arkitekturore | 17 ADR (`docs/adr/`) |
-| Testet | 628 kalojnë, 1 anashkalohet (testi i integrimit me PostgreSQL ekzekutohet me `make test-postgres`) |
+| Vendimet arkitekturore | 22 ADR (`docs/adr/`) |
+| Testet | 987 kalojnë, 0 anashkalohen (me testet e integrimit mbi PostgreSQL 16; pa `ANALYTE_TEST_DATABASE_URL` testet e PostgreSQL anashkalohen) |
 
 Korpusi sintetik i vlerësimit ka 500 dokumente (332 dixhitale, 168 të skanuara, 556 faqe), me 9 860 gjetje laboratorike, 2 749 pohime narrative dhe 36 dokumente me të paktën një vlerë kritike. Korpusi i korruptuar del nga 1 500 dokumente për trajnimin dhe validimin e klasifikuesit dhe nga 200 dokumente burimore për testin (192 mostra, E10 dhe E11); rrjedhja e dokumenteve ndërmjet trajnimit dhe validimit është zero (`E11/leakage.json`).
 
@@ -1388,6 +1395,22 @@ Rreth 77% e vlerave kanë intervalin nga dokumenti dhe 21% nga tabela e brendshm
 *Figura 19. Matrica e konfuzionit për klasifikimin e statusit (E3, tërë korpusi, me OCR).* Ngjyra është pjesa e rreshtit (recall), numri brenda është numërimi; e gjithë rënia nga diagonali është nga kanali i skanuar. Të dhënat: `evaluation/results/E3/result.json`.
 
 ![Figura 19](figures/figura_19_matrica_e_statusit.png)
+
+
+### 6.3.1 Kontrolli i besueshmërisë për vlerat e lexuara nga OCR-ja
+
+62 statuse të interpretuara dhe të gabuara dhe 11 kritike të rreme (më sipër) kanë një shkak të vetëm: presja dhjetore që OCR-ja e humb, te intervali i shtypur (42 raste: "2,5 – 4,5" lexohet "25 – 45") ose te vlera (20 raste: "46,6" lexohet "466"). Një kontroll i ngushtë (ADR 0020) e trajton secilin vetëm te faqet e OCR-së: intervali i shtypur që është 10, 100 ose 1000 herë ai i tabelës së brendshme hidhet dhe përdoret tabela; vlera e shtypur pa presje që del mbi intervalin dhe brenda tij pas një ose dy presjesh nuk merret fare. U mat me `python -m evaluation.ocr_guard_report`, që e lexon çdo dokument të skanuar një herë dhe nxjerr dy herë mbi të njëjtat faqe:
+
+| | pa kontroll | me kontroll |
+|---|---|---|
+| Statuse të interpretuara dhe të gabuara | 62 | **2** |
+| Prej tyre kritike të larta pa qenë | 11 | **2** |
+| Rreshta të krahasueshëm me të vërtetën | 2 360 | 2 342 |
+| Të interpretueshme që u bënë të painterpretueshme | 986 | 1 009 |
+
+18 rreshta u refuzuan nga kontrolli i vlerës; të 18 kishin vlerë të lexuar gabim, asnjë të saktë, dhe 46 intervale u zëvendësuan nga tabela. Dy gabimet e mbetura janë Ht 598 për 59,8 dhe Ht 166 për 16,6, ku zhvendosja e presjes e lë vlerën jashtë intervalit. Në harness (ekzekutim zhvillimi, `--ocr --ocr-guard`): F1 i nxjerrjes 0.670 → 0.669, saktësia e statusit 0.881 → 0.885, E5 (krahasimi i kryqëzuar) 0.863 → 0.862.
+
+**Si lexohet.** Kontrolli u projektua pasi u panë gabimet e E3 mbi këto dokumente, dhe pragjet (10, 100, 1000; toleranca 15%) u zgjodhën me to; numrat tregojnë sa e kap defektin e njohur, jo përgjithësimin. Çmimi i tij është një rresht i humbur, jo një status i gabuar; një vlerë e vërtetë e shtypur pa presje që plotëson kushtin do të humbiste (te korpusi sintetik kjo nuk ndodh, te dokumentet reale formati i laboratorëve është i panjohur). Nuk u shtua kontroll me kufij fiziologjikë absolutë, sepse ata kërkojnë burime të lexuara që nuk ekzistojnë. E7–E9 dhe auditi u matën pa kontrollin; shërbimi e ka të ndezur.
 
 ## 6.4 Besnikëria e thjeshtimit të tekstit mjekësor
 
@@ -1645,6 +1668,27 @@ Kufizimet që duhen thënë:
 4. **Perfeksioni i Sonnet nuk është tavan i detyrës:** Haiku pajtohet me Sonnet në 152 nga 288 mostrat që iu përgjigj (53%), humbet 23 nga 30 rekomandime të munguara dhe 21 nga 40 analite të pambështetura, dhe bllokon 14 nga 59 tekste të pastra. Pra detyra nuk është e lehtë për çdo model.
 5. **Protokolli i Haiku ka dobësi të veta:** 9 nga 297 mostra mbetën pa përgjigje dhe katër skedarë kishin një rresht të parë të palexueshëm; ato numërohen si humbje, çka i ul pak numrat e tij. Edhe përjashtuar këto, saktësia mbi mostrat e përgjigjura është rreth 53%.
 
+
+### 6.7.3 Katalogu `r1.4`: çfarë ndryshon dhe me çfarë çmimi
+
+Gabimet e grupeve A, B, të E10 dhe të auditit të E8 ishin kryesisht leksikore: trajta e shquar e emrave ("Kolesteroli HDL" lexohej si kolesterol total, "25" te "Vitamina D 25-OH" si numër), drejtimi i shprehur me mbiemra ose emra ("të larta", "rritja e") që fjalori nuk e njihte, një drejtim i vetëm për tërë fjalinë, pohimi i përgjithshëm "të gjitha vlerat e tjera janë brenda intervalit", dhe shpjegimet e shpikura në kllapa. `r1.4` (ADR 0021) përmirëson katër rregulla (R1, R2, R3, R9) pa shtuar rregull të ri; `r1.3` mbetet i riprodhueshëm, dhe vetëm shërbimi përdor `r1.4`. Të dy versionet u matën mbi të njëjtat mostra (`python -m evaluation.compare_rules`):
+
+| Matje | `r1.3` | `r1.4` |
+|---|---|---|
+| Shablloni mbi 500 kontekstet | 0 shkelje | 0 shkelje |
+| E10, macro F1 (192 tekste testi) | 0.993 | 1.000 |
+| Grupi B, macro F1 (105 fjali) | 0.795 | 0.843 |
+| Grupi B, F1 e `direction_mismatch` / `ungrounded_number` | 0.67 / 0.95 | 1.00 / 1.00 |
+| Grupi B, tekste të pastra të shënuara | 1 nga 30 | 0 nga 30 |
+| Grupi A, shpjegime të shënuara | 5 nga 25 | 0 nga 25 |
+| Auditi i E8, tekste të shënuara (nga 90) | 0 | 25 |
+| Prej 40 teksteve me problem të llojeve të rregullave sipas auditit: të shënuara | 0 | 17 |
+| Prej 38 teksteve që auditori i gjeti të pastra: të shënuara | 0 | 2 |
+
+Dy tekstet e shënuara që auditori i kishte gjetur të pastra janë pohime të përgjithshme ku një gjetje jashtë intervalit nuk përmendet (acidi urik; fosfori); sipas dëshmisë duken gabime të vërteta që auditori i humbi, por kjo nuk u verifikua nga një gjykatës i pavarur. Në harness, `r1.3` dhe `r1.4` japin rezultate të ndryshme vetëm kur kërkohet shprehimisht (`--rules r1.4`); asnjë nga numrat e E4–E9 të Kapitullit 6 nuk u rimat me `r1.4`.
+
+**Si lexohet.** `r1.4` u hartua duke parë pikërisht këto gabime (shembujt e auditit, alarmet e rreme të A dhe B, vetë grupi B), prandaj A, B, E10 dhe auditi nuk janë më mostra të reja për të: tabela tregon sa kap defektet e njohura dhe sa mban pastërtinë e shabllonit, jo si do të sillej mbi tekst të pa parë, që mbetet i pamatur. Alarmet e rreme që hoqi janë, megjithatë, defekte të njohjes së emrave dhe jo përshtatje me një mostër. **Nuk u përmirësuan:** `prohibited_claim` (SP1–SP3) mbetet 3 nga 10 mbi B dhe `ungrounded_term_explanation` 1 nga 5, sepse zgjerimi i fjalorit të diagnozës, trajtimit dhe prognozës sipas B do ta kishte kontaminuar edhe më shumë grupin. Një E8 me `r1.4` do të ndalonte më shumë drafte dhe do të ngrinte pjesën që përfundon te shablloni (25.2% me `r1.3`); nuk u ekzekutua.
+
 ## 6.8 Validimi mbi të dhëna reale
 
 **Nuk u krye.** Nuk ka miratim etik dhe nuk u përdor asnjë dokument real; E13 është e pamatur. Pasoja është e rëndë: **asnjë rezultat i këtij kapitulli nuk mat sjellje mbi dokumente reale.** E1 dhe E3 (1.000) matin lidhjen e tubacionit mbi tekst të pastër; E2 dhe E5 matin një skanim të simuluar nga i njëjti gjenerues, jo një skaner dhe një faqosje të vërtetë; detektorët e testuar mbi tekst natyral (grupi B) janë testuar mbi fjali të dorëzuara nga autori, jo mbi raporte të mjekëve. Të gjitha këto janë kufij të sipërm të asaj që do të maten mbi dokumente reale, jo vlerësime të saj.
@@ -1698,7 +1742,7 @@ Për rreshtat 7 deri 11, §6.7 dhe ADR 0009 japin shkaqet; për 15 dhe 16, §6.6
 
 Seksioni lexon PK1–PK7 në dritën e hipotezave (§4.2). Çdo pohim mbështetet te një tabelë e Kapitullit 6 dhe mban kufizimet e saj; asnjë rezultat nuk vjen nga dokumente reale.
 
-**PK1 dhe PK2 (nxjerrja dhe statusi).** Mbi dokumentet dixhitale të korpusit sintetik të dyja dalin 1.000, dhe kjo thotë vetëm se tubacioni është lidhur saktë (§6.2). Mbi skanimet e simuluara F1 është 0.670 dhe saktësia e statusit 0.881; ajo që ka rëndësi është se 125 vlera të gabuara pranohen dhe 62 marrin status të interpretuar gabim, 11 prej tyre kritike të rreme (§6.3). Pa kontroll besueshmërie me kufij fiziologjikë me burim, kanali i skanuar nuk është i sigurt për interpretim.
+**PK1 dhe PK2 (nxjerrja dhe statusi).** Mbi dokumentet dixhitale të korpusit sintetik të dyja dalin 1.000, dhe kjo thotë vetëm se tubacioni është lidhur saktë (§6.2). Mbi skanimet e simuluara F1 është 0.670 dhe saktësia e statusit 0.881; ajo që ka rëndësi është se 125 vlera të gabuara pranohen dhe 62 marrin status të interpretuar gabim, 11 prej tyre kritike të rreme (§6.3). Një kontroll i ngushtë i presjes dhjetore i ul ato 62 në 2 për çmimin e 18 rreshtave të humbur (§6.3.1), por është matur vetëm mbi dokumentet mbi të cilat u projektua, dhe pa kufij fiziologjikë me burim dhe pa dokumente reale kanali i skanuar nuk është i sigurt për interpretim.
 
 **PK3 (besnikëria e thjeshtimit).** Ruajtja e mohimit (0.994) dhe e rezervës (1.000) është matur mbi një model që e kopjon fjalën e mjekut sipas udhëzimit, jo mbi një model që e parafrazon; ajo tregon pra që modeli e ndoqi udhëzimin e kopjimit. Numëruesi vjen nga rregullat, që kanë kufijtë e tyre. PK3 në formën e planifikuar mbetet e pamatur (§6.4).
 
@@ -1736,6 +1780,8 @@ Argumenti strukturor i hartimit paraprak, që rregullat janë të plota aty ku p
 
 Ajo që e mbush boshllëkun është një detektor që e kupton tekstin, dhe ai ka kosto: një model i fuqishëm, rezultat që nuk përsëritet saktësisht, dhe që në këtë punim nuk është i pavarur nga sistemi (§6.7.2). Gjykatësi i vogël tregon se jo çdo model LLM e mbush boshllëkun. Një projektim i arsyeshëm do t'i kombinonte rregullat si shtresë të parë, të lirë dhe të përsëritshme, me një gjykatës LLM si shtresë të dytë; ky kombinim nuk u mat këtu (E9 mat rregullat plus klasifikuesin, jo rregullat plus gjykatësin).
 
+**Çfarë ndryshoi pas matjeve, dhe çfarë nuk.** Dy përmirësime u bënë pasi u panë gabimet: kontrolli i presjes dhjetore të OCR-së (§6.3.1) dhe katalogu `r1.4` (§6.7.3). Të dyja janë matur mbi mostra që ndikuan hartimin e tyre, dhe eksperimentet e ngrira të Kapitullit 6 nuk i përdorin; vlera e tyre mbi tekst të pa parë është e pamatur. Klasifikuesi nuk u përmirësua dhe nuk është pjesë e shërbimit (ADR 0022): shkaku është mungesa e fjalive natyrale me etiketa të pavarura, jo madhësia e modelit. Kjo e ngushton pretendimin e punimit për verifikim me mësim makinerik: ai u ndërtua, u mat dhe u gjet i pamjaftueshëm mbi tekst natyral, ndërsa verifikimi i vendosur është me rregulla, me kufijtë që §7.6 i emërton.
+
 ## 7.4 Përpunimi i gjuhës natyrore mjekësore për shqipen
 
 Mungesa e modeleve klinike të paratrajnuara për shqipen e detyroi dizajnin drejt fjalorëve dhe rregullave për komponentët e vendosshëm, dhe drejt enkoderëve shumëgjuhësh të përgjithshëm për ata semantikë.
@@ -1764,19 +1810,21 @@ Kufizimet renditen nga më e rëndësishmja. Secila thotë çfarë nuk dihet, jo
 
 **5. Detektorët u matën mbi tekst të prodhuar nga i njëjti gjenerues dhe mbi një grup të vogël fjalish natyrale.** Macro F1 0.993 i rregullave përshkruan korpusin e korruptuar; rënia në 0.795 mbi grupin B dhe humbja e gabimeve mbi tekstin e modelit janë provat se ai numër nuk përgjithësohet. Grupi B ka 105 fjali me 5 deri 10 për lloj defekti, një autor, fjali të pastra shumë njëtrajtëshme, dhe nuk ka rreshta për `missing_critical`. Grupi B u dorëzua nga autori si punë e vet; gjatë punës ekzistonte në depo një draft i mëparshëm i hartuar nga një model gjuhësor (Claude), që u zëvendësua, dhe 12 nga 105 rreshta të skedarit përfundimtar (vetëm citime të mjekut) janë identikë me rreshta të atij drafti (§6.7.1). Grupi A (25 shpjegime referuese, të dorëzuara nga autori sipas deklaratës së tij) nuk ka defekte të futura dhe jep vetëm shkallën e alarmeve të rreme të rregullave mbi prozë të riformuluar nga të njëjtat tabela: 5 nga 25 (§6.7.1). Grupi C (60 fjali narrative, të dorëzuara nga autori sipas deklaratës së tij) u mat vetëm për Degën B (§6.5.1): 19 nga 60 fjali janë identike me fjali të gjeneruesit, prandaj vlera e tij mbi tekst të lirë jepet te 41 fjalitë e tjera.
 
-**6. Klasifikuesi mëson shabllonin.** 100% e formave të fjalive me defekt të validimit ishin tashmë në trajnim, dhe çdo gjetje e shpikur fillon me të njëjtën shprehje. Rezultati mbi korpusin sintetik nuk është dëshmi e zbulimit të defektit. Klasifikuesi u trajnua një herë (një farë, tri epoka, GPU Tesla T4), pa variancë ndërmjet ekzekutimeve; pragu i dytë u shtua pasi testi ishte parë. Efekti i tij mbi tekstin e modelit (E9) matet vetëm me rregullat, jo nga një auditor i pavarur.
+**6. Klasifikuesi mëson shabllonin.** 100% e formave të fjalive me defekt të validimit ishin tashmë në trajnim, dhe çdo gjetje e shpikur fillon me të njëjtën shprehje. Rezultati mbi korpusin sintetik nuk është dëshmi e zbulimit të defektit. Klasifikuesi u trajnua një herë (një farë, tri epoka, GPU Tesla T4), pa variancë ndërmjet ekzekutimeve; pragu i dytë u shtua pasi testi ishte parë. Efekti i tij mbi tekstin e modelit (E9) matet vetëm me rregullat, jo nga një auditor i pavarur. Klasifikuesi nuk është pjesë e verifikimit të vendosur dhe nuk u rihartua: problemi janë të dhënat (fjali natyrale me etiketa të pavarura), që nuk ekzistojnë jashtë grupeve të rezervuara për provë, dhe trajnimi kërkon GPU (ADR 0022).
 
-**7. Pasiguria statistikore dhe prejardhja.** E4 dhe E6–E9 kanë intervale besimi; vlerat e tjera (E10, E11, grupi B, E12) janë pikësore, me mostra të vogla: te E10 `hedge_removed` ka 3 mostra dhe `polarity_flip` 12. E10 dhe E11 mbajnë tani sha-n e një kopjeje të pastër, por parashikimet e E11 vijnë nga Colab pa sha të kodit të trajnimit; grupi B (klasifikuesi dhe gjykatësit) nuk mban metadata; E12 dhe auditi nuk kanë sha git; dhe versioni i korpusit nuk rindërtohet nga një kopje e re për shkak të mbarimeve të rreshtave (§5.11.2.4). Katër metoda u ndryshuan pasi rezultati i mëparshëm ishte parë (§6, hyrja).
+**7. Pasiguria statistikore dhe prejardhja.** E4 dhe E6–E9 kanë intervale besimi; vlerat e tjera (E10, E11, grupi B, E12) janë pikësore, me mostra të vogla: te E10 `hedge_removed` ka 3 mostra dhe `polarity_flip` 12. E10 dhe E11 mbajnë tani sha-n e një kopjeje të pastër, por parashikimet e E11 vijnë nga Colab pa sha të kodit të trajnimit; grupi B (klasifikuesi dhe gjykatësit) nuk mban metadata; E12 dhe auditi nuk kanë sha git; dhe versioni i korpusit, që nuk rindërtohej nga një kopje e re për shkak të mbarimeve të rreshtave, riderivohet tani (`.gitattributes`, `scripts/verify_corpus.py`; §6, hyrja) për sa kohë tabelat burimore nuk ndryshojnë. Katër metoda u ndryshuan pasi rezultati i mëparshëm ishte parë (§6, hyrja).
 
-**8. OCR-ja është rrezik sigurie, jo vetëm saktësie.** Me Tesseract, një konfigurim, 125 nga 2 370 vlera të nxjerra nga skanimet janë të gabuara dhe pranohen, dhe 62 marrin status të interpretuar gabim, 11 prej tyre kritike të rreme. Nuk ka kontroll besueshmërie me kufij fiziologjikë me burim, dhe deri sa të ketë, interpretimi i kanalit të skanuar nuk duhet të konsiderohet i sigurt. Pohimet narrative të dokumenteve të skanuara nuk rikthehen (28 nga 87 kundërshtime humbën), dhe shkaku nuk u hetua.
+**8. OCR-ja është rrezik sigurie, jo vetëm saktësie.** Me Tesseract, një konfigurim, 125 nga 2 370 vlera të nxjerra nga skanimet janë të gabuara dhe pranohen. Pa kontroll, 62 marrin status të interpretuar gabim, 11 prej tyre kritike të rreme; një kontroll i ngushtë i presjes dhjetore (ADR 0020, §6.3.1) i ul në 2 dhe 2, për çmimin e 18 rreshtave të humbur, por është projektuar dhe matur mbi të njëjtat dokumente, nuk kap vlera të tjera të lexuara gabim, dhe një vlerë e vërtetë e shtypur pa presje do të humbiste. Nuk ka kontroll me kufij fiziologjikë me burim, dhe deri sa kontrolli të testohet mbi skanime reale (E13), interpretimi i kanalit të skanuar nuk duhet të konsiderohet i sigurt. E7–E9 dhe auditi u matën pa kontrollin. Pohimet narrative të dokumenteve të skanuara nuk rikthehen (28 nga 87 kundërshtime humbën), dhe shkaku nuk u hetua.
 
-**9. Rregullat kanë kufij leksikorë të njohur.** Ato njohin drejtimin vetëm në format që kanë (5 nga 10 gabime drejtimi nuk u kapën te B; 23% e teksteve të modelit që kaluan kishin drejtim të gabuar), 7 nga 10 pohime diagnostike, trajtimi ose prognoze kaluan, dhe R9 humbi 4 nga 5 shpjegime të termave të pashpjeguar sepse nuk njeh formën e shquar. Katalogu `r1.3` nuk u ndryshua pasi B u mat dhe as pasi u pa dalja e modelit.
+**9. Rregullat kanë kufij leksikorë të njohur, dhe `r1.4` u hartua mbi gabimet e njohura.** Me `r1.3` rregullat njihnin drejtimin vetëm në format që kishin (5 nga 10 gabime drejtimi nuk u kapën te B; 23% e teksteve të modelit që kaluan kishin drejtim të gabuar), 7 nga 10 pohime diagnostike, trajtimi ose prognoze kaluan, dhe R9 humbi 4 nga 5 shpjegime të termave të pashpjeguar. `r1.4` (ADR 0021, §6.7.3) i trajton disa prej tyre (macro F1 mbi B 0.795 → 0.843; 17 nga 40 tekste me problem sipas auditit tani shënohen), por u hartua pasi u panë pikërisht ato gabime, prandaj A, B dhe auditi nuk janë më mostra të pastra për të; diagnoza, trajtimi dhe prognoza (3 nga 10) dhe shpjegimet e termave (1 nga 5) nuk u përmirësuan. Eksperimentet e Kapitullit 6 janë me `r1.3`; një E8 me `r1.4` nuk u ekzekutua.
 
 **10. Burimet.** Tabela terminologjike ka 82 terma dhe nuk mbulon çdo term të mundshëm mjekësor; asnjë nga 82 termat dhe asnjë nga 11 rregullat e kombinimit nuk ka burim të shënuar, dhe asnjë nuk është vlerësuar klinikisht. Paneli ka 38 analite, dhe rezultatet laboratorike jonumerike nuk mbulohen fare. Chat-i i lidhur me dokumentin nuk është ndërtuar.
 
-**11. Llogaria është e forcuar, jo e plotë.** Konfirmimi me email, kufizimi i regjistrimeve dhe i hyrjeve, seancat e revokueshme dhe «dil kudo» janë të provuara me teste (përfshirë prishje të qëllimshme që testet i kapën), por: nuk ka rivendosje fjalëkalimi dhe as autentikim me dy faktorë; dërgimi i email-it bëhet nga një detyrë në sfond pa rindërgim automatik, kështu që nëse procesi ndalet pasi ruajti tokenin dhe para se ta dërgojë, përdoruesi kërkon lidhje të re; dërgimi me SMTP u provua me një transport të simuluar, në një provë nga fillimi te fundi me regjistrimin në konsol, dhe një herë kundrejt kutisë së provës të Mailtrap (mesazhi mbërriti dhe lidhja konfirmoi llogarinë), por jo kundrejt një kutie të vërtetë apo një ofruesi prodhimi; regjistrimi i një email-i të tjetrit para zotëruesit mbetet i mundshëm deri në konfirmim (ai që regjistron i fundit mban fjalëkalimin, dhe llogaria nuk hyn pa lidhjen te kutia), dhe 3 kërkesa në orë për një email mund t'i përdorë dikush tjetër për ta vonuar regjistrimin e tij (ADR 0016). Asnjë nga këto nuk prek matjet e Kapitullit 6.
+**11. Llogaria është e forcuar, jo e plotë.** Konfirmimi me email, rivendosja e fjalëkalimit, hapi i dytë TOTP, rindërgimi i mesazheve, kufizimi i regjistrimeve dhe i hyrjeve, seancat e revokueshme dhe «dil kudo» janë të provuara me teste (përfshirë prishje të qëllimshme që testet i kapën, teste integrimi mbi PostgreSQL 16 dhe prova konkurrence), por: nuk ka rrugë rimëkëmbjeje nëse humbasin edhe aplikacioni i vërtetimit edhe kodet e rimëkëmbjes; nuk ka rigjenerim kodesh, WebAuthn, SMS apo pajisje të besuara; sekretet TOTP ndajnë çelësin e ruajtjes me skedarët, prandaj ndërrimi i tij kërkon rikodim të të dyjave; kufizimet janë te baza e të dhënave dhe një sulmues që e di fjalëkalimin mund ta mbyllë përkohësisht hapin e dytë të një përdoruesi; koha e barabartë e degëve u siguruar duke e ekzekutuar Argon2 në secilën, por nuk u mat; rindërgimi automatik varet nga punëtori arq dhe nuk u provua me Redis të vërtetë; nuk ka CSP dhe HSTS; dërgimi me SMTP u provua me transporte të simuluara dhe një herë kundrejt kutisë së provës të Mailtrap (mesazhi mbërriti dhe lidhja konfirmoi llogarinë), jo kundrejt një kutie të vërtetë apo një ofruesi prodhimi; regjistrimi i një email-i të tjetrit para zotëruesit mbetet i mundshëm deri në konfirmim (ADR 0016). Asnjë nga këto nuk prek matjet e Kapitullit 6.
 
-**12. Modeli në aplikacion është i fikur si parazgjedhje dhe i pa-provuar mbi të dhëna reale.** `ANALYTE_SERVICE_GENERATOR=model` e ndez (ADR 0017); pa të, `build_services` ndërton `TemplateGenerator`, edhe kur `.env` ka ofruesin për eksperimentet. Shtegu «model, verifikim, rigjenerim, shabllon rezervë» është provuar me një ofrues të simuluar (13 teste) dhe një herë me Mistral të vërtetë mbi një dokument sintetik, ku verifikimi e refuzoi dy herë (4 dhe 1 shkelje) dhe doli shablloni rezervë; cilësia e tekstit të modelit mbi dokumente reale nuk u mat (E13). Me modelin e ndezur, të dhënat e pacientëve dalin te një ofrues i jashtëm: kushtet e planit falas për ruajtjen dhe përdorimin e tyre, pëlqimi dhe çidentifikimi i citimeve të mjekut nuk janë vendosur. Pamjet e ndërfaqes (Figurat 12–16) janë prodhuar me shabllonin.
+**12. Modeli në aplikacion është i fikur si parazgjedhje dhe i pa-provuar mbi të dhëna reale.** `ANALYTE_SERVICE_GENERATOR=model` e ndez (ADR 0017); pa të, `build_services` ndërton `TemplateGenerator`, edhe kur `.env` ka ofruesin për eksperimentet. Shtegu «model, verifikim, rigjenerim, shabllon rezervë» është provuar me një ofrues të simuluar (13 teste) dhe një herë me Mistral të vërtetë mbi një dokument sintetik, ku verifikimi e refuzoi dy herë (4 dhe 1 shkelje) dhe doli shablloni rezervë; cilësia e tekstit të modelit mbi dokumente reale nuk u mat (E13). Me modelin e ndezur, të dhënat e pacientëve dalin te një ofrues i jashtëm. Kontrollet teknike ekzistojnë (pëlqim për çdo ngarkim, portë çidentifikimi me dështim të mbyllur, fshirje, eksport, afat ruajtjeje; ADR 0019, §5.12), por vendimet mbeten të hapura: kushtet e planit falas për ruajtjen dhe përdorimin e të dhënave, a vlen një kuti pëlqimi si pëlqim ligjor për të dhëna shëndetësore, baza ligjore, marrëveshja e përpunimit, transferimi jashtë BE-së dhe miratimi etik. Pamjet e ndërfaqes (Figurat 12–16) janë prodhuar me shabllonin.
+
+**13. Porta e çidentifikimit dhe fshirja kanë kufij të njohur.** Porta është heuristikë mbi shqipen e lirë: nuk kap emra me shkronja të vogla, emra që rastisin me një fjalë të fjalorit, as pothuajse-identifikues pa trajtë (profesion i rrallë, ngjarje e veçantë, vend i përshkruar me fjalë); mbi-bllokon fjali me fjalë të zakonshme jashtë listës dhe numra me katër shifra. U provua vetëm me fjali të shkruara nga ndërtuesi dhe me narrativa sintetike (0 nga 400 të shënuara, e pamatur mbi tekst real), dhe fjalori u formua mbi të njëjtat narrativa; një dokument që e kalon mund të mbajë ende të dhëna personale. Intervalet referente që varen nga gjinia dërgohen si numra, prandaj gjinia mund të nxirret tërthorazi. Pas fshirjes mbetet regjistri i auditimit (identifikuesi i rastësishëm i dokumentit, koha, lloji i ngjarjes), një ngarkim që shkruhet pikërisht kur fshihet llogaria mund të lërë një skedar të koduar pa rresht, kopjet rezervë nuk preken, dhe fshirja e llogarisë dhe eksporti ekzistojnë vetëm si API, pa ndërfaqe. Sistemi nuk mund t'i kërkojë ofruesit fshirjen e asaj që ka marrë. Matjet e modelit te Kapitulli 6 janë pa këto filtra dhe nuk përshkruajnë më atë që sheh një përdorues real me modelin e ndezur.
 
 ## 7.7 Mundësitë për zhvillime të mëtejshme
 
@@ -1808,7 +1856,8 @@ Së fundi, validimi klinik me pjesëmarrjen e profesionistëve shëndetësorë d
 2. Një infrastrukturë vlerësimi me prejardhje, cache të përgjigjeve të modelit dhe riekzekutim nga kopje e pastër, që e bën çdo numër të rikrijueshëm pa thirrje të reja.
 3. Gjetja se metrika e shkeljeve matet me rregullat që e bllokojnë tekstin dhe se «0 shkelje» nuk thotë «0 gabime», dhe një audit i pavarur që e mat diferencën.
 4. Gjetja se klasifikuesi i trajnuar mbi një korpus të korruptuar mëson shabllonin e gjeneruesit, dhe se rregullat e shkruara kundrejt atij korpusi humbasin një pjesë të gabimeve të tekstit të vërtetë.
-5. Gjetja se OCR-ja është rrezik sigurie: 125 vlera të gabuara pranohen me siguri.
+5. Gjetja se OCR-ja është rrezik sigurie: 125 vlera të gabuara pranohen me siguri; dhe një kontroll i ngushtë i presjes dhjetore që i ul statusët e gabuara nga 62 në 2 (§6.3.1), i matur vetëm mbi dokumentet mbi të cilat u projektua.
+6. Struktura e verifikimit si e vendosur: rregulla të versionuara (`r1.3` i ngrirë, `r1.4` i përmirësuar), me matje të ndara për secilin dhe me kontaminimin e deklaruar (§6.7.3), dhe një klasifikues i matur dhe i hequr nga shërbimi (ADR 0022).
 
 **Ajo që mbetet e paprovuar.** Sjellja mbi dokumente reale; kuptueshmëria për përdoruesin; rezultati me një model më të fortë ose lokal; rishikimi i ekspertëve klinikë; një gjykatës i pavarur nga ndërtuesi i sistemit; dhe kombinimi i rregullave me një gjykatës LLM si shtresë e dytë.
 
@@ -2067,7 +2116,7 @@ vetëm se kombinimi kërkon vlerësim nga profesionisti shëndetësor.
 
 ### Tabela C.1. Katalogu i rregullave të verifikimit
 
-Versioni i katalogut: `r1.3`. Ai regjistrohet në çdo
+Versioni i katalogut: `r1.4`. Ai regjistrohet në çdo
 rezultat verifikimi, prandaj rezultatet e vjetra mbeten të lexueshme
 edhe pasi katalogu ndryshon.
 
@@ -2261,7 +2310,7 @@ Kthe vetëm një rresht JSON të formës {"label": "..."}, ku label është ose 
 
 ## Shtojca G — Skema SQL e bazës së të dhënave
 
-Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 18 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
+Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 21 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
 
 ```sql
 CREATE TABLE audit_events (
@@ -2306,6 +2355,9 @@ CREATE TABLE users (
 	password_hash VARCHAR(255) NOT NULL, 
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
 	email_confirmed_at TIMESTAMP WITH TIME ZONE, 
+	totp_secret_encrypted BYTEA, 
+	totp_enabled_at TIMESTAMP WITH TIME ZONE, 
+	totp_last_step INTEGER, 
 	PRIMARY KEY (id)
 );
 
@@ -2335,6 +2387,10 @@ CREATE TABLE documents (
 	channel VARCHAR(20), 
 	state VARCHAR(30) NOT NULL, 
 	state_reason TEXT NOT NULL, 
+	model_consent BOOLEAN DEFAULT false NOT NULL, 
+	model_consent_at TIMESTAMP WITH TIME ZONE, 
+	model_use VARCHAR(30), 
+	model_gate_kinds VARCHAR(200), 
 	PRIMARY KEY (id), 
 	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
 );
@@ -2355,6 +2411,54 @@ CREATE TABLE email_confirmations (
 CREATE UNIQUE INDEX ix_email_confirmations_token_key ON email_confirmations (token_key);
 
 CREATE INDEX ix_email_confirmations_user_id ON email_confirmations (user_id);
+
+CREATE TABLE mail_deliveries (
+	id UUID NOT NULL, 
+	user_id UUID NOT NULL, 
+	kind VARCHAR(20) NOT NULL, 
+	token_id UUID NOT NULL, 
+	origin VARCHAR(10) NOT NULL, 
+	status VARCHAR(12) NOT NULL, 
+	attempts INTEGER NOT NULL, 
+	last_error VARCHAR(80), 
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	last_attempt_at TIMESTAMP WITH TIME ZONE, 
+	sent_at TIMESTAMP WITH TIME ZONE, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_mail_deliveries_status_created ON mail_deliveries (status, created_at);
+
+CREATE INDEX ix_mail_deliveries_user_id ON mail_deliveries (user_id);
+
+CREATE TABLE password_resets (
+	id UUID NOT NULL, 
+	user_id UUID NOT NULL, 
+	token_key VARCHAR(64) NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	expires_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	used_at TIMESTAMP WITH TIME ZONE, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX ix_password_resets_token_key ON password_resets (token_key);
+
+CREATE INDEX ix_password_resets_user_id ON password_resets (user_id);
+
+CREATE TABLE recovery_codes (
+	id UUID NOT NULL, 
+	user_id UUID NOT NULL, 
+	code_key VARCHAR(64) NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	used_at TIMESTAMP WITH TIME ZONE, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
+	UNIQUE (code_key)
+);
+
+CREATE INDEX ix_recovery_codes_user_id ON recovery_codes (user_id);
 
 CREATE TABLE cross_references (
 	id UUID NOT NULL, 
@@ -2548,7 +2652,8 @@ CREATE INDEX ix_violations_verification_result_id ON violations (verification_re
 
 | Parametri | Vlera |
 |---|---|
-| Katalogu i rregullave | `r1.3` |
+| Katalogu i rregullave | `r1.3` te eksperimentet e ngrira (E4, E6–E11, grupet A, B, C); `r1.4` te shërbimi (ADR 0021) |
+| Kontrolli i besueshmërisë i OCR-së | i fikur te eksperimentet e ngrira; i ndezur te shërbimi (ADR 0020) |
 | Politika e sigurisë | `sp1.0` |
 | OCR | Tesseract, gjuha `eng`, `--psm 6`, 200 dpi |
 | Rimostrimi bootstrap | 2000 rimostrime, fara 20260928, njësia është dokumenti |

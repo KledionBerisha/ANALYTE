@@ -102,3 +102,44 @@ def read_token(token: str, kind: str, secret: str) -> TokenClaims:
     except (KeyError, ValueError):
         raise TokenError("token pa përdorues, seancë ose identifikues") from None
     return TokenClaims(user_id, session_id, token_id)
+
+
+# --------------------------------------------------------------------
+# Sfida e hapit të dytë (ADR 0018)
+# --------------------------------------------------------------------
+
+
+def issue_challenge(user_id: UUID, binding: str, lifetime: timedelta, secret: str) -> str:
+    """Token i shkurtër që del pas fjalëkalimit të saktë kur llogaria ka hap të dytë.
+
+    Nuk është token aksesi: ka `typ` tjetër dhe nuk ka seancë (`sid`), prandaj `read_token` e refuzon si
+    akses dhe si rifreskim. Mban `binding`, një gjurmë e fjalëkalimit dhe e gjendjes së hapit të dytë në çastin
+    e lëshimit: nëse ndërkohë fjalëkalimi ndryshon ose hapi i dytë çaktivizohet, sfida pushon.
+    """
+    now = datetime.now(UTC)
+    payload = {"sub": str(user_id), "typ": "mfa", "cv": binding, "iat": now, "exp": now + lifetime}
+    return jwt.encode(payload, secret, algorithm=ALGORITHM)
+
+
+def read_challenge(token: str, secret: str) -> tuple[UUID, str]:
+    """Përdoruesi dhe `binding`-u i sfidës, ose `TokenError`."""
+    try:
+        payload = jwt.decode(token, secret, algorithms=[ALGORITHM])
+    except jwt.PyJWTError as error:
+        raise TokenError(str(error)) from None
+    if payload.get("typ") != "mfa":
+        raise TokenError("pritej sfidë e hapit të dytë")
+    try:
+        return UUID(payload["sub"]), str(payload["cv"])
+    except (KeyError, ValueError):
+        raise TokenError("sfidë pa përdorues ose lidhje") from None
+
+
+def credential_binding(
+    secret: str, user_id: UUID, password_hash: str, totp_enabled_at: datetime | None
+) -> str:
+    """Gjurma që lidh një sfidë me gjendjen aktuale të kredencialeve. Ndryshon kur ndryshon hash-i i
+    fjalëkalimit (çdo rivendosje ka kripë të re) ose kur hapi i dytë çaktivizohet e riaktivizohet."""
+    # Në UTC: PostgreSQL kthen kohën në zonën e lidhjes, dhe e njëjta çast nuk duhet të japë dy gjurmë.
+    state = totp_enabled_at.astimezone(UTC).isoformat() if totp_enabled_at is not None else "-"
+    return keyed_hash(secret, "mfa-binding", f"{user_id}\0{password_hash}\0{state}")

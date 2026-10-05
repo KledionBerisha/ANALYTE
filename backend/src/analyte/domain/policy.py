@@ -27,7 +27,7 @@ from .enums import ViolationType
 # Versionimi
 # --------------------------------------------------------------------
 
-RULES_VERSION = "r1.3"
+RULES_VERSION = "r1.4"
 """Versioni i katalogut R1-R9. Ruhet në çdo VerificationResult.
 
 r1.1 — R1 i mat numrat e fjalive të atribuuara kundrejt pohimeve të
@@ -46,7 +46,22 @@ r1.3 — maskimi i njësive dhe i emrave para kërkimit të numrave kapërcen
 vargjet pa shkronja që përmbajnë shifra ose ndarës dhjetorë. Njësitë e
 lexuara me OCR si "." e ndanin çdo numër dhjetor dhe e rrëzonin shabllonin
 vetë; ato si "52,0" do ta fshihnin një numër nga R1. U zbulua nga ndërfaqja,
-kur një dokument i skanuar përfundoi te shablloni rezervë pa arsye."""
+kur një dokument i skanuar përfundoi te shablloni rezervë pa arsye.
+
+r1.4 — katër rregulla përmirësohen, pa shtuar rregull të ri (katalogu mbetet R1–R9 + SP1–3). (1) R1 dhe R2 njohin trajtat e shquara
+të emrave ("Kolesteroli HDL", "Hemoglobina në gjak", "Vitamina D 25-OH") dhe i maskojnë emrat e njohur para kërkimit të numrave;
+më parë "Kolesteroli HDL" lexohej si kolesterol total dhe "25" si numër i pabazuar. (2) R1 kontrollon edhe lidhjen e numrit me
+analitin: te një fjali me një analit të vetëm, një numër që është vlerë ose kufi i një analiti TJETËR shënohet. (3) R3 gjykon
+fjalia pas fjalie sipas klauzolës (një drejtim për analit, jo një për fjali), njeh fjalorin e zgjeruar të drejtimit ("e lartë",
+"rritja e", "u ul") dhe shënon pohimin e përgjithshëm "të gjitha vlerat e tjera janë brenda intervalit" kur një gjetje jashtë
+intervalit nuk është përmendur. (4) R9 shënon një shpjegim në kllapa pas një analiti ose termi që nuk përputhet me fjalorin
+("TSH (hormoni i stimulimit të mëlçisë)"). Ndryshimet vijnë nga audit-i i E8 dhe nga alarmet e rreme mbi A, B; dy grupet
+kështu nuk janë më të pastra si provë e r1.4 (ADR 0021)."""
+
+LEGACY_RULES_VERSION = "r1.3"
+"""Versioni i ngrirë me të cilin u matën E4, E6–E11 dhe grupet B dhe C (shih `verification/ruleset.py`)."""
+RULES_VERSIONS = ("r1.3", "r1.4")
+"""Versionet që verifikuesi di t'i zbatojë."""
 
 POLICY_VERSION = "sp1.0"
 """Versioni i politikës SP1-SP8."""

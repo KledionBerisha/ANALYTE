@@ -34,6 +34,8 @@ from analyte.grounding.branch_a import loinc
 from analyte import textnorm
 from analyte.textnorm import words
 
+from . import ruleset
+
 def is_attributed(sentence: str) -> bool:
     """A është kjo fjali citim i shënuar i mjekut?"""
     return sentence.lstrip().startswith(ATTRIBUTION_PREFIX_SQ)
@@ -41,6 +43,8 @@ def is_attributed(sentence: str) -> bool:
 
 NUMBER_TOKEN = re.compile(r"(?<![^\W_])\d+(?:[.,]\d+)?(?![^\W_])")
 MAX_NAME_TOKENS = 3
+MAX_NAME_TOKENS_MODERN = 4
+"""`r1.4`: "Vitamina D 25-OH" ka katër fjalë kur shkruhet me trajtë të shquar."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -106,7 +110,12 @@ def mask_known_strings(text: str, context: GroundingContext) -> str:
 def numbers_in(text: str, context: GroundingContext) -> list[tuple[Decimal, str]]:
     """Numrat e përmendur në tekst, pa ata që janë pjesë e njësive."""
     found: list[tuple[Decimal, str]] = []
-    for match in NUMBER_TOKEN.finditer(mask_known_strings(text, context)):
+    masked = mask_known_strings(text, context)
+    if ruleset.modern():
+        # r1.4: emrat e analiteve maskohen edhe në trajtën e shquar ("Vitamina D 25-OH"), jo vetëm në trajtën e tabelës.
+        for _, start, end in mentions(text, context):
+            masked = masked[:start] + " " * (end - start) + masked[end:]
+    for match in NUMBER_TOKEN.finditer(masked):
         raw = match.group()
         try:
             found.append((Decimal(raw.replace(",", ".")), raw))
@@ -115,8 +124,22 @@ def numbers_in(text: str, context: GroundingContext) -> list[tuple[Decimal, str]
     return found
 
 
-def analytes_in(text: str, context: GroundingContext) -> list[str]:
-    """Kodet LOINC të analiteve të përmendura, pa përsëritje.
+def without_glosses(text: str, context: GroundingContext) -> str:
+    """Zëvendëson me hapësira shpjegimet e fjalorit që shfaqen fjalë për fjalë në tekst (`r1.4`).
+
+    Shpjegimi i hemoglobinës ("proteina që bart oksigjenin në qelizat e kuqe") përmban "qelizat e kuqe", që është emër i
+    eritrociteve; një fjali që thjesht e jep shpjegimin nuk flet për eritrocitet. R2 e pranon këtë përmes bashkësisë së
+    analiteve të njohura; rregullat e drejtimit dhe të lidhjes së numrave kanë nevojë ta heqin para se të njohin analitet.
+    """
+    for entry in context.glossary:
+        explanation = entry.explanation_sq.strip().rstrip(".")
+        if len(explanation) >= 8:
+            text = re.sub(re.escape(explanation), lambda m: " " * len(m.group()), text, flags=re.IGNORECASE)
+    return text
+
+
+def mentions(text: str, context: GroundingContext) -> list[tuple[str, int, int]]:
+    """Analitet e përmendura me pozicionet e tyre: (kodi LOINC, fillimi, fundi), pa mbivendosje.
 
     Kërkohen emrat më të gjatë të parët, që "Kolesterol HDL" të mos
     lexohet si "Kolesterol" — dy analite me dy intervale.
@@ -124,23 +147,39 @@ def analytes_in(text: str, context: GroundingContext) -> list[str]:
     Njësitë maskohen të parat: "mg" brenda `mg/dL` është varianti i
     shtypur i magnezit, dhe pa maskim çdo vlerë në miligramë do të
     raportonte një analit të papërmendur.
+
+    `r1.4`: pranohet edhe trajta e shquar ("Kolesteroli HDL") dhe emri deri në katër fjalë.
     """
     text = mask_units(text, context)
     tokens = words(text)
-    found: list[str] = []
+    modern = ruleset.modern()
+    resolve = loinc.resolve_inflected if modern else loinc.resolve
+    longest = MAX_NAME_TOKENS_MODERN if modern else MAX_NAME_TOKENS
+    found: list[tuple[str, int, int]] = []
     taken: set[int] = set()
 
-    for size in range(MAX_NAME_TOKENS, 0, -1):
+    for size in range(longest, 0, -1):
         for index in range(len(tokens) - size + 1):
             if any(position in taken for position in range(index, index + size)):
                 continue
             start, end = tokens[index][1], tokens[index + size - 1][2]
-            code = loinc.resolve(text[start:end])
+            code = resolve(text[start:end])
             if code is not None:
                 taken.update(range(index, index + size))
-                if code not in found:
-                    found.append(code)
+                found.append((code, start, end))
     return found
+
+
+def analytes_in(text: str, context: GroundingContext) -> list[str]:
+    """Kodet LOINC të analiteve të përmendura, pa përsëritje.
+
+    Rendi është ai i zbulimit (emrat më të gjatë të parët), si në r1.3: lista e shkeljeve futet te kërkesa e rigjenerimit, dhe
+    një rend tjetër do të ndryshonte çelësat e cache-it të modelit."""
+    codes: list[str] = []
+    for code, _, _ in mentions(text, context):
+        if code not in codes:
+            codes.append(code)
+    return codes
 
 
 def violation(

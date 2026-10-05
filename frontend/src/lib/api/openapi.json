@@ -89,6 +89,83 @@
         }
       }
     },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Forgot Password",
+        "description": "Kërkon lidhjen për të vendosur fjalëkalim të ri (ADR 0018). Përgjigja është e njëjtë për çdo email.\n\nNjë llogari e konfirmuar merr lidhjen e rivendosjes. Një e pakonfirmuar merr lidhjen e konfirmimit, jo atë të\nrivendosjes: rivendosja nuk duhet të jetë rrugë anash konfirmimit. Një email pa llogari nuk merr asgjë.",
+        "operationId": "forgot_password_auth_forgot_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Reset Password",
+        "description": "Vendos fjalëkalimin e ri me tokenin e lidhjes (ADR 0018).\n\nVlen një herë dhe skadon. Një token i panjohur, i përdorur ose i skaduar kthen të njëjtën gabim. Fjalëkalimi\ni ri hash-ohet para se tokeni të kontrollohet, që koha të mos tregojë nëse tokeni ishte i vlefshëm. Pas suksesit\nçdo seancë e përdoruesit revokohet; hapi i dytë, nëse ka, mbetet i paprekur (një kuti postare e vjedhur nuk\ne kalon).",
+        "operationId": "reset_password_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/confirm": {
       "post": {
         "tags": [
@@ -147,7 +224,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Tokens"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Tokens"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MfaChallenge"
+                    }
+                  ],
+                  "title": "Response Login Auth Login Post"
                 }
               }
             }
@@ -270,6 +355,188 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/auth/2fa": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Status",
+        "operationId": "status_auth_2fa_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatus"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/2fa/enroll": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Enroll",
+        "description": "Nis regjistrimin: një sekret i ri, i dukshëm vetëm në këtë përgjigje. Thirrja e dytë para konfirmimit e\nzëvendëson sekretin; pasi hapi i dytë aktivizohet, kjo pikë kthen 409 dhe sekreti nuk lexohet më.",
+        "operationId": "enroll_auth_2fa_enroll_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorEnrollment"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/2fa/confirm": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Confirm",
+        "description": "Aktivizon hapin e dytë me kodin e parë të vlefshëm dhe kthen kodet e rimëkëmbjes, një herë.",
+        "operationId": "confirm_auth_2fa_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodes"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/2fa/disable": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Disable",
+        "description": "Çaktivizon hapin e dytë. Kërkon fjalëkalimin e tanishëm dhe një kod (aplikacioni ose rimëkëmbjeje): një token\naksesi i vjedhur vetëm nuk mjafton. Gabimet kufizohen si te hyrja.",
+        "operationId": "disable_auth_2fa_disable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableTwoFactorIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/login/verify": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Verify Login",
+        "description": "Hapi i dytë i hyrjes: sfida nga `login` dhe një kod. Hap seancën kur kodi vlen.",
+        "operationId": "verify_login_auth_login_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginVerifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tokens"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/documents": {
@@ -1022,6 +1289,91 @@
         }
       }
     },
+    "/privacy/config": {
+      "get": {
+        "tags": [
+          "privacy"
+        ],
+        "summary": "Privacy Config",
+        "operationId": "privacy_config_privacy_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/data": {
+      "delete": {
+        "tags": [
+          "privacy"
+        ],
+        "summary": "Erase Account",
+        "description": "Fshin llogarinë dhe çdo dokument të saj, pas verifikimit të fjalëkalimit.\n\nPas kësaj tokenët e pronarit nuk vlejnë më (seancat shkojnë me llogarinë), prandaj një përsëritje e së njëjtës kërkesë\nkthen 401, jo një gabim tjetër. Fjalëkalimi i gabuar kthen 403 dhe jo 401, që klienti të mos e marrë për seancë të\nskaduar dhe të nisë një rifreskim.",
+        "operationId": "erase_account_me_data_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErasureIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/me/export": {
+      "get": {
+        "tags": [
+          "privacy"
+        ],
+        "summary": "Export",
+        "operationId": "export_me_export_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -1275,6 +1627,11 @@
             "type": "string",
             "contentMediaType": "application/octet-stream",
             "title": "File"
+          },
+          "model_consent": {
+            "type": "boolean",
+            "title": "Model Consent",
+            "default": false
           }
         },
         "type": "object",
@@ -1321,6 +1678,21 @@
         ],
         "title": "Certainty",
         "description": "Niveli i sigurisë i shprehur nga mjeku.\n\nHEDGED mbulon \"e mundshme\", \"sugjeruese për\", \"nuk përjashtohet\".\nHeqja e këtij niveli në thjeshtim është shkelje (rregulli R6)."
+      },
+      "CodeIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "CodeIn"
       },
       "ConfirmIn": {
         "properties": {
@@ -1429,6 +1801,28 @@
         "title": "Direction",
         "description": "Drejtimi i shprehur për një analit, në gjetje ose në pohim."
       },
+      "DisableTwoFactorIn": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Password"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password",
+          "code"
+        ],
+        "title": "DisableTwoFactorIn"
+      },
       "DocumentOut": {
         "properties": {
           "id": {
@@ -1471,6 +1865,10 @@
           "terminal": {
             "type": "boolean",
             "title": "Terminal"
+          },
+          "model_consent": {
+            "type": "boolean",
+            "title": "Model Consent"
           }
         },
         "type": "object",
@@ -1482,7 +1880,8 @@
           "state",
           "state_reason",
           "channel",
-          "terminal"
+          "terminal",
+          "model_consent"
         ],
         "title": "DocumentOut"
       },
@@ -1531,6 +1930,21 @@
           "email"
         ],
         "title": "EmailIn"
+      },
+      "ErasureIn": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "ErasureIn"
       },
       "ExplanationOut": {
         "properties": {
@@ -1642,6 +2056,48 @@
         ],
         "title": "JobOut"
       },
+      "LoginVerifyIn": {
+        "properties": {
+          "challenge": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 20,
+            "title": "Challenge"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge",
+          "code"
+        ],
+        "title": "LoginVerifyIn"
+      },
+      "MfaChallenge": {
+        "properties": {
+          "mfa_required": {
+            "type": "boolean",
+            "const": true,
+            "title": "Mfa Required",
+            "default": true
+          },
+          "challenge": {
+            "type": "string",
+            "title": "Challenge"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge"
+        ],
+        "title": "MfaChallenge",
+        "description": "Përgjigjja e hyrjes kur llogaria ka hap të dytë: fjalëkalimi ishte i saktë, por seanca hapet vetëm pas\nkodit (`POST /auth/login/verify`). Del vetëm pas fjalëkalimit të saktë, prandaj nuk tregon gjë për\nllogaritë e tjera (ADR 0018)."
+      },
       "Notice": {
         "properties": {
           "code": {
@@ -1692,6 +2148,53 @@
         ],
         "title": "Polarity",
         "description": "Pohim ose mohim. NegEx-i vendos këtë fushë."
+      },
+      "PrivacyConfig": {
+        "properties": {
+          "model_enabled": {
+            "type": "boolean",
+            "title": "Model Enabled"
+          },
+          "model_provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Provider"
+          },
+          "retention_days": {
+            "type": "integer",
+            "title": "Retention Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_enabled",
+          "model_provider",
+          "retention_days"
+        ],
+        "title": "PrivacyConfig"
+      },
+      "RecoveryCodes": {
+        "properties": {
+          "recovery_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Recovery Codes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recovery_codes"
+        ],
+        "title": "RecoveryCodes",
+        "description": "Kodet e rimëkëmbjes. Shfaqen vetëm një herë: shërbimi mban vetëm HMAC-in e tyre."
       },
       "ReferenceSource": {
         "type": "string",
@@ -1789,6 +2292,28 @@
         ],
         "title": "ReportAssertion",
         "description": "Një pohim i nxjerrë nga teksti narrativ i mjekut.\n\nchar_start/char_end lejojnë gjurmimin prapa te teksti origjinal, i\nnevojshëm si për auditim ashtu edhe për anotimin manual gjatë\nvlerësimit të PK4."
+      },
+      "ResetIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Token"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "title": "ResetIn"
       },
       "StatusOut": {
         "properties": {
@@ -1944,6 +2469,43 @@
         ],
         "title": "TransitionOut"
       },
+      "TwoFactorEnrollment": {
+        "properties": {
+          "secret": {
+            "type": "string",
+            "title": "Secret"
+          },
+          "otpauth_uri": {
+            "type": "string",
+            "title": "Otpauth Uri"
+          }
+        },
+        "type": "object",
+        "required": [
+          "secret",
+          "otpauth_uri"
+        ],
+        "title": "TwoFactorEnrollment",
+        "description": "Sekreti dhe URI-ja e aplikacionit. Shfaqen vetëm këtu, një herë; pasi regjistrimi të konfirmohet nuk lexohen më."
+      },
+      "TwoFactorStatus": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "recovery_codes_remaining": {
+            "type": "integer",
+            "title": "Recovery Codes Remaining"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "recovery_codes_remaining"
+        ],
+        "title": "TwoFactorStatus"
+      },
       "UploadOut": {
         "properties": {
           "id": {
@@ -1959,13 +2521,18 @@
           "state": {
             "type": "string",
             "title": "State"
+          },
+          "model_consent": {
+            "type": "boolean",
+            "title": "Model Consent"
           }
         },
         "type": "object",
         "required": [
           "id",
           "job_id",
-          "state"
+          "state",
+          "model_consent"
         ],
         "title": "UploadOut"
       },
