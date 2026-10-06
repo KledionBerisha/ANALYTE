@@ -29,6 +29,8 @@ Të gjitha janë të kufizuara në leksik dhe në njohjen e emrave, jo në arkit
    të mëlçisë)") shënohet (`ungrounded_term_explanation`), përveç kur përputhet me fjalorin (edhe në trajtë tjetër gramatikore), është emër tjetër i të njëjtit
    analit, ose flet për intervalin.
 
+5. **SP1–SP3 dhe R9, fjalor më i gjerë.** Fjalori i diagnozës, trajtimit dhe prognozës (`rules_policy.py`) dhe shenjat e shpjegimit te R9 zgjerohen; fjalitë e atribuuara (citimet e mjekut) nuk gjykohen, sepse fjala është e mjekut dhe kopjohet fjalë për fjalë. Shablloni dhe njoftimet e politikës kalojnë pa asnjë shkelje.
+
 Shpjegimet e fjalorit që shfaqen fjalë për fjalë në tekst hiqen para njohjes së analiteve te R1 dhe R3: shpjegimi i hemoglobinës ("proteina që bart
 oksigjenin në qelizat e kuqe") përmban "qelizat e kuqe", emër i eritrociteve, dhe fjalia që e jep nuk flet për eritrocitet.
 
@@ -48,7 +50,7 @@ Mostrat janë të njëjta për të dy versionet (`python -m evaluation.compare_r
 |---|---|---|
 | Shablloni mbi 500 kontekstet | 0 shkelje | 0 shkelje |
 | E10, macro F1 (192 tekste testi) | 0.9925 | 1.000 |
-| Grupi B, macro F1 (105 fjali) | 0.795 | 0.843 |
+| Grupi B, macro F1 (105 fjali) | 0.795 | 0.857 |
 | Grupi B, `direction_mismatch` / `ungrounded_number` F1 | 0.67 / 0.95 | 1.00 / 1.00 |
 | Grupi B, tekste të pastra të shënuara | 1 nga 30 | 0 nga 30 |
 | Grupi A, shpjegime të shënuara | 5 nga 25 | 0 nga 25 |
@@ -61,11 +63,11 @@ sipas dëshmisë duken gabime të vërteta që auditori i humbi, por kjo nuk u v
 
 ## Çfarë NUK u përmirësua
 
-- `prohibited_claim` (SP1–SP3) mbetet F1 0.46 mbi B (3 nga 10), dhe `ungrounded_term_explanation` 0.33 (1 nga 5): fjalori i diagnozës, trajtimit dhe prognozës dhe zbulimi i
-  shpjegimeve të termave jashtë kllapave nuk u zgjeruan. Shtimi i shprehjeve sipas B do ta kishte kontaminuar edhe më shumë grupin.
+- `prohibited_claim` (SP1–SP3) ngjitet nga F1 0.46 në 0.57 mbi B pasi fjalori u zgjerua nga përkufizimi i politikave dhe nga shqipja klinike e zakonshme (pa lexuar rreshtat e B, matur një herë, pa u ritunuar); mbetet i dobët. Citimet e mjekut nuk gjykohen nga SP1–SP3 dhe R9 te `r1.4`.
+  `ungrounded_term_explanation` mbetet 0.33 (1 nga 5): shenjat e shpjegimit që shtova nuk i kapin ato fjali, dhe nuk u ritunuan sipas B.
 - Gjykimi është leksikor dhe sipas klauzolës, jo semantik: një drejtim i shprehur me fjalë që nuk janë te fjalori, ose një vlerë e atribuuar gabim te fjali me dy analite, nuk kapet.
-- Tekstet e modelit me 25 shënime nga r1.4 nuk u rigjeneruan: E8, E9 dhe auditi mbeten të matura me `r1.3`. Një E8 me `r1.4` do të ndalonte më shumë drafte, do të kërkonte
-  thirrje të reja ndaj modelit dhe do të ngrinte pjesën që përfundon te shablloni (25.2% me `r1.3`); nuk u ekzekutua.
+- **E4 e E6–E8 u rishikuan me `r1.4` dhe kontrollin e OCR-së** (thesis §6.6.2; 254 thirrje të reja ndaj modelit): E6 54.4 → 73.9, E7 9.55 → 13.56, E8 0.000 (≤ 0.032) por shablloni rezervë 25.2% → 33.2%, dhe 56.1% e fjalive të dorëzuara janë të shabllonit. Numrat nuk krahasohen midis versioneve, sepse `r1.4` numëron lloje që `r1.3` nuk i shihte.
+  E9 dhe auditi i E8 mbeten me `r1.3` (peshat e klasifikuesit u humbën; auditi është mbi tekstet e `r1.3`).
 
 ## Kontaminimi
 

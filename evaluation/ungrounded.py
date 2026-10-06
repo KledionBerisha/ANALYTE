@@ -59,6 +59,9 @@ class UngroundedPipeline:
     ocr: Any = None
     ablation: str = "E6"
     version: str = "1"
+    ocr_guard: bool = False
+    rules: str = LEGACY_RULES_VERSION
+    """E6 mat shkeljet e tekstit pa bazim me katalogun e zgjedhur; parazgjedhja është r1.3 e ngrirë."""
 
     @property
     def name(self) -> str:
@@ -86,8 +89,7 @@ class UngroundedPipeline:
                 failures=(failure,),
             )
 
-        # E6 u mat para kontrollit të OCR-së (ADR 0020); mbetet pa të që rezultati i ngrirë të vlejë.
-        grounding = build(document.document_id, pages, ocr_guard=False)
+        grounding = build(document.document_id, pages, ocr_guard=self.ocr_guard)
         context = grounding.context
         if not grounding.has_content:
             return PipelineOutput(context=context, state=ProcessingState.NO_FINDINGS)
@@ -104,7 +106,7 @@ class UngroundedPipeline:
                 failures=(f"{type(error).__name__}: {error}",),
             )
 
-        verification = verify(context, text, rules=LEGACY_RULES_VERSION)  # E6 është matur me r1.3
+        verification = verify(context, text, rules=self.rules)
         return PipelineOutput(
             context=context,
             explanation=text,

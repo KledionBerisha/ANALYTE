@@ -69,6 +69,21 @@ def test_it_does_not_touch_what_is_not_the_lost_decimal_pattern(text, value, low
     assert not ocr_guard.lost_decimal(ht, text, "%", value, low, high), why
 
 
+def test_a_percentage_above_one_hundred_is_impossible_by_definition():
+    ht = _analyte("Hematokriti")
+    assert ocr_guard.impossible_percentage(ht, "%", D("598"))
+    assert ocr_guard.impossible_percentage(ht, "", D("166"))
+    assert not ocr_guard.impossible_percentage(ht, "%", D("59.8"))
+    assert not ocr_guard.impossible_percentage(_analyte("Glukoza"), "mg/dL", D("600"))  # njësi tjetër: asnjë kufi
+
+
+def test_an_impossible_percentage_is_rejected_on_a_scanned_page_only():
+    ocr_row = _page(_row("Hematokriti", "166", "%", "40,0 - 52,0"), ocr=True)
+    assert extract(ocr_row, ocr_guard=True).rejection_counts() == {"vlerë e pamundur (OCR): përqindje mbi 100": 1}
+    text_row = _page(_row("Hematokriti", "166", "%", "40,0 - 52,0"), ocr=False)
+    assert len(extract(text_row, ocr_guard=True).findings) == 1
+
+
 def test_an_analyte_printed_without_decimals_is_never_suspect():
     glucose = _analyte("Glukoza")  # 0 presje: "600" është vlerë e mundshme
     assert not ocr_guard.lost_decimal(glucose, "600", "mg/dL", D("600"), D("70"), D("99"))
@@ -105,14 +120,14 @@ def test_a_damaged_printed_interval_is_replaced_by_the_table_and_the_value_is_cl
 
 
 def test_a_suspect_value_is_rejected_not_interpreted():
-    pages = _page(_row("Hematokriti", "466", "%", "40,0 - 52,0"), ocr=True)
+    pages = _page(_row("Kaliumi", "39", "mmol/L", "3,5 - 5,1"), ocr=True)  # 3,9 pa presje: del "e lartë"
 
     guarded = extract(pages, ocr_guard=True)
     assert guarded.findings == ()
     assert guarded.rejection_counts() == {"vlerë e dyshimtë (OCR): presja dhjetore mungon": 1}
 
     raw = extract(pages, ocr_guard=False)
-    assert raw.findings[0].status is AnalyteStatus.CRITICAL_HIGH  # gabimi i E3: një vlerë normale del kritike
+    assert raw.findings[0].status in (AnalyteStatus.HIGH, AnalyteStatus.CRITICAL_HIGH)  # gabimi i E3: vlerë normale del e lartë
 
 
 def test_a_text_layer_page_is_never_guarded():

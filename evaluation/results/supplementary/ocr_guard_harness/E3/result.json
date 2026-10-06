@@ -1,0 +1,269 @@
+{
+  "experiment": {
+    "id": "E3",
+    "title": "Klasifikimi i statusit",
+    "condition": "—",
+    "dataset": "synthetic-v1",
+    "metric": "classification",
+    "answers": "PK2",
+    "channel": null,
+    "status": "runnable"
+  },
+  "metadata": {
+    "experiment_id": "E3",
+    "pipeline": {
+      "name": "grounding+ocr+guard",
+      "version": "1"
+    },
+    "dataset": {
+      "name": "v1",
+      "version": "gen-1.0/s42/n500/37d8b080",
+      "seed": 42,
+      "documents": 500,
+      "channel": "all"
+    },
+    "code": {
+      "git_sha": "2d93c52201b3334119369d3169e75287e3bca3c0",
+      "working_tree_dirty": true,
+      "rules_version": "r1.3",
+      "policy_version": "sp1.0",
+      "python": "3.12.3"
+    },
+    "created_at": "2026-10-05T22:15:10+00:00"
+  },
+  "metrics": {
+    "overall": {
+      "total": 8809,
+      "accuracy": 0.8858,
+      "matrix": {
+        "critical_high->critical_high": 22,
+        "critical_high->uninterpretable": 2,
+        "critical_low->critical_low": 7,
+        "critical_low->uninterpretable": 1,
+        "high->high": 874,
+        "high->uninterpretable": 85,
+        "low->low": 664,
+        "low->uninterpretable": 76,
+        "normal->normal": 6067,
+        "normal->uninterpretable": 842,
+        "uninterpretable->uninterpretable": 169
+      },
+      "per_class": {
+        "critical_high": {
+          "tp": 22,
+          "fp": 0,
+          "fn": 2,
+          "precision": 1.0,
+          "recall": 0.9167,
+          "f1": 0.9565,
+          "support": 24
+        },
+        "critical_low": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333,
+          "support": 8
+        },
+        "high": {
+          "tp": 874,
+          "fp": 0,
+          "fn": 85,
+          "precision": 1.0,
+          "recall": 0.9114,
+          "f1": 0.9536,
+          "support": 959
+        },
+        "low": {
+          "tp": 664,
+          "fp": 0,
+          "fn": 76,
+          "precision": 1.0,
+          "recall": 0.8973,
+          "f1": 0.9459,
+          "support": 740
+        },
+        "normal": {
+          "tp": 6067,
+          "fp": 0,
+          "fn": 842,
+          "precision": 1.0,
+          "recall": 0.8781,
+          "f1": 0.9351,
+          "support": 6909
+        },
+        "uninterpretable": {
+          "tp": 169,
+          "fp": 1006,
+          "fn": 0,
+          "precision": 0.1438,
+          "recall": 1.0,
+          "f1": 0.2515,
+          "support": 169
+        }
+      }
+    },
+    "by_reference_source": {
+      "document": {
+        "total": 6766,
+        "accuracy": 0.8824,
+        "matrix": {
+          "critical_high->critical_high": 20,
+          "critical_high->uninterpretable": 2,
+          "critical_low->critical_low": 7,
+          "critical_low->uninterpretable": 1,
+          "high->high": 664,
+          "high->uninterpretable": 63,
+          "low->low": 522,
+          "low->uninterpretable": 61,
+          "normal->normal": 4757,
+          "normal->uninterpretable": 669
+        },
+        "per_class": {
+          "critical_high": {
+            "tp": 20,
+            "fp": 0,
+            "fn": 2,
+            "precision": 1.0,
+            "recall": 0.9091,
+            "f1": 0.9524,
+            "support": 22
+          },
+          "critical_low": {
+            "tp": 7,
+            "fp": 0,
+            "fn": 1,
+            "precision": 1.0,
+            "recall": 0.875,
+            "f1": 0.9333,
+            "support": 8
+          },
+          "high": {
+            "tp": 664,
+            "fp": 0,
+            "fn": 63,
+            "precision": 1.0,
+            "recall": 0.9133,
+            "f1": 0.9547,
+            "support": 727
+          },
+          "low": {
+            "tp": 522,
+            "fp": 0,
+            "fn": 61,
+            "precision": 1.0,
+            "recall": 0.8954,
+            "f1": 0.9448,
+            "support": 583
+          },
+          "normal": {
+            "tp": 4757,
+            "fp": 0,
+            "fn": 669,
+            "precision": 1.0,
+            "recall": 0.8767,
+            "f1": 0.9343,
+            "support": 5426
+          },
+          "uninterpretable": {
+            "tp": 0,
+            "fp": 796,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "support": 0
+          }
+        }
+      },
+      "internal_table": {
+        "total": 1874,
+        "accuracy": 0.8879,
+        "matrix": {
+          "critical_high->critical_high": 2,
+          "high->high": 210,
+          "high->uninterpretable": 22,
+          "low->low": 142,
+          "low->uninterpretable": 15,
+          "normal->normal": 1310,
+          "normal->uninterpretable": 173
+        },
+        "per_class": {
+          "critical_high": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 2
+          },
+          "high": {
+            "tp": 210,
+            "fp": 0,
+            "fn": 22,
+            "precision": 1.0,
+            "recall": 0.9052,
+            "f1": 0.9502,
+            "support": 232
+          },
+          "low": {
+            "tp": 142,
+            "fp": 0,
+            "fn": 15,
+            "precision": 1.0,
+            "recall": 0.9045,
+            "f1": 0.9498,
+            "support": 157
+          },
+          "normal": {
+            "tp": 1310,
+            "fp": 0,
+            "fn": 173,
+            "precision": 1.0,
+            "recall": 0.8833,
+            "f1": 0.9381,
+            "support": 1483
+          },
+          "uninterpretable": {
+            "tp": 0,
+            "fp": 210,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "support": 0
+          }
+        }
+      },
+      "none": {
+        "total": 169,
+        "accuracy": 1.0,
+        "matrix": {
+          "uninterpretable->uninterpretable": 169
+        },
+        "per_class": {
+          "uninterpretable": {
+            "tp": 169,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 169
+          }
+        }
+      }
+    },
+    "reference_source_share": {
+      "document": 0.7671,
+      "internal_table": 0.2142,
+      "none": 0.0187
+    },
+    "unmatched_findings": 1051,
+    "uninterpretable_recall": 1.0
+  },
+  "pending_reason": null
+}

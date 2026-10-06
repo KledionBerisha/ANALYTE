@@ -217,11 +217,17 @@ def check_term_explanations(context: GroundingContext, text: str) -> Iterator[Vi
     """
     explanatory = ("do te thote", "quhet", "eshte nje gjendje", "nenkupton", "tregon se")
     if ruleset.modern():
+        explanatory += (
+            "eshte nje ", "eshte nje lloj", "ndodh kur", "shkaktohet", "lidhet me", "perfshin", "ka te beje me",
+            "pasqyron", "reflekton", "eshte semundje", "eshte inflamacion", "eshte demtim", "d m th",
+        )
         yield from _unsupported_glosses(context, text)
 
     for term in context.unexplained_terms:
         folded_term = fold(term)
         for sentence in sentences(text):
+            if ruleset.modern() and is_attributed(sentence.text):
+                continue  # citimi i mjekut: fjala është e tij dhe kopjohet fjalë për fjalë
             folded = fold(sentence.text)
             if folded_term not in folded:
                 continue

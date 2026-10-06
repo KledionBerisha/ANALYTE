@@ -242,6 +242,8 @@ def _to_finding(
             if corrections is not None:
                 corrections.append((raw.name, "interval i dëmtuar nga OCR; zëvendësuar me tabelën"))
             resolution = reference.resolve(analyte, None, raw.unit_text, sex)
+        if guard.impossible_percentage(analyte, raw.unit_text, value_canonical):
+            return None, "vlerë e pamundur (OCR): përqindje mbi 100"
         if resolution.has_bounds and guard.lost_decimal(
             analyte,
             raw.value_text,

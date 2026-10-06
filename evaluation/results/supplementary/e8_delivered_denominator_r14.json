@@ -1,0 +1,46 @@
+{
+  "what": "E8 dhe E9 mbi fjalitë e tekstit të dorëzuar (modeli ose shablloni rezervë), krahas emëruesit të harness-it",
+  "metadata": {
+    "git_sha": "2d93c52201b3334119369d3169e75287e3bca3c0",
+    "working_tree_dirty": true,
+    "rules_version": "r1.4",
+    "policy_version": "sp1.0",
+    "python": "3.12.3"
+  },
+  "E8": {
+    "documents": 500,
+    "by_delivery": {
+      "generated": {
+        "documents": 334,
+        "sentences": 3739,
+        "violations": 0
+      },
+      "template": {
+        "documents": 166,
+        "sentences": 4780,
+        "violations": 0
+      }
+    },
+    "delivered_sentences": 8519,
+    "violations_in_delivered_text": 0,
+    "rate_per_100_delivered_sentences": 0.0,
+    "rule_of_three_per_100_delivered": 0.0352,
+    "template_share_of_delivered_sentences": 0.5611,
+    "draft_sentences_all_attempts": 9250,
+    "harness_sentences": 9250,
+    "harness_violations_reaching_user": 0,
+    "new_model_calls": {
+      "calls": 0,
+      "cache_hits": 789,
+      "retries": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "thought_tokens": 0
+    },
+    "model_text_only": {
+      "sentences": 3739,
+      "violations": 0,
+      "rule_of_three_per_100": 0.0802
+    }
+  }
+}

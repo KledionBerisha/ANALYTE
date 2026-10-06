@@ -17,7 +17,7 @@ OCR-ja e dokumenteve është për pacientët me skanime, ndërsa shtresa e tekst
 
 ## Vendimi
 
-Dy kontrolle te `grounding/branch_a/ocr_guard.py`, të aplikuara nga `extract` mbi faqet e OCR-së:
+Tre kontrolle te `grounding/branch_a/ocr_guard.py`, të aplikuara nga `extract` mbi faqet e OCR-së:
 
 1. **Intervali i dëmtuar.** Nëse secili kufi i intervalit të shtypur është afërsisht 10, 100 ose 1000 herë ai i tabelës së brendshme për të njëjtin analit (tolerancë 15%, krahasim me të
    dyja gjinitë), presja ka humbur. Intervali i shtypur hidhet dhe përdoret ai i tabelës, rruga që ekziston tashmë kur intervali nuk shtypet; pa tabelë ose pa gjini gjetja mbetet e
@@ -25,6 +25,9 @@ Dy kontrolle te `grounding/branch_a/ocr_guard.py`, të aplikuara nga `extract` m
 2. **Vlera e dyshimtë.** Vlera e shtypur pa presje te një analit që laboratori e shtyp me presje, që del MBI intervalin, dhe pjesëtimi me 10 ose 100 e fut brenda tij, nuk merret:
    rreshti refuzohet me arsyen "vlerë e dyshimtë (OCR): presja dhjetore mungon". Një rresht i humbur është më i mirë se një vlerë e gabuar që pacienti e lexon si të vetën (po ai arsyetim si
    te "njësi e palexueshme").
+
+3. **Përqindja e pamundur.** Një analit me njësi `%` e lexuar mbi 100 refuzohet ("vlerë e pamundur (OCR): përqindje mbi 100"). Kjo është e pamundur nga përkufizimi, jo kufi mjekësor, prandaj nuk kërkon burim.
+   U shtua pasi mbetën dy gabime që zhvendosja e presjes nuk i kapte (Ht 598 për 59,8 dhe Ht 166 për 16,6).
 
 **Pse rreshti hidhet dhe nuk interpretohet si "pa interval".** Njoftimi i SP5 thotë "nuk u gjet interval referent", gjë që te kjo vlerë nuk është e vërtetë; një njoftim i ri do të kërkonte ndryshim të politikës,
 të rregullave dhe të kërkesës së modelit. Hedhja përdor mekanizmin që ekziston dhe e ruan arsyen.
@@ -38,15 +41,14 @@ e bashkë me to kërkesat e modelit që cache-i i ka çelës.
 
 | | pa kontroll | me kontroll |
 |---|---|---|
-| Statuse të interpretuara dhe të gabuara | **62** | **2** |
-| Prej tyre kritike të larta pa qenë | 11 | 2 |
-| Rreshta të krahasueshëm me të vërtetën | 2 360 | 2 342 |
-| Vlera të lexuara gabim ndër ta | 64 | 46 |
-| Të interpretueshme që u bënë të painterpretueshme | 986 | 1 009 |
+| Statuse të interpretuara dhe të gabuara | **62** | **0** |
+| Prej tyre kritike të larta pa qenë | 11 | 0 |
+| Rreshta të krahasueshëm me të vërtetën | 2 360 | 2 337 |
+| Vlera të lexuara gabim ndër ta | 64 | 41 |
+| Të interpretueshme që u bënë të painterpretueshme | 986 | 1 006 |
 
-18 rreshta u refuzuan nga kontrolli i vlerës; **të 18 kishin vlerë të lexuar gabim, asnjë e saktë**. 46 intervale u zëvendësuan nga tabela. Dy gabimet e mbetura janë Ht 598 për 59,8 (kritike e lartë në vend
-të të lartës; zhvendosja e nxjerr vlerën jashtë intervalit, prandaj kontrolli nuk e kap) dhe Ht 166 për 16,6.
-Në harness (E1/E2/E3/E5 me `--ocr --ocr-guard`, ekzekutim zhvillimi nga pema e punës): F1 i nxjerrjes 0.670 → 0.669, saktësia e statusit 0.881 → 0.885, E5 (krahasimi i kryqëzuar) 0.863 → 0.862.
+23 rreshta u refuzuan nga kontrollet e vlerës dhe të përqindjes; **të 23 kishin vlerë të lexuar gabim, asnjë e saktë**. 46 intervale u zëvendësuan nga tabela. Pa hapin e tretë mbeteshin 2 statuse të gabuara (shih më sipër).
+Në harness (E1/E2/E3/E5 me `--ocr --ocr-guard`, ekzekutim nga pema e punës): F1 i nxjerrjes 0.670 → 0.669, saktësia e statusit 0.881 → 0.886, E5 (krahasimi i kryqëzuar) 0.863 → 0.861.
 
 ## Çfarë nuk kapet dhe çmimi
 
@@ -59,5 +61,5 @@ Në harness (E1/E2/E3/E5 me `--ocr --ocr-guard`, ekzekutim zhvillimi nga pema e 
 
 ## Pasojat
 
-- E7–E9 dhe auditi mbeten të matura pa kontrollin; ato përshkruajnë sistemin pa të. Shërbimi e ka të ndezur, prandaj matja e E3 me kontroll është ajo që përshkruan atë.
-- Rezultatet e kontrollit janë të një ekzekutimi zhvillimi nga pema e punës; duhen rimatur nga një kopje e pastër pasi të commit-ohet kodi.
+- E4 e E6–E8 u rishikuan me kontrollin dhe `r1.4` (thesis §6.6.2, `evaluation/results/llm_r14/`); E9 (klasifikuesi) dhe auditi jo. Shërbimi e ka të ndezur.
+- Hapi i tretë dhe numrat e mësipërme janë nga një ekzekutim i pemës së punës; versioni i mëparshëm (dy hapa, 62 → 2) u rimat nga një kopje e pastër e commit-it `2d93c52` dhe doli identik me ekzekutimin e zhvillimit. Kopja e pastër duhet përsëritur pasi të commit-ohet kodi i ri.

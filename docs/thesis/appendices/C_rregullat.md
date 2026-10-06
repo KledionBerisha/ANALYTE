@@ -40,4 +40,4 @@ Shembujt janë marrë nga korpusi i korruptuar (fara 42): fjalia që ndryshoi kr
 | R6 | `hedge_removed` | Mjeku ka shënuar: Fosfori mbi intervalin referent, por kërkon rikontroll. | burimi e shpreh me rezervë: “Fosfori duket mbi intervalin referent, por kërkon rikontroll” |
 | R7 | `fabricated_finding` | Vërehet gjithashtu aterosklerozë. | termi “aterosklerozë” nuk shfaqet në raportin burimor |
 | R8 | `omitted_recommendation` | (një fjali e fshirë) | rekomandimi “Rekomandohet përsëritja e analizave pas një muaji” mungon në dalje |
-| SP1-3 | `prohibited_claim` | Duhet të merrni ilaçe për yndyrnat në gjak. | SP2: shprehja “merrni” — Asnjë këshillë trajtimi apo medikamenti nuk lëshohet kurrë. |
+| SP1-3 | `prohibited_claim` | Duhet të filloni trajtim për hematokritin e lartë. | SP2: shprehja “duhet te filloni” — Asnjë këshillë trajtimi apo medikamenti nuk lëshohet kurrë. |

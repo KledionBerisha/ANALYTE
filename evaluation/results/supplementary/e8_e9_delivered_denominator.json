@@ -1,6 +1,12 @@
 {
-  "what": "E8 dhe E9 mbi fjalitë e TEKSTIT TË DORËZUAR (modeli ose shablloni rezervë), krahas emëruesit të harness-it (fjalitë e të gjitha drafteve të modelit).",
-  "provenance": "Llogaritur më 2026-10-05 nga kodi i HEAD 318e5bb (pa ndryshime kodi; ndryshuan vetëm dokumentet), me --ocr, nga cache-i i modelit (0 thirrje të reja), duke regjistruar `explain().text`. NUK është ekzekutim nga kopje e pastër dhe nuk zëvendëson E8/E9 të commit-it 4f5ea17: shkeljet dhe fjalitë e harness-it dolën identike (8892/0 dhe 10359/41).",
+  "what": "E8 dhe E9 mbi fjalitë e tekstit të dorëzuar (modeli ose shablloni rezervë), krahas emëruesit të harness-it",
+  "metadata": {
+    "git_sha": "2d93c52201b3334119369d3169e75287e3bca3c0",
+    "working_tree_dirty": false,
+    "rules_version": "r1.3",
+    "policy_version": "sp1.0",
+    "python": "3.12.3"
+  },
   "E8": {
     "documents": 500,
     "by_delivery": {
@@ -19,9 +25,10 @@
     "violations_in_delivered_text": 0,
     "rate_per_100_delivered_sentences": 0.0,
     "rule_of_three_per_100_delivered": 0.0379,
+    "template_share_of_delivered_sentences": 0.4356,
     "draft_sentences_all_attempts": 8892,
     "harness_sentences": 8892,
-    "harness_reaching_user": 0,
+    "harness_violations_reaching_user": 0,
     "new_model_calls": {
       "calls": 0,
       "cache_hits": 746,
@@ -34,8 +41,7 @@
       "sentences": 4463,
       "violations": 0,
       "rule_of_three_per_100": 0.0672
-    },
-    "template_share_of_delivered_sentences": 0.4356
+    }
   },
   "E9": {
     "documents": 500,
@@ -55,9 +61,10 @@
     "violations_in_delivered_text": 41,
     "rate_per_100_delivered_sentences": 0.3922,
     "rule_of_three_per_100_delivered": null,
+    "template_share_of_delivered_sentences": 0.8042,
     "draft_sentences_all_attempts": 10359,
     "harness_sentences": 10359,
-    "harness_reaching_user": 41,
+    "harness_violations_reaching_user": 41,
     "new_model_calls": {
       "calls": 0,
       "cache_hits": 879,
@@ -65,7 +72,6 @@
       "input_tokens": 0,
       "output_tokens": 0,
       "thought_tokens": 0
-    },
-    "template_share_of_delivered_sentences": 0.8042
+    }
   }
 }

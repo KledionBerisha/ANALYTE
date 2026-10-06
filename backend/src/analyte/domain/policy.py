@@ -55,7 +55,7 @@ analitin: te një fjali me një analit të vetëm, një numër që është vler�
 fjalia pas fjalie sipas klauzolës (një drejtim për analit, jo një për fjali), njeh fjalorin e zgjeruar të drejtimit ("e lartë",
 "rritja e", "u ul") dhe shënon pohimin e përgjithshëm "të gjitha vlerat e tjera janë brenda intervalit" kur një gjetje jashtë
 intervalit nuk është përmendur. (4) R9 shënon një shpjegim në kllapa pas një analiti ose termi që nuk përputhet me fjalorin
-("TSH (hormoni i stimulimit të mëlçisë)"). Ndryshimet vijnë nga audit-i i E8 dhe nga alarmet e rreme mbi A, B; dy grupet
+("TSH (hormoni i stimulimit të mëlçisë)"). (5) SP1–SP3 dhe R9 kanë fjalor më të gjerë (diagnozë, trajtim, prognozë; shenja shpjegimi) dhe nuk gjykojnë citimet e mjekut. Ndryshimet vijnë nga audit-i i E8 dhe nga alarmet e rreme mbi A, B; dy grupet
 kështu nuk janë më të pastra si provë e r1.4 (ADR 0021)."""
 
 LEGACY_RULES_VERSION = "r1.3"

@@ -440,7 +440,9 @@ def build_pipeline(
             raise SystemExit("e6 (pa bazim) kërkon --generator llm: shablloni nuk ka çfarë të lexojë")
         from .ungrounded import UngroundedPipeline
 
-        return UngroundedPipeline(client=build_llm_client(cache=cache), ocr=engine)
+        return UngroundedPipeline(
+            client=build_llm_client(cache=cache), ocr=engine, ocr_guard=ocr_guard, rules=rules
+        )
     if name in {"e7", "e8", "e9"}:
         predictor, threshold = build_classifier(classifier) if name == "e9" else (None, None)
         if name == "e9" and predictor is None:

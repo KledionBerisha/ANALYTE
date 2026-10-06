@@ -1,0 +1,86 @@
+{
+  "experiment": {
+    "id": "E2",
+    "title": "Saktësia e nxjerrjes",
+    "condition": "i skanuar",
+    "dataset": "synthetic-v1",
+    "metric": "extraction",
+    "answers": "PK1",
+    "channel": "scanned",
+    "status": "runnable"
+  },
+  "metadata": {
+    "experiment_id": "E2",
+    "pipeline": {
+      "name": "grounding+ocr+guard",
+      "version": "1"
+    },
+    "dataset": {
+      "name": "v1[scanned]",
+      "version": "gen-1.0/s42/n500/37d8b080",
+      "seed": 42,
+      "documents": 168,
+      "channel": "scanned"
+    },
+    "code": {
+      "git_sha": "2d93c52201b3334119369d3169e75287e3bca3c0",
+      "working_tree_dirty": true,
+      "rules_version": "r1.3",
+      "policy_version": "sp1.0",
+      "python": "3.12.3"
+    },
+    "created_at": "2026-10-05T22:08:50+00:00"
+  },
+  "metrics": {
+    "per_field": {
+      "analyte": {
+        "tp": 2337,
+        "fp": 10,
+        "fn": 1051,
+        "precision": 0.9957,
+        "recall": 0.6898,
+        "f1": 0.815,
+        "support": 3388
+      },
+      "value": {
+        "tp": 2243,
+        "fp": 104,
+        "fn": 1145,
+        "precision": 0.9557,
+        "recall": 0.662,
+        "f1": 0.7822,
+        "support": 3388
+      },
+      "unit": {
+        "tp": 1827,
+        "fp": 520,
+        "fn": 1561,
+        "precision": 0.7784,
+        "recall": 0.5393,
+        "f1": 0.6371,
+        "support": 3388
+      },
+      "interval": {
+        "tp": 1264,
+        "fp": 1083,
+        "fn": 2124,
+        "precision": 0.5386,
+        "recall": 0.3731,
+        "f1": 0.4408,
+        "support": 3388
+      }
+    },
+    "micro": {
+      "tp": 7671,
+      "fp": 1717,
+      "fn": 5881,
+      "precision": 0.8171,
+      "recall": 0.566,
+      "f1": 0.6688,
+      "support": 13552
+    },
+    "macro_f1": 0.6687881429816914,
+    "documents": 168
+  },
+  "pending_reason": null
+}

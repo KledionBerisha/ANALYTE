@@ -1,7 +1,7 @@
 {
   "what": "kontrolli i besueshmërisë i OCR-së (ADR 0020), mbi dokumentet e skanuara të korpusit",
   "metadata": {
-    "git_sha": "674281c4edc91e2dbc172053c002dde9c02567cd",
+    "git_sha": "2d93c52201b3334119369d3169e75287e3bca3c0",
     "working_tree_dirty": true,
     "rules_version": "r1.3",
     "policy_version": "sp1.0",
@@ -16,13 +16,13 @@
     "interpretable_became_uninterpretable": 986
   },
   "with_guard": {
-    "matched_rows": 2342,
-    "wrong_values_in_matched_rows": 46,
-    "wrong_interpreted_status": 2,
-    "false_critical_high": 2,
-    "interpretable_became_uninterpretable": 1009
+    "matched_rows": 2337,
+    "wrong_values_in_matched_rows": 41,
+    "wrong_interpreted_status": 0,
+    "false_critical_high": 0,
+    "interpretable_became_uninterpretable": 1006
   },
-  "rows_rejected_by_value_check": 18,
+  "rows_rejected_by_value_check": 23,
   "of_which_the_read_value_was_correct": 0,
   "intervals_replaced_by_table": 46,
   "documents_with_a_correction": 43,

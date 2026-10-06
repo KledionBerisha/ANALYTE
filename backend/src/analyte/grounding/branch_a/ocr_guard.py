@@ -22,6 +22,8 @@ dallohen nga konteksti i vetë gjetjes.
 shtypur pa presje që rastësisht plotëson kushtin (p.sh. kreatininë 8 mg/dL e shtypur "8"): ajo humbet si rresht. Ky
 është çmimi i kontrollit dhe matet te E3 me kontrollin ndezur.
 
+3. *Përqindja e pamundur.* Një analit me njësi `%` e lexuar mbi 100 refuzohet (përkufizim, jo kufi mjekësor).
+
 Pragjet (10, 100 dhe 1000 për intervalin, 10 dhe 100 për vlerën, toleranca 15%) u zgjodhën pasi u panë gabimet e E3; kjo deklarohet te ADR 0020.
 """
 
@@ -80,6 +82,17 @@ def expected_decimals(analyte: Analyte, printed_unit: str) -> int | None:
     if conversion is not None and unit == conversion.unit_from:
         return conversion.decimals
     return None
+
+
+def impossible_percentage(analyte: Analyte, printed_unit: str, value_canonical: Decimal) -> bool:
+    """Një përqindje mbi 100 është e pamundur nga përkufizimi, jo nga mjekësia: nuk kërkon burim.
+
+    Hematokriti "598" për 59,8 dhe "166" për 16,6 ishin dy gabimet e mbetura pas kontrollit të presjes: zhvendosja nuk e fut vlerën brenda
+    intervalit, por vlera është e pamundur si përqindje. Vlen vetëm kur njësia e analitit është `%`; kufijtë fiziologjikë të analiteve të tjera
+    kërkojnë burime të lexuara dhe nuk u shtuan.
+    """
+    unit = normalize_unit(printed_unit)
+    return analyte.unit == "%" and unit in ("", "%") and value_canonical > 100
 
 
 def lost_decimal(

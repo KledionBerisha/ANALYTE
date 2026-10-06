@@ -1,7 +1,7 @@
 {
   "what": "r1.4 kundrejt r1.3 mbi shabllonin, E10, grupet A dhe B, dhe auditin e E8 (ADR 0021)",
   "metadata": {
-    "git_sha": "674281c4edc91e2dbc172053c002dde9c02567cd",
+    "git_sha": "2d93c52201b3334119369d3169e75287e3bca3c0",
     "working_tree_dirty": true,
     "rules_version": "r1.3 dhe r1.4",
     "policy_version": "sp1.0",
@@ -76,14 +76,14 @@
     "r1.4": {
       "A_flagged": 0,
       "A_explanations": 25,
-      "B_macro_f1": 0.8427800269905533,
+      "B_macro_f1": 0.856516290726817,
       "B_micro": {
-        "tp": 63,
+        "tp": 64,
         "fp": 0,
-        "fn": 12,
+        "fn": 11,
         "precision": 1.0,
-        "recall": 0.84,
-        "f1": 0.913,
+        "recall": 0.8533,
+        "f1": 0.9209,
         "support": 75
       },
       "B_false_alarms_on_clean": 0,
@@ -92,7 +92,7 @@
         "fabricated_finding": 0.9474,
         "hedge_removed": 1.0,
         "polarity_flip": 1.0,
-        "prohibited_claim": 0.4615,
+        "prohibited_claim": 0.5714,
         "ungrounded_analyte": 1.0,
         "ungrounded_number": 1.0,
         "ungrounded_term_explanation": 0.3333

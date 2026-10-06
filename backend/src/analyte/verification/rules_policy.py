@@ -25,7 +25,8 @@ from analyte.domain.models import GroundingContext, Violation
 from analyte.domain.policy import SafetyPolicy
 from analyte.textnorm import fold
 
-from .base import sentences, violation
+from . import ruleset
+from .base import is_attributed, sentences, violation
 
 DIAGNOSTIC_CUES: tuple[str, ...] = (
     "ju keni semundjen",
@@ -63,14 +64,96 @@ CUES: tuple[tuple[SafetyPolicy, tuple[str, ...]], ...] = (
     (SafetyPolicy.NO_PROGNOSIS, PROGNOSTIC_CUES),
 )
 
+DIAGNOSTIC_CUES_R14: tuple[str, ...] = (
+    "ju keni ",
+    "ju vuani",
+    "vuani nga",
+    "jeni e semure",
+    "jeni i semure",
+    "diagnoza e",
+    "diagnoza juaj",
+    "diagnostikohet me",
+    "konfirmon diagnozen",
+    "konfirmon qe keni",
+    "konfirmon se keni",
+    "tregon qarte se keni",
+    "shenje e qarte e",
+    "tregues i qarte i",
+    "provon se keni",
+    "kjo eshte semundje",
+    "keni nje semundje",
+    "keni nje gjendje",
+    "pacienti ka semundjen",
+)
+
+TREATMENT_CUES_R14: tuple[str, ...] = (
+    "duhet te merrni",
+    "duhet te filloni",
+    "duhet te ndaloni",
+    "filloni ",
+    "ndaloni ",
+    "reduktoni",
+    "ulni marrjen",
+    "rritni marrjen",
+    "ndryshoni dieten",
+    "dieten",
+    "mos hani",
+    "mos pini",
+    "ilace",
+    "ilaceve",
+    "suplement",
+    "terapi",
+    "trajtim",
+    "trajtoheni",
+    "antibiotik",
+    "insulin",
+    "vitamina shtese",
+    "dozen",
+)
+
+PROGNOSTIC_CUES_R14: tuple[str, ...] = (
+    "do te zhvilloni",
+    "do te keni",
+    "do te rritet",
+    "do te ulet",
+    "do te kthehet ne normale",
+    "ka rrezik",
+    "keni rrezik",
+    "rrezikoni",
+    "rrezik per",
+    "ne te ardhmen",
+    "mund te coje ne",
+    "mund te shkaktoje",
+    "komplikacione",
+    "perkeqesim",
+    "permiresim",
+    "prognoz",
+    "jetegjatesi",
+    "nese nuk trajtohet",
+    "ka gjasa te zhvilloni",
+    "gjasat per",
+)
+"""`r1.4`: shenja më të gjera, shkruara nga përkufizimi i SP1–SP3 dhe nga shqipja klinike e zakonshme, jo nga rreshtat e grupit B.
+Fjalitë e atribuuara (citimet e mjekut) nuk gjykohen: fjala është e mjekut dhe kopjohet fjalë për fjalë. Rregulli është ende leksikor: një
+formulim që nuk është në listë kalon, dhe një fjalë e listës te një fjali e pafajshme jep alarm."""
+
+CUES_R14: tuple[tuple[SafetyPolicy, tuple[str, ...]], ...] = (
+    (SafetyPolicy.NO_DIAGNOSIS, DIAGNOSTIC_CUES + DIAGNOSTIC_CUES_R14),
+    (SafetyPolicy.NO_TREATMENT, TREATMENT_CUES + TREATMENT_CUES_R14),
+    (SafetyPolicy.NO_PROGNOSIS, PROGNOSTIC_CUES + PROGNOSTIC_CUES_R14),
+)
+
 
 def check_prohibited_claims(context: GroundingContext, text: str) -> Iterator[Violation]:
     """SP1-SP3 — asnjë pohim diagnostik, trajtimi apo prognoze."""
     del context  # ndalimi nuk varet nga konteksti: ai vlen gjithmonë
 
+    modern = ruleset.modern()
     for sentence in sentences(text):
-        folded = fold(sentence.text)
-        for policy, cues in CUES:
+        if modern and is_attributed(sentence.text):
+            continue
+        folded = f" {fold(sentence.text)} " if modern else fold(sentence.text)
+        for policy, cues in CUES_R14 if modern else CUES:
             hit = next((cue for cue in cues if cue in folded), None)
             if hit is not None:
                 yield violation(
