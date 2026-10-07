@@ -99,9 +99,7 @@ def notices(document: DocumentRow, context: GroundingContext, row: ExplanationRo
     out = []
     if document.channel == "ocr":
         out.append(Notice(code="ocr", text=OCR_NOTICE_SQ))
-    uninterpretable = sum(
-        1 for f in context.findings if f.status is AnalyteStatus.UNINTERPRETABLE
-    )
+    uninterpretable = sum(1 for f in context.findings if f.status is AnalyteStatus.UNINTERPRETABLE)
     if uninterpretable:
         out.append(
             Notice(
@@ -119,9 +117,16 @@ def notices(document: DocumentRow, context: GroundingContext, row: ExplanationRo
     if document.model_use == "no_consent":
         out.append(Notice(code="model_declined", text=MODEL_DECLINED_NOTICE_SQ))
     elif document.model_use == "identifying_content":
-        kinds = [GATE_KIND_SQ[k] for k in (document.model_gate_kinds or "").split(",") if k in GATE_KIND_SQ]
+        kinds = [
+            GATE_KIND_SQ[k]
+            for k in (document.model_gate_kinds or "").split(",")
+            if k in GATE_KIND_SQ
+        ]
         out.append(
-            Notice(code="model_withheld", text=MODEL_WITHHELD_NOTICE_SQ.format(kinds=", ".join(kinds) or "të paklasifikuara"))
+            Notice(
+                code="model_withheld",
+                text=MODEL_WITHHELD_NOTICE_SQ.format(kinds=", ".join(kinds) or "të paklasifikuara"),
+            )
         )
     if row.is_fallback:
         out.append(Notice(code="fallback", text=FALLBACK_NOTICE_SQ))

@@ -3,21 +3,6 @@ Harness-i i eksperimenteve.
 
     python -m evaluation.harness --dataset data/v1 --pipeline empty
 
-Ekzekuton një ose të gjitha eksperimentet e §8.1 mbi një korpus dhe
-shkruan `evaluation/results/{ID}/`. Ekziston përpara çdo shtrese të
-sistemit me qëllim: matja para optimizimit do të thotë që rruga nga
-korpusi te qeliza e tabelës të jetë e provuar kur të ketë diçka për të
-matur, jo pas.
-
-Çdo rezultat shkruhet bashkë me prejardhjen e vet: farën e korpusit,
-versionin e tij me shumë kontrolluese të tabelave burimore, sha-në e
-git-it, gjendjen e pastër ose jo të pemës së punës, dhe versionin e
-katalogut të rregullave. Pa këto, një numër në Kapitullin 6 nuk mund të
-rikrijohet dhe as të mbrohet (NFR3).
-
-Gjendja e pemës së punës shënohet posaçërisht: një rezultat i prodhuar
-mbi kod të pakommit-uar nuk është i rindërtueshëm, dhe kjo duhet të duket
-në skedar e jo të kujtohet.
 """
 
 from __future__ import annotations
@@ -163,15 +148,15 @@ def _llm_metadata(pipeline: Pipeline) -> dict[str, Any] | None:
         "thinking": client.thinking,
         "max_output_tokens": client.max_output_tokens,
         "prompt_version": (
-            UNGROUNDED_PROMPT_VERSION if getattr(pipeline, "ablation", "") == "E6" else PROMPT_VERSION
+            UNGROUNDED_PROMPT_VERSION
+            if getattr(pipeline, "ablation", "") == "E6"
+            else PROMPT_VERSION
         ),
         "usage": client.usage.to_json(),
     }
 
 
-def _metadata(
-    experiment: registry.Experiment, data: Dataset, pipeline: Pipeline
-) -> dict[str, Any]:
+def _metadata(experiment: registry.Experiment, data: Dataset, pipeline: Pipeline) -> dict[str, Any]:
     return {
         "experiment_id": experiment.id,
         "pipeline": {"name": pipeline.name, "version": pipeline.version},
@@ -230,9 +215,7 @@ def _fmt(value: float | None, label: str) -> str:
     return f"{value:.3f} {label}" if value is not None else f"n/a ({label})"
 
 
-# --------------------------------------------------------------------
 # Shkrimi i rezultateve
-# --------------------------------------------------------------------
 
 
 def write_result(result: ExperimentResult, out_dir: Path) -> Path:
@@ -316,9 +299,7 @@ def write_summary(results: list[ExperimentResult], out_dir: Path) -> Path:
     return path
 
 
-# --------------------------------------------------------------------
 # CLI
-# --------------------------------------------------------------------
 
 
 GENERATORS = ("template", "llm")
@@ -367,7 +348,9 @@ def build_llm_client(*, model: str | None = None, cache: Path = LLM_CACHE) -> St
     except ProviderError as error:
         raise SystemExit(f"--generator llm: {error}") from None
     except Exception as error:  # konfigurim i paplotë (p.sh. sekretet e shërbimit)
-        raise SystemExit(f"--generator llm: konfigurimi nuk lexohet: {type(error).__name__}") from None
+        raise SystemExit(
+            f"--generator llm: konfigurimi nuk lexohet: {type(error).__name__}"
+        ) from None
 
 
 def build_generator(name: str, cache: Path = LLM_CACHE):
@@ -439,11 +422,17 @@ def build_pipeline(
     suffix += "+advice" if advice else ""
     if name == "e6":
         if generator != "llm":
-            raise SystemExit("e6 (pa bazim) kërkon --generator llm: shablloni nuk ka çfarë të lexojë")
+            raise SystemExit(
+                "e6 (pa bazim) kërkon --generator llm: shablloni nuk ka çfarë të lexojë"
+            )
         from .ungrounded import UngroundedPipeline
 
         return UngroundedPipeline(
-            client=build_llm_client(cache=cache), ocr=engine, ocr_guard=ocr_guard, advice=advice, rules=rules
+            client=build_llm_client(cache=cache),
+            ocr=engine,
+            ocr_guard=ocr_guard,
+            advice=advice,
+            rules=rules,
         )
     if name in {"e7", "e8", "e9"}:
         predictor, threshold = build_classifier(classifier) if name == "e9" else (None, None)
@@ -466,7 +455,9 @@ def build_pipeline(
     if name == "branch_a":
         return BranchAPipeline(name=f"branch_a{suffix}", ocr=engine, ocr_guard=ocr_guard)
     if name == "grounding":
-        return GroundingPipeline(name=f"grounding{suffix}", ocr=engine, ocr_guard=ocr_guard, advice=advice)
+        return GroundingPipeline(
+            name=f"grounding{suffix}", ocr=engine, ocr_guard=ocr_guard, advice=advice
+        )
     raise SystemExit(
         f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e6, e7, e8, e9"
     )
@@ -480,7 +471,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dataset", type=Path, required=True, help="dosja e korpusit")
     parser.add_argument("--experiment", default="all", help="ID e eksperimentit ose 'all'")
     parser.add_argument(
-        "--pipeline", default="empty", help="empty | oracle | branch_a | grounding | e6 | e7 | e8 | e9"
+        "--pipeline",
+        default="empty",
+        help="empty | oracle | branch_a | grounding | e6 | e7 | e8 | e9",
     )
     parser.add_argument(
         "--classifier", type=Path, default=None, help="dosja e ekzekutimit të Colab-it, për e9"
@@ -530,9 +523,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     chosen = (
-        list(registry.EXPERIMENTS)
-        if args.experiment == "all"
-        else [registry.get(args.experiment)]
+        list(registry.EXPERIMENTS) if args.experiment == "all" else [registry.get(args.experiment)]
     )
 
     try:

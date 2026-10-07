@@ -4,18 +4,6 @@ E11 mbi grupin B — klasifikuesi mbi fjali të shkruara jashtë gjeneruesit (PK
     python -m ml.evaluate_on_kit --run ml/artifacts/runs/sentence
     python -m ml.evaluate_on_kit --run ml/artifacts/runs/context
 
-E11 mbi korpusin e korruptuar mat kryesisht sa i njeh klasifikuesi shabllonet e
-gjeneruesit (`leakage.json`: 100% e formave të validimit i ka trajnimi). Grupi B
-është i vetmi test mbi prozë që nuk e ka prodhuar gjeneruesi, prandaj është i vetmi
-që thotë diçka për aftësinë e vërtetë të klasifikuesit.
-
-**Pragjet nuk zgjidhen këtu.** Të dyja vijnë nga rezultati i E11 (`operating_points`),
-ku u zgjodhën mbi validimin. Një prag i akorduar mbi B do ta bënte B pjesë të
-akordimit dhe do ta humbiste kuptimin e tij si test i jashtëm.
-
-Teksti që gjykohet është po ai që gjykojnë rregullat te `kits.check_sentences`
-(`kits.row_text`), dhe vendimi për tekst merret po ashtu si te E11: fjalia me
-probabilitetin më të lartë për një defekt, nëse kalon pragun.
 """
 
 from __future__ import annotations
@@ -52,7 +40,9 @@ def judge_rows(
         except ValueError as problem:
             errors.append(kits.RowError(row["id"], str(problem)))
             continue
-        probabilities = predict([s for s, _, _ in split_sentences(text)], serialize_context(context))
+        probabilities = predict(
+            [s for s, _, _ in split_sentences(text)], serialize_context(context)
+        )
         actual = None if row["etiketa"] == CLEAN else ViolationType(row["etiketa"])
         for name, threshold in thresholds.items():
             label = evaluate_classifier.text_label(probabilities, labels, threshold)
@@ -100,13 +90,19 @@ def main(argv: list[str] | None = None) -> int:
     target = args.out / result["input"] / "kit_B.json"
     target.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    print(f"hyrja: {result['input']}   mostra B: {result['samples']}   gabime rreshtash: {len(result['errors'])}")
+    print(
+        f"hyrja: {result['input']}   mostra B: {result['samples']}   gabime rreshtash: {len(result['errors'])}"
+    )
     for name, point in result["operating_points"].items():
         m = point["metrics"]
-        print(f"\n== {name}  pragu {point['threshold']}   macro F1 {m['macro_f1']:.3f}   "
-              f"të pastra të bllokuara {m['false_alarms_on_clean']}/30")
+        print(
+            f"\n== {name}  pragu {point['threshold']}   macro F1 {m['macro_f1']:.3f}   "
+            f"të pastra të bllokuara {m['false_alarms_on_clean']}/30"
+        )
         for label, c in m["per_defect_type"].items():
-            print(f"   {label:30} P={c['precision']} R={c['recall']} F1={c['f1']} (n={c['support']})")
+            print(
+                f"   {label:30} P={c['precision']} R={c['recall']} F1={c['f1']} (n={c['support']})"
+            )
     return 0
 
 

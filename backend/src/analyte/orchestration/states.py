@@ -1,24 +1,6 @@
 """
 Kalimet e lejuara të makinës së përpunimit (Figura 6).
 
-Tabela e mëposhtme është Figura 6 e shprehur si të dhëna. Kodi që e
-drejton dokumentin nuk vendos vetë se ku mund të shkojë: ai kërkon një
-kalim, dhe regjistri e refuzon çdo kalim që nuk është në tabelë. Kështu
-figura në punim dhe sjellja e sistemit nuk mund të ndahen pa u vënë re —
-një test kontrollon që çdo gjendje është e arritshme dhe që gjendjet
-përfundimtare nuk kanë dalje.
-
-**Dy kalime që specifikimi nuk i ka.** `GENERATING → GENERATING` dhe
-`GENERATING → TEMPLATE_FALLBACK` mbulojnë rastin kur gjeneruesi hedh
-përjashtim — një API që nuk përgjigjet, një kufi kërkesash i tejkaluar.
-Specifikimi e njeh vetëm dështimin e verifikimit. Përjashtimi trajtohet si
-përpjekje e dështuar, sepse alternativa — dokument i ngecur në një
-gjendje jopërfundimtare — është pikërisht dështimi i heshtur që
-`NO_FINDINGS` u shpik për ta shmangur. Shih ADR 0011.
-
-Çdo kalim regjistrohet. Regjistri është lënda e log-ut të auditimit dhe
-e analizës së gabimeve: nga ai lexohet sa dokumente arritën te shablloni
-dhe në cilën përpjekje.
 """
 
 from __future__ import annotations

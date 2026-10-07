@@ -16,9 +16,9 @@ import pytest
 
 pytest.importorskip("sqlalchemy")
 
-from analyte.domain.policy import RULE_CATALOG  # noqa: E402
-from analyte.persistence.tables import Base  # noqa: E402
-from scripts import build_appendices as appendices  # noqa: E402
+from analyte.domain.policy import RULE_CATALOG
+from analyte.persistence.tables import Base
+from scripts import build_appendices as appendices
 
 ROOT = Path(__file__).resolve().parents[2]
 needs_corpus = pytest.mark.skipif(
@@ -63,7 +63,10 @@ def test_the_schema_appendix_has_every_table_and_index():
     for table in Base.metadata.sorted_tables:
         assert f"CREATE TABLE {table.name} " in text, table.name
         for index in table.indexes:
-            assert f"CREATE INDEX {index.name} " in text or f"CREATE UNIQUE INDEX {index.name} " in text
+            assert (
+                f"CREATE INDEX {index.name} " in text
+                or f"CREATE UNIQUE INDEX {index.name} " in text
+            )
     assert f"{len(Base.metadata.tables)} tabela" in text
 
 
@@ -124,9 +127,7 @@ def test_example_appendix_renders_one_digital_and_one_scanned_document(tmp_path,
     assert (tmp_path / "images" / "dokument_skanuar.png").stat().st_size > 10_000
 
 
-# --------------------------------------------------------------------
 # Shtojcat te teksti i plotë
-# --------------------------------------------------------------------
 
 
 def _write_appendix(directory: Path, letter: str, body: str) -> None:
@@ -167,7 +168,9 @@ def test_the_thesis_appendices_are_the_generated_files():
         scratch.unlink(missing_ok=True)
 
 
-def test_result_files_are_listed_by_experiment_number_with_the_model_runs_last(tmp_path, monkeypatch):
+def test_result_files_are_listed_by_experiment_number_with_the_model_runs_last(
+    tmp_path, monkeypatch
+):
     """Tabela H.3 liston edhe E10, E11 (një rezultat për hyrje) dhe rezultatet me modelin te `llm/`."""
     (tmp_path / "E10").mkdir()
     (tmp_path / "E10" / "result.json").write_text(

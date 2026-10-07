@@ -1,13 +1,6 @@
 """
 Dega A e verifikimit: rregullat R1-R4.
 
-Këto katër rregulla janë të sakta dhe deterministe. Ato nuk vlerësojnë
-kuptim: ato krahasojnë atë që teksti thotë me atë që konteksti përmban,
-dhe çdo mospërputhje është shkelje pa shkallë sigurie.
-
-Pikërisht kjo i bën të fuqishme aty ku janë të zbatueshme dhe të verbra
-aty ku nuk janë. Një numër i shpikur kapet gjithmonë; një kuptim i
-përmbysur nuk i takon kësaj dege.
 """
 
 from __future__ import annotations
@@ -150,8 +143,7 @@ def check_direction(context: GroundingContext, text: str) -> Iterator[Violation]
                 yield violation(
                     ViolationType.DIRECTION_MISMATCH,
                     sentence.text,
-                    f"{code}: pohohet {direction.value}, "
-                    f"por statusi i matur është {status.value}",
+                    f"{code}: pohohet {direction.value}, por statusi i matur është {status.value}",
                 )
 
 
@@ -174,11 +166,12 @@ def check_critical_coverage(context: GroundingContext, text: str) -> Iterator[Vi
             )
 
 
-# --------------------------------------------------------------------------------------------------------------------
 # r1.4 — R3 sipas klauzolës, dhe pohimet e përgjithshme
-# --------------------------------------------------------------------------------------------------------------------
 
-_CONTRAST = re.compile(r";|\s+ndërsa\s+|\s+ndersa\s+|\s+por\s+|\s+ndërkohë\s+që\s+|\s+ndërkohë\s+|\s+ndërkohe\s+", re.IGNORECASE)
+_CONTRAST = re.compile(
+    r";|\s+ndërsa\s+|\s+ndersa\s+|\s+por\s+|\s+ndërkohë\s+që\s+|\s+ndërkohë\s+|\s+ndërkohe\s+",
+    re.IGNORECASE,
+)
 _COORDINATION = re.compile(r"\s+dhe\s+", re.IGNORECASE)
 
 
@@ -238,7 +231,12 @@ _BLANKET_QUANTIFIERS = ("te gjitha", "gjitha", "gjithe", "cdo vlere", "pjesa tje
 """Sasiorë TOTALË. "Në analizat e tjera, natriumi është 142 ..." nuk është pohim i përgjithshëm: ai emërton një analit;
 vetëm "të gjitha", "gjithë", "pjesa tjetër", "të tjerat" pretendojnë çdo gjetje."""
 _BLANKET_OTHERS = ("tjera", "tjere", "tjerat", "tjeter", "tjetra")
-_ABNORMAL = {AnalyteStatus.HIGH, AnalyteStatus.LOW, AnalyteStatus.CRITICAL_HIGH, AnalyteStatus.CRITICAL_LOW}
+_ABNORMAL = {
+    AnalyteStatus.HIGH,
+    AnalyteStatus.LOW,
+    AnalyteStatus.CRITICAL_HIGH,
+    AnalyteStatus.CRITICAL_LOW,
+}
 
 
 def _blanket_claims(context: GroundingContext, text: str) -> Iterator[Violation]:

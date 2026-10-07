@@ -1,32 +1,6 @@
 """
 Kufizimi i shpeshtësisë së hyrjeve (ADR 0014).
 
-Tri kova numërojnë dështimet brenda një dritareje kohore, dhe një hyrje
-refuzohet kur ndonjëra është e mbushur:
-
-  - **çifti (email, IP)** — e ngushtë; ndalon ta provosh një llogari nga një vend;
-  - **IP-ja** — më e gjerë; ndalon provën e shumë llogarive nga një vend;
-  - **email-i** — më e gjerë; ndalon provën e shpërndarë të një llogarie nga shumë vende.
-
-Çifti e mban kufirin e ngushtë pa e lënë dikë të mbyllë llogarinë e tjetrit:
-dështimet e një sulmuesi nga një IP tjetër nuk e mbushin çiftin e viktimës.
-Kova e email-it është kompromisi i ndërgjegjshëm, dhe ka kufi më të lartë.
-
-**IPv6.** Një sulmues me një bllok /64 ndryshon adresën lirisht, prandaj adresat IPv6 numërohen sipas
-prefiksit (parazgjedhja /64), jo adresë më adresë. Adresat IPv4, edhe ato të shkruara si IPv4-të-mapuara
-në IPv6, numërohen të plota.
-
-**Regjistrimi ka kovat e veta** (`check_registration`): çdo kërkesë regjistrimi ose ridërgimi nis një email,
-dhe kufizimi i kufizon sa email-e mund të nisë një IP dhe sa merr një adresë. Numërohen të gjitha kërkesat,
-jo vetëm ato me email të ri, kështu që përgjigjja «shumë kërkesa» nuk tregon nëse email-i ka llogari.
-
-**Ajo që nuk bën.** Kufizimi vlen njësoj për email të panjohur dhe të
-njohur: përgjigjja "shumë përpjekje" nuk tregon nëse llogaria ekziston, e
-njëjta veti që ka mesazhi i hyrjes së dështuar. Dhe një hyrje e refuzuar nga
-kufizimi nuk numërohet si dështim — përndryshe një sulmues do ta mbante një
-llogari të mbyllur pafundësisht duke vazhduar të provojë.
-
-Email-i dhe IP-ja ruhen vetëm si HMAC me çelës (`security.keyed_hash`).
 """
 
 from __future__ import annotations
@@ -175,9 +149,7 @@ def clear_pair(db: Session, keys: Keys) -> None:
     )
 
 
-# --------------------------------------------------------------------
 # Regjistrimi dhe ridërgimi i konfirmimit (ADR 0016)
-# --------------------------------------------------------------------
 
 
 def registration_keys(email: str, ip: str, config: Settings) -> Keys:
@@ -240,9 +212,7 @@ def record_registration(db: Session, config: Settings, keys: Keys, now: datetime
     db.commit()
 
 
-# --------------------------------------------------------------------
 # Rivendosja e fjalëkalimit (ADR 0018)
-# --------------------------------------------------------------------
 
 
 def reset_keys(email: str, ip: str, config: Settings) -> Keys:
@@ -263,13 +233,14 @@ def reset_submit_key(ip: str, config: Settings) -> Keys:
 def check_reset_submit(db: Session, config: Settings, keys: Keys, now: datetime) -> None:
     """Para se tokeni të kontrollohet, jo pas: një IP nuk provon pafund lidhje."""
     _check_attempts(
-        db, config, ((RegistrationAttemptRow.ip_key == keys.ip, config.reset_submit_max_per_ip),), now
+        db,
+        config,
+        ((RegistrationAttemptRow.ip_key == keys.ip, config.reset_submit_max_per_ip),),
+        now,
     )
 
 
-# --------------------------------------------------------------------
 # Hapi i dytë i hyrjes (ADR 0018)
-# --------------------------------------------------------------------
 
 
 def mfa_keys(user_id: object, ip: str, config: Settings) -> Keys:

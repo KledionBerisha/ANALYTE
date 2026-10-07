@@ -1,14 +1,6 @@
 """
 Ruajtja e skedarëve të ngarkuar, të koduar (NFR5).
 
-PDF-ja e pacientit është e dhënë shëndetësore dhe mban emrin e tij. Ajo
-ruhet në disk e koduar me Fernet (AES-128-CBC me HMAC), me emër që është
-identifikues i rastësishëm dhe jo emri i skedarit. Çelësi vjen nga
-konfigurimi dhe nuk ka vlerë parazgjedhëse: një shërbim pa çelës nuk nis.
-
-Përpunimi ka nevojë për një shteg skedari — PyMuPDF dhe Tesseract lexojnë
-nga disku — prandaj `decrypted` e shkruan përmbajtjen në një skedar të
-përkohshëm dhe e fshin sapo blloku mbaron, edhe kur përpunimi dështon.
 """
 
 from __future__ import annotations

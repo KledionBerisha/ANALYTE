@@ -1,24 +1,6 @@
 """
 Këshillat me burim për gjetjet jashtë intervalit (ADR 0023).
 
-Pacienti kërkon të dijë jo vetëm se një vlerë është jashtë intervalit, por
-edhe çfarë mund të bëjë. Sistemi nuk e lejon modelin gjuhësor ta shkruajë
-këtë: një këshillë e shpikur është pohim mjekësor pa burim, dhe SP1–SP3 e
-ndalojnë. Këshilla vjen vetëm nga `resources/advice.csv`, një rresht për
-çdo analit dhe drejtim, me burimin e vet si te tabela terminologjike, dhe
-shtypet fjalë për fjalë.
-
-**Rreshti pa fjali ose pa burim të lexuar nuk hyn në kontekst.** Tabela
-dërgohet me rreshta bosh, që autori t'i plotësojë nga burime që i ka hapur;
-një rresht i paplotësuar nuk i shfaqet kurrë pacientit.
-
-**Vlera pa interval nuk merr këshillë.** Statusi `UNINTERPRETABLE` nuk ka
-drejtim (SP5), dhe një këshillë mbi të do ta interpretonte tërthorazi.
-Vlera normale nuk merr këshillë: nuk ka çfarë të ndryshojë.
-
-**Analiti i dyfishtë nuk zgjidhet me hamendje**, si te kombinimet: dy
-matje të të njëjtit analit me drejtime të ndryshme do të kërkonin një
-vendim klinik që sistemi nuk e merr.
 """
 
 from __future__ import annotations

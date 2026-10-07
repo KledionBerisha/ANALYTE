@@ -1,43 +1,6 @@
 """
 Porta e çidentifikimit: çfarë teksti të dokumentit lejohet t'i dërgohet ofruesit të modelit (ADR 0019).
 
-Kërkesa për modelin (`prompt.build_prompt`) ndërtohet nga `GroundingContext`, dhe vetëm dy pjesë të tij vijnë nga
-teksti i lirë i dokumentit: **citimet e mjekut** (`ReportAssertion.text_span`) dhe **termat e pashpjeguar**
-(`unexplained_terms`, fjalët që mjeku i ka shkruar vetë). Çdo gjë tjetër që hyn te kërkesa — emrat e analiteve,
-njësitë, termat dhe shpjegimet e fjalorit, numrat — vjen nga katalogu (`resources/`) ose nga matjet. Kjo ndarje
-është ajo që porta përdor, dhe një test e ruan: çdo fushë tjetër e tekstit të lirë (emri i papërpunuar i analitit,
-njësia e shtypur, flamuri, burimi i termit) vendoset me një shenjë dhe provohet se nuk del te kërkesa.
-
-**Dizajni është "lejo-listë së pari" dhe "dështo mbyllur".**
-
-  - Vlerat e strukturuara kalojnë vetëm nëse janë pikërisht ato të katalogut (emri kanonik i analitit, njësia
-    kanonike, termi dhe shpjegimi i fjalorit). Çdo gjë tjetër shënohet `uncatalogued`.
-  - Teksti i lirë skanohet për forma që identifikojnë një person: email, adresë uebi, numër telefoni, datë (me
-    numra ose me emër muaji), moshë dhe datëlindje, numra me katër shifra e më shumë (numra dosjeje, numra
-    personalë), shenja identifikuesish (shkronja me shifra), tituj (`Dr`, `Prof`, `Znj`, `Zoti`), shenja adrese dhe
-    kontakti (`rruga`, `lagja`, `tel`), dhe **çdo fjalë me shkronjë të madhe që nuk është fjalor klinik** (emër i
-    mundshëm personi, institucioni apo vendi).
-  - Një fjalë me shkronjë të madhe kalon vetëm nëse është te fjalori i njohur: analitet dhe variantet e tyre, termat
-    e tabelës terminologjike (me lakimet e shqipes), fjalët e shpjegimeve dhe të teksteve të politikës, dhe një listë
-    e mbyllur fjalësh të zakonshme të shënimeve klinike (`COMMON_WORDS`).
-
-**Ajo që porta bën kur gjen diçka: nuk redakton, refuzon.** Dokumenti dërgohet te modeli vetëm nëse asnjë varg nuk u
-shënua; përndryshe shpjegimi del me shabllon, dhe pacienti merr njoftim të saktë (`api/explanations.py`). Arsyet,
-në ADR 0019: një emër i zëvendësuar me shenjë do ta bënte citimin që sheh modeli të ndryshëm nga ai që ruhet,
-rregullat R5, R6 dhe R8 krahasojnë daljen me citimin origjinal fjalë për fjalë, dhe pacienti duhet të shohë citimin
-e mjekut të pandryshuar. Zëvendësimi mbrapsht pas gjenerimit do ta rikthente një tekst që modeli mund ta ketë
-riformuluar. Dështimi i mbyllur është i thjeshtë dhe e lë citimin të pacenuar.
-
-**Çfarë nuk garanton.** Porta është heuristikë mbi shqipen e lirë, jo çidentifikim i provuar. Nuk kap emra të
-shkruar me shkronja të vogla, as emra që rastisin me një fjalë të fjalorit (p.sh. një emër që është edhe fjalë e
-zakonshme), as pothuajse-identifikues pa trajtë (një profesion i rrallë, një ngjarje e veçantë, një lagje e
-përshkruar me fjalë), as të dhëna të futura në fushat që kjo portë nuk skanon sepse nuk hyjnë te kërkesa. Mund të
-shënojë gabimisht tekst të pastër (një fjalë e zakonshme me shkronjë të madhe që mungon te fjalori): kjo është çmimi
-i dështimit të mbyllur, dhe pasoja është shablloni, jo humbja e dokumentit. Porta nuk është kontroll ligjor e as
-zëvendësim i vendimit të autorit mbi të dhënat personale.
-
-Gjetjet nuk mbajnë kurrë vargun e shënuar, vetëm llojin dhe vendin (fusha, indeksi): një gjetje shkruhet në log-un
-e auditimit dhe në bazë, dhe asnjëra nuk duhet të mbajë të dhëna personale (NFR5).
 """
 
 from __future__ import annotations
@@ -78,38 +41,269 @@ class Kind(str, Enum):
     UNCATALOGUED = "uncatalogued"
 
 
-# --------------------------------------------------------------------
 # Fjalori i njohur
-# --------------------------------------------------------------------
 
 COMMON_WORDS: tuple[str, ...] = (
     # fjalë funksionale
-    "i", "e", "të", "së", "në", "me", "pa", "për", "nga", "deri", "pas", "para", "mbi", "nën", "brenda", "jashtë",
-    "dhe", "ose", "por", "që", "si", "nuk", "mos", "ende", "edhe", "vetëm", "shumë", "pak", "ka", "kanë", "është",
-    "janë", "ishte", "ky", "kjo", "këtë", "këto", "ato", "ata", "ai", "ajo", "një", "disa", "çdo", "asnjë", "tjetër",
-    "tjera", "kur", "ku", "pse", "nëse", "sepse", "megjithatë", "gjithashtu", "prandaj", "ndaj", "përveç", "midis",
-    "mes", "gjatë", "rreth", "afër", "larg", "më", "po", "jo", "ose", "dhe", "apo", "ndërsa", "kurse", "pra", "ndonjë",
-    "gjithë", "tërë", "secili", "secila", "vetë", "tashmë", "sërish", "përsëri", "tani", "më parë", "pastaj", "fillimisht",
+    "i",
+    "e",
+    "të",
+    "së",
+    "në",
+    "me",
+    "pa",
+    "për",
+    "nga",
+    "deri",
+    "pas",
+    "para",
+    "mbi",
+    "nën",
+    "brenda",
+    "jashtë",
+    "dhe",
+    "ose",
+    "por",
+    "që",
+    "si",
+    "nuk",
+    "mos",
+    "ende",
+    "edhe",
+    "vetëm",
+    "shumë",
+    "pak",
+    "ka",
+    "kanë",
+    "është",
+    "janë",
+    "ishte",
+    "ky",
+    "kjo",
+    "këtë",
+    "këto",
+    "ato",
+    "ata",
+    "ai",
+    "ajo",
+    "një",
+    "disa",
+    "çdo",
+    "asnjë",
+    "tjetër",
+    "tjera",
+    "kur",
+    "ku",
+    "pse",
+    "nëse",
+    "sepse",
+    "megjithatë",
+    "gjithashtu",
+    "prandaj",
+    "ndaj",
+    "përveç",
+    "midis",
+    "mes",
+    "gjatë",
+    "rreth",
+    "afër",
+    "larg",
+    "më",
+    "po",
+    "jo",
+    "ose",
+    "dhe",
+    "apo",
+    "ndërsa",
+    "kurse",
+    "pra",
+    "ndonjë",
+    "gjithë",
+    "tërë",
+    "secili",
+    "secila",
+    "vetë",
+    "tashmë",
+    "sërish",
+    "përsëri",
+    "tani",
+    "më parë",
+    "pastaj",
+    "fillimisht",
     # folje dhe formulime të shënimeve klinike
-    "mund", "duhet", "lejohet", "bëhet", "vlen", "mbetet", "vërehet", "vërehen", "shihet", "shihen", "tregon",
-    "tregojnë", "sugjeron", "sugjerojnë", "mungon", "mungojnë", "përjashtohet", "rekomandohet", "këshillohet",
-    "sugjerohet", "vlerësohet", "vlerësim", "vlerësimi", "përsëritet", "përsëritja", "përsëritje", "konsultohuni",
-    "konsultë", "konsultim", "paraqitet", "paraqet", "rezulton", "rezultojnë", "ndjekje", "ndiqet", "ndiqen",
-    "kontrollohet", "kontrollo", "kontrolli", "kontroll", "shqyrtohet", "interpretohet", "lidhet", "ndërlidhet",
-    "tregohet", "konfirmohet", "dyshohet", "pritet", "mbahet", "ndryshon", "ndryshojnë", "ulet", "rritet", "qëndron",
-    "qëndrojnë", "ruhet", "vazhdon", "vazhdojnë",
+    "mund",
+    "duhet",
+    "lejohet",
+    "bëhet",
+    "vlen",
+    "mbetet",
+    "vërehet",
+    "vërehen",
+    "shihet",
+    "shihen",
+    "tregon",
+    "tregojnë",
+    "sugjeron",
+    "sugjerojnë",
+    "mungon",
+    "mungojnë",
+    "përjashtohet",
+    "rekomandohet",
+    "këshillohet",
+    "sugjerohet",
+    "vlerësohet",
+    "vlerësim",
+    "vlerësimi",
+    "përsëritet",
+    "përsëritja",
+    "përsëritje",
+    "konsultohuni",
+    "konsultë",
+    "konsultim",
+    "paraqitet",
+    "paraqet",
+    "rezulton",
+    "rezultojnë",
+    "ndjekje",
+    "ndiqet",
+    "ndiqen",
+    "kontrollohet",
+    "kontrollo",
+    "kontrolli",
+    "kontroll",
+    "shqyrtohet",
+    "interpretohet",
+    "lidhet",
+    "ndërlidhet",
+    "tregohet",
+    "konfirmohet",
+    "dyshohet",
+    "pritet",
+    "mbahet",
+    "ndryshon",
+    "ndryshojnë",
+    "ulet",
+    "rritet",
+    "qëndron",
+    "qëndrojnë",
+    "ruhet",
+    "vazhdon",
+    "vazhdojnë",
     # emra të shënimeve klinike
-    "vlerat", "vlera", "vlerës", "rezultatet", "rezultati", "rezultatit", "analizat", "analiza", "analizave", "raporti",
-    "raportit", "gjendja", "gjendje", "gjendjen", "funksioni", "funksionin", "shenja", "shenjat", "shenjave", "nivelet",
-    "niveli", "nivelin", "numri", "numrin", "përqendrimi", "matja", "matjet", "prania", "mungesa", "rritje", "ulje",
-    "shkallë", "shkalla", "intervali", "intervalin", "kufiri", "kufijtë", "normale", "normal", "lehtë", "lehta",
-    "lehtë", "mesatare", "rëndë", "kritike", "kritik", "klinik", "klinike", "klinikë", "mjeku", "mjekun", "mjekut",
-    "specialist", "specialisti", "specialistin", "pacienti", "pacientja", "pacientit", "pacientes", "pacient",
-    "laboratori", "laboratorike", "laboratorit", "kontrolli", "gjaku", "gjakut", "urina", "urinës", "muaj", "muajsh",
-    "muaji", "javë", "javësh", "ditë", "ditësh", "vit", "vjet", "viti", "tre", "dy", "një", "katër", "pesë", "gjashtë",
-    "dhjetë", "shënim", "shënimi", "shënime", "diagnoza", "trajtim", "trajtimi", "terapi", "terapia", "ilaç", "ilaçe",
-    "dieta", "dietë", "mënyra", "jetesës", "jetesa", "ushqim", "ushqimi", "kujdes", "kujdesi", "rutinë", "rutina",
-    "mëtejshme", "mëtejshëm", "mëtejshëm", "tjetër", "tjetra", "tjetri", "vlerave", "vlerës",
+    "vlerat",
+    "vlera",
+    "vlerës",
+    "rezultatet",
+    "rezultati",
+    "rezultatit",
+    "analizat",
+    "analiza",
+    "analizave",
+    "raporti",
+    "raportit",
+    "gjendja",
+    "gjendje",
+    "gjendjen",
+    "funksioni",
+    "funksionin",
+    "shenja",
+    "shenjat",
+    "shenjave",
+    "nivelet",
+    "niveli",
+    "nivelin",
+    "numri",
+    "numrin",
+    "përqendrimi",
+    "matja",
+    "matjet",
+    "prania",
+    "mungesa",
+    "rritje",
+    "ulje",
+    "shkallë",
+    "shkalla",
+    "intervali",
+    "intervalin",
+    "kufiri",
+    "kufijtë",
+    "normale",
+    "normal",
+    "lehtë",
+    "lehta",
+    "lehtë",
+    "mesatare",
+    "rëndë",
+    "kritike",
+    "kritik",
+    "klinik",
+    "klinike",
+    "klinikë",
+    "mjeku",
+    "mjekun",
+    "mjekut",
+    "specialist",
+    "specialisti",
+    "specialistin",
+    "pacienti",
+    "pacientja",
+    "pacientit",
+    "pacientes",
+    "pacient",
+    "laboratori",
+    "laboratorike",
+    "laboratorit",
+    "kontrolli",
+    "gjaku",
+    "gjakut",
+    "urina",
+    "urinës",
+    "muaj",
+    "muajsh",
+    "muaji",
+    "javë",
+    "javësh",
+    "ditë",
+    "ditësh",
+    "vit",
+    "vjet",
+    "viti",
+    "tre",
+    "dy",
+    "një",
+    "katër",
+    "pesë",
+    "gjashtë",
+    "dhjetë",
+    "shënim",
+    "shënimi",
+    "shënime",
+    "diagnoza",
+    "trajtim",
+    "trajtimi",
+    "terapi",
+    "terapia",
+    "ilaç",
+    "ilaçe",
+    "dieta",
+    "dietë",
+    "mënyra",
+    "jetesës",
+    "jetesa",
+    "ushqim",
+    "ushqimi",
+    "kujdes",
+    "kujdesi",
+    "rutinë",
+    "rutina",
+    "mëtejshme",
+    "mëtejshëm",
+    "mëtejshëm",
+    "tjetër",
+    "tjetra",
+    "tjetri",
+    "vlerave",
+    "vlerës",
 )
 """Lista e mbyllur e fjalëve të zakonshme të shënimeve klinike që mund të hapin një fjali (dhe kështu të shkruhen me
 shkronjë të madhe). Është e shkurtër me qëllim: çdo fjalë që mungon këtu e që shkruhet me shkronjë të madhe shënohet
@@ -117,20 +311,67 @@ shkronjë të madhe). Është e shkurtër me qëllim: çdo fjalë që mungon kë
 "Besa", "Burim") nuk janë këtu, dhe një test e provon këtë me një listë emrash shembull."""
 
 TITLES: frozenset[str] = frozenset(
-    {"dr", "prof", "doc", "znj", "zj", "zonja", "zoti", "mr", "mrs", "ms", "msc", "phd", "ing", "av", "mag"}
+    {
+        "dr",
+        "prof",
+        "doc",
+        "znj",
+        "zj",
+        "zonja",
+        "zoti",
+        "mr",
+        "mrs",
+        "ms",
+        "msc",
+        "phd",
+        "ing",
+        "av",
+        "mag",
+    }
 )
 """Titujt që paraprijnë një emër. Shënohen vetë, edhe pa emër pas tyre."""
 
 _ADDRESS_STEMS: tuple[str, ...] = (
-    "rruga", "rruge", "lagj", "bulevard", "qytet", "fshat", "pallat", "apartament", "banon", "banim", "vendbanim",
-    "adres", "vendlindj", "postar",
+    "rruga",
+    "rruge",
+    "lagj",
+    "bulevard",
+    "qytet",
+    "fshat",
+    "pallat",
+    "apartament",
+    "banon",
+    "banim",
+    "vendbanim",
+    "adres",
+    "vendlindj",
+    "postar",
 )
 _ADDRESS_EXACT: frozenset[str] = frozenset({"rr", "bul", "blv"})
-_CONTACT_STEMS: tuple[str, ...] = ("telefon", "celular", "mobil", "whatsapp", "viber", "email", "mail")
+_CONTACT_STEMS: tuple[str, ...] = (
+    "telefon",
+    "celular",
+    "mobil",
+    "whatsapp",
+    "viber",
+    "email",
+    "mail",
+)
 _CONTACT_EXACT: frozenset[str] = frozenset({"tel", "cel", "fax"})
 _BIRTH_STEMS: tuple[str, ...] = ("lindur", "lindj", "datelind", "ditelind", "vjec", "mosh")
 _MONTHS: tuple[str, ...] = (
-    "janar", "shkurt", "mars", "prill", "maj", "qershor", "korrik", "gusht", "shtator", "tetor", "nentor", "dhjetor",
+    "janar",
+    "shkurt",
+    "mars",
+    "prill",
+    "maj",
+    "qershor",
+    "korrik",
+    "gusht",
+    "shtator",
+    "tetor",
+    "nentor",
+    "dhjetor",
 )
 
 _POLICY_TEXTS = (
@@ -194,9 +435,7 @@ def is_known_word(token: str) -> bool:
     return any(folded[:keep] in stems for keep in range(len(folded), max(len(folded) - 4, 4), -1))
 
 
-# --------------------------------------------------------------------
 # Skanimi i një vargu
-# --------------------------------------------------------------------
 
 _DASH = r"[\-‐-―−]"
 _SEP = rf"\s*[./]\s*|\s*{_DASH}\s*"
@@ -240,7 +479,9 @@ def scan_text(text: str) -> tuple[Kind, ...]:
         found.add(Kind.URL)
     if _DATE_DMY.search(cleaned) or _DATE_YMD.search(cleaned) or _DATE_MY.search(cleaned):
         found.add(Kind.DATE)
-    if _PLUS_PREFIX.search(cleaned) or any(_digits(m.group()) >= 7 for m in _PHONE_CLUSTER.finditer(cleaned)):
+    if _PLUS_PREFIX.search(cleaned) or any(
+        _digits(m.group()) >= 7 for m in _PHONE_CLUSTER.finditer(cleaned)
+    ):
         found.add(Kind.PHONE)
     if _LONG_NUMBER.search(cleaned):
         found.add(Kind.LONG_NUMBER)
@@ -280,9 +521,7 @@ def _month_with_number(tokens: list[tuple[str, int, int]], index: int) -> bool:
     return any(_has_digit(token) for token, _, _ in window)
 
 
-# --------------------------------------------------------------------
 # Konteksti
-# --------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,10 +1,6 @@
 """
 Gabimet si "problem details" (RFC 7807).
 
-Çdo gabim i API-së ka të njëjtën formë: `type`, `title`, `status`,
-`detail`. Klienti nuk ka nevojë të dijë nga cila shtresë erdhi gabimi, dhe
-një gabim i brendshëm nuk nxjerr kurrë gjurmën e stivës — ajo mund të
-mbajë shtigje, vlera ose pjesë të dokumentit.
 """
 
 from __future__ import annotations
@@ -65,14 +61,22 @@ def install(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _validation(request: Request, error: RequestValidationError) -> JSONResponse:
-        fields = ", ".join(".".join(str(p) for p in e["loc"][1:]) or "trupi" for e in error.errors())
-        return _response(422, "Kërkesë e pavlefshme", f"fushat: {fields}", "about:blank", request.url.path)
+        fields = ", ".join(
+            ".".join(str(p) for p in e["loc"][1:]) or "trupi" for e in error.errors()
+        )
+        return _response(
+            422, "Kërkesë e pavlefshme", f"fushat: {fields}", "about:blank", request.url.path
+        )
 
     @app.exception_handler(Exception)
     async def _unexpected(request: Request, error: Exception) -> JSONResponse:
         log.error("gabim i papritur: %s", type(error).__name__)
         # Këtë përgjigje e nxjerr Starlette përtej middleware-it të kokave, prandaj i shtohen këtu.
         return _response(
-            500, "Gabim i brendshëm", "", "about:blank", request.url.path,
+            500,
+            "Gabim i brendshëm",
+            "",
+            "about:blank",
+            request.url.path,
             headers.for_path(request.url.path),
         )

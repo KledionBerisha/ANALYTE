@@ -19,10 +19,9 @@ from __future__ import annotations
 import random
 from decimal import ROUND_HALF_UP, Decimal
 
+from analyte.catalog import Analyte, Sex
 from analyte.domain.enums import AnalyteStatus
 from analyte.grounding.branch_a.classify import classify
-
-from analyte.catalog import Analyte, Sex
 
 DEFAULT_STATUS_WEIGHTS: dict[AnalyteStatus, float] = {
     AnalyteStatus.NORMAL: 0.80,
@@ -49,9 +48,7 @@ def _value(steps: int, decimals: int) -> Decimal:
     return Decimal(steps).scaleb(-decimals).quantize(Decimal(1).scaleb(-decimals))
 
 
-def _range_for(
-    analyte: Analyte, sex: Sex, target: AnalyteStatus
-) -> tuple[int, int] | None:
+def _range_for(analyte: Analyte, sex: Sex, target: AnalyteStatus) -> tuple[int, int] | None:
     """Kufijtë e kampionimit në hapa, ose None nëse statusi s'është i mundur.
 
     Jo çdo status është i mundur për çdo analit: CRP-ja ka kufi të poshtëm
@@ -107,9 +104,7 @@ def _range_for(
 def possible_statuses(analyte: Analyte, sex: Sex) -> tuple[AnalyteStatus, ...]:
     """Statuset që mund të prodhohen realisht për këtë analit."""
     return tuple(
-        status
-        for status in DEFAULT_STATUS_WEIGHTS
-        if _range_for(analyte, sex, status) is not None
+        status for status in DEFAULT_STATUS_WEIGHTS if _range_for(analyte, sex, status) is not None
     )
 
 
@@ -149,9 +144,7 @@ def sample_status(
     return rng.choices(statuses, weights=[effective[s] for s in statuses], k=1)[0]
 
 
-def sample_value(
-    rng: random.Random, analyte: Analyte, sex: Sex, target: AnalyteStatus
-) -> Decimal:
+def sample_value(rng: random.Random, analyte: Analyte, sex: Sex, target: AnalyteStatus) -> Decimal:
     """Një vlerë në njësinë kanonike që klasifikohet saktësisht si `target`.
 
     Kthimi verifikohet me të njëjtin funksion klasifikimi që përdor

@@ -1,28 +1,6 @@
 """
 PK5 — shkalla e pohimeve të pambështetura.
 
-Metrika kryesore e punimit dhe e vetmja që nuk hiqet kurrë (§14.3).
-Shprehet si shkelje për 100 fjali të gjeneruara, e ndarë sipas llojit.
-
-Dallimi që bart tërë argumentin është mes dy numrave:
-
-  - **shkeljet e prodhuara** — sa gabime bëri modeli gjuhësor;
-  - **shkeljet që mbërrijnë te përdoruesi** — sa prej tyre kaluan.
-
-Kushtet E6 dhe E7 (pa verifikim) i kanë të dy numrat të barabartë. Kushtet
-E8 dhe E9 e ulin të dytin pa e prekur të parin, sepse verifikimi nuk e bën
-modelin më të mirë — ai vendos çfarë del jashtë. Nëse këto dy numra
-raportohen si një i vetëm, ablacioni humbet kuptimin.
-
-Kur kushti rigjeneron, çdo draft i modelit numërohet ndër të prodhuarat,
-dhe fjalitë e të gjithë drafteve formojnë emëruesin e të dyja shkallëve.
-Emëruesi i përbashkët i bën të krahasueshme drejtpërdrejt: dallimi mes tyre
-është pikërisht ajo që verifikimi ndali.
-
-Përpjesa e daljeve që përfunduan në shabllonin determinist raportohet
-gjithashtu: ajo është çmimi i verifikimit. Një sistem që refuzon gjithçka
-ka zero shkelje te përdoruesi dhe nuk shërben për asgjë; pa këtë numër
-kjo nuk do të dukej.
 """
 
 from __future__ import annotations
@@ -92,12 +70,8 @@ def measure(pairs: list[tuple[GroundingContext, PipelineOutput]]) -> dict[str, A
         "violations_reaching_user": total_reaching,
         "rate_produced_per_100_sentences": _rate(total_produced, sentences),
         "rate_reaching_user_per_100_sentences": _rate(total_reaching, sentences),
-        "ci95_produced": bootstrap_ratio(
-            [(p, s) for p, _, s in per_document], scale=100.0
-        ),
-        "ci95_reaching_user": bootstrap_ratio(
-            [(r, s) for _, r, s in per_document], scale=100.0
-        ),
+        "ci95_produced": bootstrap_ratio([(p, s) for p, _, s in per_document], scale=100.0),
+        "ci95_reaching_user": bootstrap_ratio([(r, s) for _, r, s in per_document], scale=100.0),
         "by_type_produced": dict(sorted(produced.items())),
         "by_type_reaching_user": dict(sorted(reaching_user.items())),
         "by_detector": dict(sorted(by_detector.items())),

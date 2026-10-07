@@ -1,10 +1,6 @@
 """
 Testet e modelit gjuhësor: kërkesa, klienti, cache dhe lidhja me harness-in.
 
-Asnjë test nuk bën thirrje në rrjet: ofruesi zëvendësohet me një transport të
-rremë (`httpx.MockTransport`), koha me një orë të rreme. Kjo është kushti që
-makina e gjendjeve të mbetet e provueshme pa kuotë dhe pa çelës, ashtu si te
-gjeneruesit e rremë të `test_orchestration`.
 """
 
 from __future__ import annotations
@@ -17,9 +13,8 @@ import re
 import httpx
 import pytest
 
-from analyte.domain.enums import ProcessingState, ViolationType
+from analyte.domain.enums import DetectedBy, ViolationType
 from analyte.domain.models import Violation
-from analyte.domain.enums import DetectedBy
 from analyte.domain.policy import (
     ATTRIBUTION_PREFIX_SQ,
     CRITICAL_BANNER_SQ,
@@ -42,15 +37,17 @@ from tests.fixtures.grounding_context import build_reference_context
 KEY = "AIza-fake-test-key-must-never-be-written-anywhere-123456"
 
 
-# --------------------------------------------------------------------
 # Ofruesi i rremë
-# --------------------------------------------------------------------
 
 
 def _ok(text="Një shpjegim.", **extra):
     payload = {
         "candidates": [{"content": {"parts": [{"text": text}]}, "finishReason": "STOP"}],
-        "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 4, "thoughtsTokenCount": 7},
+        "usageMetadata": {
+            "promptTokenCount": 10,
+            "candidatesTokenCount": 4,
+            "thoughtsTokenCount": 7,
+        },
         "modelVersion": "gemini-test",
     }
     payload.update(extra)
@@ -105,9 +102,7 @@ def _client(server, clock=None, **options):
     )
 
 
-# --------------------------------------------------------------------
 # Kërkesa
-# --------------------------------------------------------------------
 
 
 def test_prompt_takes_only_the_context_and_feedback():
@@ -130,7 +125,9 @@ def test_critical_banner_is_given_only_when_there_is_a_critical_value():
     context = build_reference_context()
     assert context.critical_findings()
     assert CRITICAL_BANNER_SQ in build_prompt(context).user
-    calm = context.model_copy(update={"findings": tuple(f for f in context.findings if not f.status.is_critical)})
+    calm = context.model_copy(
+        update={"findings": tuple(f for f in context.findings if not f.status.is_critical)}
+    )
     assert CRITICAL_BANNER_SQ not in build_prompt(calm).user
 
 
@@ -170,9 +167,7 @@ def test_prompt_module_does_not_reach_for_a_document():
         assert forbidden not in source.replace("pdf_", "")
 
 
-# --------------------------------------------------------------------
 # Klienti
-# --------------------------------------------------------------------
 
 
 def test_successful_call_returns_text_and_usage_and_sends_the_key_only_in_a_header():
@@ -180,7 +175,11 @@ def test_successful_call_returns_text_and_usage_and_sends_the_key_only_in_a_head
     client = _client(server)
     completion = client.complete("sistemi", "përdoruesi")
     assert completion.text == "Përshëndetje."
-    assert (completion.input_tokens, completion.output_tokens, completion.thought_tokens) == (10, 4, 7)
+    assert (completion.input_tokens, completion.output_tokens, completion.thought_tokens) == (
+        10,
+        4,
+        7,
+    )
     request = server.requests[0]
     assert request.headers["x-goog-api-key"] == KEY
     assert KEY not in str(request.url)
@@ -239,15 +238,21 @@ def test_network_failure_is_transient():
         raise httpx.ConnectError("pa rrjet")
 
     client = GeminiClient(
-        api_key=KEY, model="m", transport=httpx.MockTransport(boom), sleep=lambda s: None,
-        requests_per_minute=0, max_retries=1,
+        api_key=KEY,
+        model="m",
+        transport=httpx.MockTransport(boom),
+        sleep=lambda s: None,
+        requests_per_minute=0,
+        max_retries=1,
     )
     with pytest.raises(ProviderUnavailable, match="rrjeti"):
         client.complete("s", "u")
 
 
 def test_rejected_request_is_permanent_and_never_echoes_the_key():
-    server = Server(httpx.Response(400, json={"error": {"message": f"çelësi {KEY} është i pavlefshëm"}}))
+    server = Server(
+        httpx.Response(400, json={"error": {"message": f"çelësi {KEY} është i pavlefshëm"}})
+    )
     client = _client(server)
     with pytest.raises(ProviderError) as caught:
         client.complete("s", "u")
@@ -258,7 +263,9 @@ def test_rejected_request_is_permanent_and_never_echoes_the_key():
 
 @pytest.mark.parametrize("finish", ["MAX_TOKENS", "SAFETY", "RECITATION"])
 def test_truncated_or_blocked_answers_are_not_used(finish):
-    payload = {"candidates": [{"content": {"parts": [{"text": "gjysma e"}]}, "finishReason": finish}]}
+    payload = {
+        "candidates": [{"content": {"parts": [{"text": "gjysma e"}]}, "finishReason": finish}]
+    }
     with pytest.raises(ProviderError, match=finish):
         _client(Server(httpx.Response(200, json=payload))).complete("s", "u")
 
@@ -279,9 +286,7 @@ def test_calls_are_spaced_to_the_requested_rate():
     assert clock.sleeps == [pytest.approx(10.0)]
 
 
-# --------------------------------------------------------------------
 # Cache
-# --------------------------------------------------------------------
 
 
 def test_second_identical_request_is_served_from_disk_without_a_call(tmp_path):
@@ -326,15 +331,15 @@ def test_changed_prompt_misses_the_cache(tmp_path):
 
 def test_failed_calls_are_never_cached(tmp_path):
     cache = ResponseCache(tmp_path)
-    client = _client(Server(httpx.Response(400, json={"error": {"message": "x"}}), _ok("mirë")), cache=cache)
+    client = _client(
+        Server(httpx.Response(400, json={"error": {"message": "x"}}), _ok("mirë")), cache=cache
+    )
     with pytest.raises(ProviderError):
         client.complete("s", "u")
     assert client.complete("s", "u").text == "mirë"
 
 
-# --------------------------------------------------------------------
 # Gjeneruesi dhe cikli
-# --------------------------------------------------------------------
 
 
 def test_generator_names_the_model_and_the_prompt_version():
@@ -377,9 +382,7 @@ def test_refused_answer_is_a_failed_attempt_and_two_of_them_fall_back_to_the_tem
     assert all(a.error and "SAFETY" in a.error for a in explanation.attempts)
 
 
-# --------------------------------------------------------------------
 # E6
-# --------------------------------------------------------------------
 
 
 def _pdf(tmp_path):
@@ -420,8 +423,8 @@ def test_e6_gives_the_document_text_to_the_model_and_counts_its_violations(tmp_p
 
 
 def test_e6_uses_no_safety_rules_and_no_structure(tmp_path):
-    from evaluation.ungrounded import SYSTEM, build_prompt
     from analyte.ingestion.pdf_text import read_pdf
+    from evaluation.ungrounded import SYSTEM, build_prompt
 
     path, _ = _pdf(tmp_path)
     system, user = build_prompt(read_pdf(path))
@@ -435,7 +438,9 @@ def test_e6_pipeline_is_refused_under_another_ablations_id():
     from evaluation.harness import run_experiment
     from evaluation.ungrounded import UngroundedPipeline
 
-    result = run_experiment(registry.get("E8"), _EmptyData(), UngroundedPipeline(client=_client(Server())))
+    result = run_experiment(
+        registry.get("E8"), _EmptyData(), UngroundedPipeline(client=_client(Server()))
+    )
     assert not result.measured and "E6" in (result.skipped_reason or "")
 
 
@@ -461,9 +466,7 @@ def test_unreachable_provider_aborts_e6_too(tmp_path):
         UngroundedPipeline(client=StrictClient(down)).run(DocumentInput(uuid4(), path))
 
 
-# --------------------------------------------------------------------
 # E12 — gjykatësi
-# --------------------------------------------------------------------
 
 
 class _Answers:
@@ -550,9 +553,7 @@ def test_judge_set_is_the_same_192_texts_as_e10():
     assert sum(1 for actual, _, _ in items if actual is None) == 30
 
 
-# --------------------------------------------------------------------
 # Kuotat
-# --------------------------------------------------------------------
 
 
 def _quota(quota_id, retry="8s"):
@@ -562,8 +563,10 @@ def _quota(quota_id, retry="8s"):
             "error": {
                 "message": "kuota",
                 "details": [
-                    {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
-                     "violations": [{"quotaId": quota_id}]},
+                    {
+                        "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                        "violations": [{"quotaId": quota_id}],
+                    },
                     {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": retry},
                 ],
             }
@@ -581,14 +584,14 @@ def test_daily_quota_stops_at_once_instead_of_retrying_for_minutes():
 
 def test_per_minute_quota_waits_what_the_provider_says_and_then_succeeds():
     clock = Clock()
-    server = Server(_quota("GenerateRequestsPerMinutePerProjectPerModel-FreeTier", "23s"), _ok("pas pritjes"))
+    server = Server(
+        _quota("GenerateRequestsPerMinutePerProjectPerModel-FreeTier", "23s"), _ok("pas pritjes")
+    )
     assert _client(server, clock).complete("s", "u").text == "pas pritjes"
     assert clock.sleeps[0] >= 23
 
 
-# --------------------------------------------------------------------
 # Ofruesit me API `chat/completions` (Mistral, Groq, Cerebras, OpenRouter)
-# --------------------------------------------------------------------
 
 
 def _chat_ok(content="Përgjigje.", finish="stop"):
@@ -596,7 +599,9 @@ def _chat_ok(content="Përgjigje.", finish="stop"):
         200,
         json={
             "model": "mistral-test-2512",
-            "choices": [{"message": {"role": "assistant", "content": content}, "finish_reason": finish}],
+            "choices": [
+                {"message": {"role": "assistant", "content": content}, "finish_reason": finish}
+            ],
             "usage": {"prompt_tokens": 21, "completion_tokens": 5},
         },
     )
@@ -621,7 +626,9 @@ def _openai_client(server, **options):
 
 def test_chat_client_sends_bearer_auth_messages_and_limits_and_reads_usage():
     server = Server(_chat_ok("Përshëndetje."))
-    completion = _openai_client(server, temperature=0.0, max_output_tokens=321).complete("sistemi", "përdoruesi")
+    completion = _openai_client(server, temperature=0.0, max_output_tokens=321).complete(
+        "sistemi", "përdoruesi"
+    )
     request = server.requests[0]
     body = json.loads(request.read())
     assert str(request.url) == "https://api.example.test/v1/chat/completions"
@@ -632,7 +639,11 @@ def test_chat_client_sends_bearer_auth_messages_and_limits_and_reads_usage():
     ]
     assert (body["temperature"], body["max_tokens"]) == (0.0, 321)
     assert "thinking" not in json.dumps(body).lower()
-    assert (completion.text, completion.input_tokens, completion.output_tokens) == ("Përshëndetje.", 21, 5)
+    assert (completion.text, completion.input_tokens, completion.output_tokens) == (
+        "Përshëndetje.",
+        21,
+        5,
+    )
 
 
 def test_chat_client_reads_reasoning_models_chunked_content_and_skips_the_thinking():
@@ -664,8 +675,13 @@ def test_chat_client_retries_a_per_minute_limit_and_honours_retry_after():
         _chat_ok("pas pritjes"),
     )
     client = OpenAIChatClient(
-        api_key=KEY, model="m", base_url="https://x.test/v1", transport=httpx.MockTransport(server),
-        sleep=clock.sleep, clock=clock.time, requests_per_minute=0,
+        api_key=KEY,
+        model="m",
+        base_url="https://x.test/v1",
+        transport=httpx.MockTransport(server),
+        sleep=clock.sleep,
+        clock=clock.time,
+        requests_per_minute=0,
     )
     assert client.complete("s", "u").text == "pas pritjes"
     assert clock.sleeps[0] >= 20
@@ -689,10 +705,19 @@ class _Settings:
         from pydantic import SecretStr
 
         base = dict(
-            llm_provider="mistral", llm_base_url="", llm_model="mistral-test",
-            llm_api_key=SecretStr(KEY), llm_judge_provider="", llm_judge_api_key=None,
-            llm_judge_base_url="", llm_judge_model="", llm_temperature=0.0, llm_thinking="low",
-            llm_max_output_tokens=100, llm_requests_per_minute=5, llm_timeout_seconds=10,
+            llm_provider="mistral",
+            llm_base_url="",
+            llm_model="mistral-test",
+            llm_api_key=SecretStr(KEY),
+            llm_judge_provider="",
+            llm_judge_api_key=None,
+            llm_judge_base_url="",
+            llm_judge_model="",
+            llm_temperature=0.0,
+            llm_thinking="low",
+            llm_max_output_tokens=100,
+            llm_requests_per_minute=5,
+            llm_timeout_seconds=10,
         )
         base.update(values)
         for name, value in base.items():
@@ -705,7 +730,9 @@ def test_build_client_picks_the_provider_class_and_the_known_base_url():
     mistral = build_client(_Settings())
     assert isinstance(mistral, OpenAIChatClient) and mistral.base_url == "https://api.mistral.ai/v1"
     assert isinstance(build_client(_Settings(llm_provider="gemini")), GeminiClient)
-    custom = build_client(_Settings(llm_provider="openai_compatible", llm_base_url="https://h.test/v1"))
+    custom = build_client(
+        _Settings(llm_provider="openai_compatible", llm_base_url="https://h.test/v1")
+    )
     assert custom.base_url == "https://h.test/v1"
 
 
@@ -729,7 +756,8 @@ def test_judge_can_be_another_provider_with_its_own_key():
     from analyte.generation.llm import GeminiClient, build_client
 
     settings = _Settings(
-        llm_judge_provider="gemini", llm_judge_model="gemini-test",
+        llm_judge_provider="gemini",
+        llm_judge_model="gemini-test",
         llm_judge_api_key=SecretStr("judge-key-123"),
     )
     judge = build_client(settings, role="judge")
@@ -743,7 +771,9 @@ def test_judge_can_be_another_provider_with_its_own_key():
 def test_chat_client_treats_a_zero_request_limit_as_a_model_outside_the_plan():
     server = Server(
         httpx.Response(
-            429, json={"message": "Rate limit exceeded"}, headers={"x-ratelimit-limit-req-minute": "0"}
+            429,
+            json={"message": "Rate limit exceeded"},
+            headers={"x-ratelimit-limit-req-minute": "0"},
         ),
         _chat_ok(),
     )
@@ -752,9 +782,7 @@ def test_chat_client_treats_a_zero_request_limit_as_a_model_outside_the_plan():
     assert len(server.requests) == 1
 
 
-# --------------------------------------------------------------------
 # E12 me gjykatës Claude (batch-e)
-# --------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -762,7 +790,9 @@ def exported(tmp_path_factory):
     from evaluation import judge_batches
 
     root = tmp_path_factory.mktemp("judge")
-    manifest = judge_batches.export(root / "batches", root / "key.json", n=200, seed=42, split="test")
+    manifest = judge_batches.export(
+        root / "batches", root / "key.json", n=200, seed=42, split="test"
+    )
     return root, manifest
 
 
@@ -771,7 +801,9 @@ def test_export_covers_the_same_297_samples_in_mixed_chunks(exported):
     assert manifest["items"] == 192 + 105 and manifest["sources"] == {"E10": 192, "B": 105}
     chunks = sorted((root / "batches").glob("chunk_*.json"))
     assert len(chunks) == manifest["chunks"] == 15
-    ids = [item["id"] for c in chunks for item in json.loads(c.read_text(encoding="utf-8"))["items"]]
+    ids = [
+        item["id"] for c in chunks for item in json.loads(c.read_text(encoding="utf-8"))["items"]
+    ]
     assert len(ids) == len(set(ids)) == 297
     first = json.loads(chunks[0].read_text(encoding="utf-8"))["items"]
     assert len({i["id"].split("-")[0] for i in first}) == 2  # përzierje E10 dhe B, jo një burim
@@ -816,7 +848,10 @@ def test_ingest_scores_a_perfect_judge_as_perfect(exported):
     root, _ = exported
     judge_batches = _answer_all(root)
     result = judge_batches.ingest(root / "batches", root / "key.json", model="prova")
-    assert result["result"]["metrics"]["macro_f1"] == 1.0 and result["kit_B"]["metrics"]["macro_f1"] == 1.0
+    assert (
+        result["result"]["metrics"]["macro_f1"] == 1.0
+        and result["kit_B"]["metrics"]["macro_f1"] == 1.0
+    )
     assert result["result"]["samples"] == 192 and result["kit_B"]["samples"] == 105
     assert result["result"]["unparsed"] == 0 and result["kit_B"]["missing"] == []
     assert result["kit_B"]["model"] == "prova" and result["kit_B"]["judge"] == "claude-subagent"
@@ -825,7 +860,9 @@ def test_ingest_scores_a_perfect_judge_as_perfect(exported):
 def test_ingest_counts_missing_answers_as_misses_not_as_silence(exported):
     root, _ = exported
     key = json.loads((root / "key.json").read_text(encoding="utf-8"))
-    victim = next(i for i in key["order"] if key["actual"][i] == "polarity_flip" and key["source"][i] == "B")
+    victim = next(
+        i for i in key["order"] if key["actual"][i] == "polarity_flip" and key["source"][i] == "B"
+    )
     judge_batches = _answer_all(root, drop={victim})
     result = judge_batches.ingest(root / "batches", root / "key.json", model="prova")
     assert result["kit_B"]["missing"] == [victim] and result["kit_B"]["unparsed"] == 1
@@ -855,9 +892,7 @@ def test_ingest_refuses_answers_for_unknown_ids_and_requires_a_model(exported, t
         judge_batches.main(["ingest", str(root / "batches"), "--key", str(root / "key.json")])
 
 
-# --------------------------------------------------------------------
 # Auditi i E8
-# --------------------------------------------------------------------
 
 
 def _audit_dir(tmp_path, answers, items=None):
@@ -882,7 +917,8 @@ def test_audit_prompt_lists_every_rule_type_plus_the_catch_all_for_unchecked_cla
     for label in audit_batches.LABELS:
         assert label in audit_batches.SYSTEM
     assert "other_unsupported" in audit_batches.LABELS
-    assert "Çdo numër në tekst duhet të gjendet" in audit_batches.SYSTEM  # përkufizimi i R1 nga katalogu
+    # përkufizimi i R1 nga katalogu
+    assert "Çdo numër në tekst duhet të gjendet" in audit_batches.SYSTEM
 
 
 def test_audit_ingest_counts_texts_with_problems_by_stratum_and_by_label(tmp_path):
@@ -891,15 +927,24 @@ def test_audit_ingest_counts_texts_with_problems_by_stratum_and_by_label(tmp_pat
     directory, key = _audit_dir(
         tmp_path,
         [
-            {"id": "A-000", "problems": [{"label": "direction_mismatch", "quote": "x"},
-                                         {"label": "other_unsupported", "quote": "y"}]},
+            {
+                "id": "A-000",
+                "problems": [
+                    {"label": "direction_mismatch", "quote": "x"},
+                    {"label": "other_unsupported", "quote": "y"},
+                ],
+            },
             {"id": "A-001", "problems": []},
             {"id": "A-002", "problems": []},
         ],
     )
     result = audit_batches.ingest(directory, key, model="prova")
     generated = result["generated_passed_verification"]
-    assert (generated["items"], generated["texts_with_problem"], generated["share_with_problem"]) == (2, 1, 0.5)
+    assert (
+        generated["items"],
+        generated["texts_with_problem"],
+        generated["share_with_problem"],
+    ) == (2, 1, 0.5)
     assert generated["problems_by_label"] == {"direction_mismatch": 1, "other_unsupported": 1}
     assert result["generated_digital"]["texts_with_problem"] == 1
     assert result["generated_scanned"]["texts_with_problem"] == 0

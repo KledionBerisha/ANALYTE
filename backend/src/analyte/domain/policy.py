@@ -1,19 +1,6 @@
 """
 Politika e sigurisë dhe katalogu i rregullave — konstante normative.
 
-Ky modul nuk përmban logjikë. Ai përmban vendimet normative të punimit
-të shprehura si të dhëna, në një vend të vetëm, që:
-
-  - shtresa e gjenerimit t'i shkruajë në prompt,
-  - shtresa e verifikimit t'i zbatojë,
-  - gjeneruesi i korpusit të korruptuar të dijë çfarë të prishë,
-  - dhe vlerësimi t'i indeksojë tabelat me të njëjtat identifikues.
-
-Nëse një rregull ndryshon, ai ndryshon këtu dhe RULES_VERSION rritet.
-Çdo VerificationResult e ruan atë version, prandaj rezultatet e vjetra
-mbeten të lexueshme edhe pasi katalogu ndryshon (NFR2, NFR3).
-
-Ashtu si `models.py`, ky modul nuk importon asgjë jashtë `domain/`.
 """
 
 from __future__ import annotations
@@ -23,9 +10,7 @@ from typing import NamedTuple
 
 from .enums import ViolationType
 
-# --------------------------------------------------------------------
 # Versionimi
-# --------------------------------------------------------------------
 
 RULES_VERSION = "r1.4"
 """Versioni i katalogut R1-R9. Ruhet në çdo VerificationResult.
@@ -67,9 +52,7 @@ POLICY_VERSION = "sp1.0"
 """Versioni i politikës SP1-SP8."""
 
 
-# --------------------------------------------------------------------
 # Politika e sigurisë (§1.4 e specifikimit)
-# --------------------------------------------------------------------
 
 
 class SafetyPolicy(str, Enum):
@@ -112,12 +95,10 @@ SAFETY_POLICY_TEXT: dict[SafetyPolicy, str] = {
         "Gjetjet kritike shkaktojnë njoftim përpara çdo teksti shpjegues."
     ),
     SafetyPolicy.NO_INTERVAL_NO_INTERPRETATION: (
-        "Vlera pa interval referent të zgjidhshëm shënohet e painterpretueshme, "
-        "nuk hamendësohet."
+        "Vlera pa interval referent të zgjidhshëm shënohet e painterpretueshme, nuk hamendësohet."
     ),
     SafetyPolicy.NO_TABLE_NO_EXPLANATION: (
-        "Termi që mungon në tabelën terminologjike shënohet i pashpjeguar, "
-        "nuk përkufizohet."
+        "Termi që mungon në tabelën terminologjike shënohet i pashpjeguar, nuk përkufizohet."
     ),
     SafetyPolicy.DISCLAIMER_REQUIRED: (
         "Çdo dalje shoqërohet me shënimin për konsultim me profesionistin shëndetësor."
@@ -137,9 +118,7 @@ PROHIBITIVE_POLICIES: frozenset[SafetyPolicy] = frozenset(
 """SP1-SP3: të vetmet politika që zbatohen duke shqyrtuar tekstin e gjeneruar."""
 
 
-# --------------------------------------------------------------------
 # Katalogu i rregullave (Kapitulli 5)
-# --------------------------------------------------------------------
 
 
 class Rule(NamedTuple):
@@ -160,7 +139,7 @@ class Rule(NamedTuple):
 
 
 RULE_CATALOG: tuple[Rule, ...] = (
-    # --- Dega A: verifikim i saktë, determinist ---
+    # Dega A: verifikim i saktë, determinist
     Rule(
         "R1",
         ViolationType.UNGROUNDED_NUMBER,
@@ -189,7 +168,7 @@ RULE_CATALOG: tuple[Rule, ...] = (
         "Çdo gjetje kritike duhet të shfaqet në dalje.",
         requires_context=True,
     ),
-    # --- Dega B: verifikim semantik ---
+    # Dega B: verifikim semantik
     Rule(
         "R5",
         ViolationType.POLARITY_FLIP,
@@ -225,7 +204,7 @@ RULE_CATALOG: tuple[Rule, ...] = (
         "Asnjë term jashtë tabelës terminologjike nuk guxon të shpjegohet.",
         requires_context=False,
     ),
-    # --- Politika e sigurisë si rregull i vetëm ---
+    # Politika e sigurisë si rregull i vetëm
     Rule(
         "SP1-3",
         ViolationType.PROHIBITED_CLAIM,
@@ -251,17 +230,13 @@ def sentence_local_violations() -> frozenset[ViolationType]:
     return frozenset(r.violation for r in RULE_CATALOG if not r.requires_context)
 
 
-# --------------------------------------------------------------------
 # Kufijtë e ciklit gjenerim → verifikim (Figura 6)
-# --------------------------------------------------------------------
 
 MAX_GENERATION_ATTEMPTS = 2
 """Përpjekja e dytë e merr listën e shkeljeve në prompt. Pas saj: shabllon (SP8)."""
 
 
-# --------------------------------------------------------------------
 # Tekste të detyrueshme për përdoruesin
-# --------------------------------------------------------------------
 
 DISCLAIMER_SQ = (
     "Ky shpjegim është automatik dhe nuk zëvendëson vlerësimin e profesionistit "
@@ -288,7 +263,5 @@ stilistik: pohimet e veta verifikohen kundrejt matjeve, citimet kundrejt
 burimit. Pa këtë shenjë, një citim besnik i një mjeku që shprehet me
 rezervë do të dukej si pohim i sistemit që ka humbur rezervën."""
 
-UNEXPLAINED_TERM_NOTICE_SQ = (
-    "Ky term nuk gjendet në fjalorin e sistemit, prandaj nuk shpjegohet."
-)
+UNEXPLAINED_TERM_NOTICE_SQ = "Ky term nuk gjendet në fjalorin e sistemit, prandaj nuk shpjegohet."
 """SP6."""

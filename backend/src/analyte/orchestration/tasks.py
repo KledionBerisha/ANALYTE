@@ -1,23 +1,6 @@
 """
 Puna e përpunimit të një dokumenti, dhe mënyrat si nis ajo.
 
-`run_document` e merr dokumentin nga baza, e dekodon në një skedar të
-përkohshëm, e drejton përmes makinës së gjendjeve dhe e shkruan rezultatin.
-Ajo nuk di nëse u thirr nga radha e punëve apo drejtpërdrejt: `InlineRunner`
-e thërret brenda kërkesës (teste, prova), `ArqRunner` e dërgon te radha dhe
-kërkesa kthehet menjëherë (NFR4).
-
-**Kalimet shkruhen ndërsa ndodhin**, secili në transaksionin e vet, që
-`/status` të tregojë "ocr_running" gjatë OCR-së dhe jo vetëm në fund.
-
-**Gjendja përfundimtare shkruhet bashkë me rezultatet**, në një transaksion
-të vetëm. Përndryshe një klient që pyet në çastin e gabuar do të shihte
-"delivered" para se shpjegimi të ekzistonte në bazë.
-
-**Gabimi i papritur nuk e fsheh dokumentin.** Nëse përpunimi ngrihet — një
-defekt, jo një gjendje e dokumentit — puna shënohet me gabim dhe dokumenti
-mbetet në gjendjen e fundit të arritur. Gabimi i verifikuesit nuk kthehet
-në shabllon të dorëzuar (ADR 0011); ai duket.
 """
 
 from __future__ import annotations

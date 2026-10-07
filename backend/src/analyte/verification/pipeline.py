@@ -1,14 +1,6 @@
 """
 Shtresa e verifikimit: rregullat mbi një tekst të gjeneruar.
 
-Të gjitha rregullat ekzekutohen; asnjëra nuk e ndal tjetrën. Një tekst me
-tri shkelje raporton tri, sepse përpjekja e dytë e gjenerimit i merr ato
-në kërkesë dhe një listë e cunguar do ta çonte modelin drejt rregullimit
-të gjysmës së problemit.
-
-Klasifikuesi i Fazës 7 do të hyjë pas rregullave dhe do të shënohet me
-`detected_by`, që PK6 të mund t'i ndajë të dy mekanizmat pa riekzekutuar
-asgjë.
 """
 
 from __future__ import annotations

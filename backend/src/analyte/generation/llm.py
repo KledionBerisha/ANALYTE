@@ -1,29 +1,6 @@
 """
 Klienti i modelit gjuhësor (Gemini) dhe gjeneruesi që e përdor atë.
 
-Dy gjëra që një eksperiment me model të jashtëm kërkon dhe një thirrje e
-zakonshme nuk i ka:
-
-**Cache e përgjigjeve (`ResponseCache`).** Çdo përgjigje ruhet në disk me
-çelës hash-in e kërkesës së plotë (modeli, temperatura, niveli i arsyetimit,
-udhëzimet dhe konteksti). Një ekzekutim i përsëritur — pas një ndërprerjeje,
-pas ndryshimit të një metrike, apo nga një person tjetër — nuk bën asnjë
-thirrje të re dhe jep saktësisht të njëjtin tekst. Pa të, një rezultat
-shpjegohet me "modeli tha diçka tjetër sot", dhe një ofrues që e tërheq një
-model nuk e bën të pamundur rishikimin e punimit. Kërkesa që ndryshon, edhe
-me një shkronjë, nuk gjen asgjë në cache: nuk ka rrezik të përdoret një
-përgjigje e vjetër për një prompt të ri.
-
-**Kufizim shpejtësie dhe rifreskim (`GeminiClient`).** Shtresa falas ka kufij
-për minutë dhe për ditë. Thirrjet ndahen me një interval minimal; gabimet e
-përkohshme (429, 5xx, rrjeti) rifreskohen me pritje në rritje dhe me
-`Retry-After` kur jepet. Kur rifreskimet mbarojnë, hidhet `ProviderUnavailable`.
-Ai është ndryshe nga `ProviderError` (kërkesa u refuzua, ose përgjigja nuk
-ka tekst të plotë): i pari nuk është gabim i modelit dhe eksperimenti nuk duhet
-ta numërojë si të tillë (shih `evaluation.harness`).
-
-Çelësi dërgohet vetëm te kokat (`x-goog-api-key`), kurrë në adresë, dhe hiqet
-nga çdo mesazh gabimi para se të shkruhet.
 """
 
 from __future__ import annotations
@@ -182,9 +159,7 @@ class ChatClient:
             self.cache.put(key, parameters, completion)
         return completion
 
-    # ------------------------------------------------------------------
     # Ajo që ndryshon sipas ofruesit
-    # ------------------------------------------------------------------
 
     def _url(self) -> str:
         raise NotImplementedError
@@ -206,8 +181,6 @@ class ChatClient:
         if retry_after.isdigit():
             delay = float(retry_after)
         return delay, False
-
-    # ------------------------------------------------------------------
 
     def _parameters(self, system: str, user: str) -> dict[str, Any]:
         return {
@@ -258,7 +231,9 @@ class ChatClient:
                 self.usage.retries += 1
                 self.sleep(delay)
 
-        raise ProviderUnavailable(f"ofruesi nuk u arrit pas {self.max_retries + 1} përpjekjesh: {reason}")
+        raise ProviderUnavailable(
+            f"ofruesi nuk u arrit pas {self.max_retries + 1} përpjekjesh: {reason}"
+        )
 
     def _describe(self, response: httpx.Response) -> str:
         try:
@@ -441,7 +416,11 @@ class LlmGenerator:
 
 
 def build_client(
-    settings: Any, *, role: str = "generator", model: str | None = None, cache_dir: Path | None = None
+    settings: Any,
+    *,
+    role: str = "generator",
+    model: str | None = None,
+    cache_dir: Path | None = None,
 ) -> ChatClient:
     """Klienti nga konfigurimi, për gjeneruesin ose për gjykatësin (`role="judge"`).
 

@@ -1,11 +1,6 @@
 """
 Testet e kombinimeve ndërmjet analiteve.
 
-Gjetjet ndërtohen me dorë nga tabela e analiteve, jo nga gjeneruesi:
-korpusi prodhon vlera të pavarura për çdo analit, prandaj kombinimet
-aty janë të rralla (rreth një në njëzet dokumente) dhe rastet kufitare
-— analit i dyfishtë, vlerë pa interval, drejtime të kundërta — nuk
-shfaqen dot me vullnet.
 """
 
 from __future__ import annotations
@@ -49,9 +44,9 @@ def finding(code: str, status: AnalyteStatus) -> AnalyteFinding:
             analyte_name_raw=analyte.name_canonical_sq,
             analyte_name_canonical=analyte.name_canonical_sq,
             value_raw="5",
-            value=Decimal("5"),
+            value=Decimal(5),
             unit_canonical=analyte.unit,
-            value_canonical=Decimal("5"),
+            value_canonical=Decimal(5),
             ref_source=ReferenceSource.NONE,
             status=status,
             page=1,
@@ -93,9 +88,7 @@ def _ids(observed):
     return [o.pattern_id for o in observed]
 
 
-# --------------------------------------------------------------------
 # Zbulimi
-# --------------------------------------------------------------------
 
 
 def test_combination_is_observed_when_every_condition_holds():
@@ -137,9 +130,7 @@ def test_observation_points_at_the_findings_that_formed_it():
     assert set(observation.finding_ids) == {hb.id, ferritin.id}
 
 
-# --------------------------------------------------------------------
 # Tabela
-# --------------------------------------------------------------------
 
 
 def test_every_pattern_is_well_formed():
@@ -165,9 +156,7 @@ def test_every_pattern_can_fire():
         assert pattern.pattern_id in _ids(detect(findings))
 
 
-# --------------------------------------------------------------------
 # Konteksti dhe dalja
-# --------------------------------------------------------------------
 
 
 def test_context_refuses_an_observation_about_a_missing_finding():
@@ -202,13 +191,12 @@ def test_template_states_the_combination_and_passes_every_rule(statuses):
     assert result.passed, [(v.type.value, v.evidence) for v in result.violations]
 
 
-# --------------------------------------------------------------------
 # Rregullat e ndrequra në r1.2
-# --------------------------------------------------------------------
 
 
 def test_r6_judges_the_verbatim_quote_not_a_neighbour():
     """Dy citime ndajnë "hepatik"; rezerva gjykohet te citimi i vet."""
+
     def said(span, certainty):
         return ReportAssertion(
             text_span=span,
@@ -232,7 +220,7 @@ def test_r6_judges_the_verbatim_quote_not_a_neighbour():
 
 
 def test_r2_accepts_an_analyte_named_inside_a_glossary_explanation():
-    """"Qelizat e kuqe" te shpjegimi i hemoglobinës nuk pretendon matje."""
+    """ "Qelizat e kuqe" te shpjegimi i hemoglobinës nuk pretendon matje."""
     entry = GlossaryEntry(
         term="hemoglobinë",
         explanation_sq="proteina që bart oksigjenin në qelizat e kuqe",

@@ -1,14 +1,6 @@
 """
 Log-u i auditimit (NFR2), pa të dhëna personale (NFR5).
 
-Çdo ngjarje ka lloj dhe ngarkesë. Ngarkesa ndërtohet vetëm nga funksionet
-këtu, dhe asnjëri prej tyre nuk pranon emër skedari, email, vlerë
-laboratorike apo tekst të gjeneruar. Kufizimi mbahet me formë dhe jo me
-disiplinë: nuk ka funksion të përgjithshëm "shkruaj çfarëdo".
-
-Arsyet e kalimeve të gjendjes hyjnë në ngarkesë. Ato janë tekst teknik i
-prodhuar nga sistemi — "3 shkelje: ungrounded_number", "OCR: 2 faqe" — dhe
-jo përmbajtje e dokumentit.
 """
 
 from __future__ import annotations
@@ -154,7 +146,9 @@ def model_use_decided(
     )
 
 
-def document_expired(session: Session, document_id: UUID, user_id: UUID, retention_days: int) -> None:
+def document_expired(
+    session: Session, document_id: UUID, user_id: UUID, retention_days: int
+) -> None:
     """Dokumenti u fshi sepse kaloi afatin e ruajtjes (`ANALYTE_DOCUMENT_RETENTION_DAYS`)."""
     _record(
         session,

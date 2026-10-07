@@ -13,7 +13,7 @@ import pytest
 from analyte.catalog import Pattern, Term, load_patterns, load_terminology
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from scripts import build_source_worksheets as sheets  # noqa: E402
+from scripts import build_source_worksheets as sheets
 
 
 def test_the_worksheet_lists_exactly_the_terms_and_patterns_that_still_have_a_placeholder():
@@ -47,7 +47,12 @@ def test_a_filled_source_removes_the_entry_from_the_worksheet(monkeypatch):
 
 @pytest.mark.parametrize(
     ("source", "pending"),
-    [("", True), ("[BURIMI — plotësohet gjatë ndërtimit]", True), ("[REFERENCË — plotësohet]", True), ("Burim i vërtetë", False)],
+    [
+        ("", True),
+        ("[BURIMI — plotësohet gjatë ndërtimit]", True),
+        ("[REFERENCË — plotësohet]", True),
+        ("Burim i vërtetë", False),
+    ],
 )
 def test_placeholder_detection(source, pending):
     assert sheets.is_placeholder(source) is pending

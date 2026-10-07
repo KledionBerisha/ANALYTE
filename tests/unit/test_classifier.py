@@ -1,10 +1,6 @@
 """
 Testet e Fazës 7 që nuk kërkojnë torch.
 
-Modeli trajnohet në Colab; këtu testohet gjithçka rreth tij: që të dhënat
-e trajnimit etiketojnë fjalinë e duhur, që grupi testues është saktësisht
-ai i E10, që pragu zgjidhet pa parë testin, dhe që klasifikuesi në
-verifikim nuk gjykon fjalitë që rregullat i kanë gjykuar tashmë.
 """
 
 from __future__ import annotations
@@ -33,9 +29,7 @@ def small():
     return documents, contexts, build_samples(documents, seed=7)
 
 
-# --------------------------------------------------------------------
 # Të dhënat
-# --------------------------------------------------------------------
 
 
 def test_labels_are_exactly_the_sentence_local_violations():
@@ -72,9 +66,7 @@ def test_the_test_texts_are_the_e10_test_samples():
     """E11 matet mbi të njëjtat mostra si E10, jo mbi mostra të ngjashme."""
     sets = dataset.build(dataset.E10_DOCUMENTS + 20, 42)
     e10 = [
-        s
-        for s in build_samples(corpus(dataset.E10_DOCUMENTS, 42), seed=42)
-        if s.split == "test"
+        s for s in build_samples(corpus(dataset.E10_DOCUMENTS, 42), seed=42) if s.split == "test"
     ]
     assert len(sets["test_texts"]) == len(e10)
     assert [r["label"] for r in sets["test_texts"]] == [
@@ -90,9 +82,7 @@ def test_no_document_is_in_two_splits(small):
     assert all(len(splits) == 1 for splits in by_document.values())
 
 
-# --------------------------------------------------------------------
 # Nga fjalitë te teksti
-# --------------------------------------------------------------------
 
 LABELS = ["clean", "ungrounded_number", "polarity_flip"]
 
@@ -113,9 +103,7 @@ def test_threshold_is_chosen_on_validation_rows_only():
     assert set(scores) == set(evaluate_classifier.THRESHOLDS)
 
 
-# --------------------------------------------------------------------
 # Buxheti i alarmeve të rreme (vendim i autorit, 2026-09-30)
-# --------------------------------------------------------------------
 
 
 def _curve(points):
@@ -173,9 +161,7 @@ def _texts(label, defect_p, count):
 def _indistinguishable_validation():
     """Defektet dhe gjysma e të pastrave duken njësoj (0.6); gjysma tjetër e të pastrave 0.1."""
     return (
-        _texts("ungrounded_number", 0.6, 10)
-        + _texts("clean", 0.6, 10)
-        + _texts("clean", 0.1, 10)
+        _texts("ungrounded_number", 0.6, 10) + _texts("clean", 0.6, 10) + _texts("clean", 0.1, 10)
     )
 
 
@@ -199,7 +185,10 @@ def test_thresholds_depend_on_validation_rows_only(tmp_path):
         _run(tmp_path / "b", val, _texts("ungrounded_number", 0.99, 4) + _texts("clean", 0.99, 4))
     )
     for rule in ("max_macro_f1", "false_alarm_budget"):
-        assert easy["operating_points"][rule]["threshold"] == hard["operating_points"][rule]["threshold"]
+        assert (
+            easy["operating_points"][rule]["threshold"]
+            == hard["operating_points"][rule]["threshold"]
+        )
 
 
 def test_with_no_threshold_within_budget_nothing_is_deployed(tmp_path):
@@ -217,9 +206,7 @@ def test_the_budget_is_a_parameter_with_the_authors_value_as_default(tmp_path):
     assert strict["operating_points"]["false_alarm_budget"]["threshold"] == 0.3
 
 
-# --------------------------------------------------------------------
 # Rrjedhja
-# --------------------------------------------------------------------
 
 
 def test_skeleton_hides_numbers_names_and_terms():
@@ -231,7 +218,11 @@ def test_skeleton_hides_numbers_names_and_terms():
 
 def test_a_prefix_owned_by_one_label_is_reported_as_a_shortcut():
     train = [
-        {"document_id": "d1", "sentence": "Vërehet gjithashtu diçka.", "label": "fabricated_finding"},
+        {
+            "document_id": "d1",
+            "sentence": "Vërehet gjithashtu diçka.",
+            "label": "fabricated_finding",
+        },
         {"document_id": "d1", "sentence": "Vlera është normale.", "label": "clean"},
     ]
     val = [{"document_id": "d2", "sentence": "Vlera është normale.", "label": "clean"}]
@@ -240,9 +231,7 @@ def test_a_prefix_owned_by_one_label_is_reported_as_a_shortcut():
     assert result["shared_documents"] == 0
 
 
-# --------------------------------------------------------------------
 # Klasifikuesi në verifikim
-# --------------------------------------------------------------------
 
 
 class _Fake:
@@ -257,9 +246,7 @@ class _Fake:
 
     def __call__(self, sentences, context):
         self.seen += sentences
-        return [
-            [0.1, 0.85, 0.05] if "sigurisht" in s else [0.95, 0.03, 0.02] for s in sentences
-        ]
+        return [[0.1, 0.85, 0.05] if "sigurisht" in s else [0.95, 0.03, 0.02] for s in sentences]
 
 
 def test_classifier_violations_carry_their_confidence():

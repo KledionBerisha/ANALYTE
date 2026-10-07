@@ -1,28 +1,6 @@
 """
 Kërkesa për modelin gjuhësor, e ndërtuar vetëm nga `GroundingContext`.
 
-    def build_prompt(context, feedback) -> Prompt
-
-Nënshkrimi është garancia e punimit: ky modul nuk merr dokumentin, tekstin e
-nxjerrë prej tij, as ndonjë burim tjetër. Çfarë di modeli është ajo që ka
-vendosur shtresa e bazimit, dhe asgjë më shumë. Një test kontrollon që
-nënshkrimi të mos zgjerohet.
-
-**Çfarë e kufizon modelin.** Kërkesa i thotë modelit të mos shtojë asnjë
-informacion mjekësor, asnjë numër tjetër, asnjë analit tjetër; të kopjojë
-fjalë për fjalë tekstet e detyrueshme (SP4–SP7) dhe citimet e mjekut; dhe të
-përshkruajë pozicionin e vlerës me shprehjet që verifikuesi i njeh. **Kjo e
-fundit është vendim dizajni që duhet deklaruar:** rregulli R3 e njeh drejtimin
-vetëm në ato forma (`assertions.INCREASE_MARKERS` etj.), dhe një model që
-shkruan "i lartë" do ta kalonte R3 pa u parë. Kërkesa e drejton te format që
-verifikuesi mat, jo te një formulim që do ta bënte verifikimin të verbër.
-
-**Shkeljet e përpjekjes së mëparshme** futen në kërkesë si fjali të daljes dhe
-arsye të rregullit (`Violation.sentence`, `Violation.evidence`); asgjë prej tyre
-nuk vjen nga dokumenti.
-
-`PROMPT_VERSION` ruhet me çdo përpjekje (te emri i gjeneruesit): një rezultat
-nuk atribuohet dot te një kërkesë që ndryshon pa dije.
 """
 
 from __future__ import annotations
@@ -133,8 +111,7 @@ def _finding_line(finding: AnalyteFinding) -> str:
             f"Pas vlerës KOPJOJE: {UNINTERPRETABLE_NOTICE_SQ}"
         )
     return (
-        f"{name}: vlera e matur {value}; pozicioni: {POSITION[finding.status]}"
-        f"{_interval(finding)}"
+        f"{name}: vlera e matur {value}; pozicioni: {POSITION[finding.status]}{_interval(finding)}"
     )
 
 
@@ -152,7 +129,9 @@ def _interval(finding: AnalyteFinding) -> str:
 def _advice(context: GroundingContext) -> str:
     names = {finding.id: finding.analyte_name_canonical for finding in context.findings}
     advice = advice_by_finding(context)
-    return "\n".join(f"- pas {names[finding_id]}: {sentence}" for finding_id, sentence in advice.items())
+    return "\n".join(
+        f"- pas {names[finding_id]}: {sentence}" for finding_id, sentence in advice.items()
+    )
 
 
 def _terms(context: GroundingContext) -> str:

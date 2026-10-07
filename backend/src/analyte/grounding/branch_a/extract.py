@@ -1,25 +1,6 @@
 """
 Nga rreshtat e faqes te gjetjet e strukturuara.
 
-Nxjerrja punon me rreshta të rindërtuar nga pozicionet, jo me tekst të
-rrafshuar. Kjo ka rëndësi: "Hb 13,0 g/dL 13,5 - 17,5" si varg i vetëm
-kërkon hamendje se ku mbaron emri dhe ku fillon vlera, ndërsa si tre
-fragmente me kolona të veta nuk kërkon asnjë.
-
-Rregulli i njohjes së një rreshti të dhënash është i qëllimshëm i ngushtë:
-
-  - ka të paktën dy fragmente,
-  - fragmenti i parë nuk është numër — ai është emri,
-  - një nga fragmentet e mëpasme fillon me numër — ajo është vlera.
-
-Blloku i pacientit e kalon këtë provë vetëm rastësisht, dhe kur e kalon,
-emri i tij nuk njihet nga tabela e analiteve dhe rreshti bie. Titujt e
-paneleve dhe koka e kolonave nuk kanë numra dhe bien menjëherë.
-
-Ajo që nuk njihet nuk hamendësohet. Emri i panjohur, njësia e pakthyeshme
-dhe intervali që mungon prodhojnë secili pasojën e vet të dukshme — deri
-te refuzimi i interpretimit — sepse një gjetje e shpikur këtu do të
-mbahej si e mbështetur nga çdo shtresë e mëpasme.
 """
 
 from __future__ import annotations
@@ -34,7 +15,8 @@ from analyte.domain.enums import AnalyteStatus, ReferenceSource
 from analyte.domain.models import AnalyteFinding, BoundingBox
 from analyte.ingestion.pdf_text import PageText, TextRow
 
-from . import loinc, ocr_guard as guard, reference
+from . import loinc, reference
+from . import ocr_guard as guard
 from .classify import classify
 from .normalize import normalize_unit, parse_number, split_value_and_unit, to_canonical
 

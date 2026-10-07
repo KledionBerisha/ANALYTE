@@ -1,19 +1,6 @@
 """
 Ndërtimi i një dokumenti sintetik dhe i së vërtetës bazë të tij.
 
-Rezultati ka dy pjesë që duhen mbajtur të ndara:
-
-  - `rows` dhe `narrative_text`: çfarë shtypet në PDF. Kjo është e vetmja
-    gjë që sistemi do të shohë.
-  - `context`: çfarë duhet të nxirrte një sistem i përsosur. Kjo nuk i
-    jepet kurrë sistemit; ajo krahasohet me atë që sistemi prodhoi.
-
-Renditja e veprimeve ka rëndësi. Statusi i synuar zgjidhet i pari, pastaj
-vlera, pastaj mënyra e shtypjes (njësia, intervali, presja dhjetore), dhe
-vetëm në fund rillogaritet statusi i vërtetë mbi vlerën dhe intervalin
-ashtu si dalin të shtypura. Nëse do ta ruanim statusin e synuar, një
-dokument që shtyp interval paksa të ndryshëm nga tabela jonë do të mbante
-etiketë të rreme.
 """
 
 from __future__ import annotations
@@ -25,23 +12,6 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from analyte.domain.enums import (
-    AnalyteStatus,
-    CrossReferenceState,
-    Direction,
-    Polarity,
-    ReferenceSource,
-)
-from analyte.domain.models import (
-    AnalyteFinding,
-    BoundingBox,
-    CrossReference,
-    GroundingContext,
-    ReportAssertion,
-)
-from analyte.grounding.branch_a.classify import classify
-from analyte.grounding.branch_a.patterns import detect as detect_patterns
-
 from analyte.catalog import (
     Analyte,
     Sex,
@@ -49,10 +19,23 @@ from analyte.catalog import (
     conversion_for,
     load_analytes,
 )
-from .distributions import sample_status, sample_unreferenced_value, sample_value
-from .ids import IdFactory
+from analyte.domain.enums import (
+    AnalyteStatus,
+    Direction,
+    ReferenceSource,
+)
+from analyte.domain.models import (
+    AnalyteFinding,
+    BoundingBox,
+    GroundingContext,
+)
+from analyte.grounding.branch_a.classify import classify
+from analyte.grounding.branch_a.patterns import detect as detect_patterns
 from analyte.grounding.branch_b.crossref import build_cross_references
 from analyte.grounding.branch_b.terminology import glossary_for
+
+from .distributions import sample_status, sample_unreferenced_value, sample_value
+from .ids import IdFactory
 from .narrative import Name, build_narrative
 from .panels import PANEL_TITLES, compose_order
 
@@ -87,8 +70,18 @@ gjë e fusha tjetër do të ishte pikërisht lloji i mospërputhjes që nxjerrja
 duhet ta shohë vetëm kur ne e fusim me qëllim."""
 
 LAST_NAMES: tuple[str, ...] = (
-    "Hoxha", "Krasniqi", "Berisha", "Gashi", "Shala", "Bytyqi", "Dervishi",
-    "Kelmendi", "Rexhepi", "Zeneli", "Morina", "Selimi",
+    "Hoxha",
+    "Krasniqi",
+    "Berisha",
+    "Gashi",
+    "Shala",
+    "Bytyqi",
+    "Dervishi",
+    "Kelmendi",
+    "Rexhepi",
+    "Zeneli",
+    "Morina",
+    "Selimi",
 )
 
 EARLIEST = date(2024, 1, 1)
@@ -147,7 +140,7 @@ class DocumentTruth:
     is_scanned: bool
     context: GroundingContext
 
-    def with_boxes(self, boxes: dict[UUID, "BoundingBox"]) -> "DocumentTruth":
+    def with_boxes(self, boxes: dict[UUID, BoundingBox]) -> DocumentTruth:
         """Kthen të njëjtin dokument me kutitë kufizuese të plotësuara.
 
         Pozicionet dihen vetëm pasi faqja të jetë vizatuar, ndërsa gjetjet
@@ -207,9 +200,9 @@ def sample_lab_style(rng: random.Random) -> LabStyle:
         layout=rng.choice(("tabelor", "kompakt", "dykolonësh")),
         decimal_comma=rng.random() < 0.7,
         interval_policy=rng.choices(("all", "some", "none"), weights=(0.6, 0.3, 0.1), k=1)[0],
-        flag_style=rng.choices(
-            ("HL", "arrow", "star", None), weights=(0.45, 0.2, 0.1, 0.25), k=1
-        )[0],
+        flag_style=rng.choices(("HL", "arrow", "star", None), weights=(0.45, 0.2, 0.1, 0.25), k=1)[
+            0
+        ],
         uses_alt_units=rng.random() < 0.35,
     )
 
@@ -246,8 +239,7 @@ def build_document(
 
     measured_codes = {f.analyte_code for f in findings}
     display_names = {
-        code: Name(a.narrative_name, a.narrative_plural)
-        for code, a in analytes_by_code().items()
+        code: Name(a.narrative_name, a.narrative_plural) for code, a in analytes_by_code().items()
     }
     unmeasured = tuple(
         (a.loinc_code, Name(a.narrative_name, a.narrative_plural))
@@ -255,9 +247,7 @@ def build_document(
         if a.loinc_code not in measured_codes
     )
 
-    narrative = build_narrative(
-        rng, tuple(findings), display_names, unmeasured, new_id
-    )
+    narrative = build_narrative(rng, tuple(findings), display_names, unmeasured, new_id)
 
     context = GroundingContext(
         document_id=document_id,
@@ -481,9 +471,7 @@ def _format_number(value: Decimal, decimals: int, decimal_comma: bool) -> str:
     return text.replace(".", ",") if decimal_comma else text
 
 
-def _format_interval(
-    low: Decimal, high: Decimal, decimals: int, decimal_comma: bool
-) -> str:
+def _format_interval(low: Decimal, high: Decimal, decimals: int, decimal_comma: bool) -> str:
     return (
         f"{_format_number(low, decimals, decimal_comma)} - "
         f"{_format_number(high, decimals, decimal_comma)}"

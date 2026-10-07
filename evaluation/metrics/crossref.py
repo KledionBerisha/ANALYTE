@@ -1,20 +1,6 @@
 """
 PK4 — saktësia e krahasimit raport ↔ laborator.
 
-Katër gjendje, një për analit. Metrika është saktësi katërshe kundrejt
-anotimit, plus matrica e ngatërrimit — e cila këtu ka vlerë më vete,
-sepse ngatërrimet nuk janë të barasvlershme:
-
-  - `measured_not_mentioned` e humbur do të thotë se sistemi nuk e vuri
-    re një mungesë. Kjo është pikërisht kategoria që lexuesi njerëzor nuk
-    e sheh, prandaj është edhe kategoria ku sistemi ka më shumë për të
-    dhënë.
-  - `contradiction` e humbur do të thotë se një mospërputhje mes tekstit
-    të mjekut dhe vlerës së matur kaloi pa u shënuar.
-
-Një analit për të cilin e vërteta ka gjendje dhe parashikimi nuk ka fare
-nuk hiqet nga llogaria: ai merr etiketën `missing`. Heqja e tij do ta
-shpërblente heshtjen.
 """
 
 from __future__ import annotations

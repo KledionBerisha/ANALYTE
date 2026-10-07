@@ -1,15 +1,6 @@
 """
 Format i përgjigjeve të API-së.
 
-**Verifikimi nuk është fushë opsionale.** Çdo përgjigje që mban tekst të
-gjeneruar mban edhe `verification: {passed, mode, violation_count,
-is_fallback}` (§5 e specifikimit). Ndërfaqja e ndërton treguesin e
-transparencës prej saj, dhe fakti që fusha është e detyrueshme në skemë e
-bën NFR1 të dukshëm në vetë kontratën e API-së.
-
-**Kufizimet shkojnë me tekstin** (NFR7). `notices` mban çdo gjë që pacienti
-duhet ta dijë për besueshmërinë e asaj që lexon — p.sh. që dokumenti u
-lexua me OCR — të shkruara nga sistemi, jo nga gjeneruesi.
 """
 
 from __future__ import annotations

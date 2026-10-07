@@ -3,16 +3,6 @@ Punëtori i radhës (arq).
 
     arq analyte.orchestration.worker.WorkerSettings
 
-Puna vetë është sinkrone — PyMuPDF, Tesseract, rregullat — prandaj
-ekzekutohet në një fije më vete, që cikli asinkron i arq-së të mbetet i
-lirë për punët e tjera.
-
-Çdo dhjetë minuta punëtori kalon mesazhet me lidhje (konfirmim, rivendosje) që nuk u dërguan dhe rilëshon tokenin
-e tyre (`outbox.resend_unsent`, ADR 0018). Pa konfigurim posta (`ANALYTE_SMTP_HOST` bosh me `smtp`) ky kalim
-nuk bën asgjë, por punëtori nis njëlloj: përpunimi i dokumenteve nuk varet nga posta.
-
-Çdo orë (në minutën 7) punëtori fshin dokumentet që kanë kaluar afatin e ruajtjes, nëse ai është caktuar
-(`ANALYTE_DOCUMENT_RETENTION_DAYS` > 0; ADR 0019). Me parazgjedhjen 0 puna nuk bën asgjë.
 """
 
 from __future__ import annotations
@@ -27,8 +17,8 @@ from arq.connections import RedisSettings
 
 from analyte import outbox
 from analyte.config import get_settings
-from analyte.mail import MailConfigError, build_mailer
 from analyte.erasure import purge_expired
+from analyte.mail import MailConfigError, build_mailer
 
 from .tasks import build_services, run_document
 
@@ -59,7 +49,12 @@ async def resend_unsent_job(ctx: dict) -> None:
     if report.examined:
         log.info(
             "rindërgimi: %d të shqyrtuara, %d të rilëshuara, %d të dërguara, %d dështime, %d të skaduara, %d të kaluara",
-            report.examined, report.reissued, report.sent, report.failed, report.expired, report.skipped,
+            report.examined,
+            report.reissued,
+            report.sent,
+            report.failed,
+            report.expired,
+            report.skipped,
         )
 
 

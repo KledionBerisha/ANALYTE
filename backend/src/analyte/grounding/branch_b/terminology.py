@@ -1,26 +1,6 @@
 """
 Njohja e termave mjekësorë në tekstin e mjekut.
 
-Dy detyra të ndryshme, që nuk duhen ngatërruar kurrë:
-
-**Kërkimi në tabelë** është rregull. Një term gjendet ose nuk gjendet te
-`resources/terminology.csv`; nuk ka hamendje dhe nuk ka gjasë. Prandaj i
-njëjti funksion përdoret edhe nga gjeneruesi për të ndërtuar fjalorin e
-së vërtetës bazë — ashtu si me klasifikimin, rregulli është i dhënë dhe
-ndarja e tij nuk e bën matjen tautologjike.
-
-**Njohja e termave të panjohur** është heuristikë. Ajo mbështetet te
-morfologjia — prapashtesat mjekësore -ozë, -emi, -peni, -uri — dhe do të
-gabojë në të dyja drejtimet. Prandaj ajo NUK ndahet me gjeneruesin: e
-vërteta bazë e termave të pashpjeguar vjen nga ajo që gjeneruesi vendosi
-të fusë, jo nga ajo që kjo heuristikë arrin të kapë. Po ta ndanim, SP6 do
-të dukej gjithmonë i plotësuar.
-
-Përputhja e termave duron prapashtesat e shqipes: "anemisë", "anemia" dhe
-"anemi" janë i njëjti term. Kjo bëhet me përputhje parashtese mbi çdo fjalë
-të termit dhe jo me rrënjëzim të plotë; rrënjëzimi shqip është
-problem më vete dhe një zgjidhje e gjysmuar e tij do të fshihte se ku
-gabon sistemi.
 """
 
 from __future__ import annotations
@@ -130,8 +110,7 @@ def _matches(candidate: list[str], form: tuple[str, ...]) -> bool:
     tabelës e jo si dobësi e përputhjes.
     """
     return all(
-        _token_matches(actual, expected)
-        for actual, expected in zip(candidate, form, strict=True)
+        _token_matches(actual, expected) for actual, expected in zip(candidate, form, strict=True)
     )
 
 
@@ -164,9 +143,7 @@ def glossary_for(text: str) -> tuple[GlossaryEntry, ...]:
     )
 
 
-def detect_unknown_terms(
-    text: str, is_known: Callable[[str], bool]
-) -> tuple[str, ...]:
+def detect_unknown_terms(text: str, is_known: Callable[[str], bool]) -> tuple[str, ...]:
     """Fjalë me trajtë mjekësore që sistemi nuk i njeh (SP6).
 
     `is_known` vendos çfarë përjashtohet: termat e tabelës dhe emrat e

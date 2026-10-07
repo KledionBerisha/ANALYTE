@@ -3,10 +3,6 @@ E njëjta rrugë mbi PostgreSQL të vërtetë.
 
     make test-postgres
 
-Anashkalohet kur `ANALYTE_TEST_DATABASE_URL` mungon, që testet e zakonshme
-të mos kërkojnë Docker. Kur ekziston, baza e testit fshihet dhe ndërtohet
-nga migrimet — jo nga modelet — që të provohet skema që sheh prodhimi,
-dhe një dokument çohet nga ngarkimi te shpjegimi.
 """
 
 from __future__ import annotations
@@ -17,7 +13,6 @@ from pathlib import Path
 
 import pytest
 from cryptography.fernet import Fernet
-from fastapi.testclient import TestClient
 
 URL = os.environ.get("ANALYTE_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(URL is None, reason="ANALYTE_TEST_DATABASE_URL mungon")
@@ -33,8 +28,7 @@ def client(tmp_path_factory, monkeypatch_module):
 
     from analyte.config import Settings
     from analyte.generation.templates import TemplateGenerator
-    from analyte.main import create_app
-    from analyte.orchestration.tasks import InlineRunner, Services
+    from analyte.orchestration.tasks import Services
     from analyte.persistence.database import make_engine, make_session_factory
     from analyte.persistence.storage import EncryptedStore
     from tests.fixtures.mailbox import client_for
@@ -76,11 +70,10 @@ def monkeypatch_module():
 
 
 def test_upload_to_explanation_on_postgres(client):
-    from tests.fixtures.mailbox import register_confirmed
-
     from data_generator.generate import render
     from data_generator.ground_truth import build_document
     from data_generator.ids import IdFactory
+    from tests.fixtures.mailbox import register_confirmed
 
     rng = random.Random("postgres/0")
     document = build_document(rng, IdFactory(rng), scanned_share=0.0)
@@ -88,7 +81,9 @@ def test_upload_to_explanation_on_postgres(client):
 
     password = "fjalekalim-postgres-testi"
     register_confirmed(client, "pg@shembull.al", password)
-    token = client.post("/auth/login", json={"email": "pg@shembull.al", "password": password}).json()
+    token = client.post(
+        "/auth/login", json={"email": "pg@shembull.al", "password": password}
+    ).json()
     headers = {"Authorization": f"Bearer {token['access_token']}"}
 
     uploaded = client.post(
@@ -96,7 +91,10 @@ def test_upload_to_explanation_on_postgres(client):
     ).json()
     document_id = uploaded["id"]
 
-    assert client.get(f"/documents/{document_id}/status", headers=headers).json()["state"] == "delivered"
+    assert (
+        client.get(f"/documents/{document_id}/status", headers=headers).json()["state"]
+        == "delivered"
+    )
     findings = client.get(f"/documents/{document_id}/findings", headers=headers).json()
     expected = {f.analyte_code: format(f.value_canonical, "f") for f in truth.context.findings}
     assert {f["analyte_code"]: f["value_canonical"] for f in findings} == expected

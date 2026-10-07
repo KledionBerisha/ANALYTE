@@ -1,13 +1,5 @@
 # Burimet për 82 termat dhe 11 kombinimet — gjetur dhe verifikuar më 2026-10-06
 
-Çdo faqe/dokument më poshtë u hap dhe u lexua (WebFetch) më 2026-10-06; fjalia «Evidenca» është cituar ose parafrazuar nga ajo. Asnjë burim nuk është shtuar nga kujtesa. Faqet që nuk u hapën dot (403/CAPTCHA) nuk janë cituar — shih shënimet te kombinimet.
-
-**Nuk është futur në tezë dhe as në `resources/*.csv`** (ndryshimi i CSV-ve ndryshon versionin e korpusit). Kur të vendosësh: kolona `source_ref` e `terminology.csv` / `patterns.csv` ← kolona «Burimi» këtu, pastaj `python scripts/build_tables.py`, `build_appendices.py`, dhe rigjenero korpusin ose ri-vulos manifestin.
-
-Statusi: **SUPPORTED** = burimi e mbështet formulimin shqip; **PARTIAL** = e mbështet pjesërisht (shih shënimin).
-
----
-
 ## A. Kombinimet e analiteve (`resources/patterns.csv`)
 
 | ID | Kombinimi | Statusi | Burimi | Seksioni | Evidenca | Shënim |

@@ -5,18 +5,6 @@ Ky është teksti që shfaqet kur verifikimi dështon dy herë (SP8), dhe
 njëkohësisht kushti bazë i ablacionit: dalje plotësisht e bazuar, e
 prodhuar pa model gjuhësor.
 
-Ai ka edhe një rol të tretë, që nuk ishte i planifikuar dhe doli i
-dobishëm: teksti i tij është i garantuar i saktë, prandaj shërben si
-material i pastër mbi të cilin ndërtohet korpusi i korruptuar. Një
-shpjegim i prishur me qëllim nga një bazë e pastër ka etiketë të sigurt,
-ndërsa një i prishur nga dalja e një modeli gjuhësor do të kishte etiketë
-të sigurt vetëm nëse dalja fillestare ishte e saktë — gjë që duhet matur
-dhe jo supozuar.
-
-**Asnjë numër që nuk është në kontekst.** Shablloni shtyp vetëm vlerën
-dhe kufijtë e intervalit, pra pikërisht bashkësinë që rregulli R1 lejon.
-**Asnjë folje me gjini.** Ndërtimi "Për {emri} vlera e matur është ..."
-funksionon me çdo emër analiti, në njëjës apo shumës, pa përshtatje.
 """
 
 from __future__ import annotations
@@ -143,7 +131,10 @@ def _pattern_sentences(context: GroundingContext) -> list[str]:
 
 def _term_sentences(context: GroundingContext) -> list[str]:
     """Shpjegimet e termave, dhe refuzimi për ata që mungojnë (SP6)."""
-    out = [f"{entry.term.capitalize()} do të thotë {entry.explanation_sq}." for entry in context.glossary]
+    out = [
+        f"{entry.term.capitalize()} do të thotë {entry.explanation_sq}."
+        for entry in context.glossary
+    ]
     for term in context.unexplained_terms:
         out.append(f"Raporti përmend termin “{term}”. {UNEXPLAINED_TERM_NOTICE_SQ}")
     return out
@@ -163,10 +154,7 @@ def _quoted_assertions(context: GroundingContext) -> list[str]:
     masën e duhur: pohimet e veta kundrejt matjeve, citimet kundrejt
     burimit.
     """
-    return [
-        f"{ATTRIBUTION_PREFIX_SQ} {assertion.text_span}."
-        for assertion in context.assertions
-    ]
+    return [f"{ATTRIBUTION_PREFIX_SQ} {assertion.text_span}." for assertion in context.assertions]
 
 
 def _number(value: Decimal) -> str:

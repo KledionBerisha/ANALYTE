@@ -1,11 +1,6 @@
 """
 Testet e vizatimit dhe të simulimit të skanimit.
 
-Vizatuesi është vendi ku e vërteta bazë dhe dokumenti mund të ndahen nga
-njëri-tjetri pa u vënë re: një kolonë e zhvendosur, një faqe e llogaritur
-ndryshe ose një kuti e kthyer në sistemin e gabuar të koordinatave nuk
-prishin asgjë që duket. Prandaj testet këtu e lexojnë PDF-në e prodhuar
-dhe kërkojnë aty atë që e vërteta bazë premton.
 """
 
 import random
@@ -33,9 +28,7 @@ def rendered():
     return out
 
 
-# --------------------------------------------------------------------
 # Kutitë kufizuese
-# --------------------------------------------------------------------
 
 
 def test_every_finding_gets_a_box(rendered):
@@ -86,9 +79,7 @@ def test_rotation_widens_the_box():
     assert turned.y1 - turned.y0 > box.y1 - box.y0
 
 
-# --------------------------------------------------------------------
 # Faqet
-# --------------------------------------------------------------------
 
 
 def test_pdf_has_at_least_the_pages_the_truth_claims(rendered):
@@ -105,9 +96,7 @@ def test_all_layouts_are_exercised(rendered):
     assert layouts == set(LAYOUTS)
 
 
-# --------------------------------------------------------------------
 # Kanali: dixhital kundrejt i skanuar
-# --------------------------------------------------------------------
 
 
 def test_scanned_pages_have_no_text_layer(rendered):
@@ -134,9 +123,7 @@ def test_corpus_contains_both_channels(rendered):
     assert channels == {True, False}
 
 
-# --------------------------------------------------------------------
 # Përsëritshmëria e PDF-së
-# --------------------------------------------------------------------
 
 
 def test_rendering_is_byte_identical(rendered):

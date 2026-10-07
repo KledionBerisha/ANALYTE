@@ -1,34 +1,6 @@
 """
 Fshirja e të dhënave: një dokument, një llogari, ose çdo dokument që ka kaluar afatin e ruajtjes (ADR 0019).
 
-Të tria rrugët kalojnë nga `erase_documents`, që është e vetmja vend ku një dokument fshihet vërtet. Kështu fshirja nga
-pronari, fshirja e llogarisë dhe fshirja nga afati nuk mund të largohen nga njëra-tjetra (një rrugë që harron skedarin
-e koduar, ose gjurmën e auditimit, do të ishte pikërisht lloji i defektit që një kontroll privatësie nuk e sheh).
-
-**Çfarë fshihet.** Rreshti i dokumentit dhe, me kaskadën e çelësave të huaj, gjithçka e derivuar prej tij (punët,
-gjetjet, pohimet, krahasimet, fjalori dhe termat e kontekstit, kombinimet, shpjegimet, verifikimet, shkeljet), plus
-skedari i koduar në depo. Për llogarinë, edhe seancat, tokenët e rifreskimit, lidhjet e konfirmimit dhe numëruesit e
-kufizimit të hyrjeve që mbajnë një HMAC të email-it të saj, dhe në fund rreshti i përdoruesit.
-
-**Çfarë mbetet te gjurma e auditimit, dhe pse nuk mban të dhëna personale.** Rreshtat e `audit_events` mbeten: janë
-dëshmia që një dokument u përpunua dhe u fshi, dhe nuk mbajnë emër, email, vlerë laboratorike apo tekst (`audit/logger.py`
-i lejon vetëm lloje, numërime dhe arsye teknike). Dy hollësi i largojnë nga identifikimi:
-
-  - **`user_id` bëhet bosh** në çdo ngjarje të një llogarie të fshirë. Një identifikues i rastësishëm që lidh ngjarje të
-    ndryshme me njëri-tjetrin nuk ka pse mbetet kur nuk ka më llogari që t'i përgjigjet.
-  - **`sha256` hiqet** nga ngjarja `document.uploaded` e dokumentit të fshirë. Hash-i i një PDF-je me të dhëna shëndetësore
-    do të lejonte dikë që e ka skedarin ta provojë se ai ka kaluar këtu.
-
-`document_id` mbetet (identifikues i rastësishëm, pa lidhje me një person pas fshirjes): pa të, gjurma "u fshi" nuk do t'i
-përgjigjej asnjë dokumenti.
-
-**Rendi: rreshtat, pastaj skedarët, pastaj ruajtja.** Rreshtat fshihen (pa u ruajtur ende), pastaj skedarët, dhe transaksioni
-ruhet nga thirrësi. Nëse fshirja e skedarit dështon, transaksioni kthehet prapa dhe kërkesa mund të përsëritet; nuk mbetet
-kurrë një skedar i koduar pa rresht që e tregon. Fshirja përsëritet pa dëm (`missing_ok`, `DELETE ... WHERE id IN`), që dy
-kërkesa njëkohësisht të mos dalin në gabim.
-
-**Çfarë nuk mbulon.** Një ngarkim që po shkruhet pikërisht kur fshihet llogaria mund të lërë një skedar të koduar pa rresht
-(rreshti shkon me kaskadë, skedari jo); dhe kopjet rezervë të bazës a të dosjes së ruajtjes, nëse ekzistojnë, nuk preken.
 """
 
 from __future__ import annotations
@@ -126,7 +98,8 @@ def erase_user(session: Session, store: EncryptedStore, user: UserRow, config: S
     )
     session.execute(
         delete(RegistrationAttemptRow).where(
-            RegistrationAttemptRow.email_key == keyed_hash(config.jwt_secret, "register-email", email)
+            RegistrationAttemptRow.email_key
+            == keyed_hash(config.jwt_secret, "register-email", email)
         )
     )
     session.flush()
@@ -166,7 +139,9 @@ def purge_expired(
     with session_scope(sessions) as session:
         expired = list(
             session.scalars(
-                select(DocumentRow.id).where(DocumentRow.uploaded_at < cutoff).order_by(DocumentRow.uploaded_at)
+                select(DocumentRow.id)
+                .where(DocumentRow.uploaded_at < cutoff)
+                .order_by(DocumentRow.uploaded_at)
             )
         )
 
@@ -177,7 +152,9 @@ def purge_expired(
                 document = session.get(DocumentRow, document_id)
                 if document is None:
                     continue  # u fshi ndërkohë nga pronari
-                purged += erase_documents(session, store, [document], expired_after_days=retention_days)
+                purged += erase_documents(
+                    session, store, [document], expired_after_days=retention_days
+                )
         except Exception as error:  # noqa: BLE001 — një dokument i prishur nuk e ndalon fshirjen e të tjerëve
             failed += 1
             log.warning("fshirja e dokumentit të skaduar dështoi: %s", type(error).__name__)

@@ -1,24 +1,6 @@
 """
 Bazat e përbashkëta të shtresës së verifikimit.
 
-Rregullat ndajnë tri veprime: ndarjen e daljes në fjali, nxjerrjen e
-numrave prej saj, dhe njohjen e analiteve të përmendura. Secili prej tyre
-ka një kurth që e bën më pak të drejtpërdrejtë seç duket.
-
-**Emrat dhe njësitë nuk janë të dhëna.** Njësia `10^9/L` përmban "10" dhe
-"9"; emri "Vitaminë D 25-OH" përmban "25"; shkronjat "mg" brenda `mg/dL`
-janë varianti i shtypur i magnezit. Të lexuara si vlera dhe si analite të
-përmendura, ato do të prodhonin shkelje në pothuajse çdo fjali.
-
-Prandaj çdo varg i njohur maskohet përpara se teksti të shqyrtohet:
-njësitë dhe emrat e analiteve para nxjerrjes së numrave, dhe njësitë para
-njohjes së analiteve. Maskimi ruan gjatësinë, që pozicionet të mbeten të
-përdorshme.
-
-**Rregullat kanë qasje te konteksti i plotë.** Ky është dallim thelbësor
-nga klasifikuesi i Fazës 7, i cili sheh vetëm fjalinë. Kur PK6 i krahason
-të dy, krahasimi nuk është ndërmjet dy metodave mbi të njëjtin
-informacion; kjo duhet thënë kur raportohen rezultatet.
 """
 
 from __future__ import annotations
@@ -27,14 +9,15 @@ import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 
+from analyte import textnorm
 from analyte.domain.enums import DetectedBy, ViolationType
 from analyte.domain.models import GroundingContext, Violation
 from analyte.domain.policy import ATTRIBUTION_PREFIX_SQ
 from analyte.grounding.branch_a import loinc
-from analyte import textnorm
 from analyte.textnorm import words
 
 from . import ruleset
+
 
 def is_attributed(sentence: str) -> bool:
     """A është kjo fjali citim i shënuar i mjekut?"""
@@ -57,8 +40,7 @@ class Sentence:
 
 def sentences(text: str) -> tuple[Sentence, ...]:
     return tuple(
-        Sentence(text_, position)
-        for position, (text_, _, _) in enumerate(textnorm.sentences(text))
+        Sentence(text_, position) for position, (text_, _, _) in enumerate(textnorm.sentences(text))
     )
 
 
@@ -134,7 +116,9 @@ def without_glosses(text: str, context: GroundingContext) -> str:
     for entry in context.glossary:
         explanation = entry.explanation_sq.strip().rstrip(".")
         if len(explanation) >= 8:
-            text = re.sub(re.escape(explanation), lambda m: " " * len(m.group()), text, flags=re.IGNORECASE)
+            text = re.sub(
+                re.escape(explanation), lambda m: " " * len(m.group()), text, flags=re.IGNORECASE
+            )
     return text
 
 

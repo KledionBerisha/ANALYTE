@@ -1,8 +1,6 @@
 """
 TOTP (RFC 6238) dhe kodet e rimëkëmbjes (ADR 0018).
 
-Vektorët janë ata të shtojcës B të RFC 6238 për SHA-1 (sekreti ASCII «12345678901234567890», tetë shifra); gjashtë
-shifrat e aplikacioneve janë tetë shifrat e prera, prandaj të njëjtat vektorë i provojnë të dyja.
 """
 
 from __future__ import annotations
@@ -47,9 +45,15 @@ def test_match_accepts_the_current_step_and_one_either_side_but_no_more():
     now = 1111111111.0
     current = twofactor.step_of(now)
     for offset in (-1, 0, 1):
-        assert twofactor.match(RFC_SECRET, twofactor.code_at(RFC_SECRET, current + offset), now) == current + offset
+        assert (
+            twofactor.match(RFC_SECRET, twofactor.code_at(RFC_SECRET, current + offset), now)
+            == current + offset
+        )
     for offset in (-2, 2):
-        assert twofactor.match(RFC_SECRET, twofactor.code_at(RFC_SECRET, current + offset), now) is None
+        assert (
+            twofactor.match(RFC_SECRET, twofactor.code_at(RFC_SECRET, current + offset), now)
+            is None
+        )
 
 
 def test_match_reports_the_step_so_the_caller_can_refuse_a_replay():

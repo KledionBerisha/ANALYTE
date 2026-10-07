@@ -5,22 +5,6 @@ E12 me gjykatës Claude, pa API: mostrat dalin në skedarë, gjykohen nga subagj
     # subagjentët lexojnë DIR/instructions.md dhe një DIR/chunk_NN.json, shkruajnë DIR/answers_NN.jsonl
     python -m evaluation.judge_batches ingest DIR --key KEY.json --model "<si u thirr>"
 
-Ekziston sepse gjykatësi me API kërkon një ofrues me kuotë, dhe asnjë i falas nuk
-e mbulon E12 mirë. Gjykatës është një model Claude i thirrur nga Claude Code si
-subagjent: një përdorim i abonimit, jo i një çelësi API.
-
-**Çfarë sheh gjykatësi.** Të njëjtat mostra si te `evaluation.llm_judge` (192 tekste të
-E10 dhe 105 rreshta të B), të njëjtën kërkesë (`judge_prompt`: konteksti, teksti dhe
-përkufizimet e katalogut), dhe po atë format përgjigjeje. Skedarët e batch-eve
-**nuk përmbajnë etiketat e vërteta**: ato janë te `--key`, jashtë dosjes që lexon
-gjykatësi, dhe e vërteta bashkohet vetëm te `ingest`. Mostrat përzihen me farë të
-fiksuar, që asnjë batch të mos jetë një lloj i vetëm defekti.
-
-**Kufizime që duhen raportuar.** (1) Temperatura dhe mostrimi nuk fiksohen: i njëjti
-ekzekutim nuk garantohet të japë të njëjtat etiketa; prandaj çdo përgjigje ruhet te
-`answers_*.jsonl` dhe vlerësimi rillogaritet prej tyre. (2) Gjykatësi është po ai
-asistent që ndihmoi ta ndërtojë sistemin; nuk është i pavarur prej tij. (3) Skedari i
-etiketave është në të njëjtin disk: mbrohet nga udhëzimi, jo nga një ndarje teknike.
 """
 
 from __future__ import annotations
@@ -90,8 +74,15 @@ def instructions() -> str:
     )
 
 
-def export(directory: Path, key_path: Path, *, n: int = 200, seed: int = 42, split: str = "test",
-           chunk_size: int = CHUNK_SIZE) -> dict[str, Any]:
+def export(
+    directory: Path,
+    key_path: Path,
+    *,
+    n: int = 200,
+    seed: int = 42,
+    split: str = "test",
+    chunk_size: int = CHUNK_SIZE,
+) -> dict[str, Any]:
     items = build_items(n, seed, split)
     order = list(range(len(items)))
     random.Random(SHUFFLE_SEED).shuffle(order)
@@ -100,7 +91,10 @@ def export(directory: Path, key_path: Path, *, n: int = 200, seed: int = 42, spl
     (directory / "instructions.md").write_text(instructions(), encoding="utf-8")
     chunks = [order[i : i + chunk_size] for i in range(0, len(order), chunk_size)]
     for number, indexes in enumerate(chunks):
-        payload = {"chunk": number, "items": [{"id": items[i].id, "user": items[i].user} for i in indexes]}
+        payload = {
+            "chunk": number,
+            "items": [{"id": items[i].id, "user": items[i].user} for i in indexes],
+        }
         (directory / f"chunk_{number:02d}.json").write_text(
             json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8"
         )

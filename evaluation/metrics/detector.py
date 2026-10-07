@@ -1,20 +1,6 @@
 """
 PK6 — krahasimi i zbuluesve: rregulla, klasifikues, gjykatës LLM.
 
-Të tre zbuluesit vlerësohen mbi të njëjtin grup testues të korpusit të
-korruptuar, ku çdo mostër mban saktësisht një defekt ose asnjë. Metrika
-është P/R/F1 e përgjithshme dhe sipas llojit të defektit.
-
-Ndarja sipas llojit është thelbi dhe jo hollësi. Pritshmëria e
-formuluar përpara matjes është se rregullat do të mbizotërojnë te
-defektet numerike — një numër që nuk gjendet në kontekst nuk kërkon
-kuptim për t'u kapur — dhe do të humbasin te mohimi dhe pasiguria, ku
-kërkohet të kuptohet fjalia. Një F1 i vetëm i përgjithshëm do ta fshihte
-plotësisht këtë dhe do ta bënte krahasimin të padobishëm.
-
-Moduli nuk di gjë për korpusin e korruptuar dhe as për modelet: ai merr
-çifte etiketash. Kjo e bën të matshëm çdo zbulues, përfshirë atë që ende
-nuk ekziston.
 """
 
 from __future__ import annotations

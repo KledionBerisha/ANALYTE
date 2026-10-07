@@ -1,11 +1,6 @@
 """
 Testet e korpusit të korruptuar.
 
-Etiketa e një mostre është ajo që ne prishëm, prandaj gabimi më i
-rrezikshëm këtu nuk është një korruptues që dështon — ai është një
-korruptues që prodhon tekst ende të saktë dhe e etiketon si me defekt.
-Një mostër e tillë nuk dështon askund: ajo shfaqet si dobësi e zbuluesit
-dhe e ul një numër që raportohet në punim.
 """
 
 import random

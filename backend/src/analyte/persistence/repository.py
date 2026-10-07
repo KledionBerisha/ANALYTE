@@ -1,12 +1,6 @@
 """
 Kalimi ndërmjet modeleve të domenit dhe rreshtave të bazës.
 
-Domeni nuk di për bazën (ADR 0001); ky modul është i vetmi vend ku të dyja
-takohen. Çdo gjë që shkruhet këtu lexohet sërish si i njëjti objekt domeni
-— identifikuesit, numrat dhjetorë dhe rendi përfshirë — dhe testi i
-kthimit e kontrollon këtë fushë për fushë. Rendi ruhet me kolonë të veçantë
-sepse baza nuk premton asnjë rend, ndërsa shablloni dhe verifikimi varen
-prej tij.
 """
 
 from __future__ import annotations
@@ -54,9 +48,7 @@ CONTEXT_TABLES = (
 )
 
 
-# --------------------------------------------------------------------
 # Konteksti
-# --------------------------------------------------------------------
 
 
 def save_context(session: Session, context: GroundingContext) -> None:
@@ -248,9 +240,7 @@ def load_context(session: Session, document_id: UUID) -> GroundingContext:
     )
 
 
-# --------------------------------------------------------------------
 # Shpjegimi dhe verifikimi
-# --------------------------------------------------------------------
 
 
 def _verification_row(result: VerificationResult) -> VerificationRow:

@@ -1,21 +1,6 @@
 """
 Porta e çidentifikimit (ADR 0019): çfarë teksti të dokumentit nuk guxon t'i dërgohet ofruesit të modelit.
 
-Fjalitë janë shkruar me dorë dhe nuk janë shabllonet e gjeneruesit sintetik: një portë e provuar vetëm mbi fjalitë që e
-ka formësuar fjalori i saj do të kalonte çdo gjë. Emrat janë shembuj të zakonshëm shqiptarë, të shpikur këtu për testin;
-asnjëri nuk i përket një personi që ky punim njeh.
-
-Ç'provohet:
-
-  - **Citimet e pastra kalojnë**, përfshirë një term të fjalorit me shkronjë të madhe në mes të fjalisë (e lakuar) dhe
-    një muaj pa numër pranë.
-  - **Çdo lloj i të dhënave identifikuese shënohet**: emër, titull, datë (me numra ose me emër muaji), telefon, email,
-    adresë interneti, numër i gjatë, identifikues, moshë dhe datëlindje, shenja adrese.
-  - **Dështimi është i mbyllur**: një emër nuk kalon për shkak se rastis me një fjalë të zakonshme, dhe ai është i
-    shënuar edhe kur është fjala e parë e fjalisë.
-  - **Gjetjet nuk mbajnë vargun e shënuar**, kështu që nuk e rrjedhin atë te auditimi.
-  - **Garancia strukturore**: çdo varg i tekstit të lirë që hyn te kërkesa shkon nga porta; një fushë që porta nuk e skanon
-    nuk hyn te kërkesa.
 """
 
 from __future__ import annotations
@@ -29,9 +14,7 @@ from analyte.generation.deidentify import Kind, inspect, is_known_word, scan_tex
 from analyte.generation.prompt import build_prompt
 from tests.fixtures.grounding_context import build_reference_context
 
-# --------------------------------------------------------------------
 # Citimet e pastra
-# --------------------------------------------------------------------
 
 CLEAN = [
     "Funksioni i veshkave duket i ruajtur, por vlerat kërkojnë vëmendje",
@@ -59,9 +42,7 @@ def test_a_glossary_term_that_looks_like_a_name_is_not_flagged_but_an_unknown_ca
     assert scan_text("Mjeku vëren Hepatopati te Floriani") == (Kind.NAME_LIKE,)
 
 
-# --------------------------------------------------------------------
 # Çfarë shënohet
-# --------------------------------------------------------------------
 
 FLAGGED: list[tuple[str, set[Kind]]] = [
     ("Dr. Elira Gashi e ka vlerësuar rezultatin", {Kind.TITLE, Kind.NAME_LIKE}),
@@ -99,18 +80,132 @@ def test_identifying_forms_are_flagged(quote, expected):
 
 
 # Emra shembull të zakonshëm: asnjëri nuk duhet të kalojë, edhe kur rastis me një fjalë të fjalorit.
-FIRST_NAMES = (
-    "Arben Besnik Dritan Fatmir Genc Gentian Gezim Ilir Kujtim Lulzim Mentor Naim Petrit Sokol Valon Agim Altin Armend "
-    "Artan Bashkim Burim Dashamir Edmond Elton Endrit Erion Fisnik Flamur Gazmend Hysen Jetmir Kastriot Klodian Leonard "
-    "Luan Mimoza Ardita Besa Blerta Drita Elira Elona Fjolla Flora Jeta Lindita Majlinda Mirela Nora Rita Teuta Valbona "
-    "Vjosa Zana Albana Aferdita Alma Anila"
-).split()
-SURNAMES = (
-    "Krasniqi Berisha Hoxha Gashi Shehu Kola Dervishi Hasani Morina Rama Basha Bytyqi Dibra Elezi Gjoka Hysaj Islami "
-    "Kelmendi Leka Meta Nika Osmani Prifti Qosja Rexhepi Sadiku Tafa Ujkani Vata Zogaj Kurti Mehmeti Selimi Aliu Ahmeti "
-    "Bajrami Cani Deda Ndreu Marku Pjetri Lleshi Hajdari Mustafa Gjinaj Gjoni Spahiu"
-).split()
-PLACES = "Tiranë Prishtinë Durrës Shkodër Vlorë Elbasan Korçë Gjakovë Pejë Prizren Fier Berat Kukës Lezhë Sarandë".split()
+FIRST_NAMES = [
+    "Arben",
+    "Besnik",
+    "Dritan",
+    "Fatmir",
+    "Genc",
+    "Gentian",
+    "Gezim",
+    "Ilir",
+    "Kujtim",
+    "Lulzim",
+    "Mentor",
+    "Naim",
+    "Petrit",
+    "Sokol",
+    "Valon",
+    "Agim",
+    "Altin",
+    "Armend",
+    "Artan",
+    "Bashkim",
+    "Burim",
+    "Dashamir",
+    "Edmond",
+    "Elton",
+    "Endrit",
+    "Erion",
+    "Fisnik",
+    "Flamur",
+    "Gazmend",
+    "Hysen",
+    "Jetmir",
+    "Kastriot",
+    "Klodian",
+    "Leonard",
+    "Luan",
+    "Mimoza",
+    "Ardita",
+    "Besa",
+    "Blerta",
+    "Drita",
+    "Elira",
+    "Elona",
+    "Fjolla",
+    "Flora",
+    "Jeta",
+    "Lindita",
+    "Majlinda",
+    "Mirela",
+    "Nora",
+    "Rita",
+    "Teuta",
+    "Valbona",
+    "Vjosa",
+    "Zana",
+    "Albana",
+    "Aferdita",
+    "Alma",
+    "Anila",
+]
+SURNAMES = [
+    "Krasniqi",
+    "Berisha",
+    "Hoxha",
+    "Gashi",
+    "Shehu",
+    "Kola",
+    "Dervishi",
+    "Hasani",
+    "Morina",
+    "Rama",
+    "Basha",
+    "Bytyqi",
+    "Dibra",
+    "Elezi",
+    "Gjoka",
+    "Hysaj",
+    "Islami",
+    "Kelmendi",
+    "Leka",
+    "Meta",
+    "Nika",
+    "Osmani",
+    "Prifti",
+    "Qosja",
+    "Rexhepi",
+    "Sadiku",
+    "Tafa",
+    "Ujkani",
+    "Vata",
+    "Zogaj",
+    "Kurti",
+    "Mehmeti",
+    "Selimi",
+    "Aliu",
+    "Ahmeti",
+    "Bajrami",
+    "Cani",
+    "Deda",
+    "Ndreu",
+    "Marku",
+    "Pjetri",
+    "Lleshi",
+    "Hajdari",
+    "Mustafa",
+    "Gjinaj",
+    "Gjoni",
+    "Spahiu",
+]
+PLACES = [
+    "Tiranë",
+    "Prishtinë",
+    "Durrës",
+    "Shkodër",
+    "Vlorë",
+    "Elbasan",
+    "Korçë",
+    "Gjakovë",
+    "Pejë",
+    "Prizren",
+    "Fier",
+    "Berat",
+    "Kukës",
+    "Lezhë",
+    "Sarandë",
+]
 
 
 @pytest.mark.parametrize("name", FIRST_NAMES + SURNAMES + PLACES)
@@ -126,7 +221,7 @@ def test_an_all_caps_name_is_flagged_but_a_catalogue_abbreviation_is_not():
 
 
 def test_invisible_characters_do_not_hide_an_email_or_a_number():
-    assert Kind.EMAIL in scan_text("arben​.krasniqi@shembull​.al")
+    assert Kind.EMAIL in scan_text("arben\u200b.krasniqi@shembull\u200b.al")
     assert Kind.PHONE in scan_text("telefon ０６９１２３４５６７")
 
 
@@ -139,7 +234,9 @@ def test_a_month_name_next_to_a_number_is_a_date_but_a_month_alone_is_not():
 def test_flags_never_carry_the_flagged_string():
     context = build_reference_context()
     name = "Arben Krasniqi"
-    leaked = context.assertions[0].model_copy(update={"text_span": f"Dr. {name} ka konfirmuar glukozë të rritur"})
+    leaked = context.assertions[0].model_copy(
+        update={"text_span": f"Dr. {name} ka konfirmuar glukozë të rritur"}
+    )
     verdict = inspect(context.model_copy(update={"assertions": (leaked, *context.assertions[1:])}))
     assert not verdict.clean
     assert {flag.field for flag in verdict.flags} == {"assertion"}
@@ -149,9 +246,7 @@ def test_flags_never_carry_the_flagged_string():
     assert "Arben" not in rendered and "Krasniqi" not in rendered
 
 
-# --------------------------------------------------------------------
 # Termat e pashpjeguar
-# --------------------------------------------------------------------
 
 
 def _with_unexplained(*terms: str):
@@ -162,14 +257,14 @@ def test_a_lowercase_medical_word_is_a_valid_unexplained_term():
     assert inspect(_with_unexplained("makrocitozë", "anizocitozë")).clean
 
 
-@pytest.mark.parametrize("term", ["Kaduri", "Arbenuri", "makro-citozë", "anemi12", "hipo glicemi", "x"])
+@pytest.mark.parametrize(
+    "term", ["Kaduri", "Arbenuri", "makro-citozë", "anemi12", "hipo glicemi", "x"]
+)
 def test_an_unexplained_term_that_could_be_a_name_or_is_not_a_single_word_is_flagged(term):
     assert not inspect(_with_unexplained(term)).clean
 
 
-# --------------------------------------------------------------------
 # Vlerat e strukturuara: vetëm ato të katalogut
-# --------------------------------------------------------------------
 
 
 def test_the_reference_context_passes_the_gate():
@@ -178,9 +273,13 @@ def test_the_reference_context_passes_the_gate():
 
 def test_a_finding_whose_name_or_unit_is_not_the_catalogues_is_flagged():
     context = build_reference_context()
-    renamed = context.findings[0].model_copy(update={"analyte_name_canonical": "Glukoza e Arben Krasniqit"})
+    renamed = context.findings[0].model_copy(
+        update={"analyte_name_canonical": "Glukoza e Arben Krasniqit"}
+    )
     reunit = context.findings[1].model_copy(update={"unit_canonical": "g/dL (Arben)"})
-    verdict = inspect(context.model_copy(update={"findings": (renamed, reunit, *context.findings[2:])}))
+    verdict = inspect(
+        context.model_copy(update={"findings": (renamed, reunit, *context.findings[2:])})
+    )
     assert [(f.kind, f.field, f.index) for f in verdict.flags] == [
         (Kind.UNCATALOGUED, "finding", 0),
         (Kind.UNCATALOGUED, "finding", 1),
@@ -198,9 +297,7 @@ def test_a_glossary_entry_that_is_not_the_catalogues_is_flagged():
     assert [(f.kind, f.field) for f in verdict.flags] == [(Kind.UNCATALOGUED, "glossary")]
 
 
-# --------------------------------------------------------------------
 # Garancia strukturore: çfarë del te kërkesa është ajo që porta shikon
-# --------------------------------------------------------------------
 
 SENTINEL = "SENTINELË"
 
@@ -236,9 +333,14 @@ def test_free_text_fields_that_the_gate_does_not_scan_never_reach_the_prompt():
         for g in context.glossary
     )
     assertions = tuple(
-        a.model_copy(update={"analyte_code": None if a.analyte_code is None else a.analyte_code}) for a in context.assertions
+        a.model_copy(update={"analyte_code": None if a.analyte_code is None else a.analyte_code})
+        for a in context.assertions
     )
-    prompt = _prompt_text(context.model_copy(update={"findings": findings, "glossary": glossary, "assertions": assertions}))
+    prompt = _prompt_text(
+        context.model_copy(
+            update={"findings": findings, "glossary": glossary, "assertions": assertions}
+        )
+    )
     assert SENTINEL not in prompt
     # Provë që kontrolli nuk është bosh: vargjet e skanuara vërtet shfaqen te kërkesa.
     assert "Glukozë në serum" in prompt and "Rekomandohet kontroll pas 3 muajsh" in prompt

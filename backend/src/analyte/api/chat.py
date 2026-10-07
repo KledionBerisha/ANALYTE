@@ -1,9 +1,6 @@
 """
-Biseda mbi dokumentin — ende e pandërtuar.
+Chatbot mbi dokumentin — ende e pandërtuar.
 
-Biseda kërkon model gjuhësor, dhe modeli mungon me vendim të autorit
-(2026-09-27). Pikat fundore ekzistojnë që kontrata e API-së të jetë e
-plotë, dhe kthejnë 501 me arsyen, jo një përgjigje të rreme.
 """
 
 from __future__ import annotations

@@ -3,14 +3,6 @@ Fabrika e aplikacionit FastAPI.
 
     uvicorn analyte.main:app --reload
 
-`create_app` merr konfigurimin dhe, opsionalisht, shërbimet dhe mënyrën e
-nisjes së punëve. Testet i japin të dyja — SQLite dhe `InlineRunner` — që
-e gjithë rruga nga ngarkimi te shpjegimi të ekzekutohet brenda një kërkese,
-pa Redis dhe pa PostgreSQL.
-
-Pikat e administrimit të vlerësimit (§5) nuk janë këtu: eksperimentet
-ekzekutohen nga harness-i në linjë komande, ku prejardhja e tyre — fara,
-versioni i korpusit, git sha — regjistrohet pa ndërmjetës.
 """
 
 from __future__ import annotations
@@ -79,7 +71,17 @@ def create_app(
     # Shtohet pas CORS, prandaj është më e jashtmja: kokat e sigurisë dalin edhe te përgjigjet e CORS (ADR 0018).
     app.add_middleware(SecurityHeaders)
     problems.install(app)
-    for module in (auth, two_factor, documents, findings, explanations, terminology, advice, chat, privacy):
+    for module in (
+        auth,
+        two_factor,
+        documents,
+        findings,
+        explanations,
+        terminology,
+        advice,
+        chat,
+        privacy,
+    ):
         app.include_router(module.router)
 
     @app.get("/health", tags=["health"])

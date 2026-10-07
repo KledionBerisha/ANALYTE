@@ -4,11 +4,7 @@ Ndërtimi i figurave të punimit nga burimet e vërteta.
     python scripts/build_figures.py                # të gjitha
     python scripts/build_figures.py 6 11           # vetëm Figura 6 dhe 11
     python scripts/build_figures.py --out /tmp/f   # dosje tjetër
-
-Dalja shkon te `docs/thesis/figures/`, PNG (300 dpi, për Word) dhe SVG (për
-rishikim). Numrat janë ato të listës së figurave të `teza_v2.md`.
-
-Nevojitet matplotlib: `pip install -e ".[figures]"`.
+    
 """
 
 from __future__ import annotations
@@ -50,7 +46,9 @@ def main(argv: list[str] | None = None) -> int:
     from scripts.figures import style
 
     parser = argparse.ArgumentParser(prog="build_figures")
-    parser.add_argument("numbers", nargs="*", type=int, help="numrat e figurave (parazgjedhje: të gjitha)")
+    parser.add_argument(
+        "numbers", nargs="*", type=int, help="numrat e figurave (parazgjedhje: të gjitha)"
+    )
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args(argv)
 

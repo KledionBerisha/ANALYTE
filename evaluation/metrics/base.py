@@ -1,15 +1,6 @@
 """
 Bazat e përbashkëta të metrikave.
 
-Të gjitha metrikat e punimit kthehen në të njëjtat tri madhësi ose në një
-matricë ngatërrimi. Përkufizimi i tyre qëndron këtu, në një vend, që një
-numër i raportuar në Kapitullin 6 të ketë kuptimin e njëjtë kudo ku
-shfaqet.
-
-Rasti kufitar i emëruesit zero trajtohet me qëllim: kur nuk ka asgjë për
-t'u matur kthehet `None` dhe jo zero. Zeroja është pohim — "e matëm dhe
-doli zero" — ndërsa `None` thotë "nuk kishte çfarë të matej". Tabela e
-rezultateve i shtyp ndryshe, sepse ato janë gjëra të ndryshme.
 """
 
 from __future__ import annotations
@@ -51,8 +42,10 @@ class PRF(NamedTuple):
         """
         if self.true_positive + self.false_positive + self.false_negative == 0:
             return None
-        return 2 * self.true_positive / (
-            2 * self.true_positive + self.false_positive + self.false_negative
+        return (
+            2
+            * self.true_positive
+            / (2 * self.true_positive + self.false_positive + self.false_negative)
         )
 
     @property
@@ -60,7 +53,7 @@ class PRF(NamedTuple):
         """Sa raste të vërteta kishte. Pesha e kësaj klase në mesatare."""
         return self.true_positive + self.false_negative
 
-    def __add__(self, other: "PRF") -> "PRF":
+    def __add__(self, other: PRF) -> PRF:
         return PRF(
             self.true_positive + other.true_positive,
             self.false_positive + other.false_positive,
@@ -125,8 +118,9 @@ class ConfusionMatrix:
 
     @property
     def correct(self) -> int:
-        return sum(count for (actual, predicted), count in self._counts.items()
-                   if actual == predicted)
+        return sum(
+            count for (actual, predicted), count in self._counts.items() if actual == predicted
+        )
 
     @property
     def accuracy(self) -> float | None:

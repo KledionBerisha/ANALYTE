@@ -1,21 +1,6 @@
 """
 Normalizimi i numrave dhe i njësive.
 
-Dy probleme të vogla që prishin gjithçka nëse trajtohen shkarazi.
-
-**Presja dhjetore.** Në shqip shkruhet "0,95"; në të njëjtin dokument
-mund të shfaqet edhe "0.95". Të dyja janë e njëjta vlerë. Ndarësi i
-mijësheve nuk pranohet: te analizat laboratorike vlerat mbi një mijë janë
-të rralla dhe një "1.234" i lexuar si njëmijë e dyqind do të ishte gabim
-shumë më i rëndë se një refuzim.
-
-**Njësitë.** I njëjti analit shtypet në njësi tradicionale ose SI —
-mg/dL kundrejt mmol/L. Kthimi kërkon masën molare, pra varet nga analiti
-dhe jo vetëm nga njësia; prandaj funksioni merr analitin dhe jo dy vargje.
-
-Gjithçka bëhet me Decimal. Rregulli R1 krahason numra për barazi të
-saktë, prandaj një float i ndërfutur këtu do të prodhonte më vonë shkelje
-fantazmë që askush nuk do t'i kuptonte.
 """
 
 from __future__ import annotations

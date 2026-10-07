@@ -1,18 +1,11 @@
 """
 Konfirmimi i email-it (ADR 0016).
 
-Pohimet më të rëndësishme:
-
-  - **Asnjë përgjigje e regjistrimit nuk tregon nëse email-i ka llogari.** Statusi dhe trupi janë të njëjtë
-    për email të ri, të regjistruar dhe të pakonfirmuar; ndryshon vetëm mesazhi që merr kutia postare.
-  - **Llogaria nuk hyn pa konfirmim**, dhe lidhja vlen një herë, skadon, dhe nuk ruhet si tekst.
-  - **Dërgimi dështon në heshtje për klientin** (përgjigja ka dalë tashmë), por lë gjurmë pa adresë.
-  - **Transporti SMTP** përdor STARTTLS dhe kredencialet, dhe shërbimi nuk nis pa konfigurim posta.
 """
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -94,9 +87,7 @@ def world(tmp_path):
     return World(tmp_path)
 
 
-# --------------------------------------------------------------------
 # Regjistrimi nuk tregon nëse email-i ka llogari
-# --------------------------------------------------------------------
 
 
 def test_the_three_registration_cases_get_the_same_response(world):
@@ -109,8 +100,14 @@ def test_the_three_registration_cases_get_the_same_response(world):
     pending = world.register("pakonfirmuar@shembull.al")
 
     assert new.status_code == confirmed.status_code == pending.status_code == 202
-    assert new.json() == confirmed.json() == pending.json() == {"message": auth_module.REGISTER_REPLY}
-    assert new.headers["content-type"] == confirmed.headers["content-type"] == pending.headers["content-type"]
+    assert (
+        new.json() == confirmed.json() == pending.json() == {"message": auth_module.REGISTER_REPLY}
+    )
+    assert (
+        new.headers["content-type"]
+        == confirmed.headers["content-type"]
+        == pending.headers["content-type"]
+    )
 
 
 def test_the_mailbox_owner_learns_which_case_it_was(world):
@@ -137,9 +134,7 @@ def test_argon2_is_spent_in_every_case_so_timing_does_not_show_which(world, monk
     assert len(calls) == 3
 
 
-# --------------------------------------------------------------------
 # Hyrja pa konfirmim dhe vetë konfirmimi
-# --------------------------------------------------------------------
 
 
 def test_an_unconfirmed_account_cannot_sign_in_and_the_attempt_is_not_a_failure(world):
@@ -215,9 +210,7 @@ def test_a_token_confirms_only_its_own_account(world):
     assert world.login("e-dyta@shembull.al").status_code == 403
 
 
-# --------------------------------------------------------------------
 # Ridërgimi
-# --------------------------------------------------------------------
 
 
 def test_resend_gives_a_pending_account_a_new_link_and_everyone_else_the_same_answer(world):
@@ -237,12 +230,12 @@ def test_resend_gives_a_pending_account_a_new_link_and_everyone_else_the_same_an
     assert world.outbox.to("askush@shembull.al") == []
 
     assert world.confirm(first).status_code == 400  # e para u shfuqizua nga e reja
-    assert world.confirm(token_in(world.outbox.to("pakonfirmuar@shembull.al")[-1])).status_code == 204
+    assert (
+        world.confirm(token_in(world.outbox.to("pakonfirmuar@shembull.al")[-1])).status_code == 204
+    )
 
 
-# --------------------------------------------------------------------
 # Kufizimi i email-eve që nis shërbimi
-# --------------------------------------------------------------------
 
 
 def test_one_address_gets_at_most_three_requests_an_hour(world):
@@ -281,13 +274,13 @@ def test_the_attempts_table_holds_no_email_and_no_address(world):
         assert len(rows) == 1
         assert "viktima" not in rows[0].email_key and "shembull" not in rows[0].email_key
         assert rows[0].email_key == keyed_hash("t" * 48, "register-email", "viktima@shembull.al")
-        dump = " ".join(str(v) for e in db.scalars(select(AuditEventRow)) for v in (e.payload or {}).values())
+        dump = " ".join(
+            str(v) for e in db.scalars(select(AuditEventRow)) for v in (e.payload or {}).values()
+        )
         assert "viktima" not in dump
 
 
-# --------------------------------------------------------------------
 # Dërgimi dështon
-# --------------------------------------------------------------------
 
 
 class Broken:
@@ -295,8 +288,11 @@ class Broken:
         raise ConnectionRefusedError(f"SMTP i pakapshëm për {to}")
 
 
-def test_a_mail_failure_does_not_change_the_response_and_leaves_a_trace_without_the_address(tmp_path):
-    w = World(tmp_path, mailer=Broken(), mail_retry_backoff_seconds=0)  # pa pritje mes provave: teste të shpejta
+def test_a_mail_failure_does_not_change_the_response_and_leaves_a_trace_without_the_address(
+    tmp_path,
+):
+    # pa pritje mes provave: teste të shpejta
+    w = World(tmp_path, mailer=Broken(), mail_retry_backoff_seconds=0)
     response = w.register("viktima@shembull.al")
     assert response.status_code == 202
     assert response.json() == {"message": auth_module.REGISTER_REPLY}
@@ -308,13 +304,11 @@ def test_a_mail_failure_does_not_change_the_response_and_leaves_a_trace_without_
     assert w.login("viktima@shembull.al").status_code == 403
 
 
-# --------------------------------------------------------------------
 # Transporti SMTP
-# --------------------------------------------------------------------
 
 
 class FakeSmtp:
-    instances: list["FakeSmtp"] = []
+    instances: list[FakeSmtp] = []
 
     def __init__(self, host, port, timeout=None, context=None):
         self.host, self.port, self.timeout, self.context = host, port, timeout, context
@@ -334,7 +328,9 @@ class FakeSmtp:
         self.calls.append(("login", user, password))
 
     def send_message(self, message):
-        self.calls.append(("send", message["From"], message["To"], message["Subject"], message.get_content()))
+        self.calls.append(
+            ("send", message["From"], message["To"], message["Subject"], message.get_content())
+        )
 
 
 @pytest.fixture
@@ -347,8 +343,11 @@ def fake_smtp(monkeypatch):
 
 def test_smtp_uses_starttls_then_login_then_sends_a_plain_message(fake_smtp):
     mailer = mail.SmtpMailer(
-        "sandbox.smtp.mailtrap.io", 2525, "ANALYTE <noreply@analyte.local>",
-        username="përdoruesi", password="sekret",
+        "sandbox.smtp.mailtrap.io",
+        2525,
+        "ANALYTE <noreply@analyte.local>",
+        username="përdoruesi",
+        password="sekret",
     )
     mailer.send("viktima@shembull.al", "Tema", "Trupi")
     smtp = fake_smtp.instances[0]
@@ -357,27 +356,43 @@ def test_smtp_uses_starttls_then_login_then_sends_a_plain_message(fake_smtp):
     assert smtp.calls[0] == ("starttls", True)
     assert smtp.calls[1] == ("login", "përdoruesi", "sekret")
     _, sender, to, subject, body = smtp.calls[2]
-    assert (sender, to, subject) == ("ANALYTE <noreply@analyte.local>", "viktima@shembull.al", "Tema")
+    assert (sender, to, subject) == (
+        "ANALYTE <noreply@analyte.local>",
+        "viktima@shembull.al",
+        "Tema",
+    )
     assert body.strip() == "Trupi"
 
 
 def test_smtp_security_modes(fake_smtp):
     mail.SmtpMailer("h", 465, "a@b.al", security="ssl").send("x@y.al", "T", "B")
-    assert [c[0] for c in fake_smtp.instances[0].calls] == ["send"]  # SSL i tërë: pa STARTTLS, pa hyrje
-    mail.SmtpMailer("h", 25, "a@b.al", security="none", username="u", password="p").send("x@y.al", "T", "B")
+    assert [c[0] for c in fake_smtp.instances[0].calls] == [
+        "send"
+    ]  # SSL i tërë: pa STARTTLS, pa hyrje
+    mail.SmtpMailer("h", 25, "a@b.al", security="none", username="u", password="p").send(
+        "x@y.al", "T", "B"
+    )
     assert [c[0] for c in fake_smtp.instances[1].calls] == ["login", "send"]  # pa STARTTLS
 
 
 def test_the_service_refuses_to_start_without_mail_configuration(tmp_path):
     # Pa `.env`: kopja e zhvilluesit mund të ketë kredencialet e vërteta të Mailtrap, dhe ky test pyet pikërisht mungesën e tyre.
     settings = Settings(
-        _env_file=None, database_url=f"sqlite:///{tmp_path / 'a.db'}", jwt_secret="t" * 48,
-        storage_key=Fernet.generate_key().decode(), storage_dir=tmp_path / "s", job_runner="inline", ocr=False,
-        mail_backend="smtp", smtp_host="",
+        _env_file=None,
+        database_url=f"sqlite:///{tmp_path / 'a.db'}",
+        jwt_secret="t" * 48,
+        storage_key=Fernet.generate_key().decode(),
+        storage_dir=tmp_path / "s",
+        job_runner="inline",
+        ocr=False,
+        mail_backend="smtp",
+        smtp_host="",
     )
     with pytest.raises(mail.MailConfigError, match="ANALYTE_SMTP_HOST"):
         mail.build_mailer(settings)
-    configured = settings.model_copy(update={"smtp_host": "sandbox.smtp.mailtrap.io", "smtp_username": "u"})
+    configured = settings.model_copy(
+        update={"smtp_host": "sandbox.smtp.mailtrap.io", "smtp_username": "u"}
+    )
     assert isinstance(mail.build_mailer(configured), mail.SmtpMailer)
     console = settings.model_copy(update={"mail_backend": "console"})
     assert isinstance(mail.build_mailer(console), mail.ConsoleMailer)
@@ -391,9 +406,7 @@ def test_messages_carry_the_link_and_no_secret(world):
     assert PASSWORD not in body
 
 
-# --------------------------------------------------------------------
 # Migrimi: llogaritë ekzistuese nuk mbyllen jashtë
-# --------------------------------------------------------------------
 
 
 def test_accounts_that_existed_before_the_migration_are_treated_as_confirmed(tmp_path, monkeypatch):
@@ -409,12 +422,21 @@ def test_accounts_that_existed_before_the_migration_are_treated_as_confirmed(tmp
     created = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
     with engine.begin() as connection:
         connection.execute(
-            text("INSERT INTO users (id, email, password_hash, created_at) VALUES (:i, :e, :p, :c)"),
-            {"i": "11111111-1111-1111-1111-111111111111", "e": "vjeter@shembull.al", "p": "x", "c": created.isoformat(sep=" ")},
+            text(
+                "INSERT INTO users (id, email, password_hash, created_at) VALUES (:i, :e, :p, :c)"
+            ),
+            {
+                "i": "11111111-1111-1111-1111-111111111111",
+                "e": "vjeter@shembull.al",
+                "p": "x",
+                "c": created.isoformat(sep=" "),
+            },
         )
     command.upgrade(config, "head")
     with engine.connect() as connection:
-        confirmed = connection.execute(text("SELECT email_confirmed_at, created_at FROM users")).one()
+        confirmed = connection.execute(
+            text("SELECT email_confirmed_at, created_at FROM users")
+        ).one()
     assert confirmed[0] is not None and confirmed[0] == confirmed[1]
 
 

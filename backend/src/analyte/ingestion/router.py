@@ -1,16 +1,6 @@
 """
 Vendimi: shtresë teksti apo OCR.
 
-Ky është degëzimi i parë i makinës së gjendjeve (Figura 6) dhe ndarja që
-përcakton se cili nga dy kanalet matet. Rregulli është i thjeshtë dhe i
-matshëm: nëse faqet mbajnë tekst të mjaftueshëm, ai përdoret; përndryshe
-faqja duhet lexuar si fotografi.
-
-Pragu nuk është zero. Një PDF i skanuar mund të mbajë pak tekst — numra
-faqesh, vula të shtypura dixhitalisht, mbetje nga një OCR i mëparshëm —
-dhe po ta merrnim atë si shtresë të vlefshme do të nxirrnim disa rreshta
-dhe do t'i quanim dokumentin të lexuar. Dështimi i heshtur është më i keq
-se rruga e ngadaltë.
 """
 
 from __future__ import annotations
@@ -58,8 +48,7 @@ def route(path: Path) -> Routing:
     usable = [
         page
         for page in pages
-        if page.character_count >= MIN_CHARACTERS_PER_PAGE
-        and len(page.rows) >= MIN_ROWS_PER_PAGE
+        if page.character_count >= MIN_CHARACTERS_PER_PAGE and len(page.rows) >= MIN_ROWS_PER_PAGE
     ]
     if not usable:
         return Routing(Channel.OCR, pages, "asnjë faqe nuk ka shtresë teksti të përdorshme")

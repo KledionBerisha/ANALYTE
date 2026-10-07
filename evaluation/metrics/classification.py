@@ -1,20 +1,6 @@
 """
 PK2 — saktësia e klasifikimit të statusit.
 
-Klasifikimi vetë është rregull determinist, prandaj kjo metrikë nuk mat
-nëse rregulli është i drejtë: ajo mat nëse rregullit iu dhanë hyrjet e
-duhura. Një status i gabuar këtu do të thotë gjithmonë njëra nga dy gjëra
-— vlera u lexua gabim, ose intervali u zgjidh gabim.
-
-Prandaj raportohet edhe ndarja sipas burimit të intervalit. Përpjesa e
-gjetjeve të klasifikuara me interval të marrë nga dokumenti kundrejt
-tabelës së brendshme është tregues i drejtpërdrejtë i cilësisë së
-nxjerrjes, dhe dallimi i saktësisë mes të dyjave tregon se ku prishet
-puna.
-
-Gjetjet e humbura nuk hyjnë në matricën e ngatërrimit; ato janë tashmë të
-numëruara te PK1 dhe po t'i numëronim edhe këtu do të ndëshkoheshin dy
-herë. Ato raportohen veçmas si `unmatched`.
 """
 
 from __future__ import annotations
@@ -69,8 +55,7 @@ def _source_share(
             counts[finding.ref_source.value] += 1
             total += 1
     return {
-        source: _round(count / total) if total else None
-        for source, count in sorted(counts.items())
+        source: _round(count / total) if total else None for source, count in sorted(counts.items())
     }
 
 

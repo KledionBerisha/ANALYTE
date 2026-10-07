@@ -1,10 +1,6 @@
 """
 Konfigurimi i shërbimit, nga mjedisi ose nga `.env`.
 
-Dy vlera nuk kanë parazgjedhje me qëllim: sekreti i JWT-së dhe çelësi i
-kodimit të skedarëve. Një shërbim që nis me vlera të njohura publikisht
-do të dukej i sigurt pa qenë, prandaj pa to nuk nis fare. `.env.example`
-tregon si gjenerohen.
 """
 
 from __future__ import annotations

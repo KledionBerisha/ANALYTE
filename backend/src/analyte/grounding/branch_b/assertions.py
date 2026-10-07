@@ -1,37 +1,19 @@
 """
 Nga narrativa e mjekut te pohimet e strukturuara.
 
-Tri hapa: gjej tekstin e lirë në dokument, ndaje në fjali, dhe kthe çdo
-fjali që pretendon diçka në një `ReportAssertion`.
-
-**Pozicionet mbahen gjatë gjithë rrugës.** `char_start` dhe `char_end` i
-kthejnë pohimet te teksti origjinal, çka nevojitet si për auditim ashtu
-edhe për anotimin manual gjatë vlerësimit të PK4. Një pohim pa adresë nuk
-verifikohet dot nga një njeri.
-
-**Jo çdo fjali është pohim.** "Pacienti paraqitet për kontroll rutinë" nuk
-pretendon asgjë për asnjë vlerë. Fjalitë pa analit, pa term dhe pa
-rekomandim nuk prodhojnë pohim — dhe kjo nuk është humbje: një pohim i
-shpikur do të kërkonte më vonë mbështetje që nuk ekziston.
-
-Lidhja e një fjalie me analitin e saj përdor hartën LOINC të Degës A. Kjo
-nuk e bën Degën B të varur nga Dega A: harta e emrave është njohuri e
-përbashkët e domenit, dhe dyfishimi i saj do të thoshte dy harta që
-largohen nga njëra-tjetra.
 """
 
 from __future__ import annotations
 
-import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from uuid import uuid4
 
+from analyte import textnorm
 from analyte.domain.enums import AssertionKind, Direction
 from analyte.domain.models import ReportAssertion
 from analyte.grounding.branch_a import loinc
 from analyte.ingestion.pdf_text import PageText
-from analyte import textnorm
 from analyte.textnorm import fold, words
 
 from . import hedging, negation, terminology
@@ -70,14 +52,43 @@ DECREASE_MARKERS: tuple[str, ...] = ("nen intervalin", "e ulet", "te ulura", "i 
 NORMAL_MARKERS: tuple[str, ...] = ("brenda intervalit", "brenda kufijve", "normale")
 
 INCREASE_EXTENDED: tuple[str, ...] = (
-    "e larte", "i larte", "te larta", "te larte", "rritja e", "rritje e", "ngritja e", "ngritur",
-    "tejkalon", "mbi kufirin", "mbi normen", "u rrit", "rritet",
+    "e larte",
+    "i larte",
+    "te larta",
+    "te larte",
+    "rritja e",
+    "rritje e",
+    "ngritja e",
+    "ngritur",
+    "tejkalon",
+    "mbi kufirin",
+    "mbi normen",
+    "u rrit",
+    "rritet",
 )
 DECREASE_EXTENDED: tuple[str, ...] = (
-    "te ulta", "te ulet", "e ulur", "i ulur", "ulja e", "ulje e", "renia e", "u ul", "ulet",
-    "nen kufirin", "nen normen", "i reduktuar", "e reduktuar", "te reduktuara", "te reduktuar",
+    "te ulta",
+    "te ulet",
+    "e ulur",
+    "i ulur",
+    "ulja e",
+    "ulje e",
+    "renia e",
+    "u ul",
+    "ulet",
+    "nen kufirin",
+    "nen normen",
+    "i reduktuar",
+    "e reduktuar",
+    "te reduktuara",
+    "te reduktuar",
 )
-NORMAL_EXTENDED: tuple[str, ...] = ("brenda normes", "ne rregull", "brenda parametrave", "brenda vlerave referente")
+NORMAL_EXTENDED: tuple[str, ...] = (
+    "brenda normes",
+    "ne rregull",
+    "brenda parametrave",
+    "brenda vlerave referente",
+)
 """Fjalori i zgjeruar i drejtimit (`r1.4`, grupi C dhe auditi): mbiemrat e thjeshtë ("të larta"), emrat ("rritja e") dhe
 foljet ("u rrit"). Kërkohen si fjalë të plota, jo si nënvargje: "ulet" nuk duhet të gjendet brenda një fjale tjetër."""
 
@@ -126,9 +137,7 @@ def split_sentences(text: str) -> tuple[Sentence, ...]:
     shkurtër pa shkurtime me pikë; një ndarës më i zgjuar do të fshihte se
     ku e ka burimin secili pohim.
     """
-    return tuple(
-        Sentence(text_, start, end) for text_, start, end in textnorm.sentences(text)
-    )
+    return tuple(Sentence(text_, start, end) for text_, start, end in textnorm.sentences(text))
 
 
 def find_analyte(sentence: str) -> str | None:
@@ -206,7 +215,9 @@ def _mentions_term(sentence: str, is_known: Callable[[str], bool]) -> bool:
     return bool(terminology.detect_unknown_terms(sentence, is_known))
 
 
-def extract_assertions(text: str, *, new_id: Callable[[], object] = uuid4) -> tuple[ReportAssertion, ...]:
+def extract_assertions(
+    text: str, *, new_id: Callable[[], object] = uuid4
+) -> tuple[ReportAssertion, ...]:
     """Pohimet e nxjerra nga narrativa."""
     assertions: list[ReportAssertion] = []
     is_known = _known_predicate()

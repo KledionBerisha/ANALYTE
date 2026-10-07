@@ -4,11 +4,6 @@ Kontrollon që tabelat burimore në `resources/` janë bajt për bajt ato që u 
     python scripts/verify_corpus.py                      # data/v1
     python scripts/verify_corpus.py --dataset data/v1
 
-Manifesti ruan SHA-256 të bajteve të papërpunuara të secilës tabelë. Nëse një skedar nuk përputhet, skripti
-thotë edhe a përputhet nëse hiqen mbarimet e rreshtave: kjo ndan një ndryshim të git-it (`core.autocrlf`)
-nga një ndryshim i vërtetë i përmbajtjes. Skedari `.gitattributes` e ndalon të parin për `resources/*.csv`.
-
-Kodi i daljes është 0 kur çdo tabelë përputhet, 1 kur një e ka ndryshuar, 2 kur manifesti mungon.
 """
 
 from __future__ import annotations

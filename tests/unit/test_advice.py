@@ -43,9 +43,9 @@ def finding(code: str, status: AnalyteStatus) -> AnalyteFinding:
             analyte_name_raw=analyte.name_canonical_sq,
             analyte_name_canonical=analyte.name_canonical_sq,
             value_raw="5",
-            value=Decimal("5"),
+            value=Decimal(5),
             unit_canonical=analyte.unit,
-            value_canonical=Decimal("5"),
+            value_canonical=Decimal(5),
             ref_source=ReferenceSource.NONE,
             status=status,
             page=1,
@@ -80,12 +80,12 @@ def finding(code: str, status: AnalyteStatus) -> AnalyteFinding:
 
 
 def context(*findings: AnalyteFinding, advice: tuple[Advice, ...] = TABLE) -> GroundingContext:
-    return GroundingContext(document_id=DOCUMENT_ID, findings=findings, advice=attach(findings, advice))
+    return GroundingContext(
+        document_id=DOCUMENT_ID, findings=findings, advice=attach(findings, advice)
+    )
 
 
-# --------------------------------------------------------------------
 # Tabela
-# --------------------------------------------------------------------
 
 
 def test_the_table_has_one_row_per_analyte_and_direction():
@@ -106,9 +106,24 @@ def test_a_row_is_filled_only_with_both_a_sentence_and_a_read_source():
     [
         {"loinc_code": "0000-0", "direction": "increased", "advice_sq": "", "source_ref": ""},
         {"loinc_code": HB, "direction": "high", "advice_sq": "", "source_ref": ""},
-        {"loinc_code": HB, "direction": "increased", "advice_sq": "Mbani vlerën nën 12 g/dL.", "source_ref": "x"},
-        {"loinc_code": HB, "direction": "increased", "advice_sq": "Pa pikë në fund", "source_ref": "x"},
-        {"loinc_code": HB, "direction": "increased", "advice_sq": "Dy fjali. Jo një.", "source_ref": "x"},
+        {
+            "loinc_code": HB,
+            "direction": "increased",
+            "advice_sq": "Mbani vlerën nën 12 g/dL.",
+            "source_ref": "x",
+        },
+        {
+            "loinc_code": HB,
+            "direction": "increased",
+            "advice_sq": "Pa pikë në fund",
+            "source_ref": "x",
+        },
+        {
+            "loinc_code": HB,
+            "direction": "increased",
+            "advice_sq": "Dy fjali. Jo një.",
+            "source_ref": "x",
+        },
     ],
     ids=["kod i panjohur", "drejtim i panjohur", "shifër", "pa pikë", "dy fjali"],
 )
@@ -133,9 +148,7 @@ def test_the_loader_rejects_a_duplicate_key(monkeypatch):
         load_advice.cache_clear()
 
 
-# --------------------------------------------------------------------
 # Lidhja me gjetjet
-# --------------------------------------------------------------------
 
 
 def test_the_row_is_chosen_by_analyte_and_direction():
@@ -171,12 +184,12 @@ def test_the_context_rejects_advice_for_an_unknown_finding():
     hb = finding(HB, S.LOW)
     entry = attach((hb,), TABLE)[0]
     with pytest.raises(ValueError):
-        GroundingContext(document_id=DOCUMENT_ID, findings=(finding(GLUCOSE, S.HIGH),), advice=(entry,))
+        GroundingContext(
+            document_id=DOCUMENT_ID, findings=(finding(GLUCOSE, S.HIGH),), advice=(entry,)
+        )
 
 
-# --------------------------------------------------------------------
 # Shablloni dhe kërkesa
-# --------------------------------------------------------------------
 
 
 def test_the_template_prints_the_advice_right_after_its_value():
@@ -201,9 +214,7 @@ def test_the_prompt_is_unchanged_when_there_is_no_advice():
     assert "Këshilla" not in build_prompt(ctx, ()).user
 
 
-# --------------------------------------------------------------------
 # Verifikimi
-# --------------------------------------------------------------------
 
 
 def test_an_omitted_or_paraphrased_advice_is_an_omitted_recommendation():
@@ -235,9 +246,7 @@ def test_every_filled_row_of_the_shipped_table_survives_its_own_verification():
         assert result.passed, (row, [v.evidence for v in result.violations])
 
 
-# --------------------------------------------------------------------
 # Eksperimentet e ngrira
-# --------------------------------------------------------------------
 
 CORPUS_PDF = Path(__file__).resolve().parents[2] / "data" / "v1" / "documents" / "doc_00002.pdf"
 
@@ -267,7 +276,9 @@ def test_the_service_attaches_advice_and_the_frozen_experiments_do_not():
     frozen = build(uuid4(), pages, advice=False).context
     assert service.advice == attach(service.findings)
     assert frozen.advice == ()
-    assert len(service.advice) == sum(1 for f in service.findings if f.status.is_abnormal and attach((f,)))
+    assert len(service.advice) == sum(
+        1 for f in service.findings if f.status.is_abnormal and attach((f,))
+    )
 
 
 def test_advice_entries_round_trip_through_json():

@@ -3,11 +3,6 @@ Paketa për Colab: të dhënat e klasifikuesit dhe skripti i trajnimit.
 
     python -m ml.colab.make_bundle
 
-Colab-u nuk ka nevojë për depon: ai merr këtë zip, e hap, dhe ekzekuton
-`train_classifier.py` mbi `classifier_data/`. Të dhënat rindërtohen këtu
-nga fara nëse mungojnë, që paketa të mos dalë kurrë nga një korpus i
-vjetër pa u vënë re — `meta.json` brenda saj mban versionin e rregullave
-dhe numrin e dokumenteve.
 """
 
 from __future__ import annotations

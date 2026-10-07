@@ -1,16 +1,6 @@
 """
 Klasifikimi determinist i një vlere kundrejt intervalit referent.
 
-Ky është i vetmi vend ku përkufizohet se çfarë do të thotë "e lartë",
-"kritike" ose "e painterpretueshme". Edhe gjeneruesi i të dhënave
-sintetike e përdor këtë funksion për të prodhuar etiketat e së vërtetës
-bazë. Kjo nuk e bën matjen e PK2 tautologjike: klasifikimi është i
-dhënë me rregull, prandaj PK2 mat nëse u nxorën vlera dhe intervali i
-duhur — jo nëse rregulli u mësua. Nëse do të kishim dy zbatime të
-rregullit, ndryshimi mes tyre do të shfaqej si gabim i sistemit dhe do
-ta bënte matjen të pakuptimtë.
-
-Moduli është i pastër: pa I/O, pa gjendje, pa varësi jashtë `domain/`.
 """
 
 from __future__ import annotations
@@ -64,9 +54,7 @@ def classify(
     return Classification(AnalyteStatus.NORMAL, None)
 
 
-def _severity(
-    distance: Decimal, ref_low: Decimal | None, ref_high: Decimal | None
-) -> Decimal:
+def _severity(distance: Decimal, ref_low: Decimal | None, ref_high: Decimal | None) -> Decimal:
     """Largësia nga kufiri, e shprehur në gjerësi intervali.
 
     Me interval dyanësh gjerësia është `ref_high - ref_low`. Me interval

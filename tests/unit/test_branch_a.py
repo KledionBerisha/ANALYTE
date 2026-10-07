@@ -1,11 +1,6 @@
 """
 Testet e Degës A: lexim, njohje, normalizim, zgjidhje intervali.
 
-Testi i fundit është ai i skedarit të artë: një dokument i fiksuar
-vizatohet, lexohet dhe nxirret, dhe rezultati krahasohet fushë për fushë
-me të vërtetën bazë. Dokumenti nuk ruhet si skedar binar por rindërtohet
-nga fara e vet — e njëjta gjë, por e lexueshme në diff dhe e pandryshueshme
-pa u vënë re.
 """
 
 from decimal import Decimal
@@ -31,14 +26,12 @@ HEMOGLOBIN = "718-7"
 CREATININE = "2160-0"
 
 
-# --------------------------------------------------------------------
 # Numrat dhe njësitë
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
     "text,expected",
-    [("13,4", Decimal("13.4")), ("13.4", Decimal("13.4")), ("128", Decimal("128"))],
+    [("13,4", Decimal("13.4")), ("13.4", Decimal("13.4")), ("128", Decimal(128))],
 )
 def test_decimal_separator_is_accepted_either_way(text, expected):
     assert parse_number(text) == expected
@@ -50,7 +43,7 @@ def test_non_numbers_are_refused(text):
 
 
 def test_thousands_separator_is_refused_rather_than_guessed():
-    """"1.234" mund të jetë njëmijë e dyqind ose një presje e tridhjetë e
+    """ "1.234" mund të jetë njëmijë e dyqind ose një presje e tridhjetë e
     katër. Refuzimi është gabim i dukshëm; hamendja është gabim i heshtur
     me faktor një mijë."""
     assert parse_number("1.234") == Decimal("1.234")
@@ -67,13 +60,13 @@ def test_unit_spelling_is_normalized(printed, expected):
 
 def test_value_and_unit_split_from_one_cell():
     assert split_value_and_unit("13,4 g/dL") == (Decimal("13.4"), "g/dL")
-    assert split_value_and_unit("128") == (Decimal("128"), "")
+    assert split_value_and_unit("128") == (Decimal(128), "")
     assert split_value_and_unit("pa vlerë") is None
 
 
 def test_alternate_unit_is_converted_to_canonical():
     creatinine = analytes_by_code()[CREATININE]
-    converted = to_canonical(creatinine, Decimal("88"), "umol/L")
+    converted = to_canonical(creatinine, Decimal(88), "umol/L")
     assert converted is not None
     value, unit = converted
     assert unit == "mg/dL"
@@ -83,12 +76,10 @@ def test_alternate_unit_is_converted_to_canonical():
 def test_unknown_unit_is_not_silently_accepted():
     """Vlera në njësi të panjohur nuk krahasohet dot me asnjë interval;
     thirrësi duhet ta shënojë të painterpretueshme dhe jo ta kalojë."""
-    assert to_canonical(analytes_by_code()[GLUCOSE], Decimal("5"), "parsec") is None
+    assert to_canonical(analytes_by_code()[GLUCOSE], Decimal(5), "parsec") is None
 
 
-# --------------------------------------------------------------------
 # Harta LOINC
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -119,18 +110,16 @@ def test_unknown_name_stays_unknown():
     assert loinc.resolve("Substancë e panjohur") is None
 
 
-# --------------------------------------------------------------------
 # Intervali referent
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
     "printed,expected",
     [
-        ("70 - 99", (Decimal("70"), Decimal("99"))),
+        ("70 - 99", (Decimal(70), Decimal(99))),
         ("3,5 – 5,1", (Decimal("3.5"), Decimal("5.1"))),
-        ("< 200", (None, Decimal("200"))),
-        ("> 40", (Decimal("40"), None)),
+        ("< 200", (None, Decimal(200))),
+        ("> 40", (Decimal(40), None)),
     ],
 )
 def test_printed_intervals_are_parsed(printed, expected):
@@ -147,7 +136,7 @@ def test_printed_interval_wins_over_the_internal_table():
     glucose = analytes_by_code()[GLUCOSE]
     resolved = reference.resolve(glucose, "65 - 105", "mg/dL", Sex.MALE)
     assert resolved.source is ReferenceSource.DOCUMENT
-    assert (resolved.low, resolved.high) == (Decimal("65"), Decimal("105"))
+    assert (resolved.low, resolved.high) == (Decimal(65), Decimal(105))
 
 
 def test_printed_interval_is_converted_like_the_value():
@@ -171,9 +160,7 @@ def test_unknown_sex_leaves_the_interval_unresolved():
     assert not resolved.has_bounds
 
 
-# --------------------------------------------------------------------
 # Segmentimi i rreshtave
-# --------------------------------------------------------------------
 
 
 def _fragment(text: str, x0: float, baseline: float) -> TextFragment:
@@ -243,9 +230,7 @@ def test_patient_sex_is_read_from_the_header():
     assert find_patient_sex((page,)) is Sex.FEMALE
 
 
-# --------------------------------------------------------------------
 # Skedari i artë: dokument i plotë, nga PDF-ja te gjetjet
-# --------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -306,11 +291,7 @@ def test_golden_document_keeps_uninterpretable_values(golden):
         for f in document.context.findings
         if f.status is AnalyteStatus.UNINTERPRETABLE
     }
-    got = {
-        f.analyte_code
-        for f in result.findings
-        if f.status is AnalyteStatus.UNINTERPRETABLE
-    }
+    got = {f.analyte_code for f in result.findings if f.status is AnalyteStatus.UNINTERPRETABLE}
     assert got == expected
 
 

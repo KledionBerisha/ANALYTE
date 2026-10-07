@@ -1,17 +1,6 @@
 """
 Hapi i dytë i hyrjes: kodet njëpërdorimshe të kohës (TOTP) dhe kodet e rimëkëmbjes (ADR 0018).
 
-TOTP ndjek RFC 6238 mbi HOTP të RFC 4226, me parametrat që pranojnë aplikacionet e zakonshme të vërtetimit:
-SHA-1, hap 30 sekondash, gjashtë shifra. Realizohet me bibliotekën standarde (`hmac`, `hashlib`, `struct`,
-`base64`) pa varësi të re: algoritmi është i shkurtër, dhe provat e RFC-së (shtojca B e RFC 6238) ekzekutohen te
-testet.
-
-Një kod pranohet nëse përputhet me hapin e tanishëm ose me një hap para ose pas (±1): ora e telefonit dhe ajo e
-shërbimit nuk janë kurrë identike. Funksioni `match` kthen hapin që u përputh; thirrësi e krahason me hapin e
-fundit të pranuar dhe e refuzon një hap që nuk është më i madh, që i njëjti kod të mos përdoret dy herë.
-
-Kodet e rimëkëmbjes janë për kur aplikacioni i vërtetimit humbet. 50 bit rastësie secili; ruhen vetëm si HMAC
-me çelës (shih `RecoveryCodeRow`) dhe vlejnë një herë.
 """
 
 from __future__ import annotations

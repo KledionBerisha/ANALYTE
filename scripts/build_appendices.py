@@ -3,21 +3,11 @@ Ndërtimi i shtojcave të punimit nga burimet e vërteta.
 
     python scripts/build_appendices.py
 
-Shtojcat dalin nga po ata skedarë dhe po ai kod që përdor sistemi: tabelat
-nga `resources/`, skema nga modelet e bazës, shembujt e rregullave nga vetë
-rregullat, konfigurimet nga skedarët e rezultateve. Një shtojcë e shkruar me
-dorë fillon të largohet nga kodi që ditën e dytë.
-
-Dalja shkon te `docs/thesis/appendices/` dhe rigjenerohet sa herë burimet
-ndryshojnë. Shtojcat që s'mund të plotësohen sepse komponenti nuk ekziston
-(E: dokumente reale; F: studimi me përdorues)
-e thonë këtë shprehimisht, jo me vendmbajtës të heshtur.
 """
 
 from __future__ import annotations
 
 import csv
-import inspect
 import json
 import re
 import sys
@@ -44,9 +34,7 @@ def _cell(text: str) -> str:
     return " ".join(str(text).replace("|", "/").split())
 
 
-# --------------------------------------------------------------------
 # A — terminologjia
-# --------------------------------------------------------------------
 
 
 def appendix_a() -> str:
@@ -93,7 +81,9 @@ def _advice_table() -> list[str]:
     names = {a.loinc_code: a.name_canonical_sq for a in load_analytes()}
     direction = {"increased": "mbi intervalin", "decreased": "nën intervalin"}
     filled = [r for r in rows if r["advice_sq"].strip() and "plotësohet" not in r["source_ref"]]
-    decided_empty = [r for r in rows if not r["advice_sq"].strip() and "plotësohet" not in r["source_ref"]]
+    decided_empty = [
+        r for r in rows if not r["advice_sq"].strip() and "plotësohet" not in r["source_ref"]
+    ]
     pending = len(rows) - len(filled) - len(decided_empty)
     lines = [
         f"Tabela A.2 mban këshillat me burim (ADR 0023): një fjali e vetme për çdo analit dhe drejtim, e shtypur "
@@ -117,9 +107,7 @@ def _advice_table() -> list[str]:
     return lines
 
 
-# --------------------------------------------------------------------
 # B — analitet, njësitë, kombinimet
-# --------------------------------------------------------------------
 
 
 def appendix_b() -> str:
@@ -141,9 +129,7 @@ def appendix_b() -> str:
     return "\n".join(lines) + "\n"
 
 
-# --------------------------------------------------------------------
 # C — katalogu i rregullave me shembuj
-# --------------------------------------------------------------------
 
 
 def _examples() -> list[tuple[str, str, str, str]]:
@@ -160,8 +146,13 @@ def _examples() -> list[tuple[str, str, str, str]]:
     contexts = dict(documents)
     samples = build_samples(documents, seed=42)
     wanted = (
-        V.UNGROUNDED_NUMBER, V.UNGROUNDED_ANALYTE, V.DIRECTION_MISMATCH, V.POLARITY_FLIP,
-        V.HEDGE_REMOVED, V.FABRICATED_FINDING, V.OMITTED_RECOMMENDATION,
+        V.UNGROUNDED_NUMBER,
+        V.UNGROUNDED_ANALYTE,
+        V.DIRECTION_MISMATCH,
+        V.POLARITY_FLIP,
+        V.HEDGE_REMOVED,
+        V.FABRICATED_FINDING,
+        V.OMITTED_RECOMMENDATION,
     )
     out = []
     for defect in wanted:
@@ -230,9 +221,7 @@ def appendix_c() -> str:
     return "\n".join(lines) + "\n"
 
 
-# --------------------------------------------------------------------
 # D, E, F — çfarë nuk ekziston, e thënë shprehimisht
-# --------------------------------------------------------------------
 
 
 def _llm_run() -> dict | None:
@@ -353,9 +342,7 @@ def appendix_f() -> str:
     )
 
 
-# --------------------------------------------------------------------
 # G — skema SQL
-# --------------------------------------------------------------------
 
 
 def appendix_g() -> str:
@@ -381,9 +368,7 @@ def appendix_g() -> str:
     )
 
 
-# --------------------------------------------------------------------
 # H — konfigurimet dhe farat
-# --------------------------------------------------------------------
 
 
 def appendix_h() -> str:
@@ -471,9 +456,7 @@ def appendix_h() -> str:
     return "\n".join(lines) + "\n"
 
 
-# --------------------------------------------------------------------
 # I — shembuj dokumentesh
-# --------------------------------------------------------------------
 
 
 def appendix_i() -> str:
@@ -491,7 +474,10 @@ def appendix_i() -> str:
         "të prodhuar nga i njëjti gjenerues. Emrat e pacientëve në to janë të shpikur nga gjeneruesi.",
         "",
     ]
-    for scanned, label, plural_label in ((False, "dixhital", "dixhital"), (True, "i skanuar", "të skanuar")):
+    for scanned, label, plural_label in (
+        (False, "dixhital", "dixhital"),
+        (True, "i skanuar", "të skanuar"),
+    ):
         entry = next(d for d in manifest["documents"] if d["is_scanned"] is scanned)
         truth = json.loads((data / entry["file"]).read_text(encoding="utf-8"))
         pdf = pymupdf.open(data / entry["pdf"])
@@ -518,7 +504,13 @@ def appendix_i() -> str:
                 f"| {f.get('analyte_name_canonical')} | {f.get('value_canonical')} "
                 f"| {f.get('unit_canonical')} | {interval} | {f.get('status')} |"
             )
-        lines += ["", "Narrativa e mjekut (fillimi):", "", f"> {truth['narrative_text'][:420].strip()}…", ""]
+        lines += [
+            "",
+            "Narrativa e mjekut (fillimi):",
+            "",
+            f"> {truth['narrative_text'][:420].strip()}…",
+            "",
+        ]
     return "\n".join(lines) + "\n"
 
 
@@ -547,7 +539,11 @@ def result_files() -> list[Path]:
     def key(path: Path) -> tuple[bool, int, str]:
         relative = path.parent.relative_to(RESULTS)
         experiment = next(part for part in relative.parts if re.match(r"E\d+", part))
-        return relative.parts[0] == "llm", int(re.match(r"E(\d+)", experiment).group(1)), relative.as_posix()
+        return (
+            relative.parts[0] == "llm",
+            int(re.match(r"E(\d+)", experiment).group(1)),
+            relative.as_posix(),
+        )
 
     return sorted(set(found), key=key)
 
@@ -559,19 +555,19 @@ def sync_into_thesis(thesis: Path, directory: Path = OUT) -> list[str]:
     Kthen shkronjat e shtojcave që ndryshuan.
     """
     text = thesis.read_text(encoding="utf-8")
-    heads = list(re.finditer(r"^## Shtojca ([A-I]) — .*$", text, re.M))
+    heads = list(re.finditer(r"^## Shtojca ([A-I]) — .*$", text, re.MULTILINE))
     changed = []
     for index in reversed(range(len(heads))):  # nga fundi, që pozicionet e mëparshme të mos lëvizin
         head = heads[index]
         end = heads[index + 1].start() if index + 1 < len(heads) else len(text)
-        span = text[head.start():end]
+        span = text[head.start() : end]
         core = re.sub(r"\n---\s*$", "", span.rstrip())
-        suffix = span[len(core):]
+        suffix = span[len(core) :]
         source = next(directory.glob(f"{head.group(1)}_*.md")).read_text(encoding="utf-8")
-        body = source[source.index("## Shtojca"):].rstrip()
+        body = source[source.index("## Shtojca") :].rstrip()
         if body != core.rstrip():
             changed.append(head.group(1))
-            text = text[:head.start()] + body + suffix + text[end:]
+            text = text[: head.start()] + body + suffix + text[end:]
     thesis.write_text(text, encoding="utf-8", newline="\n")
     return sorted(changed)
 
@@ -580,8 +576,12 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(prog="build_appendices")
-    parser.add_argument("--thesis", type=Path, default=None,
-                        help="pas ndërtimit, përditëso edhe seksionet e shtojcave te ky skedar (p.sh. docs/thesis/teza_v3.md)")
+    parser.add_argument(
+        "--thesis",
+        type=Path,
+        default=None,
+        help="pas ndërtimit, përditëso edhe seksionet e shtojcave te ky skedar (p.sh. docs/thesis/teza_v3.md)",
+    )
     args = parser.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
     for name, build in BUILDERS.items():

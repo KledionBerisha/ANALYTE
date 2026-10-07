@@ -1,9 +1,6 @@
 """
 Testet e klasifikimit determinist.
 
-Ky funksion përcakton kuptimin e fjalëve "e lartë" dhe "kritike" për
-tërë sistemin, dhe njëkohësisht etiketat e korpusit. Gabimi këtu nuk
-shfaqet si defekt: ai shfaqet si metrikë e mirë.
 """
 
 from decimal import Decimal
@@ -11,10 +8,10 @@ from decimal import Decimal
 from analyte.domain.enums import AnalyteStatus
 from analyte.grounding.branch_a.classify import classify
 
-LOW = Decimal("70")
-HIGH = Decimal("99")
-CRIT_LOW = Decimal("45")
-CRIT_HIGH = Decimal("400")
+LOW = Decimal(70)
+HIGH = Decimal(99)
+CRIT_LOW = Decimal(45)
+CRIT_HIGH = Decimal(400)
 
 
 def _classify(value: str):
@@ -54,7 +51,7 @@ def test_severity_is_distance_in_interval_widths():
 
 
 def test_missing_interval_is_uninterpretable():
-    result = classify(Decimal("212"), None, None)
+    result = classify(Decimal(212), None, None)
     assert result.status is AnalyteStatus.UNINTERPRETABLE
     assert result.severity is None
 
@@ -62,12 +59,12 @@ def test_missing_interval_is_uninterpretable():
 def test_one_sided_interval_uses_the_crossed_bound_as_scale():
     """Me interval "< 200" nuk ka gjerësi; ashpërsia bëhet devijim
     relativ ndaj kufirit të kaluar."""
-    result = classify(Decimal("250"), None, Decimal("200"))
+    result = classify(Decimal(250), None, Decimal(200))
     assert result.status is AnalyteStatus.HIGH
     assert result.severity == Decimal("0.2500")
 
 
 def test_without_critical_threshold_extreme_values_stay_high():
     """Aty ku laboratori nuk përcakton prag paniku, ne nuk shpikim një të tillë."""
-    result = classify(Decimal("9999"), LOW, HIGH)
+    result = classify(Decimal(9999), LOW, HIGH)
     assert result.status is AnalyteStatus.HIGH

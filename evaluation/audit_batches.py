@@ -5,21 +5,6 @@ Auditi i pavarur i tekstit që arriti te përdoruesi në E8 (PK5): a ka gabime q
     # subagjentët lexojnë DIR/instructions.md dhe një DIR/chunk_NN.json, shkruajnë DIR/answers_NN.jsonl
     python -m evaluation.audit_batches ingest DIR --key KEY.json --model "<si u thirr>"
 
-**Pse ekziston.** Metrika e PK5 numëron shkeljet me të njëjtat rregulla që e bllokojnë tekstin.
-"0 shkelje arrijnë te përdoruesi" do të thotë pra "asnjë që rregullat e shohin", jo "asnjë gabim".
-Ky audit e mat atë që mbetet: një gjykatës lexon tekstin e dorëzuar kundrejt kontekstit dhe liston çdo
-problem, përfshirë `other_unsupported` — një pohim që nuk është te konteksti dhe që asnjë rregull nuk e
-kontrollon (njohuri mjekësore e shtuar, qetësim, këshillë, shpjegim i një testi).
-
-**Mostra.** Nga 500 dokumentet e E8: 90 tekste të gjeneruara që kaluan verifikimin (të ndara
-proporcionalisht dixhital/skanuar, me farë të fiksuar) dhe 10 shabllone rezervë si kontroll. Teksti i
-shabllonit është i bazuar nga ndërtimi; nëse gjykatësi gjen "probleme" aty, ato janë gabimet e vetë
-gjykatësit ose të kontekstit të nxjerrë.
-
-**Kufizime.** Gjykatësi është modeli Claude (subagjent, pa temperaturë të fiksuar) dhe nuk ka të vërtetë
-bazë për këtë pyetje; mostra është 100 tekste. Vlerësimi është një kufi i poshtëm i gabimeve që rregullat
-humbin, jo një normë e matur me saktësi. Çdo përgjigje ruhet dhe çdo "problem" ka një citat që mund të
-kontrollohet me dorë.
 """
 
 from __future__ import annotations
@@ -33,7 +18,6 @@ from pathlib import Path
 from typing import Any
 
 from analyte.domain.enums import ProcessingState, ViolationType
-from analyte.domain.models import GroundingContext
 from analyte.domain.policy import RULE_BY_VIOLATION
 
 from .llm_judge import judge_prompt
@@ -58,17 +42,17 @@ SYSTEM = (
     "përmbyllës, njoftimi që një term ose vlerë nuk shpjegohet), citimet e mjekut me parashtesën "
     "'Mjeku ka shënuar:' kur përputhen me pohimet e dhëna, dhe shpjegimet e termave që jepen te "
     "konteksti (edhe riformuluar pa shtuar asgjë).\n\n"
-    "Për çdo element, kthe një rresht JSON: {\"id\": \"...\", \"problems\": [{\"label\": \"...\", "
-    "\"quote\": \"fjalët e shpjegimit që e shkaktojnë, deri në 15 fjalë\"}]}. `problems` është [] "
+    'Për çdo element, kthe një rresht JSON: {"id": "...", "problems": [{"label": "...", '
+    '"quote": "fjalët e shpjegimit që e shkaktojnë, deri në 15 fjalë"}]}. `problems` është [] '
     "kur shpjegimi nuk ka asnjë problem."
 )
 
 
 def collect(directory: Path, key_path: Path) -> dict[str, Any]:
     """Mostra nga E8 (me cache-in e modelit), pa thirrje të reja."""
+    from analyte.generation import templates
     from evaluation import dataset as ds
     from evaluation.harness import build_pipeline
-    from analyte.generation import templates
 
     data = ds.load(Path("data/v1"))
     pipeline = build_pipeline("e8", data, "llm", ocr=True)
@@ -106,7 +90,8 @@ def collect(directory: Path, key_path: Path) -> dict[str, Any]:
         chunks[-1].append({"id": item_id, "user": judge_prompt(context, text)[1]})
     for number, items in enumerate(chunks):
         (directory / f"chunk_{number:02d}.json").write_text(
-            json.dumps({"chunk": number, "items": items}, ensure_ascii=False, indent=1), encoding="utf-8"
+            json.dumps({"chunk": number, "items": items}, ensure_ascii=False, indent=1),
+            encoding="utf-8",
         )
     (directory / "instructions.md").write_text(instructions(), encoding="utf-8")
     key_path.parent.mkdir(parents=True, exist_ok=True)
@@ -159,13 +144,19 @@ def ingest(directory: Path, key_path: Path, *, model: str) -> dict[str, Any]:
 
     def summarise(source: str | None, channel: str | None = None) -> dict[str, Any]:
         ids = [
-            i for i, meta in key["items"].items()
-            if (source is None or meta["source"] == source) and (channel is None or meta["channel"] == channel)
+            i
+            for i, meta in key["items"].items()
+            if (source is None or meta["source"] == source)
+            and (channel is None or meta["channel"] == channel)
         ]
         answered = [i for i in ids if i in answers]
         with_problem = [i for i in answered if answers[i]]
         labels = Counter(p["label"] for i in answered for p in answers[i])
-        rule_visible = sum(c for l, c in labels.items() if l != OTHER and l in {v.value for v in ViolationType})
+        rule_visible = sum(
+            c
+            for label, c in labels.items()
+            if label != OTHER and label in {v.value for v in ViolationType}
+        )
         return {
             "items": len(ids),
             "answered": len(answered),
@@ -213,9 +204,16 @@ def main(argv: list[str] | None = None) -> int:
     (args.out / "result.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
-    for name in ("generated_passed_verification", "generated_digital", "generated_scanned", "template_fallback_control"):
+    for name in (
+        "generated_passed_verification",
+        "generated_digital",
+        "generated_scanned",
+        "template_fallback_control",
+    ):
         s = result[name]
-        print(f"{name}: {s['texts_with_problem']}/{s['answered']} tekste me problem ({s['share_with_problem']}), {s['problems_by_label']}")
+        print(
+            f"{name}: {s['texts_with_problem']}/{s['answered']} tekste me problem ({s['share_with_problem']}), {s['problems_by_label']}"
+        )
     return 0
 
 

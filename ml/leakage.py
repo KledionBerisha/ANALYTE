@@ -3,24 +3,6 @@ Kontrolli i rrjedhjes për klasifikuesin e Fazës 7.
 
     python -m ml.leakage --data ml/artifacts/classifier_data
 
-Ndarja sipas dokumentit e mban të njëjtin dokument larg nga dy grupe, por
-nuk e mban larg shabllonin: çdo dokument i korpusit ndërtohet me të njëjtat
-fjali-model, dhe çdo defekt injektohet me të njëjtin korruptues. Një
-klasifikues mund të arrijë rezultat të lartë duke njohur formën e fjalisë
-dhe jo defektin. Ky modul e mat këtë drejtpërdrejt, në dy mënyra:
-
-  - **Skeletet e përbashkëta.** Numrat, emrat e analiteve dhe termat
-    zëvendësohen me shenja; mbetet forma e fjalisë. Përpjesa e fjalive të
-    validimit, skeleti i të cilave gjendet i njëjtë në trajnim, është masa e
-    asaj që validimi nuk e teston: ajo është trajnimi me numra të tjerë.
-  - **Shkurtoret.** Për çdo lloj defekti, fillimi më i shpeshtë me dy fjalë
-    dhe sa e ndan ai llojin nga fjalitë e pastra. Një fillim që shfaqet te
-    çdo fjali e një lloji dhe te asnjë e pastër është etiketa e shkruar në
-    tekst.
-
-Rezultati nuk rregullon asgjë. Ai dokumenton sa larg mund të shtrihet
-përfundimi i E11, dhe pse grupi B i shkruar me dorë është testi i vetëm që
-e kalon këtë kufi.
 """
 
 from __future__ import annotations
@@ -50,7 +32,9 @@ def _vocabulary() -> list[tuple[re.Pattern[str], str]]:
         terms |= set(term.surface_forms())
     ordered = sorted(((n, "‹A›") for n in names), key=lambda x: -len(x[0]))
     ordered += sorted(((t, "‹T›") for t in terms), key=lambda x: -len(x[0]))
-    return [(re.compile(rf"(?<!\w){re.escape(s)}(?!\w)", re.IGNORECASE), mark) for s, mark in ordered]
+    return [
+        (re.compile(rf"(?<!\w){re.escape(s)}(?!\w)", re.IGNORECASE), mark) for s, mark in ordered
+    ]
 
 
 def skeleton(sentence: str, vocabulary: list[tuple[re.Pattern[str], str]]) -> str:

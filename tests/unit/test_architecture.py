@@ -1,10 +1,6 @@
 """
 Struktura e paketave kontrollohet kundrejt importeve të vërteta (§5.9, Figura 8).
 
-Dy pohime të punimit mbahen nga këto teste: moduli i domenit nuk varet nga asnjë modul tjetër,
-dhe nuk ka cikël paketash. Ciklin `audit ↔ orchestration ↔ persistence` e shkaktonin tri lloje
-(`Transition`, `Delivery`, `Explanation`) që jetonin te `orchestration`; tani jetojnë te
-`domain.processing` dhe testi i bën ciklin e ri të dukshëm në çast.
 """
 
 from __future__ import annotations

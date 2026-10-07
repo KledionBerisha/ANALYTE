@@ -1,13 +1,6 @@
 """
 Testet e katalogut normativ.
 
-Katalogu i rregullave është i dhënë dhe jo i llogaritur, prandaj gabimet
-në të janë gabime shtypi që nuk shfaqen derisa një eksperiment jep
-numra të gabuar. Këto teste i kapin menjëherë.
-
-Këtu qëndron edhe testi i pastërtisë së paketës `domain/`: konventa që
-domeni nuk importon asgjë nga pjesa tjetër e sistemit zbatohet me kod,
-jo me disiplinë.
 """
 
 import ast
@@ -31,9 +24,7 @@ from analyte.domain.policy import (
 DOMAIN_DIR = Path(__file__).resolve().parents[2] / "backend" / "src" / "analyte" / "domain"
 
 
-# --------------------------------------------------------------------
 # Plotësia e katalogut
-# --------------------------------------------------------------------
 
 
 def test_every_violation_type_has_a_rule():
@@ -77,9 +68,7 @@ def test_versions_are_recorded():
     assert MAX_GENERATION_ATTEMPTS == 2
 
 
-# --------------------------------------------------------------------
 # Politika e sigurisë
-# --------------------------------------------------------------------
 
 
 def test_all_eight_policies_exist_with_text():
@@ -101,9 +90,7 @@ def test_prohibited_claim_rule_covers_sp1_to_sp3():
     assert rule.id == "SP1-3"
 
 
-# --------------------------------------------------------------------
 # Pastërtia e paketës domain/
-# --------------------------------------------------------------------
 
 
 def _imported_modules(path: Path) -> set[str]:
@@ -121,7 +108,13 @@ def _imported_modules(path: Path) -> set[str]:
 
 
 ALLOWED_TOP_LEVEL = {
-    "enum", "typing", "datetime", "decimal", "uuid", "pydantic", "__future__",
+    "enum",
+    "typing",
+    "datetime",
+    "decimal",
+    "uuid",
+    "pydantic",
+    "__future__",
     "dataclasses",  # `processing.py` (Attempt, Explanation, Transition): dataclasa të ngrira, jo modele pydantic
 }
 

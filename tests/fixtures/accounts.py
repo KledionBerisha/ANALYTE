@@ -62,7 +62,7 @@ class World:
             self.outbox = mailer
         self.app = self.client.app
 
-    # --- veprime
+    # veprime
     def register(self, email: str = EMAIL, password: str = PASSWORD, ip: str | None = None):
         return self.client.post(
             "/auth/register", json={"email": email, "password": password}, headers=_ip(ip)
@@ -100,8 +100,10 @@ class World:
             "/auth/login/verify", json={"challenge": challenge, "code": code}, headers=_ip(ip)
         )
 
-    # --- hapi i dytë
-    def enable_two_factor(self, email: str = EMAIL, password: str = PASSWORD) -> tuple[str, list[str], dict]:
+    # hapi i dytë
+    def enable_two_factor(
+        self, email: str = EMAIL, password: str = PASSWORD
+    ) -> tuple[str, list[str], dict]:
         """Regjistron hapin e dytë; kthen sekretin, kodet e rimëkëmbjes dhe tokenët e seancës që e aktivizoi."""
         tokens = self.tokens(email, password)
         enrolled = self.authed(tokens["access_token"], "POST", "/auth/2fa/enroll")
@@ -113,7 +115,7 @@ class World:
         assert confirmed.status_code == 200, confirmed.text
         return secret, confirmed.json()["recovery_codes"], tokens
 
-    # --- baza
+    # baza
     def db(self):
         return self.services.sessions()
 
@@ -125,7 +127,9 @@ class World:
 
     def audit(self, event_type: str) -> list[AuditEventRow]:
         with self.db() as db:
-            return list(db.scalars(select(AuditEventRow).where(AuditEventRow.event_type == event_type)))
+            return list(
+                db.scalars(select(AuditEventRow).where(AuditEventRow.event_type == event_type))
+            )
 
 
 def bearer(access: str) -> dict[str, str]:

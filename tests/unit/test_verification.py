@@ -1,16 +1,6 @@
 """
 Testet e shabllonit dhe të shtresës së verifikimit.
 
-Dy pohime mbajnë gjithçka këtu.
-
-**Shablloni duhet të kalojë çdo rregull.** Ai ndërtohet vetëm nga
-konteksti, prandaj një shkelje mbi të nuk është gabim i tij por i
-rregullit që e raportoi. Ky test është i vetmi që dallon një rregull të
-ashpër nga një rregull i gabuar.
-
-**Çdo rregull duhet të kapë defektin e vet.** Defektet injektohen me dorë
-te teksti i pastër, një nga një, dhe rregulli përkatës duhet ta shohë
-secilin.
 """
 
 import random
@@ -40,18 +30,14 @@ def documents():
     return [_document(f"ver{i}") for i in range(12)]
 
 
-# --------------------------------------------------------------------
 # Shablloni
-# --------------------------------------------------------------------
 
 
 def test_template_passes_every_rule(documents):
     """Dalja e ndërtuar vetëm nga konteksti nuk mund të jetë e pambështetur."""
     for document in documents:
         result = verify(document.context, build(document.context))
-        assert result.passed, [
-            (v.type.value, v.evidence) for v in result.violations
-        ]
+        assert result.passed, [(v.type.value, v.evidence) for v in result.violations]
 
 
 def test_template_carries_the_disclaimer(documents):
@@ -102,9 +88,7 @@ def test_template_uses_no_number_outside_the_context(documents):
             assert value in allowed, raw
 
 
-# --------------------------------------------------------------------
 # Rregullat, një nga një
-# --------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -125,9 +109,7 @@ def test_r1_catches_an_invented_number(clean):
 def test_r2_catches_an_unmeasured_analyte(clean):
     context, text = clean
     intruder = next(
-        name
-        for name in ("Homocisteinë në serum", "Prokalcitoninë")
-        if name not in text
+        name for name in ("Homocisteinë në serum", "Prokalcitoninë") if name not in text
     )
     assert ViolationType.UNGROUNDED_ANALYTE in _types(context, f"{text} {intruder} është e lartë.")
 
@@ -192,9 +174,7 @@ def test_catalogue_covers_every_violation_type():
     assert covered == {"R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "SP1-3"}
 
 
-# --------------------------------------------------------------------
 # Kurthet e njohura
-# --------------------------------------------------------------------
 
 
 def test_digits_inside_units_are_not_values(clean):
@@ -206,7 +186,7 @@ def test_digits_inside_units_are_not_values(clean):
 
 
 def test_decimal_point_does_not_end_a_sentence(clean):
-    context, _ = clean
+    _context, _ = clean
     found = sentences("Vlera është 13.2 g/dL, brenda kufijve. Fjalia tjetër.")
     assert len(found) == 2
 
@@ -225,9 +205,7 @@ def test_quoted_physician_claims_are_not_judged_against_measurements():
     assert verify(document.context, build(document.context)).passed
 
 
-# --------------------------------------------------------------------
 # Konteksti i shkruar me dorë
-# --------------------------------------------------------------------
 #
 # Korpusi nuk prodhon rekomandime me numra dhe fjalorët e tij rastisin ta
 # përmbajnë "interval referent". Mbi të, dy rregulla dukeshin të sakta dhe
@@ -244,7 +222,7 @@ def test_template_passes_every_rule_on_the_reference_context():
 
 
 def test_r1_accepts_a_number_the_physician_wrote():
-    """"Kontroll pas 3 muajsh" — numri është i mjekut, jo i matjes."""
+    """ "Kontroll pas 3 muajsh" — numri është i mjekut, jo i matjes."""
     from tests.fixtures.grounding_context import build_reference_context
 
     context = build_reference_context()
@@ -276,9 +254,7 @@ def test_r7_still_catches_a_condition_the_report_never_named(clean):
     assert ViolationType.FABRICATED_FINDING in _types(bare, f"Keni anemi. {DISCLAIMER_SQ}")
 
 
-# --------------------------------------------------------------------
 # Konteksti i lexuar me OCR (r1.3)
-# --------------------------------------------------------------------
 
 
 def _with_unit(context, unit):

@@ -1,8 +1,6 @@
 """
 Skripti i pamjeve të ndërfaqes (Figurat 12–16): zgjedhja e dokumentit dhe pjesët që s'kërkojnë shfletues.
 
-Vetë pamjet nuk testohen këtu (kërkojnë shfletues dhe serverin e ndërfaqes); ato shqyrtohen me sy dhe
-rigjenerohen me `python scripts/export_screenshots.py`.
 """
 
 from __future__ import annotations
@@ -29,19 +27,49 @@ def _corpus(tmp_path: Path, documents: list[dict]) -> Path:
             }
         }
         (tmp_path / f"{relative}.json").write_text(json.dumps(truth), encoding="utf-8")
-        entries.append({"index": index, "file": f"{relative}.json", "pdf": f"{relative}.pdf", "is_scanned": doc["scanned"]})
+        entries.append(
+            {
+                "index": index,
+                "file": f"{relative}.json",
+                "pdf": f"{relative}.pdf",
+                "is_scanned": doc["scanned"],
+            }
+        )
     (tmp_path / "manifest.json").write_text(json.dumps({"documents": entries}), encoding="utf-8")
     return tmp_path
 
 
 def test_the_document_has_a_critical_value_a_contradiction_and_is_digital(tmp_path):
-    data = _corpus(tmp_path, [
-        {"scanned": False, "statuses": ["normal"] * 5, "states": ["agreement"]},                       # as kritik as kundërshtim
-        {"scanned": True, "statuses": ["critical_high"] + ["normal"] * 3, "states": ["contradiction"]},  # e skanuar
-        {"scanned": False, "statuses": ["critical_low"] + ["normal"] * 9, "states": ["contradiction"]},  # i përshtatshëm, i gjatë
-        {"scanned": False, "statuses": ["critical_high"] + ["normal"] * 2, "states": ["contradiction"]},  # i përshtatshëm, më i shkurtri
-        {"scanned": False, "statuses": ["high"] * 3, "states": ["contradiction"]},                      # pa vlerë kritike
-    ])
+    data = _corpus(
+        tmp_path,
+        [
+            {
+                "scanned": False,
+                "statuses": ["normal"] * 5,
+                "states": ["agreement"],
+            },  # as kritik as kundërshtim
+            {
+                "scanned": True,
+                "statuses": ["critical_high"] + ["normal"] * 3,
+                "states": ["contradiction"],
+            },  # e skanuar
+            {
+                "scanned": False,
+                "statuses": ["critical_low"] + ["normal"] * 9,
+                "states": ["contradiction"],
+            },  # i përshtatshëm, i gjatë
+            {
+                "scanned": False,
+                "statuses": ["critical_high"] + ["normal"] * 2,
+                "states": ["contradiction"],
+            },  # i përshtatshëm, më i shkurtri
+            {
+                "scanned": False,
+                "statuses": ["high"] * 3,
+                "states": ["contradiction"],
+            },  # pa vlerë kritike
+        ],
+    )
     assert shots.pick_document(data) == data / "documents/doc_00003.pdf"
 
 
@@ -51,7 +79,9 @@ def test_no_suitable_document_is_an_error_not_a_silent_default(tmp_path):
         shots.pick_document(data)
 
 
-@pytest.mark.skipif(not (ROOT / "data" / "v1" / "manifest.json").exists(), reason="korpusi data/v1 mungon")
+@pytest.mark.skipif(
+    not (ROOT / "data" / "v1" / "manifest.json").exists(), reason="korpusi data/v1 mungon"
+)
 def test_the_real_corpus_gives_the_document_named_in_the_thesis():
     assert shots.pick_document(ROOT / "data" / "v1").name == "doc_00335.pdf"
 

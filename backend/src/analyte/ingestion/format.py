@@ -1,15 +1,6 @@
 """
 Kontrolli i formatit: degëzimi UPLOADED → REJECTED.
 
-Një skedar refuzohet kur nuk mund të lexohet si PDF fare — jo kur lexohet
-dhe del bosh. Dallimi ka rëndësi: një PDF i skanuar pa shtresë teksti
-është dokument i vlefshëm që shkon te OCR-ja, ndërsa një skedar me
-prapashtesë `.pdf` që nuk hapet nuk është dokument.
-
-**Kontrolli për viruse nuk është ndërtuar.** Specifikimi e vendos në të
-njëjtin degëzim, por këtu ndodhet vetëm pjesa e formatit. Pa një skaner
-të vërtetë, çdo kontroll i shkruar këtu do të ishte pretendim dhe jo
-mbrojtje.
 """
 
 from __future__ import annotations

@@ -1,16 +1,6 @@
 """
 Testet e infrastrukturës së vlerësimit.
 
-Një harness i prishur nuk dështon: ai prodhon numra. Prandaj testet këtu
-mbështeten te dy kufij të njohur paraprakisht.
-
-  - **Orakulli** — sistemi që kthen vetë të vërtetën — duhet të arrijë
-    vlerën e përsosur. Një metrikë që nuk e arrin dot atë është e prishur
-    në vetvete, dhe pa këtë kontroll gabimi i saj do të dukej më vonë si
-    dobësi e sistemit të matur.
-  - **Sistemi bosh** — ai që nuk nxjerr asgjë — nuk duhet të marrë kurrë
-    notë të mirë. Metrika që e shpërblen heshtjen është më e keqe se
-    asnjë metrikë.
 """
 
 from dataclasses import fields
@@ -63,9 +53,7 @@ def data(corpus_dir):
     return dataset_module.load(corpus_dir)
 
 
-# --------------------------------------------------------------------
 # Bazat e metrikave
-# --------------------------------------------------------------------
 
 
 def test_prf_arithmetic():
@@ -128,9 +116,7 @@ def test_sentence_counting(text, expected):
     assert count_sentences(text) == expected
 
 
-# --------------------------------------------------------------------
 # Kufijtë: orakulli dhe sistemi bosh
-# --------------------------------------------------------------------
 
 
 def _contexts(data):
@@ -138,9 +124,7 @@ def _contexts(data):
 
 
 def _empty_contexts(data):
-    return [
-        (case.truth, GroundingContext(document_id=case.document_id)) for case in data.cases
-    ]
+    return [(case.truth, GroundingContext(document_id=case.document_id)) for case in data.cases]
 
 
 def test_extraction_is_perfect_on_the_oracle(data):
@@ -171,7 +155,7 @@ def test_missing_row_costs_every_field_not_just_the_analyte(data):
 
 def test_wrong_value_counts_on_both_sides(data):
     truth = data.cases[0].truth
-    broken = truth.findings[0].model_copy(update={"value_canonical": Decimal("99999")})
+    broken = truth.findings[0].model_copy(update={"value_canonical": Decimal(99999)})
     predicted = truth.model_copy(update={"findings": (broken, *truth.findings[1:])})
     result = extraction.measure([(truth, predicted)])
     assert result["per_field"]["value"]["fp"] == 1
@@ -203,10 +187,10 @@ def _uninterpretable_context() -> GroundingContext:
         analyte_name_raw="Ferritina",
         analyte_name_canonical="Ferritinë në serum",
         value_raw="212",
-        value=Decimal("212"),
+        value=Decimal(212),
         unit_raw="ng/mL",
         unit_canonical="ng/mL",
-        value_canonical=Decimal("212"),
+        value_canonical=Decimal(212),
         ref_source=ReferenceSource.NONE,
         status=AnalyteStatus.UNINTERPRETABLE,
         page=1,
@@ -228,8 +212,8 @@ def test_guessing_a_status_without_an_interval_is_visible():
     truth = _uninterpretable_context()
     guessed = truth.findings[0].model_copy(
         update={
-            "ref_low": Decimal("30"),
-            "ref_high": Decimal("400"),
+            "ref_low": Decimal(30),
+            "ref_high": Decimal(400),
             "ref_source": ReferenceSource.INTERNAL_TABLE,
             "status": AnalyteStatus.NORMAL,
         }
@@ -250,9 +234,7 @@ def test_crossref_marks_silence_as_missing(data):
     assert any(key.endswith(f"->{crossref.MISSING}") for key in matrix)
 
 
-# --------------------------------------------------------------------
 # PK3 dhe PK5 — varen nga dalja e gjeneruar
-# --------------------------------------------------------------------
 
 
 def _output(explanation="", violations_=(), state=ProcessingState.DELIVERED, context=None):
@@ -332,9 +314,7 @@ def test_violations_rate_is_none_without_sentences(data):
     assert result["violations_produced"] == 0
 
 
-# --------------------------------------------------------------------
 # PK6 — zbuluesit
-# --------------------------------------------------------------------
 
 
 def test_detector_scores_per_defect_type():
@@ -363,9 +343,7 @@ def test_detector_is_perfect_when_every_label_matches():
     assert result["false_alarms_on_clean"] == 0
 
 
-# --------------------------------------------------------------------
 # Korpusi dhe kufiri me sistemin
-# --------------------------------------------------------------------
 
 
 def test_dataset_loads_with_identity(data):
@@ -412,9 +390,7 @@ def test_pipeline_only_ever_sees_document_input(data):
     assert seen and all(isinstance(item, DocumentInput) for item in seen)
 
 
-# --------------------------------------------------------------------
 # Harness-i
-# --------------------------------------------------------------------
 
 
 def test_every_experiment_of_the_matrix_is_registered():
@@ -471,9 +447,7 @@ def test_channel_experiments_report_their_channel(data):
     assert digital.metadata["dataset"]["documents"] != len(data) or len(data) == 0
 
 
-# --------------------------------------------------------------------
 # Gjenerimi përmes harness-it (E7, E8)
-# --------------------------------------------------------------------
 #
 # Shablloni është për gjenerimin ajo që orakulli është për nxjerrjen: mbi
 # të, çdo metrikë e gjenerimit duhet të dalë e përsosur. Gjeneruesit e
@@ -578,9 +552,7 @@ def test_conditions_the_pipeline_cannot_implement_are_refused():
             GenerationPipeline(TemplateGenerator(), ablation=condition)
 
 
-# --------------------------------------------------------------------
 # Intervalet e besimit
-# --------------------------------------------------------------------
 
 
 def test_bootstrap_is_reproducible_and_contains_the_estimate():
@@ -632,9 +604,7 @@ def test_violation_rates_carry_their_interval(data):
     assert "≤" in result.headline()
 
 
-# --------------------------------------------------------------------
 # E9 — rregulla + klasifikues
-# --------------------------------------------------------------------
 
 _SLIPPED = "Kjo pamje është krejt e qetë dhe s'ka asgjë për t'u shqetësuar."
 """Një fjali që rregullat nuk e shohin — pa numër, pa analit, pa term — por
@@ -671,9 +641,7 @@ def test_the_rules_alone_let_the_sentence_through(data):
 def test_e9_stops_what_only_the_classifier_sees(data):
     from evaluation.pipeline import GenerationPipeline
 
-    pipeline = GenerationPipeline(
-        _Slipping(), ablation="E9", classifier=_Catcher(), threshold=0.5
-    )
+    pipeline = GenerationPipeline(_Slipping(), ablation="E9", classifier=_Catcher(), threshold=0.5)
     metrics = _run(data, "E9", pipeline).metrics
     documents = metrics["documents_with_output"]
 
@@ -690,9 +658,7 @@ def test_e9_needs_a_classifier_and_a_threshold():
     with pytest.raises(ValueError, match="pragun"):
         GenerationPipeline(TemplateGenerator(), ablation="E9", classifier=_Catcher())
     with pytest.raises(ValueError, match="vetëm E9"):
-        GenerationPipeline(
-            TemplateGenerator(), ablation="E8", classifier=_Catcher(), threshold=0.5
-        )
+        GenerationPipeline(TemplateGenerator(), ablation="E8", classifier=_Catcher(), threshold=0.5)
 
 
 def test_perfect_preservation_reports_a_lower_bound_not_certainty():

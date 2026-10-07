@@ -1,15 +1,6 @@
 """
 Leximi i një korpusi të gjeneruar.
 
-Moduli varet vetëm nga modelet e domenit dhe nga formati i skedarëve, jo
-nga gjeneruesi. Kjo nuk është pastërti e kotë: korpusi i të dhënave reale
-(E13) do të vijë me anotim të bërë me dorë dhe pa asnjë `data_generator`
-pas tij, dhe harness-i duhet ta pranojë atë pa ndryshime.
-
-Ndarja që e mban vlerësimin të ndershëm bëhet këtu: `DatasetCase` mban
-veçmas atë që i jepet sistemit (`document_input`) dhe atë me të cilën
-krahasohet (`truth`). Kush thërret duhet ta kalojë të parën dhe ta ruajë
-të dytën për vete.
 """
 
 from __future__ import annotations
@@ -65,7 +56,7 @@ class Dataset:
     def __len__(self) -> int:
         return len(self.cases)
 
-    def filter(self, *, channel: str | None = None) -> "Dataset":
+    def filter(self, *, channel: str | None = None) -> Dataset:
         if channel is None:
             return self
         cases = tuple(case for case in self.cases if case.channel == channel)
@@ -126,7 +117,4 @@ def dataset_version(manifest: dict[str, Any]) -> str:
     resources = manifest.get("resources", {})
     joined = "".join(value for _, value in sorted(resources.items()))
     fingerprint = hashlib.sha256(joined.encode()).hexdigest()[:8] if resources else "00000000"
-    return (
-        f"{manifest['generator_version']}/s{manifest['seed']}"
-        f"/n{manifest['count']}/{fingerprint}"
-    )
+    return f"{manifest['generator_version']}/s{manifest['seed']}/n{manifest['count']}/{fingerprint}"

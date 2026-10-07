@@ -7,16 +7,6 @@ vjen gati nga `PrintedRow`, dhe faqja e çdo rreshti është llogaritur më
 parë nga `ground_truth`. Vizatuesi vetëm i vendos ato në letër dhe
 kthen koordinatat.
 
-Tri formate faqeje mbulojnë ndryshimet që e bëjnë nxjerrjen të vështirë:
-kolona me gjerësi të ndryshme, njësi në qelizë të veçantë ose të ngjitur
-pas vlerës, dhe prani ose mungesë vijash ndarëse. Formati nuk ndryshon
-asnjë vlerë — vetëm mënyrën si ajo duket.
-
-**Koordinatat.** Kutitë kufizuese kthehen me origjinë në këndin e
-sipërm-majtas dhe me y që rritet poshtë, sepse ashtu i raportojnë
-bibliotekat me të cilat Dega A do t'i lexojë faqet (PyMuPDF, pdfplumber).
-PDF-ja vetë ka origjinën poshtë-majtas; kthimi bëhet këtu, një herë, që
-të mos bëhet gabimisht dhjetë herë më vonë.
 """
 
 from __future__ import annotations

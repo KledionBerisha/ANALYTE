@@ -3,19 +3,6 @@ Katalogu `r1.4` kundrejt `r1.3` mbi të njëjtat mostra (ADR 0021).
 
     python -m evaluation.compare_rules                    # shkruan evaluation/results/supplementary/rules_r14.json
 
-Katër matje, secila me të dy versionet:
-
-1. **Shablloni** mbi 500 kontekstet e korpusit: duhet të kalojë të dyja pa asnjë shkelje (një rregull që e ndalon shabllonin
-   është i gabuar, jo shablloni).
-2. **E10**, 192 tekstet e testit të korpusit të korruptuar.
-3. **Grupet A dhe B** të shkruara nga autori (`python -m evaluation.kits check --rules ...`).
-4. **Auditi i E8**: 90 tekstet e gjeneruara që kaluan verifikimin e r1.3 dhe u audituan nga një gjykatës i jashtëm. Si ato kanë
-   kaluar r1.3 për ndërtim, r1.3 nuk shënon asnjë; pyetja është sa nga ato që auditori gjeti me problem të llojeve të rregullave
-   shënon tani r1.4, dhe sa tekste që auditori i gjeti të pastra shënon (alarme të rreme ose gabime që auditori i humbi).
-
-**Çfarë nuk është kjo matje.** r1.4 u hartua pasi u panë gabimet e grupeve A, B, të auditit dhe të E10; këto mostra nuk janë më
-të pastra si provë e tij. Numrat tregojnë sa kap r1.4 defektet e njohura dhe sa mban pastërtinë e shabllonit, jo si do të sillej mbi
-mostra të reja. Auditi është kufi i poshtëm i vetë gjykatësit, jo e vërtetë bazë.
 """
 
 from __future__ import annotations
@@ -45,7 +32,11 @@ RULE_LABELS = {v.value for v in ViolationType}
 def template_check(data) -> dict:
     out = {}
     for version in VERSIONS:
-        bad = sum(1 for case in data.cases if verify(case.truth, build_template(case.truth), rules=version).violations)
+        bad = sum(
+            1
+            for case in data.cases
+            if verify(case.truth, build_template(case.truth), rules=version).violations
+        )
         out[version] = {"documents": len(data.cases), "documents_with_violations": bad}
     return out
 
@@ -99,9 +90,26 @@ def audit(data) -> dict:
         output = pipeline.run(data.cases[meta["document_index"]].document_input)
         if output.state is not ProcessingState.DELIVERED:
             continue
-        flagged = {version: sorted({v.type.value for v in verify(output.context, output.explanation, rules=version).violations}) for version in VERSIONS}
-        audit_labels = sorted({p["label"] for p in answers.get(item_id, []) if p["label"] in RULE_LABELS})
-        rows.append({"id": item_id, "audit_rule_labels": audit_labels, "audit_any": bool(answers.get(item_id)), **flagged})
+        flagged = {
+            version: sorted(
+                {
+                    v.type.value
+                    for v in verify(output.context, output.explanation, rules=version).violations
+                }
+            )
+            for version in VERSIONS
+        }
+        audit_labels = sorted(
+            {p["label"] for p in answers.get(item_id, []) if p["label"] in RULE_LABELS}
+        )
+        rows.append(
+            {
+                "id": item_id,
+                "audit_rule_labels": audit_labels,
+                "audit_any": bool(answers.get(item_id)),
+                **flagged,
+            }
+        )
 
     with_problem = [r for r in rows if r["audit_rule_labels"]]
     clean = [r for r in rows if not r["audit_any"]]
@@ -111,7 +119,9 @@ def audit(data) -> dict:
         "r1.4_flags": sum(bool(r["r1.4"]) for r in rows),
         "audit_rule_type_problem_texts": len(with_problem),
         "of_which_r1.4_flags": sum(bool(r["r1.4"]) for r in with_problem),
-        "of_which_r1.4_flags_a_type_the_audit_named": sum(bool(set(r["audit_rule_labels"]) & set(r["r1.4"])) for r in with_problem),
+        "of_which_r1.4_flags_a_type_the_audit_named": sum(
+            bool(set(r["audit_rule_labels"]) & set(r["r1.4"])) for r in with_problem
+        ),
         "audit_clean_texts": len(clean),
         "r1.4_flags_among_audit_clean": sum(bool(r["r1.4"]) for r in clean),
         "r1.4_flag_types": dict(Counter(t for r in rows for t in r["r1.4"])),

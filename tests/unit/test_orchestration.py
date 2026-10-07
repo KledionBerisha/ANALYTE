@@ -1,18 +1,6 @@
 """
 Testet e makinës së përpunimit (Figura 6).
 
-Kriteri i Fazës 6 kërkon që çdo rrugë e makinës të ketë test integrimi,
-përfshirë dështimin e dyfishtë që çon te shablloni. Ky kriter këtu nuk
-lihet si premtim: skenarët drejtohen të gjithë nga skedari PDF deri te
-gjendja përfundimtare, dhe testi i fundit kontrollon që bashkimi i
-kalimeve të tyre mbulon çdo kalim të tabelës. Një kalim i shtuar pa
-skenar e rrëzon atë test.
-
-Modeli gjuhësor nuk ekziston ende, prandaj gjeneruesit janë të rremë:
-njëri kthen shabllonin (tekst i saktë i garantuar), tjetri shabllonin me
-një numër të shpikur (shkelje e garantuar e R1), i treti hedh përjashtim.
-Këto mjaftojnë për makinën — ajo nuk di dhe nuk duhet të dijë kush e
-shkroi tekstin.
 """
 
 from __future__ import annotations
@@ -68,9 +56,7 @@ class Scripted:
         return step(context)
 
 
-# --------------------------------------------------------------------
 # Dokumentet
-# --------------------------------------------------------------------
 
 
 def _render(scanned: bool, seed: str) -> bytes:
@@ -132,9 +118,7 @@ def _ocr_broken(_):
     raise RuntimeError("tesseract mungon")
 
 
-# --------------------------------------------------------------------
 # Skenarët — një për çdo rrugë të Figurës 6
-# --------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -229,7 +213,7 @@ def test_repeated_generator_error_falls_back_to_the_template(outcomes):
 
 
 def test_scanned_document_without_ocr_fails_explicitly(outcomes):
-    """"Nuk u lexua" nuk është "nuk kishte asgjë"."""
+    """ "Nuk u lexua" nuk është "nuk kishte asgjë"."""
     outcome, _ = outcomes["no_ocr"]
     assert _path(outcome) == [S.INGESTING, S.OCR_RUNNING, S.FAILED_INGESTION]
     assert "OCR" in outcome.reason
@@ -277,9 +261,7 @@ def test_scenarios_cover_every_transition_of_the_figure(outcomes):
     assert expected - covered == set()
 
 
-# --------------------------------------------------------------------
 # Cikli pa dokument
-# --------------------------------------------------------------------
 
 
 def test_loop_runs_on_a_given_context():
@@ -309,9 +291,7 @@ def test_generator_sees_only_context_and_feedback():
     assert parameters == ["self", "context", "feedback"]
 
 
-# --------------------------------------------------------------------
 # Tabela e kalimeve
-# --------------------------------------------------------------------
 
 
 def test_table_names_every_state():
@@ -341,9 +321,7 @@ def test_illegal_transition_is_refused():
     assert log.transitions == ()
 
 
-# --------------------------------------------------------------------
 # Kontrolli i formatit
-# --------------------------------------------------------------------
 
 
 def test_truncated_pdf_is_rejected(tmp_path):
@@ -356,9 +334,7 @@ def test_encrypted_pdf_is_rejected(tmp_path):
     document = pymupdf.open()
     document.new_page()
     path = tmp_path / "locked.pdf"
-    document.save(
-        path, encryption=pymupdf.PDF_ENCRYPT_AES_256, user_pw="sekret", owner_pw="sekret"
-    )
+    document.save(path, encryption=pymupdf.PDF_ENCRYPT_AES_256, user_pw="sekret", owner_pw="sekret")
     document.close()
     assert "fjalëkalim" in rejection_reason(path)
 

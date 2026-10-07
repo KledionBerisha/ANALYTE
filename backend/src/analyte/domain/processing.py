@@ -2,10 +2,6 @@
 Llojet e rezultatit të përpunimit që duhen njëkohësisht nga orkestrimi, nga regjistri i
 auditimit dhe nga persistenca.
 
-Ato jetonin te `orchestration`, dhe kjo e bënte `audit` dhe `persistence` të varen prej tij
-ndërsa `orchestration.tasks` varet nga të dyja: një cikël paketash (Figura 8). Këtu varen
-vetëm nga domeni. `orchestration.states` dhe `orchestration.process` i ri-eksportojnë, kështu që
-importet e vjetra funksionojnë të pandryshuara.
 """
 
 from __future__ import annotations

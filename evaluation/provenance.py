@@ -1,15 +1,6 @@
 """
 Prejardhja e një rezultati: cili kod, cilat të dhëna, kur.
 
-Harness-i e shkruan këtë te çdo eksperiment që kalon nëpër të (E1–E9). E10 dhe
-E11 ekzekutohen nga skriptet e `ml/`, jashtë harness-it, dhe rezultatet e tyre nuk
-mbanin sha-n e kodit as versionin e të dhënave, prandaj Figura 11 i shënonte
-«pjesore». Ky modul i jep të njëjtën metadatë çdo skripti që shkruan një rezultat.
-
-Një rezultat quhet i gjurmueshëm vetëm kur `working_tree_dirty` është false:
-atëherë sha-ja e identifikon kodin. Prandaj skriptet duhet ekzekutuar nga një
-pemë pune e pastër, me `--out` jashtë saj, sepse çdo skedar i ri brenda pemës,
-përfshirë vetë rezultati, e bën pemën të papastër.
 """
 
 from __future__ import annotations
@@ -30,11 +21,17 @@ def git_state() -> tuple[str, bool | None]:
     try:
         revision = subprocess.run(
             ["git", "rev-parse", "HEAD"],
-            capture_output=True, text=True, check=True, timeout=10,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=10,
         ).stdout.strip()
         status = subprocess.run(
             ["git", "status", "--porcelain"],
-            capture_output=True, text=True, check=True, timeout=10,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=10,
         ).stdout.strip()
         return revision, bool(status)
     except (subprocess.SubprocessError, OSError, FileNotFoundError):

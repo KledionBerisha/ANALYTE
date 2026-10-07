@@ -1,19 +1,6 @@
 """
 Tabelat burimore: analitet, njësitë, terminologjia dhe rregullat e kombinimit.
 
-Skedarët në `resources/` janë burimi i vetëm i së vërtetës. Dega A i
-lexon për të ditur si ta interpretojë atë që gjen në dokument; gjeneruesi
-i të dhënave sintetike lexon të njëjtët skedarë për të ditur çfarë të
-shtypë. Një tabelë e dytë do të prodhonte mospërputhje që shfaqen si
-gabime të sistemit dhe jo si gabime të të dhënave.
-
-Moduli rri jashtë `domain/` sepse lexon skedarë, dhe domeni nuk bën I/O.
-Ai rri brenda backend-it e jo te gjeneruesi sepse tabelat i përkasin
-sistemit: gjeneruesi është vegël zhvillimi dhe mund të mos ekzistojë fare
-në prodhim.
-
-Të gjitha vlerat numerike lexohen si Decimal. Float-i do të prishte
-barazinë e saktë mbi të cilën mbështetet rregulli R1.
 """
 
 from __future__ import annotations
@@ -25,6 +12,7 @@ from decimal import Decimal
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
+
 
 def _resources_dir() -> Path:
     """Ku gjenden tabelat burimore.
@@ -308,9 +296,7 @@ def load_terminology() -> tuple[Term, ...]:
 def load_patterns() -> tuple[Pattern, ...]:
     out = []
     for row in _read("patterns.csv"):
-        conditions = tuple(
-            tuple(part.split(":", 1)) for part in _variants(row["conditions"])
-        )
+        conditions = tuple(tuple(part.split(":", 1)) for part in _variants(row["conditions"]))
         out.append(Pattern(row["pattern_id"], conditions, row["source_ref"]))
     return tuple(out)
 
@@ -337,7 +323,9 @@ def load_advice() -> tuple[Advice, ...]:
         if advice.loinc_code not in known:
             raise ValueError(f"advice.csv: kod i panjohur analiti {advice.loinc_code!r}")
         if advice.direction not in ADVICE_DIRECTIONS:
-            raise ValueError(f"advice.csv: drejtim i panjohur {advice.direction!r} te {advice.loinc_code}")
+            raise ValueError(
+                f"advice.csv: drejtim i panjohur {advice.direction!r} te {advice.loinc_code}"
+            )
         if key in seen:
             raise ValueError(f"advice.csv: rresht i dyfishtë për {key}")
         seen.add(key)
@@ -346,9 +334,13 @@ def load_advice() -> tuple[Advice, ...]:
             if any(ch.isdigit() for ch in sentence):
                 raise ValueError(f"advice.csv: këshilla për {key} përmban shifra")
             if not sentence.endswith(".") or "." in sentence[:-1]:
-                raise ValueError(f"advice.csv: këshilla për {key} duhet të jetë një fjali e vetme që mbyllet me pikë")
+                raise ValueError(
+                    f"advice.csv: këshilla për {key} duhet të jetë një fjali e vetme që mbyllet me pikë"
+                )
             if len(sentence) > ADVICE_MAX_LENGTH:
-                raise ValueError(f"advice.csv: këshilla për {key} i kalon {ADVICE_MAX_LENGTH} shenja")
+                raise ValueError(
+                    f"advice.csv: këshilla për {key} i kalon {ADVICE_MAX_LENGTH} shenja"
+                )
         out.append(advice)
     return tuple(out)
 

@@ -1,21 +1,6 @@
 """
 Simulimi i skanimit.
 
-Një pjesë e dokumenteve reale nuk vijnë si PDF me shtresë teksti por si
-fotografi të letrës: të anuara, të zbehta, me zhurmë dhe me artefakte
-kompresimi. Nxjerrja mbi to është detyrë tjetër nga nxjerrja mbi tekst,
-dhe pikërisht ky ndryshim duhet matur veçmas (PK1 dhe PK2 raportohen
-ndarazi për dixhitale dhe të skanuara).
-
-Prandaj dokumenti i skanuar nuk vizatohet ndryshe: ai vizatohet njësoj,
-rasterizohet dhe pastaj prishet. Kjo ruan një veti që do të humbte po ta
-vizatonim veçmas — përmbajtja e të dy varianteve është identike, prandaj
-çdo ndryshim në rezultate i atribuohet kanalit dhe jo tekstit.
-
-**Kutitë kufizuese.** Animi është rrotullim rreth qendrës së faqes, i
-njëjti transformim për çdo pikë. Prandaj kutitë nuk hidhen poshtë por
-rrotullohen bashkë me faqen; përndryshe e vërteta bazë do të tregonte
-vende ku nuk ka më asgjë.
 """
 
 from __future__ import annotations
@@ -101,9 +86,7 @@ def degrade_pdf(
     canvas.save()
     source.close()
 
-    rotated = {
-        finding_id: _rotate_box(box, profile.angle_deg) for finding_id, box in boxes.items()
-    }
+    rotated = {finding_id: _rotate_box(box, profile.angle_deg) for finding_id, box in boxes.items()}
     return buffer.getvalue(), rotated
 
 
@@ -121,9 +104,7 @@ def _apply_scanner_artifacts(
     turbullimi do ta zbuste atë dhe rezultati do të ishte shumë më i
     pastër se një skanim i vërtetë.
     """
-    image = image.rotate(
-        profile.angle_deg, resample=Image.BILINEAR, expand=False, fillcolor=255
-    )
+    image = image.rotate(profile.angle_deg, resample=Image.BILINEAR, expand=False, fillcolor=255)
     image = image.filter(ImageFilter.GaussianBlur(profile.blur_radius))
 
     pixels = np.asarray(image, dtype=np.float32)

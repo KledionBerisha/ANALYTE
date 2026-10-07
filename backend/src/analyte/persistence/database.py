@@ -1,14 +1,6 @@
 """
 Lidhja me bazën dhe sesionet.
 
-SQLAlchemy sinkron, jo asinkron: FastAPI i ekzekuton pikat fundore
-sinkrone në një grup fijesh, dhe e gjithë logjika e përpunimit — leximi i
-PDF-së, OCR-ja, rregullat — është sinkrone gjithsesi. Një shtresë asinkrone
-këtu do të shtonte kompleksitet pa fitim.
-
-SQLite përdoret vetëm në teste; aty çelësat e huaj duhen ndezur me dorë,
-përndryshe fshirja në kaskadë nuk ndodh dhe testi i fshirjes do të
-kalonte për arsye të gabuar.
 """
 
 from __future__ import annotations

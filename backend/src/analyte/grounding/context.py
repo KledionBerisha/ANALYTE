@@ -1,15 +1,8 @@
 """
 Bashkimi i të dyja degëve në GroundingContext.
 
-Ky është vendi ku Dega A dhe Dega B takohen, dhe i vetmi objekt që kalon
-më tej. Pas këtij funksioni, asnjë shtresë nuk ka qasje te dokumenti i
-papërpunuar as te teksti i nxjerrë prej tij — garancia arkitekturore e
-punimit e shprehur si rrjedhë të dhënash dhe jo si premtim.
+Ky është vendi ku Dega A dhe Dega B takohen.
 
-Konteksti ndërtohet i plotë ose nuk ndërtohet fare. Modelet e domenit e
-kontrollojnë vetë qëndrueshmërinë e brendshme: një krahasim i kryqëzuar
-që i referohet një gjetjeje joekzistuese e ndal ndërtimin këtu, ku shkaku
-është ende i dukshëm, në vend që të dështojë pa shpjegim te verifikimi.
 """
 
 from __future__ import annotations

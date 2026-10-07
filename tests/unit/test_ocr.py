@@ -1,10 +1,6 @@
 """
 Testet e rrugës së OCR-së.
 
-Pjesa më e madhe nuk kërkon Tesseract: leximi i TSV-së dhe gjetja e
-këndit testohen mbi të dhëna të ndërtuara këtu. Testi i vetëm që e
-thërret motorin anashkalohet kur ai mungon, që testet të mbeten të
-ekzekutueshme kudo — por jo në heshtje: pytest e shënon si të anashkaluar.
 """
 
 from __future__ import annotations
@@ -17,7 +13,9 @@ import pytest
 from analyte.ingestion.ocr import estimate_skew, find_tesseract, rows_from_tsv
 from evaluation.pipeline import BranchAPipeline, DocumentInput
 
-HEADER = "level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext"
+HEADER = (
+    "level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext"
+)
 
 
 def _word(block, line, left, top, text, conf="91.5"):
@@ -76,9 +74,7 @@ def test_skew_is_found_and_undone(angle):
     assert estimate_skew(_striped_page(angle)) == pytest.approx(-angle, abs=0.15)
 
 
-# --------------------------------------------------------------------
 # Pipeline-i
-# --------------------------------------------------------------------
 
 
 def _scanned_pdf(tmp_path, seed="ocr-test"):

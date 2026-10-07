@@ -1,14 +1,6 @@
 """
 Figurat 18–21 — rezultatet e Kapitullit 6, nga skedarët e rezultateve.
 
-Asnjë numër nuk shkruhet me dorë: çdo vlerë lexohet nga `evaluation/results/`
-(E3, E10, E11, E12, ablacioni me modelin te `results/llm/`) dhe nga
-`evaluation.kits.check()` për rregullat mbi grupin B, sepse ai rezultat nuk
-ruhet si skedar. Një rezultat që mungon e ndalon figurën me mesazh, nuk e
-zëvendëson me zero.
-
-Si te figurat e tjera, asnjë kuptim nuk mbahet vetëm nga ngjyra: seritë
-dallohen edhe nga forma e shenjës dhe nga mbushja, që figura të lexohet bardhezi.
 """
 
 from __future__ import annotations
@@ -17,10 +9,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from . import style  # vendos backend-in Agg para pyplot
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
-import matplotlib.pyplot as plt  # noqa: E402
-from matplotlib.colors import LinearSegmentedColormap  # noqa: E402
+from . import style  # vendos backend-in Agg para pyplot
 
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "evaluation" / "results"
@@ -64,7 +56,9 @@ SHORT = {
     "ungrounded_term_explanation": "u_term",
 }
 
-HEAT = LinearSegmentedColormap.from_list("blue", [style.SURFACE, style.BLUE_TINT, style.BLUE, style.BLUE_DEEP])
+HEAT = LinearSegmentedColormap.from_list(
+    "blue", [style.SURFACE, style.BLUE_TINT, style.BLUE, style.BLUE_DEEP]
+)
 
 
 class MissingResult(RuntimeError):
@@ -78,9 +72,7 @@ def _load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-# ---------------------------------------------------------------------------
 # Të dhënat (pa matplotlib)
-# ---------------------------------------------------------------------------
 
 
 def ablation(llm: Path = LLM) -> list[dict[str, Any]]:
@@ -134,8 +126,12 @@ def detectors() -> dict[str, dict[str, dict[str, Any]]]:
     """
     from evaluation import kits
 
-    classifier = _load(RESULTS / "E11" / "sentence" / "result.json")["operating_points"]["false_alarm_budget"]["metrics"]
-    classifier_b = _load(RESULTS / "E11" / "sentence" / "kit_B.json")["operating_points"]["false_alarm_budget"]["metrics"]
+    classifier = _load(RESULTS / "E11" / "sentence" / "result.json")["operating_points"][
+        "false_alarm_budget"
+    ]["metrics"]
+    classifier_b = _load(RESULTS / "E11" / "sentence" / "kit_B.json")["operating_points"][
+        "false_alarm_budget"
+    ]["metrics"]
     return {
         "Rregullat": {
             "synthetic": _load(RESULTS / "E10" / "result.json")["metrics"],
@@ -159,9 +155,7 @@ def shares(by_type: dict[str, int]) -> dict[str, float]:
     return {t: 100 * n / total for t, n in by_type.items() if total}
 
 
-# ---------------------------------------------------------------------------
 # Vizatimi
-# ---------------------------------------------------------------------------
 
 
 def _plain(ax) -> None:
@@ -172,7 +166,17 @@ def _plain(ax) -> None:
     ax.tick_params(colors=style.MUTED, labelsize=7)
 
 
-def _heatmap(ax, counts: list[list[int]], classes: list[str], *, annotate: float, label_size: float, title: str = "", show_y: bool = True, short: bool = False):
+def _heatmap(
+    ax,
+    counts: list[list[int]],
+    classes: list[str],
+    *,
+    annotate: float,
+    label_size: float,
+    title: str = "",
+    show_y: bool = True,
+    short: bool = False,
+):
     """Matricë konfuzioni: ngjyra është pjesa e rreshtit (recall), numri brenda është numërimi."""
     rows = [sum(r) for r in counts]
     shares_ = [[(v / s if s else 0.0) for v in r] for r, s in zip(counts, rows)]
@@ -194,8 +198,15 @@ def _heatmap(ax, counts: list[list[int]], classes: list[str], *, annotate: float
         for j, value in enumerate(row):
             if not value:
                 continue
-            ax.text(j, i, str(value), ha="center", va="center", fontsize=annotate,
-                    color=style.SURFACE if shares_[i][j] > 0.55 else style.INK)
+            ax.text(
+                j,
+                i,
+                str(value),
+                ha="center",
+                va="center",
+                fontsize=annotate,
+                color=style.SURFACE if shares_[i][j] > 0.55 else style.INK,
+            )
     if title:
         ax.set_title(title, fontsize=7.5, color=style.INK, pad=5)
 
@@ -203,23 +214,42 @@ def _heatmap(ax, counts: list[list[int]], classes: list[str], *, annotate: float
 def figure_18():
     """Ablacioni: shkeljet që arrijnë te përdoruesi dhe çmimi i verifikimit."""
     rows = ablation()
-    fig, (left, right) = plt.subplots(1, 2, figsize=(6.6, 3.5), gridspec_kw={"width_ratios": [1.35, 1]})
+    fig, (left, right) = plt.subplots(
+        1, 2, figsize=(6.6, 3.5), gridspec_kw={"width_ratios": [1.35, 1]}
+    )
     fills = [style.FAINT, style.BLUE_TINT, style.BLUE, style.BLUE_DEEP]
     hatches = ["", "//", "", ".."]
     xs = range(len(rows))
     for x, row, fill, hatch in zip(xs, rows, fills, hatches):
-        left.bar(x, row["rate"], width=0.62, color=fill, edgecolor=style.INK, linewidth=0.9, hatch=hatch)
+        left.bar(
+            x, row["rate"], width=0.62, color=fill, edgecolor=style.INK, linewidth=0.9, hatch=hatch
+        )
         if row["upper_bound"] is not None:
             text = f"0.000\n(≤ {row['upper_bound']:.3f}, 95%)"
         else:
-            left.errorbar(x, row["rate"], yerr=[[row["rate"] - row["low"]], [row["high"] - row["rate"]]],
-                          color=style.INK, capsize=3, linewidth=0.9)
+            left.errorbar(
+                x,
+                row["rate"],
+                yerr=[[row["rate"] - row["low"]], [row["high"] - row["rate"]]],
+                color=style.INK,
+                capsize=3,
+                linewidth=0.9,
+            )
             text = f"{row['rate']:.2f}"
-        left.text(x, row["high"] + 1.6 if row["upper_bound"] is None else 1.6, text, ha="center", va="bottom",
-                  fontsize=7.5, color=style.INK)
+        left.text(
+            x,
+            row["high"] + 1.6 if row["upper_bound"] is None else 1.6,
+            text,
+            ha="center",
+            va="bottom",
+            fontsize=7.5,
+            color=style.INK,
+        )
     left.set_xticks(list(xs))
     left.set_xticklabels([f"{r['letter']}\n{r['short']}" for r in rows], fontsize=7)
-    left.set_ylabel("shkelje që arrijnë te përdoruesi\npër 100 fjali (95% CI)", fontsize=7.5, color=style.MUTED)
+    left.set_ylabel(
+        "shkelje që arrijnë te përdoruesi\npër 100 fjali (95% CI)", fontsize=7.5, color=style.MUTED
+    )
     left.set_ylim(0, 64)
     left.yaxis.grid(True, color=style.NEUTRAL, linewidth=0.8)
     left.set_axisbelow(True)
@@ -227,13 +257,34 @@ def figure_18():
     _plain(left)
 
     # A dhe B nuk kalojnë verifikim, prandaj shablloni rezervë nuk zbatohet (nuk është 0%).
-    shares_ = [(r["letter"], r["label"], r["fallback_share"] if r["experiment"] in ("E8", "E9") else None) for r in rows]
-    for x, (letter, label, share) in enumerate(shares_):
+    shares_ = [
+        (r["letter"], r["label"], r["fallback_share"] if r["experiment"] in ("E8", "E9") else None)
+        for r in rows
+    ]
+    for x, (_letter, _label, share) in enumerate(shares_):
         if share is None:
-            right.text(x, 1.5, "nuk\nzbatohet", ha="center", va="bottom", fontsize=6.5, color=style.FAINT)
+            right.text(
+                x, 1.5, "nuk\nzbatohet", ha="center", va="bottom", fontsize=6.5, color=style.FAINT
+            )
             continue
-        right.bar(x, 100 * share, width=0.62, color=fills[x], edgecolor=style.INK, linewidth=0.9, hatch=hatches[x])
-        right.text(x, 100 * share + 1.6, f"{100 * share:.1f}%", ha="center", va="bottom", fontsize=7.5, color=style.INK)
+        right.bar(
+            x,
+            100 * share,
+            width=0.62,
+            color=fills[x],
+            edgecolor=style.INK,
+            linewidth=0.9,
+            hatch=hatches[x],
+        )
+        right.text(
+            x,
+            100 * share + 1.6,
+            f"{100 * share:.1f}%",
+            ha="center",
+            va="bottom",
+            fontsize=7.5,
+            color=style.INK,
+        )
     right.set_xticks(list(xs))
     right.set_xticklabels([f"{r['letter']}\n{r['short']}" for r in rows], fontsize=7)
     right.set_ylabel("dokumente që shkojnë te shablloni, %", fontsize=7.5, color=style.MUTED)
@@ -244,8 +295,15 @@ def figure_18():
     right.set_title("(b) Çmimi: shabllon rezervë", fontsize=8, color=style.INK, loc="left")
     _plain(right)
 
-    fig.text(0.01, 0.01, "500 dokumente, OCR, ministral-14b-2512. B = vetëm bazim; C = + rregulla (+ një rigjenerim); D = C + klasifikues.\n«0.000» numëron vetëm shkeljet që rregullat shohin (§6.6.1).",
-             fontsize=6.3, color=style.MUTED, ha="left", va="bottom")
+    fig.text(
+        0.01,
+        0.01,
+        "500 dokumente, OCR, ministral-14b-2512. B = vetëm bazim; C = + rregulla (+ një rigjenerim); D = C + klasifikues.\n«0.000» numëron vetëm shkeljet që rregullat shohin (§6.6.1).",
+        fontsize=6.3,
+        color=style.MUTED,
+        ha="left",
+        va="bottom",
+    )
     fig.tight_layout(rect=(0, 0.07, 1, 1))
     return fig, rows
 
@@ -258,8 +316,15 @@ def figure_19():
     ax.set_xlabel("statusi i dhënë nga sistemi", fontsize=7.5, color=style.MUTED, labelpad=6)
     ax.set_ylabel("statusi i vërtetë", fontsize=7.5, color=style.MUTED, labelpad=6)
     ax.xaxis.set_label_position("top")
-    fig.text(0.01, 0.01, "Ngjyra është pjesa e rreshtit (recall); numri është numërimi. 8 832 vlera të përputhura.",
-             fontsize=6.3, color=style.MUTED, ha="left", va="bottom")
+    fig.text(
+        0.01,
+        0.01,
+        "Ngjyra është pjesa e rreshtit (recall); numri është numërimi. 8 832 vlera të përputhura.",
+        fontsize=6.3,
+        color=style.MUTED,
+        ha="left",
+        va="bottom",
+    )
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     return fig, counts
 
@@ -268,7 +333,10 @@ def figure_20():
     """Matricat e konfuzionit të tre qasjeve (rregulla, klasifikues, gjykatës) mbi dy mostra."""
     data = detectors()
     names = ["Rregullat", "Klasifikuesi XLM-R", "Gjykatësi Claude Sonnet"]
-    samples = [("synthetic", "Korpusi i korruptuar (test, 192)"), ("natural", "Grupi B (fjali të autorit, 105)")]
+    samples = [
+        ("synthetic", "Korpusi i korruptuar (test, 192)"),
+        ("natural", "Grupi B (fjali të autorit, 105)"),
+    ]
     fig, axes = plt.subplots(2, 3, figsize=(7.0, 6.0))
     used = {}
     for r, (sample, sample_label) in enumerate(samples):
@@ -276,13 +344,28 @@ def figure_20():
         for c, name in enumerate(names):
             ax = axes[r][c]
             counts = confusion_counts(data[name][sample]["confusion"]["matrix"], classes)
-            _heatmap(ax, counts, classes, annotate=5.6, label_size=6.2, show_y=(c == 0), short=True,
-                     title=f"{name}\nmacro F1 {data[name][sample]['macro_f1']:.3f}")
+            _heatmap(
+                ax,
+                counts,
+                classes,
+                annotate=5.6,
+                label_size=6.2,
+                show_y=(c == 0),
+                short=True,
+                title=f"{name}\nmacro F1 {data[name][sample]['macro_f1']:.3f}",
+            )
             used[(sample, name)] = counts
         axes[r][0].set_ylabel(sample_label, fontsize=7.2, color=style.INK, labelpad=8)
-    fig.text(0.01, 0.005, "Rreshti është lloji i vërtetë, kolona lloji i parashikuar; ngjyra është pjesa e rreshtit. "
-             "Klasifikuesi: fjalia, rregulli 2 (prag 0.85), ai i vendosur në E9.\nu_ = ungrounded_ (number, analyte, term); omitted_rec = omitted_recommendation.",
-             fontsize=6.0, color=style.MUTED, ha="left", va="bottom")
+    fig.text(
+        0.01,
+        0.005,
+        "Rreshti është lloji i vërtetë, kolona lloji i parashikuar; ngjyra është pjesa e rreshtit. "
+        "Klasifikuesi: fjalia, rregulli 2 (prag 0.85), ai i vendosur në E9.\nu_ = ungrounded_ (number, analyte, term); omitted_rec = omitted_recommendation.",
+        fontsize=6.0,
+        color=style.MUTED,
+        ha="left",
+        va="bottom",
+    )
     fig.tight_layout(rect=(0, 0.045, 1, 1), h_pad=2.6, w_pad=0.6)
     return fig, used
 
@@ -291,22 +374,41 @@ def figure_21():
     """Llojet e shkeljeve: (a) çfarë prodhon modeli, (b) sa mirë i zbulon secili detektor mbi grupin B."""
     rows = ablation()
     data = detectors()
-    produced = {r["letter"]: shares(r["by_type_produced"]) for r in rows if r["letter"] in ("A", "B", "C")}
+    produced = {
+        r["letter"]: shares(r["by_type_produced"]) for r in rows if r["letter"] in ("A", "B", "C")
+    }
     natural = {name: d["natural"]["per_defect_type"] for name, d in data.items()}
     types = [
-        t for t in CLASS_ORDER[1:]
-        if any(produced[k].get(t) for k in produced) or any((natural[n].get(t) or {}).get("support") for n in natural)
+        t
+        for t in CLASS_ORDER[1:]
+        if any(produced[k].get(t) for k in produced)
+        or any((natural[n].get(t) or {}).get("support") for n in natural)
     ]
     ys = list(range(len(types)))[::-1]
 
-    fig, (left, right) = plt.subplots(1, 2, figsize=(7.0, 4.6), sharey=True, gridspec_kw={"wspace": 0.06})
+    fig, (left, right) = plt.subplots(
+        1, 2, figsize=(7.0, 4.6), sharey=True, gridspec_kw={"wspace": 0.06}
+    )
     # Zhvendosje e vogël vertikale, që shenjat me të njëjtën vlerë (p.sh. F1 = 1.0) të mos mbulojnë njëra-tjetrën.
-    markers = {"A": ("o", style.FAINT, 0.18), "B": ("s", style.BLUE, 0.0), "C": ("^", style.BLUE_DEEP, -0.18)}
+    markers = {
+        "A": ("o", style.FAINT, 0.18),
+        "B": ("s", style.BLUE, 0.0),
+        "C": ("^", style.BLUE_DEEP, -0.18),
+    }
     names = {"A": "A — pa bazim", "B": "B — vetëm bazim", "C": "C — bazim + rregulla (drafte)"}
     for key, (marker, color, dy) in markers.items():
         xs = [produced[key].get(t, 0) for t in types]
-        left.scatter(xs, [y + dy for y in ys], marker=marker, s=30, color=color, edgecolor=style.INK, linewidth=0.7,
-                     label=names[key], zorder=3)
+        left.scatter(
+            xs,
+            [y + dy for y in ys],
+            marker=marker,
+            s=30,
+            color=color,
+            edgecolor=style.INK,
+            linewidth=0.7,
+            label=names[key],
+            zorder=3,
+        )
     left.set_xlabel("pjesa e shkeljeve të prodhuara nga modeli, %", fontsize=7.5, color=style.MUTED)
     left.set_title("(a) Çfarë prodhon modeli", fontsize=8, color=style.INK, loc="left")
 
@@ -317,16 +419,41 @@ def figure_21():
         "Gjykatësi Claude Haiku": ("D", style.BLUE, -0.27),
     }
     for name, (marker, color, dy) in detector_marks.items():
-        pts = [(natural[name][t]["f1"], y + dy) for t, y in zip(types, ys)
-               if natural[name].get(t) and natural[name][t]["support"] and natural[name][t]["f1"] is not None]
-        right.scatter([p[0] for p in pts], [p[1] for p in pts], marker=marker, s=30, color=color,
-                      edgecolor=style.INK, linewidth=0.7, label=name, zorder=3)
+        pts = [
+            (natural[name][t]["f1"], y + dy)
+            for t, y in zip(types, ys)
+            if natural[name].get(t)
+            and natural[name][t]["support"]
+            and natural[name][t]["f1"] is not None
+        ]
+        right.scatter(
+            [p[0] for p in pts],
+            [p[1] for p in pts],
+            marker=marker,
+            s=30,
+            color=color,
+            edgecolor=style.INK,
+            linewidth=0.7,
+            label=name,
+            zorder=3,
+        )
     for t, y in zip(types, ys):
         if not any((natural[n].get(t) or {}).get("support") for n in natural):
-            right.text(0.5, y, "nuk ka mostër në grupin B", ha="center", va="center", fontsize=6.3, color=style.FAINT, style="italic")
+            right.text(
+                0.5,
+                y,
+                "nuk ka mostër në grupin B",
+                ha="center",
+                va="center",
+                fontsize=6.3,
+                color=style.FAINT,
+                style="italic",
+            )
     right.set_xlim(-0.05, 1.05)
     right.set_xlabel("F1 i detektimit mbi grupin B", fontsize=7.5, color=style.MUTED)
-    right.set_title("(b) Sa mirë zbulohet (fjali natyrale)", fontsize=8, color=style.INK, loc="left")
+    right.set_title(
+        "(b) Sa mirë zbulohet (fjali natyrale)", fontsize=8, color=style.INK, loc="left"
+    )
 
     left.set_yticks(ys)
     left.set_yticklabels(types, fontsize=7, color=style.INK)
@@ -335,7 +462,11 @@ def figure_21():
         ax.grid(True, axis="both", color=style.NEUTRAL, linewidth=0.8)
         ax.set_axisbelow(True)
         _plain(ax)
-    left.legend(loc="upper center", bbox_to_anchor=(0.5, -0.17), fontsize=6.5, frameon=False, ncol=1)
-    right.legend(loc="upper center", bbox_to_anchor=(0.5, -0.17), fontsize=6.5, frameon=False, ncol=2)
+    left.legend(
+        loc="upper center", bbox_to_anchor=(0.5, -0.17), fontsize=6.5, frameon=False, ncol=1
+    )
+    right.legend(
+        loc="upper center", bbox_to_anchor=(0.5, -0.17), fontsize=6.5, frameon=False, ncol=2
+    )
     fig.subplots_adjust(left=0.25, right=0.985, top=0.93, bottom=0.25)
     return fig, {"types": types, "produced": produced, "natural": natural}

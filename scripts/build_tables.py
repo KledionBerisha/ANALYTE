@@ -3,13 +3,6 @@ Ndërtimi i tabelave të punimit nga burimet e vërteta.
 
     python scripts/build_tables.py
 
-Tabelat T1-T5 nuk shkruhen me dorë. Ato dalin nga po ata skedarë dhe po
-ai katalog që përdor sistemi, sepse një tabelë e shtypur me dorë në
-punim fillon të largohet nga kodi që ditën e dytë — dhe askush nuk e
-vëren derisa dikush të kontrollojë një rresht.
-
-Dalja shkon te `docs/thesis/tables/` dhe rigjenerohet sa herë burimet
-ndryshojnë.
 """
 
 from __future__ import annotations
@@ -20,16 +13,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend" / "src"))
 
-from analyte.catalog import (  # noqa: E402
+from analyte.catalog import (
     Sex,
+    analytes_by_code,
     load_analytes,
     load_analytes_without_reference,
-    analytes_by_code,
     load_conversions,
     load_patterns,
     load_terminology,
 )
-from analyte.domain.policy import RULE_CATALOG, RULES_VERSION  # noqa: E402
+from analyte.domain.policy import RULE_CATALOG, RULES_VERSION
 
 OUT = ROOT / "docs" / "thesis" / "tables"
 
@@ -98,8 +91,7 @@ def table_2() -> str:
     for conversion in load_conversions():
         code = conversion.loinc_code or "çdo analit"
         lines.append(
-            f"| {conversion.unit_from} | {conversion.unit_to} "
-            f"| {conversion.factor} | {code} |"
+            f"| {conversion.unit_from} | {conversion.unit_to} | {conversion.factor} | {code} |"
         )
     return "\n".join(lines) + "\n"
 
@@ -118,8 +110,7 @@ def table_3(limit: int = 20) -> str:
     ]
     for term in terms[:limit]:
         lines.append(
-            f"| {term.term} | {term.explanation_sq} | {term.category or '—'} "
-            f"| {term.source_ref} |"
+            f"| {term.term} | {term.explanation_sq} | {term.category or '—'} | {term.source_ref} |"
         )
     unsourced = sum(1 for t in terms if "plotësohet" in t.source_ref)
     if unsourced:

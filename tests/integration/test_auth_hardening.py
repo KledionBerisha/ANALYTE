@@ -1,15 +1,6 @@
 """
 Kufizimi i hyrjeve dhe seancat e revokueshme (ADR 0014).
 
-Dy grupe pohimesh:
-
-  - **Kufizimi.** Çdo kovë ndalon atë që duhet të ndalojë dhe jo më shumë;
-    një llogari nuk mbyllet nga një IP tjetër; email-i i panjohur dhe i
-    njohur kufizohen njësoj; asnjë email dhe asnjë IP nuk ruhet si tekst,
-    as në tabelë as në auditim.
-  - **Seancat.** Tokeni i rifreskimit vlen një herë; ripërdorimi revokon
-    gjithë seancën, edhe tokenin e aksesit; dalja revokon menjëherë; një
-    token i lëshuar para ADR 0014 nuk pranohet.
 """
 
 from __future__ import annotations
@@ -21,16 +12,13 @@ from pathlib import Path
 import jwt
 import pytest
 from cryptography.fernet import Fernet
-from fastapi.testclient import TestClient
 from sqlalchemy import select
 from starlette.requests import Request
 
 from analyte.api.throttle import client_ip, network_of
-from tests.fixtures.mailbox import client_for, register_confirmed
 from analyte.config import Settings
 from analyte.generation.templates import TemplateGenerator
-from analyte.main import create_app
-from analyte.orchestration.tasks import InlineRunner, Services
+from analyte.orchestration.tasks import Services
 from analyte.persistence.database import create_schema, make_engine, make_session_factory
 from analyte.persistence.storage import EncryptedStore
 from analyte.persistence.tables import (
@@ -40,6 +28,7 @@ from analyte.persistence.tables import (
     RefreshTokenRow,
     UserRow,
 )
+from tests.fixtures.mailbox import client_for, register_confirmed
 
 PASSWORD = "fjalekalim-testi-i-gjate"
 WRONG = "fjalekalim-i-gabuar-xyz"
@@ -91,7 +80,9 @@ class World:
 
     def audit(self, event_type: str) -> list[AuditEventRow]:
         with self.db() as db:
-            return list(db.scalars(select(AuditEventRow).where(AuditEventRow.event_type == event_type)))
+            return list(
+                db.scalars(select(AuditEventRow).where(AuditEventRow.event_type == event_type))
+            )
 
 
 @pytest.fixture
@@ -106,9 +97,7 @@ def _fail(world: World, email: str, times: int, ip: str | None = None) -> None:
         assert world.login(email, WRONG, ip).status_code == 401
 
 
-# --------------------------------------------------------------------
 # Kufizimi i hyrjeve
-# --------------------------------------------------------------------
 
 
 def test_the_sixth_failed_login_is_throttled(world):
@@ -239,9 +228,7 @@ def test_client_address_trusts_only_the_proxy_hops_configured(hops, header, expe
     assert client_ip(Request(scope), hops) == expected
 
 
-# --------------------------------------------------------------------
 # Seancat
-# --------------------------------------------------------------------
 
 
 def test_a_refresh_token_is_spent_when_used(world):
@@ -336,7 +323,9 @@ def test_a_session_belongs_to_the_user_who_opened_it(world):
     world.register("tjeter@shembull.al")
     world.tokens("tjeter@shembull.al")
     with world.db() as db:
-        victim_id = db.scalars(select(UserRow).where(UserRow.email == "viktima@shembull.al")).one().id
+        victim_id = (
+            db.scalars(select(UserRow).where(UserRow.email == "viktima@shembull.al")).one().id
+        )
         others_session = db.scalars(
             select(AuthSessionRow).where(AuthSessionRow.user_id != victim_id)
         ).one()
@@ -381,9 +370,7 @@ def test_the_revocation_survives_the_401_that_reports_it(tmp_path):
         assert session.revoked_reason == "refresh_reuse"
 
 
-# --------------------------------------------------------------------
 # IPv6: numërimi sipas prefiksit (ADR 0014)
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -431,9 +418,7 @@ def test_one_slash_64_cannot_spray_many_accounts_by_rotating_addresses(tmp_path)
     assert w.login("tjeter@shembull.al", WRONG, ip="2001:db8:9:9::1").status_code == 401
 
 
-# --------------------------------------------------------------------
 # Dil kudo
-# --------------------------------------------------------------------
 
 
 def _bearer(token: str) -> dict[str, str]:
@@ -473,5 +458,8 @@ def test_logout_all_counts_only_the_sessions_that_were_still_open(world):
 def test_logout_all_needs_a_valid_access_token(world):
     assert world.client.post("/auth/logout-all").status_code == 401
     tokens = world.tokens("viktima@shembull.al")
-    assert world.client.post("/auth/logout-all", headers=_bearer(tokens["refresh_token"])).status_code == 401
+    assert (
+        world.client.post("/auth/logout-all", headers=_bearer(tokens["refresh_token"])).status_code
+        == 401
+    )
     assert world.me(tokens["access_token"]).status_code == 200  # nuk u revokua asgjë

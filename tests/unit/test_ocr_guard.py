@@ -1,9 +1,6 @@
 """
 Kontrolli i besueshmërisë i OCR-së (ADR 0020).
 
-Rastet janë të shkruara me dorë nga dy defektet që E3 gjeti: presja që humbet te intervali i shtypur
-("2,5 - 4,5" → "25 - 45") dhe presja që humbet te vlera ("46,6" → "466"). Kontrolli duhet të kapë ato dhe të mos
-prekë një vlerë të vërtetë, një dokument tekstual, as një analit që shtypet pa presje.
 """
 
 from __future__ import annotations
@@ -26,7 +23,7 @@ def _analyte(name: str):
     return analytes_by_code()[loinc.resolve(name)]
 
 
-# --- intervali i dëmtuar -------------------------------------------------------------------------
+# intervali i dëmtuar
 
 
 @pytest.mark.parametrize(
@@ -35,7 +32,12 @@ def _analyte(name: str):
         ("Kaliumi", D("35"), D("51"), True),  # 3,5 - 5,1 pa presje
         ("Kaliumi", D("335"), D("531"), True),  # zhurmë shtesë, përsëri ≈100x
         ("Fosfori", D("25"), D("45"), True),  # 2,5 - 4,5
-        ("Bilirubina totale", D("20"), D("1200"), True),  # 0,20 - 1,20: kufijtë humbën presje të ndryshme (100x dhe 1000x)
+        (
+            "Bilirubina totale",
+            D("20"),
+            D("1200"),
+            True,
+        ),  # 0,20 - 1,20: kufijtë humbën presje të ndryshme (100x dhe 1000x)
         ("Proteina totale", D("64"), D("830"), True),  # 6,4 - 8,3
         ("Kaliumi", D("3.6"), D("5.2"), False),  # laborator me kufij pak të ndryshëm
         ("Kaliumi", D("3.5"), D("5.1"), False),  # saktësisht tabela
@@ -47,7 +49,7 @@ def test_a_printed_interval_ten_or_a_hundred_times_the_table_is_damaged(name, lo
     assert ocr_guard.damaged_interval(_analyte(name), low, high) is damaged
 
 
-# --- vlera e dyshimtë ----------------------------------------------------------------------------
+# vlera e dyshimtë
 
 
 def test_a_value_without_a_separator_above_the_interval_that_fits_after_one_shift_is_suspect():
@@ -60,8 +62,20 @@ def test_a_value_without_a_separator_above_the_interval_that_fits_after_one_shif
     [
         ("46,6", D("46.6"), D("40.0"), D("52.0"), "ka presje"),
         ("47", D("47"), D("40.0"), D("52.0"), "brenda intervalit; nuk është e dyshimtë"),
-        ("620", D("620"), D("40.0"), D("52.0"), "as 62,0 as 6,20 nuk është brenda: nuk është presje e humbur"),
-        ("9", D("9"), D("40.0"), D("52.0"), "nën intervalin: presja humb vetëm duke e fryrë vlerën"),
+        (
+            "620",
+            D("620"),
+            D("40.0"),
+            D("52.0"),
+            "as 62,0 as 6,20 nuk është brenda: nuk është presje e humbur",
+        ),
+        (
+            "9",
+            D("9"),
+            D("40.0"),
+            D("52.0"),
+            "nën intervalin: presja humb vetëm duke e fryrë vlerën",
+        ),
     ],
 )
 def test_it_does_not_touch_what_is_not_the_lost_decimal_pattern(text, value, low, high, why):
@@ -74,12 +88,15 @@ def test_a_percentage_above_one_hundred_is_impossible_by_definition():
     assert ocr_guard.impossible_percentage(ht, "%", D("598"))
     assert ocr_guard.impossible_percentage(ht, "", D("166"))
     assert not ocr_guard.impossible_percentage(ht, "%", D("59.8"))
-    assert not ocr_guard.impossible_percentage(_analyte("Glukoza"), "mg/dL", D("600"))  # njësi tjetër: asnjë kufi
+    # njësi tjetër: asnjë kufi
+    assert not ocr_guard.impossible_percentage(_analyte("Glukoza"), "mg/dL", D("600"))
 
 
 def test_an_impossible_percentage_is_rejected_on_a_scanned_page_only():
     ocr_row = _page(_row("Hematokriti", "166", "%", "40,0 - 52,0"), ocr=True)
-    assert extract(ocr_row, ocr_guard=True).rejection_counts() == {"vlerë e pamundur (OCR): përqindje mbi 100": 1}
+    assert extract(ocr_row, ocr_guard=True).rejection_counts() == {
+        "vlerë e pamundur (OCR): përqindje mbi 100": 1
+    }
     text_row = _page(_row("Hematokriti", "166", "%", "40,0 - 52,0"), ocr=False)
     assert len(extract(text_row, ocr_guard=True).findings) == 1
 
@@ -89,7 +106,7 @@ def test_an_analyte_printed_without_decimals_is_never_suspect():
     assert not ocr_guard.lost_decimal(glucose, "600", "mg/dL", D("600"), D("70"), D("99"))
 
 
-# --- nxjerrja e plotë ----------------------------------------------------------------------------
+# nxjerrja e plotë
 
 
 def _row(*texts: str) -> TextRow:
@@ -120,19 +137,25 @@ def test_a_damaged_printed_interval_is_replaced_by_the_table_and_the_value_is_cl
 
 
 def test_a_suspect_value_is_rejected_not_interpreted():
-    pages = _page(_row("Kaliumi", "39", "mmol/L", "3,5 - 5,1"), ocr=True)  # 3,9 pa presje: del "e lartë"
+    # 3,9 pa presje: del "e lartë"
+    pages = _page(_row("Kaliumi", "39", "mmol/L", "3,5 - 5,1"), ocr=True)
 
     guarded = extract(pages, ocr_guard=True)
     assert guarded.findings == ()
     assert guarded.rejection_counts() == {"vlerë e dyshimtë (OCR): presja dhjetore mungon": 1}
 
     raw = extract(pages, ocr_guard=False)
-    assert raw.findings[0].status in (AnalyteStatus.HIGH, AnalyteStatus.CRITICAL_HIGH)  # gabimi i E3: vlerë normale del e lartë
+    # gabimi i E3: vlerë normale del e lartë
+    assert raw.findings[0].status in (
+        AnalyteStatus.HIGH,
+        AnalyteStatus.CRITICAL_HIGH,
+    )
 
 
 def test_a_text_layer_page_is_never_guarded():
     pages = _page(_row("Hematokriti", "466", "%", "40,0 - 52,0"), ocr=False)
-    assert len(extract(pages, ocr_guard=True).findings) == 1  # teksti i PDF-së është i saktë; nuk preket
+    # teksti i PDF-së është i saktë; nuk preket
+    assert len(extract(pages, ocr_guard=True).findings) == 1
 
 
 def test_a_correct_scanned_row_passes_through_unchanged():

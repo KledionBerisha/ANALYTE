@@ -1,11 +1,6 @@
 """
 Figurat e ndërtuara nga kodi.
 
-Figura është e vlefshme vetëm për aq sa përputhet me burimin që e përcakton.
-Këto teste nuk kontrollojnë pamjen — atë e shikon njeriu — por lidhjen: çdo
-gjendje, tabelë dhe eksperiment ka vend, çdo skaj vjen nga burimi, dhe një
-burim që ndryshon pa e prekur figurën bën testin të dështojë me një mesazh që
-thotë çfarë mungon.
 """
 
 from __future__ import annotations
@@ -16,9 +11,7 @@ import pytest
 
 from scripts.figures import layout
 
-# --------------------------------------------------------------------
 # Vendosja në shtresa (pa matplotlib)
-# --------------------------------------------------------------------
 
 
 def test_every_forward_edge_points_to_a_later_layer():
@@ -52,16 +45,14 @@ def test_ordering_within_layers_is_repeatable_and_complete():
     assert sorted(n for column in first.values() for n in column) == sorted(nodes)
 
 
-# --------------------------------------------------------------------
 # Figurat
-# --------------------------------------------------------------------
 
 pytest.importorskip("matplotlib")
 
-from analyte.domain.enums import ProcessingState  # noqa: E402
-from analyte.orchestration.states import TRANSITIONS  # noqa: E402
-from analyte.persistence.tables import Base  # noqa: E402
-from scripts.figures import erd, evaluation_chain, modules, state_machine  # noqa: E402
+from analyte.domain.enums import ProcessingState
+from analyte.orchestration.states import TRANSITIONS
+from analyte.persistence.tables import Base
+from scripts.figures import erd, evaluation_chain, modules, state_machine
 
 
 def test_state_machine_draws_exactly_the_transition_table():
@@ -164,14 +155,17 @@ def test_import_scanner_counts_each_statement_and_ignores_self_edges(tmp_path):
     assert dict(modules.import_graph(root)) == {("grounding", "domain"): 2}
 
 
-# --------------------------------------------------------------------
 # Figura 11
-# --------------------------------------------------------------------
 
 
 def _experiment(runnable: bool):
     return evaluation_chain.registry.Experiment(
-        "EX", "t", "—", "d", "m", "PK",
+        "EX",
+        "t",
+        "—",
+        "d",
+        "m",
+        "PK",
         status=evaluation_chain.registry.RUNNABLE
         if runnable
         else evaluation_chain.registry.NEEDS_USER_STUDY,
@@ -194,13 +188,21 @@ def test_measured_means_a_result_file_exists_not_that_a_number_was_cited():
         ({"metrics": {}}, "pjesore"),
         ({"metadata": {"code": {"git_sha": "abc"}, "dataset": {}}}, "pjesore"),
         (
-            {"metadata": {"code": {"git_sha": "abc", "working_tree_dirty": True},
-                          "dataset": {"version": "v"}}},
+            {
+                "metadata": {
+                    "code": {"git_sha": "abc", "working_tree_dirty": True},
+                    "dataset": {"version": "v"},
+                }
+            },
             "pa commit",
         ),
         (
-            {"metadata": {"code": {"git_sha": "abc", "working_tree_dirty": False},
-                          "dataset": {"version": "v"}}},
+            {
+                "metadata": {
+                    "code": {"git_sha": "abc", "working_tree_dirty": False},
+                    "dataset": {"version": "v"},
+                }
+            },
             "e plotë",
         ),
     ],
@@ -211,8 +213,15 @@ def test_trace_says_how_traceable_a_measurement_is(result, expected):
 
 def test_provenance_fields_are_read_from_a_real_result():
     fields = evaluation_chain.provenance_fields(
-        {"E2": {"metadata": {"experiment_id": "E2", "dataset": {"seed": 1, "version": "v"},
-                             "created_at": "x"}}}
+        {
+            "E2": {
+                "metadata": {
+                    "experiment_id": "E2",
+                    "dataset": {"seed": 1, "version": "v"},
+                    "created_at": "x",
+                }
+            }
+        }
     )
     assert fields == ["experiment_id, created_at", "dataset: seed, version"]
     assert evaluation_chain.provenance_fields({}) == []
@@ -232,7 +241,9 @@ def test_figure_11_covers_every_registered_experiment():
     fig, statuses = evaluation_chain.build()
     assert list(statuses) == [e.id for e in evaluation_chain.registry.EXPERIMENTS]
     assert set(statuses.values()) <= {
-        evaluation_chain.MEASURED, evaluation_chain.READY, evaluation_chain.BLOCKED,
+        evaluation_chain.MEASURED,
+        evaluation_chain.READY,
+        evaluation_chain.BLOCKED,
     }
     evaluation_chain.style.plt.close(fig)
 
@@ -243,9 +254,7 @@ def test_every_blocked_experiment_says_what_it_waits_for():
             assert experiment.waiting_for or experiment.pending_reason
 
 
-# --------------------------------------------------------------------
 # Komanda
-# --------------------------------------------------------------------
 
 
 def test_the_command_writes_png_and_svg_for_each_figure(tmp_path):
@@ -269,9 +278,7 @@ def test_the_command_rejects_an_unknown_figure(tmp_path):
         build_figures.main(["999", "--out", str(tmp_path)])
 
 
-# --------------------------------------------------------------------
 # Figurat 18–21: numrat vijnë nga skedarët e rezultateve
-# --------------------------------------------------------------------
 
 
 def _results_module():
@@ -297,9 +304,14 @@ def test_status_matrix_adds_up_to_the_values_E3_matched():
     results = _results_module()
     classes, counts = results.status_matrix()
     assert classes == results.STATUS_ORDER
-    per_class = results._load(results.RESULTS / "E3" / "result.json")["metrics"]["overall"]["per_class"]
+    per_class = results._load(results.RESULTS / "E3" / "result.json")["metrics"]["overall"][
+        "per_class"
+    ]
     assert [sum(row) for row in counts] == [per_class[c]["support"] for c in classes]
-    assert sum(map(sum, counts)) == results._load(results.RESULTS / "E3" / "result.json")["metrics"]["overall"]["total"]
+    assert (
+        sum(map(sum, counts))
+        == results._load(results.RESULTS / "E3" / "result.json")["metrics"]["overall"]["total"]
+    )
 
 
 def test_present_classes_keeps_a_fixed_order_and_refuses_unknown_ones():
@@ -340,9 +352,7 @@ def test_detector_figures_read_the_same_numbers_as_chapter_6():
     assert data["Gjykatësi Claude Sonnet"]["natural"]["macro_f1"] == 1.0
 
 
-# --------------------------------------------------------------------
 # Figurat 1–5, 9, 10: ç'është shkruar në kuti vjen nga burimi
-# --------------------------------------------------------------------
 
 
 def _concepts_module():
@@ -430,17 +440,28 @@ def test_figure_11_accepts_results_whose_metadata_has_no_pipeline(monkeypatch):
     from scripts.figures import evaluation_chain as chain
 
     results = {
-        "E10": {"metadata": {"code": {"git_sha": "a" * 40, "working_tree_dirty": False},
-                             "dataset": {"version": "v", "seed": 1}}},
-        "E3": {"metadata": {"pipeline": {"name": "grounding"}, "code": {"git_sha": "a" * 40, "working_tree_dirty": False},
-                            "dataset": {"version": "v", "seed": 1}}},
+        "E10": {
+            "metadata": {
+                "code": {"git_sha": "a" * 40, "working_tree_dirty": False},
+                "dataset": {"version": "v", "seed": 1},
+            }
+        },
+        "E3": {
+            "metadata": {
+                "pipeline": {"name": "grounding"},
+                "code": {"git_sha": "a" * 40, "working_tree_dirty": False},
+                "dataset": {"version": "v", "seed": 1},
+            }
+        },
     }
     monkeypatch.setattr(chain, "load_results", lambda *a, **k: results)
     fig, *_ = chain.build()
     assert "grounding" in "\n".join(t.get_text() for ax in fig.axes for t in ax.texts)
 
 
-def test_results_of_the_language_model_runs_count_as_measured_without_replacing_template_ones(tmp_path):
+def test_results_of_the_language_model_runs_count_as_measured_without_replacing_template_ones(
+    tmp_path,
+):
     """E4, E6 dhe E12 kanë rezultat vetëm te `llm/`; E7 ka të dyja dhe mban atë me shabllon."""
     for relative, marker in (
         ("E7/result.json", "shabllon"),

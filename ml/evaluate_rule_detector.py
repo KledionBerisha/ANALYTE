@@ -3,17 +3,6 @@ E10 — zbuluesi me rregulla mbi korpusin e korruptuar (PK6).
 
     python -m ml.evaluate_rule_detector --n 120
 
-Ky është eksperimenti i parë i PK6 dhe i vetmi që mund të ekzekutohet pa
-model gjuhësor: korpusi ndërtohet nga shablloni determinist, dhe defektet
-injektohen prej nesh, prandaj etiketat janë të sigurta.
-
-**Si kthehet një listë shkeljesh në një etiketë të vetme.** Një defekt i
-vetëm mund të aktivizojë disa rregulla — një numër i ndryshuar mund të
-prishë edhe drejtimin. Matrica e ngatërrimit kërkon një etiketë për
-mostër, prandaj merret shkelja e parë sipas rendit të katalogut. Zgjedhja
-është e dukshme dhe e njëanshme në të njëjtin drejtim për çdo mostër;
-alternativa — të numërohej si sukses çdo përputhje e pjesshme — do ta
-zbukuronte rezultatin pikërisht aty ku ai duhet të jetë i ashpër.
 """
 
 from __future__ import annotations
@@ -26,7 +15,7 @@ from pathlib import Path
 from analyte.catalog import RESOURCES_DIR
 from analyte.domain.enums import ViolationType
 from analyte.domain.policy import LEGACY_RULES_VERSION, RULES_VERSIONS
-from analyte.verification.pipeline import RULES, verify
+from analyte.verification.pipeline import verify
 from data_generator.generate import GENERATOR_VERSION, RESOURCE_FILES
 from data_generator.ground_truth import build_document
 from data_generator.ids import IdFactory
@@ -34,8 +23,6 @@ from evaluation import provenance
 from evaluation.metrics import detector
 from evaluation.metrics.detector import Judgement
 from ml.data.build_corruption_set import Sample, build_samples, write
-
-CATALOGUE_ORDER = [rule_id for rule_id, _ in RULES]
 
 
 def corpus(count: int, seed: int) -> list[tuple[str, object]]:
@@ -78,7 +65,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--n", type=int, default=120, help="dokumente burimore")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
-        "--rules", default=LEGACY_RULES_VERSION, choices=RULES_VERSIONS, help="versioni i katalogut; r1.3 është i ngrirë"
+        "--rules",
+        default=LEGACY_RULES_VERSION,
+        choices=RULES_VERSIONS,
+        help="versioni i katalogut; r1.3 është i ngrirë",
     )
     parser.add_argument("--split", default="test", help="test | val | train | all")
     parser.add_argument("--out", type=Path, default=Path("evaluation/results/E10"))

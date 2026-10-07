@@ -33,14 +33,25 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 ## Struktura
 
 ```
-backend/src/analyte/domain/     modelet, enum-et dhe politika — pa I/O, pa varësi
-backend/src/analyte/catalog.py  tabelat burimore: analitet, njësitë, terminologjia, kombinimet, këshillat
-backend/src/analyte/ingestion/  leximi i PDF-së dhe vendimi tekst/OCR
-backend/src/analyte/grounding/  interpretimi i vlerave (Dega A) dhe i tekstit (Dega B)
-data_generator/                 korpusi sintetik: të dhënat, faqet dhe simulimi i skanimit
-evaluation/                     harness-i i eksperimenteve dhe metrikat PK1-PK6
-resources/                      tabelat burimore: analitet, njësitë, terminologjia, kombinimet, këshillat (ADR 0023)
-tests/                          njësi, fixture referues
+backend/src/analyte/domain/         modelet, enum-et dhe politika — pa I/O, pa varësi
+backend/src/analyte/catalog.py      leximi i tabelave burimore
+backend/src/analyte/ingestion/      leximi i PDF-së, vendimi tekst/OCR dhe OCR-ja
+backend/src/analyte/grounding/      interpretimi i vlerave (Dega A) dhe i tekstit (Dega B)
+backend/src/analyte/generation/     shablloni determinist, kërkesa dhe klienti i modelit, de-identifikimi
+backend/src/analyte/verification/   rregullat R1-R9 dhe SP1-SP3 (r1.3 e ngrirë, r1.4), klasifikuesi
+backend/src/analyte/orchestration/  makina e gjendjeve, detyrat dhe punëtori arq
+backend/src/analyte/api/            FastAPI: llogaritë, dokumentet, shpjegimet, gjetjet, privatësia
+backend/src/analyte/persistence/    SQLAlchemy, depoja dhe skedarët e koduar
+backend/src/analyte/audit/          regjistri i auditimit
+backend/alembic/                    migrimet e skemës (0001-0006)
+data_generator/                     korpusi sintetik: të dhënat, faqet dhe simulimi i skanimit
+evaluation/                         harness-i i eksperimenteve, metrikat PK1-PK6, grupet A-C, rezultatet dhe cache-i
+ml/                                 klasifikuesi XLM-R: korpusi i korruptuar, trajnimi (Colab) dhe matja
+scripts/                            tabelat, figurat, shtojcat dhe pamjet e punimit
+frontend/                           ndërfaqja web (Next.js)
+resources/                          tabelat burimore: analitet, njësitë, terminologjia, kombinimet, këshillat (ADR 0023)
+docs/                               ADR-të, punimi i diplomës dhe shënimet e etikës
+tests/                              njësi dhe integrim, fixture referues
 ```
 
 ## Shërbimi

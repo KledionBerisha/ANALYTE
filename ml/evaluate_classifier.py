@@ -3,37 +3,6 @@ E11 — klasifikuesi mbi grupin testues të E10 (PK6).
 
     python -m ml.evaluate_classifier --run ml/artifacts/runs/sentence
 
-Lexon probabilitetet që prodhoi `train_classifier.py` në Colab dhe i kthen
-në një etiketë për tekst, me të njëjtën metrikë si E10.
-
-**Nga fjalitë te teksti.** Teksti merr etiketën e fjalisë me
-probabilitetin më të lartë për një defekt, nëse ai kalon pragun; përndryshe
-është i pastër. Kjo është e njëjta formë vendimi si te rregullat — një
-etiketë për tekst — dhe e lejon krahasimin mostër për mostër.
-
-**Dy pika pune, të dyja të zgjedhura mbi validimin dhe vetëm atje.** Vlerat
-0,30-0,95 provohen mbi tekstet e validimit, dhe çdo prag zbatohet i
-pandryshuar mbi testin. Një prag i zgjedhur mbi testin do ta bënte E11 të
-pakrahasueshëm me E10, ku rregullat nuk kanë asnjë parametër të akorduar.
-
-  - `max_macro_f1` — pragu me macro F1 më të lartë mbi llojet e defektit.
-    Ky numër nuk e sheh tekstin e pastër që bllokohet: një tekst ka rreth 31
-    fjali, dhe mjafton një gabim i vogël për fjali që pothuajse çdo tekst i
-    pastër të dalë si i dyshimtë. Në ekzekutimin e parë, pragjet e zgjedhura
-    bllokonin 98% të teksteve të pastra të validimit.
-  - `false_alarm_budget` — pragu me macro F1 më të lartë ndër ata që bllokojnë
-    jo më shumë se 5% të teksteve të pastra të validimit. Buxheti u vendos nga
-    autori më 2026-09-30, pasi u panë rezultatet e rregullit të parë; ai
-    raportohet si pikë e dytë krahas të parit, jo në vend të tij. Kjo është
-    pika që përdor verifikimi (E9), sepse e para do t'i dërgonte pothuajse
-    të gjitha shpjegimet te shablloni.
-
-Nëse asnjë prag nuk e plotëson buxhetin, pika e dytë mungon dhe E9 nuk ka prag.
-
-**Rekomandimi i fshirë mbetet i padukshëm.** Ai nuk lë fjali për të
-gjykuar, prandaj klasifikuesi i fjalisë ka mbulim zero mbi të nga ndërtimi,
-jo nga dobësia. Numërohet në metrikë si i tillë, sepse testi është i
-njëjtë me atë të E10, dhe shënohet veçmas në rezultat.
 """
 
 from __future__ import annotations
@@ -76,7 +45,9 @@ def judge(rows: list[dict[str, Any]], labels: list[str], threshold: float) -> li
         return None if label == CLEAN else ViolationType(label)
 
     return [
-        Judgement(as_type(row["label"]), as_type(text_label(row["probabilities"], labels, threshold)))
+        Judgement(
+            as_type(row["label"]), as_type(text_label(row["probabilities"], labels, threshold))
+        )
         for row in rows
     ]
 
@@ -169,8 +140,13 @@ def evaluate(run_dir: Path, budget: float = FALSE_ALARM_BUDGET) -> dict[str, Any
             {
                 # hyrja janë parashikimet e Colab-it; ato identifikohen me shumën e skedarëve që u lexuan
                 "name": f"colab-run/{run['input']}",
-                "version": "sha256:" + provenance.digest(
-                    [run_dir / "run.json", run_dir / "predictions_val.jsonl", run_dir / "predictions_test.jsonl"]
+                "version": "sha256:"
+                + provenance.digest(
+                    [
+                        run_dir / "run.json",
+                        run_dir / "predictions_val.jsonl",
+                        run_dir / "predictions_test.jsonl",
+                    ]
                 ),
                 "documents": len(test),
             },

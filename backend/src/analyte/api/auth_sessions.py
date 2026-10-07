@@ -1,22 +1,6 @@
 """
 Seancat e revokueshme dhe rrotullimi i tokenëve të rifreskimit (ADR 0014).
 
-Hyrja hap një seancë. Çdo rifreskim e shpenzon tokenin që u përdor dhe jep
-një të ri në të njëjtën seancë, kështu që një token rifreskimi vlen një
-herë. Nëse një token i shpenzuar paraqitet sërish, dikush ka dy kopje të
-tij — përdoruesi dhe dikush tjetër — dhe shërbimi nuk ka si të dijë cili
-është cili. Revokon gjithë seancën: të dy humbasin aksesin dhe përdoruesi
-hyn sërish.
-
-Revokimi vlen menjëherë edhe për tokenin e aksesit, sepse `current_login`
-kontrollon seancën në çdo kërkesë. Pa këtë, një seancë e revokuar do të
-mbetej e përdorshme deri në skadimin e tokenit të aksesit.
-
-**Dritarja e hirit.** Dy rifreskime paralele të të njëjtit klient — një
-faqe që ngarkon disa gjëra me një token të skaduar — do të dukeshin si
-ripërdorim. Brenda `refresh_reuse_grace_seconds` tokeni i shpenzuar
-refuzohet pa e revokuar seancën. Kjo nuk i jep asgjë një vjedhësi: ai merr
-401 njësoj, nuk merr token të ri.
 """
 
 from __future__ import annotations

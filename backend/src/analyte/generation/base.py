@@ -1,20 +1,6 @@
 """
 Kontrata e gjeneruesit, ashtu si e sheh cikli gjenerim → verifikim.
 
-Gjeneruesi merr kontekstin dhe shkeljet e përpjekjes së mëparshme, dhe
-kthen tekst. Asgjë tjetër. Nuk ka parametër për dokumentin, për tekstin e
-nxjerrë prej tij, as për narrativën e mjekut — e njëjta garanci që
-`GroundingContext` shpreh për `build_prompt`, e zgjeruar te çdo
-zbatim i gjeneruesit.
-
-Shkeljet nuk e dobësojnë këtë garanci. Çdo `Violation` mban një fjali të
-daljes së gjeneruar dhe arsyen e rregullit; asnjëra nuk vjen nga
-dokumenti. Modeli sheh vetëm atë që ka shkruar vetë dhe pse u refuzua.
-
-Protokolli ekziston përpara modelit gjuhësor me qëllim: makina e
-gjendjeve testohet me gjenerues të rremë që japin tekst të saktë, tekst
-me defekte të dhëna dhe përjashtime, dhe secila rrugë e Figurës 6 ka
-testin e vet pa asnjë thirrje në rrjet.
 """
 
 from __future__ import annotations

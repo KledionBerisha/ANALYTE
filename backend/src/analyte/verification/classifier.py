@@ -1,18 +1,6 @@
 """
 Klasifikuesi i fjalive në shtresën e verifikimit (ADR 0009).
 
-Rregullat vijnë të parat dhe janë të vetmet që ndalin daljen pa kusht.
-Klasifikuesi gjykon vetëm fjalitë ku rregullat nuk gjetën asgjë, dhe çdo
-shkelje e tij mban `detected_by=CLASSIFIER` dhe një `confidence` — ajo që
-rregullat nuk e kanë dhe modeli i domenit ua ndalon.
-
-Moduli nuk varet nga torch. Parashikuesi është protokoll; zbatimi me
-transformers ngarkohet vetëm kur kërkohet, që shërbimi dhe testet të
-punojnë pa të.
-
-**Serializimi i kontekstit jeton këtu** dhe jo te skripti i trajnimit:
-modeli i trajnuar me hyrjen `context` pret saktësisht këtë varg, dhe një
-kopje e dytë do të largohej nga e para pa u vënë re.
 """
 
 from __future__ import annotations
@@ -48,8 +36,7 @@ def serialize_context(context: GroundingContext) -> str:
     që i njëjti kontekst të japë gjithmonë të njëjtin varg.
     """
     parts = [
-        f"{f.analyte_name_canonical} {f.value_canonical} {f.unit_canonical} "
-        f"{STATUS_WORD[f.status]}"
+        f"{f.analyte_name_canonical} {f.value_canonical} {f.unit_canonical} {STATUS_WORD[f.status]}"
         for f in context.findings
     ]
     parts += [f"mjeku: {a.text_span}" for a in context.assertions]
@@ -66,8 +53,7 @@ class SentencePredictor(Protocol):
     mode: str
     """`sentence` ose `context` — cilën hyrje pret modeli."""
 
-    def __call__(self, sentences: list[str], context: str) -> list[list[float]]:
-        ...
+    def __call__(self, sentences: list[str], context: str) -> list[list[float]]: ...
 
 
 def check(

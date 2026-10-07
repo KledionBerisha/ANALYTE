@@ -1,20 +1,6 @@
 """
 Zgjidhja e intervalit referent.
 
-Tri burime, me përparësi të përcaktuar:
-
-1. **Dokumenti.** Nëse laboratori e ka shtypur intervalin, ai fiton
-   gjithmonë. Laboratori e di me çfarë metode ka matur; tabela jonë jo.
-2. **Tabela e brendshme.** Kur intervali nuk shtypet, merret ai i
-   tabelës — por vetëm pasi të dihet gjinia e pacientit, sepse gjysma e
-   analiteve i kanë kufijtë të ndryshëm sipas saj.
-3. **Asnjë.** Kur asnjë nga të dyja nuk jep përgjigje, gjetja mbetet pa
-   interval dhe rrjedhimisht e painterpretueshme (SP5).
-
-Burimi regjistrohet bashkë me vlerën. Pa këtë, një gabim klasifikimi nuk
-mund t'i atribuohet as leximit të intervalit nga faqja, as zgjedhjes së
-tij nga tabela — dhe PK2 do të tregonte një numër pa asnjë rrugë drejt
-shkakut.
 """
 
 from __future__ import annotations
@@ -27,9 +13,7 @@ from analyte.domain.enums import ReferenceSource
 
 from .normalize import normalize_unit, parse_number
 
-INTERVAL = re.compile(
-    r"^(?P<low>[+-]?\d+(?:[.,]\d+)?)\s*[-–—]\s*(?P<high>[+-]?\d+(?:[.,]\d+)?)$"
-)
+INTERVAL = re.compile(r"^(?P<low>[+-]?\d+(?:[.,]\d+)?)\s*[-–—]\s*(?P<high>[+-]?\d+(?:[.,]\d+)?)$")
 """Interval dyanësh: "70 - 99". Vijat e ndryshme të ndarjes janë të gjitha
 vizë; shtypshkrimi ndryshon nga laboratori në laborator."""
 
@@ -40,11 +24,9 @@ ONE_SIDED = re.compile(r"^(?P<operator>[<>≤≥])\s*(?P<bound>[+-]?\d+(?:[.,]\d
 class Resolution:
     """Rezultati i zgjidhjes: kufijtë dhe nga erdhën."""
 
-    __slots__ = ("low", "high", "source")
+    __slots__ = ("high", "low", "source")
 
-    def __init__(
-        self, low: Decimal | None, high: Decimal | None, source: ReferenceSource
-    ) -> None:
+    def __init__(self, low: Decimal | None, high: Decimal | None, source: ReferenceSource) -> None:
         self.low, self.high, self.source = low, high, source
 
     def __eq__(self, other: object) -> bool:

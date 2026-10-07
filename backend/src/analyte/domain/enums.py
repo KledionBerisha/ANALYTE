@@ -128,18 +128,18 @@ class ViolationType(str, Enum):
     """
 
     # Dega A — verifikim i saktë
-    UNGROUNDED_NUMBER = "ungrounded_number"          # R1
-    UNGROUNDED_ANALYTE = "ungrounded_analyte"        # R2
-    DIRECTION_MISMATCH = "direction_mismatch"        # R3
-    MISSING_CRITICAL = "missing_critical"            # R4
+    UNGROUNDED_NUMBER = "ungrounded_number"  # R1
+    UNGROUNDED_ANALYTE = "ungrounded_analyte"  # R2
+    DIRECTION_MISMATCH = "direction_mismatch"  # R3
+    MISSING_CRITICAL = "missing_critical"  # R4
     # Dega B — verifikim semantik
-    POLARITY_FLIP = "polarity_flip"                  # R5
-    HEDGE_REMOVED = "hedge_removed"                  # R6
-    FABRICATED_FINDING = "fabricated_finding"        # R7
+    POLARITY_FLIP = "polarity_flip"  # R5
+    HEDGE_REMOVED = "hedge_removed"  # R6
+    FABRICATED_FINDING = "fabricated_finding"  # R7
     OMITTED_RECOMMENDATION = "omitted_recommendation"  # R8
     UNGROUNDED_TERM_EXPLANATION = "ungrounded_term_explanation"  # R9
     # Politika e sigurisë
-    PROHIBITED_CLAIM = "prohibited_claim"            # SP1-SP3
+    PROHIBITED_CLAIM = "prohibited_claim"  # SP1-SP3
 
     @property
     def branch(self) -> str:

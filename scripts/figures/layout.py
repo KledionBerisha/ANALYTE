@@ -1,11 +1,6 @@
 """
 Vendosja në shtresa e një grafi të drejtuar, pa varësi nga matplotlib.
 
-Shtresa e një nyjeje është rruga më e gjatë që mbaron te ajo, pasi të jenë
-hequr skajet që kthehen mbrapa (ciklet). Kështu çdo skaj i mbetur shkon nga
-një shtresë më e ulët te një më e lartë, dhe grafi lexohet në një drejtim.
-Skajet e hequra nuk humbasin: kthehen si `back_edges`, që figura t'i vizatojë
-ndryshe — ato janë pikërisht ciklet, dhe një cikël është gjetje, jo zbukurim.
 """
 
 from __future__ import annotations

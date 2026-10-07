@@ -1,24 +1,6 @@
 """
 PK3 — besnikëria e thjeshtimit.
 
-Pyetja është e ngushtë dhe e përcaktuar: a mbijeton kuptimi i mjekut në
-tekstin e thjeshtuar? Tri gjëra mund të prishen, dhe secila matet veçmas
-sepse secila ka shkak tjetër:
-
-  - **Polariteti.** "Nuk ka shenja anemie" që bëhet "ka shenja anemie" e
-    përmbys kuptimin plotësisht. Matet si përpjesa e pohimeve të mohuara
-    të burimit që e ruajnë mohimin.
-  - **Pasiguria.** "Nuk përjashtohet hipotiroidizëm" që bëhet
-    "ka hipotiroidizëm" e kthen hamendjen në diagnozë. Kjo është forma më
-    e rrezikshme e humbjes, sepse teksti del më i qartë dhe më i lexueshëm
-    pikërisht duke u bërë i pasaktë.
-  - **Shtesat.** Gjetje që nuk ekziston në kontekst, e shfaqur në dalje.
-
-Numëruesi vjen nga shkeljet e verifikimit dhe emëruesi nga e vërteta bazë
-e burimit. Kjo do të thotë se PK3 mat aq sa sheh verifikimi: nëse një
-mohim përmbyset dhe asnjë rregull nuk e kap, PK3 do të tregojë ruajtje të
-përsosur. Prandaj PK3 lexohet gjithmonë bashkë me PK6, që mat pikërisht
-aftësinë zbuluese; asnjëri nga të dy nuk qëndron vetëm.
 """
 
 from __future__ import annotations

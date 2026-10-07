@@ -3,9 +3,6 @@ Rivendosja, hapi i dytë dhe rindërgimi mbi PostgreSQL të vërtetë (ADR 0018)
 
     make test-postgres
 
-Anashkalohet kur `ANALYTE_TEST_DATABASE_URL` mungon. Baza ndërtohet nga migrimet (`0001`…`0004`), jo nga modelet.
-Çka shton mbi testet e SQLite: shpenzimet me UPDATE të kushtëzuar nën kërkesa vërtet paralele (një token rivendosjeje,
-një kod TOTP, një kod rimëkëmbjes), dhe krahasimet e kohës te kalimi periodik mbi `timestamptz`.
 """
 
 from __future__ import annotations
@@ -55,7 +52,10 @@ def test_a_reset_link_is_spent_by_exactly_one_of_many_parallel_requests(world):
     token = reset_token_in(world.outbox.to(EMAIL)[-1])
     with ThreadPoolExecutor(8) as pool:
         statuses = sorted(
-            r.status_code for r in pool.map(lambda i: world.reset(token, f"fjalekalim-i-ri-{i}-i-gjate"), range(8))
+            r.status_code
+            for r in pool.map(
+                lambda i: world.reset(token, f"fjalekalim-i-ri-{i}-i-gjate"), range(8)
+            )
         )
     assert statuses.count(204) == 1 and set(statuses) <= {204, 400}
 
@@ -67,16 +67,22 @@ def test_one_totp_code_opens_exactly_one_of_many_parallel_logins(world):
     challenge = world.login().json()["challenge"]
     code = code_for(secret, +1)
     with ThreadPoolExecutor(8) as pool:
-        statuses = sorted(r.status_code for r in pool.map(lambda _: world.verify(challenge, code), range(8)))
-    assert statuses.count(200) == 1 and set(statuses) <= {200, 401, 429}  # kufizimi i çiftit mund të ndërhyjë pas disa dështimeve paralele; pohimi i vërtetë është një 200 i vetëm
+        statuses = sorted(
+            r.status_code for r in pool.map(lambda _: world.verify(challenge, code), range(8))
+        )
+    # kufizimi i çiftit mund të ndërhyjë pas disa dështimeve paralele; pohimi i vërtetë është një 200 i vetëm
+    assert statuses.count(200) == 1 and set(statuses) <= {200, 401, 429}
 
 
 def test_one_recovery_code_opens_exactly_one_of_many_parallel_logins(world):
     _, codes, _ = world.enable_two_factor()
     challenge = world.login().json()["challenge"]
     with ThreadPoolExecutor(8) as pool:
-        statuses = sorted(r.status_code for r in pool.map(lambda _: world.verify(challenge, codes[0]), range(8)))
-    assert statuses.count(200) == 1 and set(statuses) <= {200, 401, 429}  # kufizimi i çiftit mund të ndërhyjë pas disa dështimeve paralele; pohimi i vërtetë është një 200 i vetëm
+        statuses = sorted(
+            r.status_code for r in pool.map(lambda _: world.verify(challenge, codes[0]), range(8))
+        )
+    # kufizimi i çiftit mund të ndërhyjë pas disa dështimeve paralele; pohimi i vërtetë është një 200 i vetëm
+    assert statuses.count(200) == 1 and set(statuses) <= {200, 401, 429}
 
 
 def test_the_whole_flow_and_the_sweep_work_on_postgres(world):
@@ -85,7 +91,7 @@ def test_the_whole_flow_and_the_sweep_work_on_postgres(world):
     from tests.fixtures.accounts import EMAIL, NEW_PASSWORD
     from tests.fixtures.mailbox import reset_token_in
 
-    secret, _, _ = world.enable_two_factor()
+    _secret, _, _ = world.enable_two_factor()
     world.forgot()
     assert world.reset(reset_token_in(world.outbox.to(EMAIL)[-1])).status_code == 204
     assert world.login(EMAIL, NEW_PASSWORD).json()["mfa_required"] is True
@@ -97,12 +103,17 @@ def test_the_whole_flow_and_the_sweep_work_on_postgres(world):
 
     from tests.fixtures.accounts import World
 
-    broken = World(world.services.store.root.parent, mailer=Down(), database_url=world.settings.database_url)
+    broken = World(
+        world.services.store.root.parent, mailer=Down(), database_url=world.settings.database_url
+    )
     broken.forgot()
     working = OutboxMailer()
     report = outbox.resend_unsent(
-        broken.services.sessions, working, broken.settings,
-        now=datetime.now(UTC) + timedelta(minutes=11), sleep=lambda _s: None,
+        broken.services.sessions,
+        working,
+        broken.settings,
+        now=datetime.now(UTC) + timedelta(minutes=11),
+        sleep=lambda _s: None,
     )
     assert (report.reissued, report.sent) == (1, 1)
     assert "/reset-password?token=" in working.to(EMAIL)[0].body

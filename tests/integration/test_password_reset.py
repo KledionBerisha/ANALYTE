@@ -1,14 +1,6 @@
 """
 Rivendosja e fjalëkalimit (ADR 0018).
 
-Pohimet më të rëndësishme:
-
-  - **Asnjë përgjigje nuk tregon nëse një email ka llogari.** `forgot-password` kthen të njëjtin status dhe trup për
-    email të konfirmuar, të pakonfirmuar dhe të panjohur, dhe shpenzon Argon2 në secilin rast.
-  - **Lidhja vlen një herë, skadon, dhe ruhet vetëm si HMAC.**
-  - **Pas suksesit çdo seancë revokohet**, dhe fjalëkalimi i vjetër nuk hyn më.
-  - **Rivendosja nuk është rrugë anash konfirmimit**: një llogari e pakonfirmuar nuk merr lidhje rivendosjeje, dhe
-    një token rivendosjeje për të nuk e konfirmon as nuk e ndryshon.
 """
 
 from __future__ import annotations
@@ -41,9 +33,7 @@ def _reset_token(world: World, email: str = EMAIL) -> str:
     return reset_token_in(world.outbox.to(email)[-1])
 
 
-# --------------------------------------------------------------------
 # Rruga e zakonshme
-# --------------------------------------------------------------------
 
 
 def test_forgot_then_reset_replaces_the_password(world):
@@ -102,9 +92,7 @@ def test_a_confirmation_token_does_not_reset_a_password(world):
     assert world.reset(confirmation).status_code == 400
 
 
-# --------------------------------------------------------------------
 # Nuk tregon nëse email-i ka llogari
-# --------------------------------------------------------------------
 
 
 def test_every_kind_of_email_gets_the_same_response(world):
@@ -114,7 +102,11 @@ def test_every_kind_of_email_gets_the_same_response(world):
     unknown = world.forgot("askush@shembull.al")
     assert known.status_code == pending.status_code == unknown.status_code == 202
     assert known.json() == pending.json() == unknown.json() == {"message": auth_module.RESET_REPLY}
-    assert known.headers["content-type"] == pending.headers["content-type"] == unknown.headers["content-type"]
+    assert (
+        known.headers["content-type"]
+        == pending.headers["content-type"]
+        == unknown.headers["content-type"]
+    )
     assert world.outbox.to("askush@shembull.al") == []  # asgjë te kutia e dikujt që s'ka llogari
 
 
@@ -145,9 +137,7 @@ def test_an_invalid_email_address_is_refused_before_anything_is_sent(world):
     assert injected.status_code == 422
 
 
-# --------------------------------------------------------------------
 # Seancat
-# --------------------------------------------------------------------
 
 
 def test_a_reset_revokes_every_session(world):
@@ -156,7 +146,9 @@ def test_a_reset_revokes_every_session(world):
     assert world.reset(_reset_token(world)).status_code == 204
     for tokens in (first, second):
         assert world.me(tokens["access_token"]).status_code == 401
-        refreshed = world.client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]})
+        refreshed = world.client.post(
+            "/auth/refresh", json={"refresh_token": tokens["refresh_token"]}
+        )
         assert refreshed.status_code == 401
     assert [e.payload for e in world.audit("auth.sessions_revoked_all")] == [{"count": 2}]
     assert world.audit("auth.password_reset")[0].payload == {}
@@ -169,9 +161,7 @@ def test_a_reset_does_not_touch_another_users_sessions(world):
     assert world.me(other["access_token"]).status_code == 200
 
 
-# --------------------------------------------------------------------
 # Rivendosja nuk është rrugë anash konfirmimit
-# --------------------------------------------------------------------
 
 
 def test_an_unconfirmed_account_gets_a_confirmation_link_not_a_reset_link(world):
@@ -217,9 +207,7 @@ def test_a_reset_leaves_a_confirmed_account_confirmed_with_the_same_timestamp(wo
     assert world.user().email_confirmed_at == before
 
 
-# --------------------------------------------------------------------
 # Kufizimi
-# --------------------------------------------------------------------
 
 
 def test_one_address_gets_at_most_three_reset_requests_an_hour(world):
@@ -266,9 +254,7 @@ def test_submissions_are_throttled_per_ip_before_the_token_is_checked(tmp_path):
     assert w.reset(token, ip="203.0.113.8").status_code == 204  # IP tjetër
 
 
-# --------------------------------------------------------------------
 # Çfarë mbetet te baza, te auditimi dhe te mesazhi
-# --------------------------------------------------------------------
 
 
 def test_the_message_carries_the_link_and_no_secret(world):
@@ -306,7 +292,13 @@ def test_a_reset_mail_failure_does_not_change_the_response(tmp_path):
     from analyte.security import hash_password
 
     with w.db() as db:
-        db.add(UserRow(email=EMAIL, password_hash=hash_password(PASSWORD), email_confirmed_at=datetime.now(UTC)))
+        db.add(
+            UserRow(
+                email=EMAIL,
+                password_hash=hash_password(PASSWORD),
+                email_confirmed_at=datetime.now(UTC),
+            )
+        )
         db.commit()
     response = w.forgot()
     assert response.status_code == 202

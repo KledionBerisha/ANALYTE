@@ -1,18 +1,6 @@
 """
 Figura 8 — struktura modulare e aplikacionit.
 
-Varësitë lexohen nga importet e vërteta të `backend/src/analyte`, jo nga një
-përshkrim i tyre. Kjo e bën figurën provë: §5.9 pohon se moduli i domenit nuk
-varet nga asnjë modul tjetër, dhe këtu ai pohim ose shihet (rreshti i domenit
-është bosh) ose e kundërshton vetë figura.
-
-**Pse matricë dhe jo grafik me shigjeta.** Me katërmbëdhjetë module dhe tridhjetë
-e një varësi, shigjetat që kapërcejnë shtresa kalojnë pas kutive të tjera dhe
-duken të lidhura me modulin e gabuar; heqja e tyre do të fshinte varësi të
-vërteta, si `api` → `persistence`. Matrica i tregon të gjitha, me numrin e
-deklaratave, dhe e bën ciklin të dukshëm: modulet renditen nga ata që
-importojnë më shumë drejt atyre që importohen, prandaj çdo qelizë nën
-diagonale është varësi që kthehet mbrapa.
 """
 
 from __future__ import annotations
@@ -26,8 +14,14 @@ from . import layout, style
 PACKAGE = Path(__file__).resolve().parents[2] / "backend" / "src" / "analyte"
 
 THESIS_MODULES = (
-    "domain", "ingestion", "grounding", "generation",
-    "verification", "orchestration", "persistence", "audit",
+    "domain",
+    "ingestion",
+    "grounding",
+    "generation",
+    "verification",
+    "orchestration",
+    "persistence",
+    "audit",
 )
 """Tetë modulet që §5.9 emërton. Të tjerët — `api`, `main`, konfigurimi,
 siguria, katalogu, `textnorm` — janë mbështetës dhe vizatohen më të lehtë."""
@@ -102,11 +96,29 @@ def build():
         fill = style.BLUE_TINT if main else style.NEUTRAL
         x, y = center(i, i)
         ax.add_patch(_rect(left - 1.1, y - cell / 2 + 0.02, 1.05, cell - 0.04, fill))
-        style.label(ax, left - 0.1, y, name, size=7.5, color=style.INK, ha="right",
-                    weight="bold" if main else "normal")
+        style.label(
+            ax,
+            left - 0.1,
+            y,
+            name,
+            size=7.5,
+            color=style.INK,
+            ha="right",
+            weight="bold" if main else "normal",
+        )
         ax.add_patch(_rect(x - cell / 2 + 0.02, height - top + 0.05, cell - 0.04, 0.9, fill))
-        ax.text(x, height - top + 0.5, name, rotation=90, ha="center", va="center", fontsize=7.5,
-                color=style.INK, fontweight="bold" if main else "normal", zorder=6)
+        ax.text(
+            x,
+            height - top + 0.5,
+            name,
+            rotation=90,
+            ha="center",
+            va="center",
+            fontsize=7.5,
+            color=style.INK,
+            fontweight="bold" if main else "normal",
+            zorder=6,
+        )
         # Diagonalja: një modul nuk importon veten.
         ax.add_patch(_rect(x - cell / 2, y - cell / 2, cell, cell, style.NEUTRAL, edge=None))
 
@@ -114,22 +126,54 @@ def build():
         for col in range(len(order)):
             x, y = center(row, col)
             if row != col:
-                ax.add_patch(_rect(x - cell / 2, y - cell / 2, cell, cell, style.SURFACE,
-                                   edge=style.FAINT, lw=0.4))
+                ax.add_patch(
+                    _rect(
+                        x - cell / 2,
+                        y - cell / 2,
+                        cell,
+                        cell,
+                        style.SURFACE,
+                        edge=style.FAINT,
+                        lw=0.4,
+                    )
+                )
     for (source, target), count in counts.items():
         row, col = index[source], index[target]
         x, y = center(row, col)
         back = row > col
         strength = count / peak
         fill = _ramp(strength)
-        ax.add_patch(_rect(x - cell / 2 + 0.015, y - cell / 2 + 0.015, cell - 0.03, cell - 0.03,
-                           fill, edge=style.INK if back else None, lw=1.6, z=4))
-        style.label(ax, x, y, str(count), size=7.5, weight="bold",
-                    color="#ffffff" if strength > 0.45 else style.INK)
+        ax.add_patch(
+            _rect(
+                x - cell / 2 + 0.015,
+                y - cell / 2 + 0.015,
+                cell - 0.03,
+                cell - 0.03,
+                fill,
+                edge=style.INK if back else None,
+                lw=1.6,
+                z=4,
+            )
+        )
+        style.label(
+            ax,
+            x,
+            y,
+            str(count),
+            size=7.5,
+            weight="bold",
+            color="#ffffff" if strength > 0.45 else style.INK,
+        )
 
     y = 0.72
-    style.label(ax, 0.1, y, "Rreshti importon kolonën; numri është sa deklarata import ka.",
-                size=7.2, ha="left")
+    style.label(
+        ax,
+        0.1,
+        y,
+        "Rreshti importon kolonën; numri është sa deklarata import ka.",
+        size=7.2,
+        ha="left",
+    )
     style.box(ax, 0.22, y - 0.25, 0.3, 0.2, "", fill=style.BLUE_TINT)
     style.label(ax, 0.45, y - 0.25, "modul i punimit (§5.9)", size=7.2, ha="left")
     style.box(ax, 2.35, y - 0.25, 0.3, 0.2, "", fill=style.NEUTRAL)
@@ -138,8 +182,16 @@ def build():
     style.label(ax, 4.35, y - 0.25, "varësi që kthehet mbrapa", size=7.2, ha="left")
     if cycles:
         names = " ↔ ".join(sorted(cycles[0]))
-        style.label(ax, 0.1, y - 0.5, f"Varësi rrethore mes paketave: {names}.", size=7.2,
-                    ha="left", color=style.INK, weight="bold")
+        style.label(
+            ax,
+            0.1,
+            y - 0.5,
+            f"Varësi rrethore mes paketave: {names}.",
+            size=7.2,
+            ha="left",
+            color=style.INK,
+            weight="bold",
+        )
     return fig, dict(counts)
 
 

@@ -1,19 +1,6 @@
 """
 Testet e API-së, nga ngarkimi te shpjegimi.
 
-Shërbimi ekzekutohet i plotë — makina e gjendjeve, verifikimi, baza, kodimi
-i skedarëve — mbi SQLite dhe me punë të menjëhershme, pa Redis. Dokumentet
-janë PDF-të e gjeneruesit sintetik, ashtu si te testet e degëve.
-
-Tri grupe pohimesh mbajnë gjithçka këtu:
-
-  - **Kontrata.** Çdo shpjegim mban verifikimin e vet; gabimet kanë formën
-    RFC 7807; dokumenti i tjetrit nuk ekziston për ty.
-  - **Rrugët e Figurës 6** arrijnë në API me gjendjen e duhur dhe me atë që
-    ka kuptim të kthehet për secilën.
-  - **Të dhënat nuk rrjedhin.** Skedari në disk është i koduar, emri i tij
-    nuk shfaqet askund në bazë, dhe log-u i auditimit nuk mban as emër, as
-    email, as vlerë.
 """
 
 from __future__ import annotations
@@ -31,21 +18,18 @@ from sqlalchemy import select
 
 from analyte.config import Settings
 from analyte.generation.templates import TemplateGenerator, build
-from analyte.main import create_app
-from tests.fixtures.mailbox import client_for, register_confirmed, token_in
-from analyte.orchestration.tasks import InlineRunner, Services
+from analyte.orchestration.tasks import Services
 from analyte.persistence.database import create_schema, make_engine, make_session_factory
 from analyte.persistence.storage import EncryptedStore
 from analyte.persistence.tables import AuditEventRow, DocumentRow, ExplanationRow
+from tests.fixtures.mailbox import client_for, register_confirmed, token_in
 
 PASSWORD = "fjalekalim-testi-i-gjate"
 FILENAME = "Analiza_Arben_Krasniqi_2026.pdf"
 """Emër skedari me emër personi, siç e ngarkojnë pacientët vërtet."""
 
 
-# --------------------------------------------------------------------
 # Ndërtimi
-# --------------------------------------------------------------------
 
 
 def _pdf(scanned: bool, seed: str) -> tuple[bytes, object]:
@@ -136,18 +120,20 @@ def delivered(world, alice, pdfs):
     return response.json()["id"]
 
 
-# --------------------------------------------------------------------
 # Hyrja
-# --------------------------------------------------------------------
 
 
 def test_register_confirm_login_and_me(world):
     client = world[0]
-    created = client.post("/auth/register", json={"email": "Besa@Shembull.AL", "password": PASSWORD})
+    created = client.post(
+        "/auth/register", json={"email": "Besa@Shembull.AL", "password": PASSWORD}
+    )
     assert created.status_code == 202
     assert "email" not in created.json()  # përgjigja nuk tregon asgjë për llogarinë
     # mesazhi shkon te adresa e normalizuar; llogaria nuk hyn para konfirmimit
-    assert [m.subject for m in client.outbox.to("besa@shembull.al")] == ["Konfirmoni email-in tuaj në ANALYTE"]
+    assert [m.subject for m in client.outbox.to("besa@shembull.al")] == [
+        "Konfirmoni email-in tuaj në ANALYTE"
+    ]
     before = client.post("/auth/login", json={"email": "besa@shembull.al", "password": PASSWORD})
     assert before.status_code == 403
     register_token = token_in(client.outbox.to("besa@shembull.al")[-1])
@@ -162,11 +148,23 @@ def test_register_confirm_login_and_me(world):
 
 def test_short_password_and_malformed_email_are_refused(world):
     client = world[0]
-    assert client.post(
-        "/auth/register", json={"email": "short@shembull.al", "password": "shkurt"}
-    ).status_code == 422
-    for bad in ("pa-at.shembull.al", "a@b", "a b@shembull.al", "a@shembull.al\nBcc: x@y.al", "a,b@shembull.al"):
-        assert client.post("/auth/register", json={"email": bad, "password": PASSWORD}).status_code == 422, bad
+    assert (
+        client.post(
+            "/auth/register", json={"email": "short@shembull.al", "password": "shkurt"}
+        ).status_code
+        == 422
+    )
+    for bad in (
+        "pa-at.shembull.al",
+        "a@b",
+        "a b@shembull.al",
+        "a@shembull.al\nBcc: x@y.al",
+        "a,b@shembull.al",
+    ):
+        assert (
+            client.post("/auth/register", json={"email": bad, "password": PASSWORD}).status_code
+            == 422
+        ), bad
     assert client.outbox.to("short@shembull.al") == []
 
 
@@ -186,10 +184,18 @@ def test_login_failure_does_not_reveal_which_part_was_wrong(world):
 def test_refresh_and_access_tokens_are_not_interchangeable(world):
     client = world[0]
     register_confirmed(client, "dea@shembull.al", PASSWORD)
-    tokens = client.post("/auth/login", json={"email": "dea@shembull.al", "password": PASSWORD}).json()
+    tokens = client.post(
+        "/auth/login", json={"email": "dea@shembull.al", "password": PASSWORD}
+    ).json()
 
-    assert client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]}).status_code == 200
-    assert client.post("/auth/refresh", json={"refresh_token": tokens["access_token"]}).status_code == 401
+    assert (
+        client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]}).status_code
+        == 200
+    )
+    assert (
+        client.post("/auth/refresh", json={"refresh_token": tokens["access_token"]}).status_code
+        == 401
+    )
     as_access = {"Authorization": f"Bearer {tokens['refresh_token']}"}
     assert client.get("/auth/me", headers=as_access).status_code == 401
 
@@ -201,9 +207,7 @@ def test_errors_are_problem_details(world):
     assert {"type", "title", "status"} <= response.json().keys()
 
 
-# --------------------------------------------------------------------
 # Rruga e plotë
-# --------------------------------------------------------------------
 
 
 def test_upload_is_processed_to_delivery(world, alice, delivered):
@@ -254,9 +258,7 @@ def test_history_lists_the_users_documents(world, alice, delivered):
     assert all(item["filename"] == FILENAME for item in page["items"])
 
 
-# --------------------------------------------------------------------
 # Rrugët e tjera të Figurës 6
-# --------------------------------------------------------------------
 
 
 def test_a_non_pdf_is_rejected_by_the_state_machine(world, alice, pdfs):
@@ -279,7 +281,10 @@ def test_a_scan_without_ocr_is_unread_not_empty(world, alice, pdfs):
 def test_a_document_without_content_has_no_explanation(world, alice, pdfs):
     client = world[0]
     document_id = _upload(client, alice, pdfs["blank"]).json()["id"]
-    assert client.get(f"/documents/{document_id}/status", headers=alice).json()["state"] == "no_findings"
+    assert (
+        client.get(f"/documents/{document_id}/status", headers=alice).json()["state"]
+        == "no_findings"
+    )
     response = client.get(f"/documents/{document_id}/explanation", headers=alice)
     assert response.status_code == 409
 
@@ -308,7 +313,9 @@ def test_double_failure_is_stored_as_a_fallback(tmp_path, pdfs):
     assert "987654" not in body["text"]
     assert [n["code"] for n in body["notices"] if n["code"] == "fallback"] == ["fallback"]
 
-    attempts = client.get(f"/documents/{document_id}/verification", headers=headers).json()["attempts"]
+    attempts = client.get(f"/documents/{document_id}/verification", headers=headers).json()[
+        "attempts"
+    ]
     assert [(a["attempt"], a["is_fallback"], a["delivered"]) for a in attempts] == [
         (1, False, False),
         (2, False, False),
@@ -337,7 +344,7 @@ def test_state_is_visible_while_processing(tmp_path, pdfs):
 
 
 def test_a_crash_is_recorded_not_hidden(tmp_path, pdfs, monkeypatch):
-    import analyte.orchestration.tasks as tasks
+    from analyte.orchestration import tasks
 
     def broken(*args, **kwargs):
         raise RuntimeError("defekt i simuluar")
@@ -352,15 +359,13 @@ def test_a_crash_is_recorded_not_hidden(tmp_path, pdfs, monkeypatch):
     assert status["job"]["failed"] is True
     assert status["terminal"] is False
     with services.sessions() as session:
-        events = session.scalars(select(AuditEventRow.payload).where(
-            AuditEventRow.event_type == "processing.failed"
-        )).all()
+        events = session.scalars(
+            select(AuditEventRow.payload).where(AuditEventRow.event_type == "processing.failed")
+        ).all()
     assert events == [{"error_type": "RuntimeError"}]
 
 
-# --------------------------------------------------------------------
 # Ndarja ndërmjet përdoruesve
-# --------------------------------------------------------------------
 
 
 def test_another_users_document_does_not_exist_for_you(world, delivered):
@@ -372,9 +377,7 @@ def test_another_users_document_does_not_exist_for_you(world, delivered):
     assert client.get("/documents", headers=mallory).json()["total"] == 0
 
 
-# --------------------------------------------------------------------
 # Të dhënat
-# --------------------------------------------------------------------
 
 
 def test_stored_files_are_encrypted(world, delivered):
@@ -412,16 +415,17 @@ def test_deleting_removes_the_data_but_keeps_the_trace(world, pdfs):
 
     uid = UUID(document_id)
     with services.sessions() as session:
-        assert session.scalars(select(ExplanationRow).where(ExplanationRow.document_id == uid)).all() == []
+        assert (
+            session.scalars(select(ExplanationRow).where(ExplanationRow.document_id == uid)).all()
+            == []
+        )
         kinds = session.scalars(
             select(AuditEventRow.event_type).where(AuditEventRow.document_id == uid)
         ).all()
     assert "document.uploaded" in kinds and "document.deleted" in kinds
 
 
-# --------------------------------------------------------------------
 # Pikat publike dhe të pandërtuara
-# --------------------------------------------------------------------
 
 
 def test_terminology_is_public(world):

@@ -1,30 +1,6 @@
 """
 Kontrolli i besueshmërisë për vlerat e lexuara nga OCR-ja (ADR 0020).
 
-**Problemi.** E3 mati 62 vlera me status të interpretuar dhe të gabuar, 11 prej tyre kritike të rreme. Të gjitha
-vijnë nga i njëjti defekt i OCR-së: një presje dhjetore që humbet. Në 42 raste humbi te INTERVALI i shtypur
-("2,5 - 4,5" lexohet "25 - 45"), dhe vlera e saktë del "e ulët"; në 20 humbi te VLERA ("46,6" lexohet "466"), dhe
-vlera normale del "e lartë" ose "kritike". Nuk ka mënyrë ta dallosh nga teksti i leximit; ka dy shenja që
-dallohen nga konteksti i vetë gjetjes.
-
-**Dy kontrollet, të dyja vetëm për faqet e lexuara me OCR** (shtresa e tekstit të PDF-së nuk humb presje):
-
-1. *Intervali i dëmtuar.* Nëse secili nga dy kufijtë e intervalit të shtypur është afërsisht 10, 100 ose 1000 herë ai i tabelës së
-   brendshme për të njëjtin analit (me një tolerancë për ndryshimin normal ndërmjet laboratorëve), presja ka humbur.
-   Intervali i shtypur hidhet dhe përdoret ai i tabelës — rruga që ekziston tashmë kur intervali nuk shtypet. Kur
-   tabela nuk ka interval (ose gjinia nuk dihet), gjetja mbetet e painterpretueshme (SP5).
-2. *Vlera e dyshimtë.* Vlera është shtypur pa presje te një analit që laboratori e shtyp me presje, ajo del mbi
-   intervalin, dhe pjesëtimi me 10 ose 100 e fut brenda tij. Rreshti nuk merret: një rresht i humbur është më i mirë se
-   një vlerë e gabuar që pacienti e lexon si të vetën (po ai arsyetim si te "njësi e palexueshme").
-
-**Çfarë nuk kapet.** Vlera që ka humbur presjen por del brenda intervalit pas lëvizjes ("13" në vend të "1,3" kur edhe
-13 është brenda), vlerat e tjera të lexuara gabim ("4,35" për "4,3", shifra e zëvendësuar), dhe një vlerë e vërtetë e
-shtypur pa presje që rastësisht plotëson kushtin (p.sh. kreatininë 8 mg/dL e shtypur "8"): ajo humbet si rresht. Ky
-është çmimi i kontrollit dhe matet te E3 me kontrollin ndezur.
-
-3. *Përqindja e pamundur.* Një analit me njësi `%` e lexuar mbi 100 refuzohet (përkufizim, jo kufi mjekësor).
-
-Pragjet (10, 100 dhe 1000 për intervalin, 10 dhe 100 për vlerën, toleranca 15%) u zgjodhën pasi u panë gabimet e E3; kjo deklarohet te ADR 0020.
 """
 
 from __future__ import annotations
@@ -45,9 +21,7 @@ TOLERANCE = Decimal("0.15")
 """Sa mund të largohet intervali i shtypur nga ai i tabelës (laboratorët ndryshojnë pak) para se të quhet 10x."""
 
 
-def damaged_interval(
-    analyte: Analyte, low: Decimal | None, high: Decimal | None
-) -> bool:
+def damaged_interval(analyte: Analyte, low: Decimal | None, high: Decimal | None) -> bool:
     """A është intervali i shtypur 10 ose 100 herë ai i tabelës (presje e humbur)?
 
     Krahasohet me të dyja gjinitë: kontrolli nuk duhet të varet nga gjinia e panjohur.

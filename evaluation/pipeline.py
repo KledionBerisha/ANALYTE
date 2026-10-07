@@ -1,16 +1,6 @@
 """
 Ç'është një "sistem" për vlerësimin.
 
-Vlerësimi nuk njeh shtresa: ai njeh diçka që merr një dokument dhe kthen
-atë që sistemi mendon për të. Kjo ndarje e lejon harness-in të ekzistojë
-para se të ekzistojë ndonjë shtresë e vërtetë, dhe i mban kushtet e
-ablacionit (§8, E6-E9) si zbatime të ndryshme të së njëjtës ndërfaqe në
-vend që si degë `if` brenda kodit të prodhimit.
-
-**Kufiri.** `DocumentInput` përmban vetëm atë që sistemi ka të drejtë të
-shohë: identifikuesin dhe shtegun e PDF-së. E vërteta bazë nuk kalon
-kurrë prej këtej. Kjo nuk është konventë por kusht i vlefshmërisë së çdo
-numri që del nga harness-i, prandaj ka test të vetin.
 """
 
 from __future__ import annotations
@@ -94,8 +84,7 @@ class Pipeline(Protocol):
     name: str
     version: str
 
-    def run(self, document: DocumentInput) -> PipelineOutput:
-        ...
+    def run(self, document: DocumentInput) -> PipelineOutput: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -189,16 +178,10 @@ class BranchAPipeline:
             )
 
         result = extract(pages, ocr_guard=self.ocr_guard)
-        context = GroundingContext(
-            document_id=document.document_id, findings=result.findings
-        )
+        context = GroundingContext(document_id=document.document_id, findings=result.findings)
         return PipelineOutput(
             context=context,
-            state=(
-                ProcessingState.GROUNDED
-                if result.findings
-                else ProcessingState.NO_FINDINGS
-            ),
+            state=(ProcessingState.GROUNDED if result.findings else ProcessingState.NO_FINDINGS),
             failures=tuple(f"{name}: {motive}" for name, motive in result.rejected),
         )
 
@@ -235,13 +218,9 @@ class GroundingPipeline:
         return PipelineOutput(
             context=grounding.context,
             state=(
-                ProcessingState.GROUNDED
-                if grounding.has_content
-                else ProcessingState.NO_FINDINGS
+                ProcessingState.GROUNDED if grounding.has_content else ProcessingState.NO_FINDINGS
             ),
-            failures=tuple(
-                f"{name}: {motive}" for name, motive in grounding.extraction.rejected
-            ),
+            failures=tuple(f"{name}: {motive}" for name, motive in grounding.extraction.rejected),
         )
 
 
@@ -318,7 +297,9 @@ class GenerationPipeline:
         from analyte.orchestration.process import Attempt, Delivery, explain
         from analyte.verification.pipeline import verify
 
-        grounded = GroundingPipeline(ocr=self.ocr, ocr_guard=self.ocr_guard, advice=self.advice).run(document)
+        grounded = GroundingPipeline(
+            ocr=self.ocr, ocr_guard=self.ocr_guard, advice=self.advice
+        ).run(document)
         if grounded.state is not ProcessingState.GROUNDED:
             return grounded
         context = grounded.context

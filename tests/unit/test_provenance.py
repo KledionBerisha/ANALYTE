@@ -1,9 +1,6 @@
 """
 Prejardhja e rezultateve të E10 dhe E11.
 
-Një rezultat është i gjurmueshëm kur mban sha-n e kodit dhe versionin e të
-dhënave (Figura 11). E10 dhe E11 e dilnin pa to; këto teste kontrollojnë që tani i
-mbajnë, dhe që versioni i të dhënave ndryshon kur ndryshon ajo që ai përshkruan.
 """
 
 from __future__ import annotations
@@ -19,7 +16,13 @@ from ml import evaluate_classifier, evaluate_rule_detector
 
 def test_code_metadata_names_the_code_the_rules_and_the_interpreter():
     code = provenance.code_metadata()
-    assert set(code) == {"git_sha", "working_tree_dirty", "rules_version", "policy_version", "python"}
+    assert set(code) == {
+        "git_sha",
+        "working_tree_dirty",
+        "rules_version",
+        "policy_version",
+        "python",
+    }
     assert code["rules_version"] and code["policy_version"]
 
 
@@ -31,9 +34,17 @@ def test_metadata_has_the_shape_the_traceability_figure_reads(monkeypatch):
     meta = provenance.metadata("EX", {"name": "n", "version": "v"})
     assert evaluation_chain.trace_of({"metadata": meta}) == "e plotë"
     monkeypatch.setattr(provenance, "git_state", lambda: ("a" * 40, True))
-    assert evaluation_chain.trace_of({"metadata": provenance.metadata("EX", {"name": "n", "version": "v"})}) == "pa commit"
+    assert (
+        evaluation_chain.trace_of(
+            {"metadata": provenance.metadata("EX", {"name": "n", "version": "v"})}
+        )
+        == "pa commit"
+    )
     monkeypatch.setattr(provenance, "git_state", lambda: ("unknown", None))
-    assert evaluation_chain.trace_of({"metadata": provenance.metadata("EX", {"name": "n"})}) == "pjesore"
+    assert (
+        evaluation_chain.trace_of({"metadata": provenance.metadata("EX", {"name": "n"})})
+        == "pjesore"
+    )
 
 
 def test_digest_depends_on_content_and_names_but_not_on_the_order_given(tmp_path: Path):
@@ -63,7 +74,9 @@ def _classifier_run(directory: Path, probability: float) -> Path:
     (directory / "run.json").write_text(
         json.dumps({"labels": labels, "input": "sentence", "model": "m"}), encoding="utf-8"
     )
-    rows = [{"label": "clean", "probabilities": [[1 - probability, probability, 0.0]]} for _ in range(4)]
+    rows = [
+        {"label": "clean", "probabilities": [[1 - probability, probability, 0.0]]} for _ in range(4)
+    ]
     for name in ("val", "test"):
         with (directory / f"predictions_{name}.jsonl").open("w", encoding="utf-8") as handle:
             for row in rows:
@@ -88,11 +101,20 @@ def test_the_classifier_result_carries_provenance_tied_to_the_predictions_it_rea
 def test_digest_does_not_depend_on_line_endings(tmp_path: Path):
     """Git shndërron mbarimet e rreshtave mes kopjeve të punës; e njëjta përmbajtje duhet të japë të njëjtin id."""
     files = {}
-    for name, content in (("lf", b"a,b\nc,d\n"), ("crlf", b"a,b\r\nc,d\r\n"), ("mixed", b"a,b\r\nc,d\n")):
+    for name, content in (
+        ("lf", b"a,b\nc,d\n"),
+        ("crlf", b"a,b\r\nc,d\r\n"),
+        ("mixed", b"a,b\r\nc,d\n"),
+    ):
         directory = tmp_path / name
         directory.mkdir()
         files[name] = directory / "t.csv"
         files[name].write_bytes(content)
-    assert provenance.digest([files["lf"]]) == provenance.digest([files["crlf"]]) == provenance.digest([files["mixed"]])
+    assert (
+        provenance.digest([files["lf"]])
+        == provenance.digest([files["crlf"]])
+        == provenance.digest([files["mixed"]])
+    )
     files["lf"].write_bytes(b"a,b\nc,e\n")
-    assert provenance.digest([files["lf"]]) != provenance.digest([files["crlf"]])  # përmbajtja tjetër ndryshon id-në
+    # përmbajtja tjetër ndryshon id-në
+    assert provenance.digest([files["lf"]]) != provenance.digest([files["crlf"]])

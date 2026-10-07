@@ -1,24 +1,6 @@
 """
 Dokumentet: ngarkimi, lista, gjendja, fshirja.
 
-**Ngarkimi nuk e gjykon formatin.** Skedari pranohet nëse nuk e kalon
-madhësinë, dhe makina e gjendjeve vendos nëse është PDF — degëzimi
-UPLOADED → REJECTED i Figurës 6. Një kontroll i dytë këtu do ta linte atë
-degë pa u ushtruar kurrë nga shërbimi i vërtetë.
-
-**Faqet shërbehen si figura**, jo si PDF: ndërfaqja ka nevojë vetëm për
-pamjen, që të tregojë se nga erdhi çdo vlerë, dhe një figurë nuk mbart
-shtresën e tekstit as metadatat e skedarit origjinal.
-
-**Fshirja fshin gjithçka përveç gjurmës.** Skedari i koduar, konteksti,
-shpjegimet dhe verifikimet shkojnë; ngjarjet e auditimit mbeten, sepse nuk
-mbajnë të dhëna shëndetësore dhe janë e vetmja dëshmi se dokumenti u
-përpunua dhe u fshi. Fshirja kalon nga `erasure`, e njëjta rrugë me
-fshirjen e llogarisë dhe me afatin e ruajtjes (ADR 0019).
-
-**Pëlqimi për modelin është për çdo ngarkim.** Fusha `model_consent` e formularit
-(parazgjedhja: jo) vlen vetëm kur shërbimi e ka modelin të ndezur; përndryshe
-ruhet jo. Pa të, dokumenti nuk dërgohet kurrë te ofruesi (ADR 0019).
 """
 
 from __future__ import annotations
@@ -31,10 +13,10 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from analyte import erasure
 from analyte.audit import logger as audit
 from analyte.config import Settings
 from analyte.domain.enums import ProcessingState
-from analyte import erasure
 from analyte.persistence.tables import AuditEventRow, DocumentRow, JobRow, UserRow
 
 from . import deps
@@ -188,7 +170,9 @@ def status(
         reason=document.state_reason,
         terminal=ProcessingState(document.state).is_terminal,
         job=(
-            JobOut(started_at=job.started_at, finished_at=job.finished_at, failed=job.error is not None)
+            JobOut(
+                started_at=job.started_at, finished_at=job.finished_at, failed=job.error is not None
+            )
             if job
             else None
         ),

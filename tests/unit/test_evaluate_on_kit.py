@@ -1,9 +1,6 @@
 """
 Klasifikuesi mbi grupin B: lidhja, jo modeli.
 
-Modeli trajnohet në Colab dhe këtu nuk ngarkohet. Provohet që teksti që gjykohet
-është po ai i rregullave, që pragjet përdoren si të dhëna (jo të akordohen), dhe që
-një rresht pa matje raportohet në vend që të numërohet.
 """
 
 from __future__ import annotations
@@ -22,8 +19,15 @@ def contexts():
 
 
 def _row(row_id, sentence, label, **extra):
-    return {"id": row_id, "konteksti": "A01", "fjalia": sentence, "etiketa": label,
-            "shenim": "", "burimi": "", **extra}
+    return {
+        "id": row_id,
+        "konteksti": "A01",
+        "fjalia": sentence,
+        "etiketa": label,
+        "shenim": "",
+        "burimi": "",
+        **extra,
+    }
 
 
 def _predictor(marker: str, label: str, strength: float):
@@ -47,7 +51,7 @@ def _predictor(marker: str, label: str, strength: float):
 
 def test_the_classifier_judges_the_same_text_as_the_rules(contexts):
     row = _row("B1", "Vlera juaj arriti në 4321", "ungrounded_number")
-    context, text = kits.row_text(row, contexts)
+    _context, text = kits.row_text(row, contexts)
     assert "Vlera juaj arriti në 4321." in text
 
     seen = []
@@ -72,7 +76,7 @@ def test_each_threshold_is_applied_unchanged_to_the_same_probabilities(contexts)
     assert not errors
     low = {j.actual is not None: j.predicted is not None for j in judged["low"]}
     high = {j.actual is not None: j.predicted is not None for j in judged["high"]}
-    assert low == {True: True, False: False}   # 0.6 kalon 0.5
+    assert low == {True: True, False: False}  # 0.6 kalon 0.5
     assert high == {True: False, False: False}  # 0.6 nuk kalon 0.9
 
 
@@ -92,12 +96,19 @@ def test_a_row_that_cannot_be_measured_is_reported_not_counted(contexts):
 def test_source_quote_rows_replace_the_quote_for_the_classifier_too(contexts):
     """Ky është i njëjti ndërtim si te rregullat: citimi burimor del nga teksti."""
     kit_id, context = next(
-        (k, c) for k, c in contexts.items()
+        (k, c)
+        for k, c in contexts.items()
         if any(a.polarity.value == "negated" and a.analyte_code for a in c.assertions)
     )
-    assertion = next(a for a in context.assertions if a.polarity.value == "negated" and a.analyte_code)
+    assertion = next(
+        a for a in context.assertions if a.polarity.value == "negated" and a.analyte_code
+    )
     flipped = f"{kits.ATTRIBUTION_PREFIX_SQ} " + assertion.text_span.replace(" nuk ", " ")
-    row = {**_row("B1", flipped, "polarity_flip"), "konteksti": kit_id, "burimi": assertion.text_span}
+    row = {
+        **_row("B1", flipped, "polarity_flip"),
+        "konteksti": kit_id,
+        "burimi": assertion.text_span,
+    }
     _, text = kits.row_text(row, contexts)
     assert f"{kits.ATTRIBUTION_PREFIX_SQ} {assertion.text_span}." not in text
     assert flipped.rstrip(".") + "." in text

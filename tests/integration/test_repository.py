@@ -1,11 +1,6 @@
 """
 Kthimi i kontekstit dhe i shpjegimit përmes bazës.
 
-Çdo gjë që shkruhet duhet të lexohet si i njëjti objekt domeni —
-identifikuesit, numrat dhjetorë, rendi. Rregulli R1 krahason numrat me
-barazi të saktë; një kontekst që humb një shifër dhjetore gjatë ruajtjes
-do ta bënte verifikimin mbi kontekstin e ruajtur të ndryshëm nga ai mbi
-kontekstin origjinal.
 """
 
 from __future__ import annotations
@@ -123,7 +118,14 @@ def test_advice_entries_round_trip_with_their_source(sessions):
 
     context = build_reference_context()
     high = next(f for f in context.findings if f.status.direction.value == "increased")
-    table = (Advice(high.analyte_code, "increased", "Flisni me mjekun tuaj për këtë vlerë.", "Burim i lexuar (provë)"),)
+    table = (
+        Advice(
+            high.analyte_code,
+            "increased",
+            "Flisni me mjekun tuaj për këtë vlerë.",
+            "Burim i lexuar (provë)",
+        ),
+    )
     context = context.model_copy(update={"advice": attach(context.findings, table)})
     assert len(context.advice) == 1
     with sessions() as session:
@@ -133,4 +135,3 @@ def test_advice_entries_round_trip_with_their_source(sessions):
     with sessions() as session:
         loaded = repository.load_context(session, context.document_id)
     assert loaded == context and loaded.advice[0].source_ref == "Burim i lexuar (provë)"
-

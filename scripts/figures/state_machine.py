@@ -1,10 +1,6 @@
 """
 Figura 6 — makina e gjendjeve e përpunimit të dokumentit.
 
-Gjendjet dhe kalimet lexohen nga `TRANSITIONS` (`orchestration/states.py`),
-që është vetë tabela që sistemi zbaton. Vendosja në faqe është e vetmja gjë e
-shkruar me dorë, dhe `build` refuzon të vizatojë nëse një gjendje e re nuk ka
-vend — kështu figura nuk mund të heqë një gjendje pa u vënë re.
 """
 
 from __future__ import annotations
@@ -13,9 +9,6 @@ from analyte.domain.enums import ProcessingState as S
 from analyte.orchestration.states import TRANSITIONS
 
 from . import layout, style
-
-STEP = 1.0
-"""Largësia vertikale ndërmjet gjendjeve të shtegut kryesor."""
 
 POSITIONS: dict[S, tuple[float, float]] = {
     # shtegu kryesor, lart-poshtë
@@ -57,7 +50,9 @@ def check_positions() -> None:
 
 
 def edges() -> list[tuple[S, S]]:
-    return [(a, b) for a, targets in TRANSITIONS.items() for b in sorted(targets, key=list(S).index)]
+    return [
+        (a, b) for a, targets in TRANSITIONS.items() for b in sorted(targets, key=list(S).index)
+    ]
 
 
 def build():
@@ -69,8 +64,15 @@ def build():
         terminal = not TRANSITIONS[state]
         unsuccessful = state in UNSUCCESSFUL
         boxes[state] = style.box(
-            ax, x, y, 1.75, 0.5, state.name,
-            fill=style.NEUTRAL if unsuccessful else (style.BLUE_TINT if terminal else style.SURFACE),
+            ax,
+            x,
+            y,
+            1.75,
+            0.5,
+            state.name,
+            fill=style.NEUTRAL
+            if unsuccessful
+            else (style.BLUE_TINT if terminal else style.SURFACE),
             edge=style.INK,
             ls="--" if unsuccessful else "-",
             double=terminal,
@@ -102,7 +104,9 @@ def build():
             start = (a.left, a.cy + 0.05)
             end = (b.left, b.cy - 0.05)
             style.arrow(ax, start, end, rad=-0.9)
-            style.label(ax, a.left - 0.55, (a.cy + b.cy) / 2, "shkelje:\nrigjenerim", size=7, ha="right")
+            style.label(
+                ax, a.left - 0.55, (a.cy + b.cy) / 2, "shkelje:\nrigjenerim", size=7, ha="right"
+            )
 
     _legend(ax)
     return fig, edges()

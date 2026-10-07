@@ -1,15 +1,6 @@
 """
 Krahasimi i kryqëzuar: raporti kundrejt laboratorit.
 
-Katër gjendje, një për analit. Tri prej tyre janë të dukshme për një
-lexues njerëzor; e katërta, `measured_not_mentioned`, është pikërisht ajo
-që një njeri nuk e vëren — mungesa e një komenti për një vlerë jashtë
-intervalit nuk bie në sy, sepse nuk ka asgjë atje për të rënë në sy.
-
-Rregulli i përputhjes është përkufizim dhe jo hamendje, prandaj i njëjti
-funksion ndan punën me gjeneruesin: ai që prodhon të vërtetën bazë dhe ai
-që prodhon daljen e sistemit duhet të kuptojnë të njëjtën gjë me fjalën
-"përputhet". PK4 mat nxjerrjen e gjetjeve dhe të pohimeve, jo rregullin.
 """
 
 from __future__ import annotations

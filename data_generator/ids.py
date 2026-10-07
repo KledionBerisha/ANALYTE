@@ -1,10 +1,6 @@
 """
 Identifikues të përsëritshëm.
 
-`uuid4()` merr entropi nga sistemi operativ dhe do ta prishte kërkesën
-NFR3: i njëjti seed duhet të japë të njëjtin korpus bajt për bajt.
-Prandaj gjeneruesi nuk e thërret kurrë atë; të gjithë identifikuesit
-dalin nga i njëjti burim i mbjellë si vlerat.
 """
 
 from __future__ import annotations

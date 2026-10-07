@@ -1,26 +1,6 @@
 """
 Zbulimi i mohimit, në frymën e NegEx-it.
 
-Ideja e NegEx-it është e thjeshtë dhe qëndron: një shenjë mohuese ka një
-fushë veprimi, dhe çdo gjë brenda asaj fushe është e mohuar. Zbatimi këtu
-është shqip dhe i ngushtë me qëllim.
-
-Tri gjëra që e bëjnë problemin real dhe jo mekanik:
-
-**Pseudo-mohimi.** "Nuk përjashtohet sideropeni" përmban "nuk" dhe nuk
-mohon asgjë — ajo pohon me rezervë. Po ta lexonim si mohim, do të
-përmbysnim kuptimin e mjekut pikërisht ashtu si rregulli R5 druhet se do
-ta bëjë modeli gjuhësor. Prandaj pseudo-mohimet kontrollohen të parat dhe
-fitojnë mbi shenjat e thjeshta.
-
-**Fusha e veprimit ndalet.** "Kaliumi nuk është i rritur, por natriumi
-është i lartë" mohon vetëm gjysmën e parë. Presja e ndjekur nga "por",
-"ndërsa", "ndërkohë" e mbyll fushën.
-
-**Ajo që nuk kapet, nuk mohohet.** Gabimi i parazgjedhur është pohimi,
-sepse një mohim i humbur prodhon tekst më të fortë se burimi dhe kjo
-kapet nga verifikimi; një mohim i shpikur prodhon tekst që kundërshton
-burimin pa asnjë gjurmë se nga erdhi.
 """
 
 from __future__ import annotations

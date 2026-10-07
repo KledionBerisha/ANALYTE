@@ -4,20 +4,6 @@ Fletët e punës për burimet që mungojnë: termat dhe kombinimet.
     python scripts/build_source_worksheets.py            # shkruan docs/thesis/worksheets/burimet.md
     python scripts/build_source_worksheets.py --check    # raporton sa burime mbeten vendmbajtëse
 
-Të 82 termat (`resources/terminology.csv`) dhe 11 kombinimet
-(`resources/patterns.csv`) kanë kolonën `source_ref` me vendmbajtës. Burimi nuk
-mund të shkruhet nga ky skript: një burim vlen vetëm nëse e keni lexuar. Fleta
-bën vetëm punën që nuk kërkon gjykim: radhit çdo zë me pohimin që duhet
-mbështetur, e grupon sipas llojit dhe tregon se ku zakonisht gjenden burime të
-llojit përkatës (lloje, jo citime). Pasi ta lexoni burimin, e shkruani te
-kolona `source_ref` e CSV-së dhe e ekzekutoni skriptin sërish: zërat e plotësuar
-dalin nga lista e të mbetura.
-
-Një zë që nuk gjen burim fshihet nga CSV-ja: termi pa burim bëhet «term i
-pashpjeguar» (SP6), dhe kombinimi pa burim hiqet.
-
-Këshillat me burim (`resources/advice.csv`, ADR 0023) radhiten po këtu: rreshti i
-paplotësuar nuk i shfaqet pacientit, prandaj ai mund të mbetet bosh pa pasojë.
 """
 
 from __future__ import annotations
@@ -29,7 +15,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend" / "src"))
 
-from analyte.catalog import analytes_by_code, load_advice, load_patterns, load_terminology  # noqa: E402
+from analyte.catalog import (
+    analytes_by_code,
+    load_advice,
+    load_patterns,
+    load_terminology,
+)
 
 DEFAULT_OUT = ROOT / "docs" / "thesis" / "worksheets" / "burimet.md"
 PLACEHOLDER_MARKS = ("plotësohet",)
@@ -41,12 +32,22 @@ WHERE_TO_LOOK = {
     "shenjë": "faqe pacienti ose tekst klinik hyrës",
     "enzima": "faqe pacienti ose dokumentacion i testit (LOINC)",
 }
-DEFAULT_WHERE = "përkufizim në gjuhë të thjeshtë (MeSH, MedlinePlus) ose dokumentacion i testit (LOINC)"
+DEFAULT_WHERE = (
+    "përkufizim në gjuhë të thjeshtë (MeSH, MedlinePlus) ose dokumentacion i testit (LOINC)"
+)
 
 PATTERN_DOMAIN = {
-    "P01": "anemia", "P02": "anemia", "P03": "anemia",
-    "P04": "diabeti", "P05": "veshkat", "P06": "mëlçia", "P07": "mëlçia",
-    "P08": "tiroidja", "P09": "tiroidja", "P10": "inflamacioni ose infeksioni", "P11": "lipidet",
+    "P01": "anemia",
+    "P02": "anemia",
+    "P03": "anemia",
+    "P04": "diabeti",
+    "P05": "veshkat",
+    "P06": "mëlçia",
+    "P07": "mëlçia",
+    "P08": "tiroidja",
+    "P09": "tiroidja",
+    "P10": "inflamacioni ose infeksioni",
+    "P11": "lipidet",
 }
 DIRECTION_SQ = {"decreased": "↓ ulët", "increased": "↑ lartë", "high": "↑ lartë", "low": "↓ ulët"}
 
@@ -98,19 +99,30 @@ def build() -> str:
         "",
     ]
     if not terms and not patterns:
-        out += ["Asnjë term dhe asnjë kombinim nuk mbetet pa burim. Burimet e lexuara dhe evidenca e secilit janë te "
-                "`docs/thesis/worksheets/burimet_e_gjetura.md`.", ""]
-    advice = pending_advice()
-    out += [f"Këshilla me burim (ADR 0023) të paplotësuara: **{len(advice)}** nga {len(load_advice())}.", ""]
-
-    out += ["## Kombinimet e analiteve", "",
-            "Për secilin: një udhëzues ose standard i mjekësisë laboratorike që e lidh këtë kombinim me kërkesën që "
-            "mjeku ta shohë (jo me diagnozë: SP1). Konfirmoni edhe shigjetat. Mentori ose një mjek duhet t'i rishikojë.",
+        out += [
+            "Asnjë term dhe asnjë kombinim nuk mbetet pa burim. Burimet e lexuara dhe evidenca e secilit janë te "
+            "`docs/thesis/worksheets/burimet_e_gjetura.md`.",
             "",
-            "| Kodi | Pohimi (kombinimi) | Fusha | Burimi i lexuar | Faqja ose seksioni |",
-            "|---|---|---|---|---|"]
+        ]
+    advice = pending_advice()
+    out += [
+        f"Këshilla me burim (ADR 0023) të paplotësuara: **{len(advice)}** nga {len(load_advice())}.",
+        "",
+    ]
+
+    out += [
+        "## Kombinimet e analiteve",
+        "",
+        "Për secilin: një udhëzues ose standard i mjekësisë laboratorike që e lidh këtë kombinim me kërkesën që "
+        "mjeku ta shohë (jo me diagnozë: SP1). Konfirmoni edhe shigjetat. Mentori ose një mjek duhet t'i rishikojë.",
+        "",
+        "| Kodi | Pohimi (kombinimi) | Fusha | Burimi i lexuar | Faqja ose seksioni |",
+        "|---|---|---|---|---|",
+    ]
     for p in patterns:
-        out.append(f"| {p.pattern_id} | {describe_pattern(p)} | {PATTERN_DOMAIN.get(p.pattern_id, '')} | | |")
+        out.append(
+            f"| {p.pattern_id} | {describe_pattern(p)} | {PATTERN_DOMAIN.get(p.pattern_id, '')} | | |"
+        )
     out.append("")
 
     by_category: dict[str, list] = {}
@@ -119,37 +131,48 @@ def build() -> str:
     out += ["## Termat", ""]
     for category in sorted(by_category, key=lambda c: (-len(by_category[c]), c)):
         group = by_category[category]
-        out += [f"### {category} ({len(group)})", "",
-                f"Ku të kërkohet: {WHERE_TO_LOOK.get(category, DEFAULT_WHERE)}.", "",
-                "| Termi | Pohimi (shpjegimi shqip) | Burimi i lexuar | Përkthim i imi? |",
-                "|---|---|---|---|"]
+        out += [
+            f"### {category} ({len(group)})",
+            "",
+            f"Ku të kërkohet: {WHERE_TO_LOOK.get(category, DEFAULT_WHERE)}.",
+            "",
+            "| Termi | Pohimi (shpjegimi shqip) | Burimi i lexuar | Përkthim i imi? |",
+            "|---|---|---|---|",
+        ]
         for t in sorted(group, key=lambda x: x.term):
             out.append(f"| {t.term} | {t.explanation_sq} | | |")
         out.append("")
     if advice:
         by_code = analytes_by_code()
-        out += ["## Këshillat me burim (`resources/advice.csv`)", "",
-                "Një fjali e vetme për çdo analit dhe drejtim, pa numra, pa emër gjendjeje, pa trajtim, pa parashikim, "
-                "e formuluar si temë ose pyetje për mjekun («Pyesni mjekun tuaj nëse …», «Flisni me mjekun tuaj për …»). "
-                "Burimi: një faqe pacienti e lexuar që thotë çfarë mund të nënkuptojë një vlerë e lartë ose e ulët "
-                "(MedlinePlus «What do the results mean», faqe pacientësh të shërbimeve shëndetësore kombëtare); fjalia shqipe "
-                "nuk guxon të thotë më shumë se burimi. Rreshti pa fjali ose pa burim nuk i shfaqet pacientit; rreshti i "
-                "plotësuar kalon vetë nëpër rregullat R1, R2, R3 dhe SP1–SP3 (`python -m pytest tests/unit/test_advice.py`).",
-                "",
-                "| Kodi | Analiti | Drejtimi | Fjalia (advice_sq) | Burimi i lexuar |",
-                "|---|---|---|---|---|"]
+        out += [
+            "## Këshillat me burim (`resources/advice.csv`)",
+            "",
+            "Një fjali e vetme për çdo analit dhe drejtim, pa numra, pa emër gjendjeje, pa trajtim, pa parashikim, "
+            "e formuluar si temë ose pyetje për mjekun («Pyesni mjekun tuaj nëse …», «Flisni me mjekun tuaj për …»). "
+            "Burimi: një faqe pacienti e lexuar që thotë çfarë mund të nënkuptojë një vlerë e lartë ose e ulët "
+            "(MedlinePlus «What do the results mean», faqe pacientësh të shërbimeve shëndetësore kombëtare); fjalia shqipe "
+            "nuk guxon të thotë më shumë se burimi. Rreshti pa fjali ose pa burim nuk i shfaqet pacientit; rreshti i "
+            "plotësuar kalon vetë nëpër rregullat R1, R2, R3 dhe SP1–SP3 (`python -m pytest tests/unit/test_advice.py`).",
+            "",
+            "| Kodi | Analiti | Drejtimi | Fjalia (advice_sq) | Burimi i lexuar |",
+            "|---|---|---|---|---|",
+        ]
         for a in advice:
             name = by_code[a.loinc_code].name_canonical_sq
-            out.append(f"| {a.loinc_code} | {name} | {DIRECTION_SQ.get(a.direction, a.direction)} | {a.advice_sq} | |")
+            out.append(
+                f"| {a.loinc_code} | {name} | {DIRECTION_SQ.get(a.direction, a.direction)} | {a.advice_sq} | |"
+            )
         out.append("")
-    out += ["## Pas leximit",
-            "",
-            "1. Kontrolloni që asnjë shpjegim nuk përmban numër ose pohim diagnostik.",
-            "2. Shkruani burimin te `source_ref`; ekzekutoni `python scripts/build_tables.py` dhe "
-            "`python scripts/build_appendices.py` që T3, T5 dhe Shtojca A të pasqyrojnë burimet.",
-            "3. Ekzekutoni `python -m pytest`: testet e terminologjisë dhe të kombinimeve do t'ju tregojnë nëse "
-            "fshirja e një zëri prish diçka.",
-            ""]
+    out += [
+        "## Pas leximit",
+        "",
+        "1. Kontrolloni që asnjë shpjegim nuk përmban numër ose pohim diagnostik.",
+        "2. Shkruani burimin te `source_ref`; ekzekutoni `python scripts/build_tables.py` dhe "
+        "`python scripts/build_appendices.py` që T3, T5 dhe Shtojca A të pasqyrojnë burimet.",
+        "3. Ekzekutoni `python -m pytest`: testet e terminologjisë dhe të kombinimeve do t'ju tregojnë nëse "
+        "fshirja e një zëri prish diçka.",
+        "",
+    ]
     return "\n".join(out)
 
 

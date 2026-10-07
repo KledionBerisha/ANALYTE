@@ -1,16 +1,6 @@
 """
 Normalizimi i tekstit, i përbashkët për të dyja degët.
 
-Dega A krahason emra analitesh; Dega B krahason terma mjekësorë. Të dyja
-kanë nevojë për të njëjtën gjë: një formë të krahasueshme e cila nuk
-varet nga shkronjat e mëdha, nga pikësimi dhe as nga theksi.
-
-Heqja e theksit është vendim me pasojë. "Hemoglobinë" dhe "Hemoglobine"
-bëhen e njëjta gjë, çka do të thotë se një dallim i vërtetë drejtshkrimor
-humbet. Kjo pranohet me vetëdije: OCR-ja i ngatërron rregullisht ë me e
-dhe ç me c, dhe një krahasim që i dallon ato do të dështonte pikërisht te
-kanali ku ndihma nevojitet më shumë. Në shqip nuk ka çift fjalësh
-mjekësore që dallohen vetëm nga theksi.
 """
 
 from __future__ import annotations

@@ -1,18 +1,6 @@
 """
 Kush dokument shkon te ofruesi i modelit, dhe kush jo (ADR 0019).
 
-Modeli është një gjenerues që e dërgon kontekstin jashtë sistemit (`sends_data_off_system`). Për çdo dokument,
-pasi konteksti ekziston, vendosen dy gjëra me radhë, dhe shablloni determinist del në çdo rast që dështon njëra:
-
-  1. **Pëlqimi.** Pacienti duhet ta ketë dhënë për këtë ngarkim (`documents.model_consent`). Pa të, nuk ndërtohet
-     asnjë kërkesë dhe nuk bëhet asnjë thirrje në rrjet.
-  2. **Porta e çidentifikimit** (`generation.deidentify`). Nëse ndonjë varg i dokumentit që do të hynte te kërkesa
-     duket se mban të dhëna personale, ose ndonjë vlerë e strukturuar nuk është e katalogut, dokumenti nuk dërgohet.
-
-Pëlqimi nuk e anashkalon portën: ai është leje për të dërguar atë që porta lejon, jo për të dërguar një emër.
-
-Gjeneruesit që nuk e shënojnë veten si dërgues (shablloni, gjeneruesit e rremë të testeve) kalojnë pa vendim: këtu
-nuk ka asgjë që del nga sistemi, dhe `model_use` mbetet bosh.
 """
 
 from __future__ import annotations

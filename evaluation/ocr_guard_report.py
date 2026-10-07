@@ -3,16 +3,6 @@ Kontrolli i besueshmërisë i OCR-së: çfarë ndryshon mbi 168 dokumentet e ska
 
     python -m evaluation.ocr_guard_report                 # shkruan evaluation/results/supplementary/ocr_guard.json
 
-Çdo dokument i skanuar lexohet me OCR NJË herë; nxjerrja ekzekutohet dy herë mbi të njëjtat faqe, pa kontroll dhe me kontroll,
-kështu që dallimi vjen vetëm nga kontrolli. Krahasohet me të vërtetën bazë sipas analitit:
-
-- statuse të interpretuara dhe të gabuara (E3: 62 pa kontroll), prej tyre të shënuara kritike të larta pa qenë (11);
-- rreshta të humbur, dhe sa prej tyre kishin vlerë të lexuar saktë (refuzime të gabuara);
-- intervale të zëvendësuara nga tabela, dhe sa statuse u ndreqën ose u prishën.
-
-Kontrolli u projektua pasi u panë gabimet e E3 (62 statuse të gabuara, të gjitha nga presja dhjetore që humbet), prandaj kjo
-matje është mbi të njëjtat dokumente mbi të cilat u zgjodhën pragjet 10x/100x dhe toleranca 15%: ajo tregon sa e kap kontrolli
-defektin e njohur, jo si do të sillej mbi skanime të reja.
 """
 
 from __future__ import annotations
@@ -69,7 +59,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="evaluation.ocr_guard_report")
     parser.add_argument("--dataset", type=Path, default=Path("data/v1"))
     parser.add_argument("--out", type=Path, default=OUT)
-    parser.add_argument("--limit", type=int, default=None, help="kufizo numrin e dokumenteve të skanuara")
+    parser.add_argument(
+        "--limit", type=int, default=None, help="kufizo numrin e dokumenteve të skanuara"
+    )
     args = parser.parse_args(argv)
 
     data = dataset_module.load(args.dataset)
@@ -117,7 +109,22 @@ def main(argv: list[str] | None = None) -> int:
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k: report[k] for k in ("without_guard", "with_guard", "rows_rejected_by_value_check", "of_which_the_read_value_was_correct", "intervals_replaced_by_table")}, ensure_ascii=False, indent=1))
+    print(
+        json.dumps(
+            {
+                k: report[k]
+                for k in (
+                    "without_guard",
+                    "with_guard",
+                    "rows_rejected_by_value_check",
+                    "of_which_the_read_value_was_correct",
+                    "intervals_replaced_by_table",
+                )
+            },
+            ensure_ascii=False,
+            indent=1,
+        )
+    )
     return 0
 
 

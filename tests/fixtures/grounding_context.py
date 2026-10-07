@@ -51,12 +51,12 @@ def build_reference_context() -> GroundingContext:
         analyte_name_raw="Glukoza (esëll)",
         analyte_name_canonical="Glukozë në serum",
         value_raw="128",
-        value=Decimal("128"),
+        value=Decimal(128),
         unit_raw="mg/dL",
         unit_canonical="mg/dL",
-        value_canonical=Decimal("128"),
-        ref_low=Decimal("70"),
-        ref_high=Decimal("99"),
+        value_canonical=Decimal(128),
+        ref_low=Decimal(70),
+        ref_high=Decimal(99),
         ref_source=ReferenceSource.DOCUMENT,
         status=AnalyteStatus.HIGH,
         severity=Decimal("1.0"),  # (128-99)/(99-70)
@@ -112,17 +112,17 @@ def build_reference_context() -> GroundingContext:
         analyte_name_raw="Ferritina",
         analyte_name_canonical="Ferritinë në serum",
         value_raw="212",
-        value=Decimal("212"),
+        value=Decimal(212),
         unit_raw="ng/mL",
         unit_canonical="ng/mL",
-        value_canonical=Decimal("212"),
+        value_canonical=Decimal(212),
         ref_source=ReferenceSource.NONE,
         status=AnalyteStatus.UNINTERPRETABLE,
         page=2,
         measured_at=MEASURED,
     )
 
-    # --- Pohimet nga narrativa e mjekut ---
+    # Pohimet nga narrativa e mjekut
     # Teksti burimor i imituar:
     #   "Glukoza e rritur është konfirmuar. Nuk ka shenja të anemisë.
     #    Rritja e transaminazave është e mundshme. Rekomandohet kontroll
@@ -176,7 +176,7 @@ def build_reference_context() -> GroundingContext:
         char_end=135,
     )
 
-    # --- Krahasimi i kryqëzuar: të katër gjendjet ---
+    # Krahasimi i kryqëzuar: të katër gjendjet
     refs = (
         CrossReference(
             analyte_code="2345-7",

@@ -6,19 +6,6 @@ shkruante mjeku, dhe listën e pohimeve me pozicionet e sakta të
 karaktereve brenda atij teksti. E dyta është e vërteta bazë e Degës B —
 pa të, PK4 nuk matet dot.
 
-Dy vendime formuese:
-
-**Fjalitë janë të shkruara me dorë, jo të përbëra nga fragmente.**
-Shqipja ka rasa dhe përshtatje gjinie; një shabllon i tipit
-"Vlerat e {emri} janë të rritura" prodhon gjinore të gabuar për gjysmën
-e analiteve. Prandaj përdoren vetëm ndërtime ku emri i analitit qëndron
-në emërore si kryefjalë, dhe çdo fjali me term mjekësor është shkruar e
-plotë me dorë.
-
-**Numrat nuk hyjnë në narrativë.** "Pas tre muajsh" dhe jo "pas 3
-muajsh". Një numër i shtypur në narrativë do të hynte më vonë në
-bashkësinë e numrave që teksti i gjeneruar mund t'i përmendë, dhe do ta
-zbuste pa dashje rregullin R1 pikërisht aty ku ai duhet të jetë i ashpër.
 """
 
 from __future__ import annotations
@@ -38,9 +25,7 @@ from analyte.domain.enums import (
 )
 from analyte.domain.models import AnalyteFinding, ReportAssertion
 
-# --------------------------------------------------------------------
 # Fjalitë për analitet — emri gjithmonë kryefjalë në emërore
-# --------------------------------------------------------------------
 
 OPENINGS: tuple[str, ...] = (
     "Pacienti paraqitet për kontroll rutinë.",
@@ -79,7 +64,10 @@ HEDGED_ABOVE: tuple[Template, ...] = (
         "{name} duket mbi intervalin referent, por kërkon rikontroll.",
         "{name} duken mbi intervalin referent, por kërkojnë rikontroll.",
     ),
-    ("{name} mund të jetë mbi intervalin referent.", "{name} mund të jenë mbi intervalin referent."),
+    (
+        "{name} mund të jetë mbi intervalin referent.",
+        "{name} mund të jenë mbi intervalin referent.",
+    ),
 )
 
 HEDGED_BELOW: tuple[Template, ...] = (
@@ -87,16 +75,25 @@ HEDGED_BELOW: tuple[Template, ...] = (
         "{name} duket nën intervalin referent, por kërkon rikontroll.",
         "{name} duken nën intervalin referent, por kërkojnë rikontroll.",
     ),
-    ("{name} mund të jetë nën intervalin referent.", "{name} mund të jenë nën intervalin referent."),
+    (
+        "{name} mund të jetë nën intervalin referent.",
+        "{name} mund të jenë nën intervalin referent.",
+    ),
 )
 
 NEGATED_ABOVE: tuple[Template, ...] = (
-    ("{name} nuk rezulton mbi intervalin referent.", "{name} nuk rezultojnë mbi intervalin referent."),
+    (
+        "{name} nuk rezulton mbi intervalin referent.",
+        "{name} nuk rezultojnë mbi intervalin referent.",
+    ),
     ("{name} nuk del mbi intervalin referent.", "{name} nuk dalin mbi intervalin referent."),
 )
 
 NEGATED_BELOW: tuple[Template, ...] = (
-    ("{name} nuk rezulton nën intervalin referent.", "{name} nuk rezultojnë nën intervalin referent."),
+    (
+        "{name} nuk rezulton nën intervalin referent.",
+        "{name} nuk rezultojnë nën intervalin referent.",
+    ),
     ("{name} nuk del nën intervalin referent.", "{name} nuk dalin nën intervalin referent."),
 )
 
@@ -109,9 +106,7 @@ RECOMMENDATIONS: tuple[str, ...] = (
 )
 
 
-# --------------------------------------------------------------------
 # Fjalitë me terma mjekësorë
-# --------------------------------------------------------------------
 
 
 class Name(NamedTuple):
@@ -290,7 +285,9 @@ EXPLAINED_TERM_SENTENCES: tuple[TermSentence, ...] = (
         Certainty.CONFIRMED,
         (_cond("1988-5", AnalyteStatus.NORMAL),),
     ),
-    TermSentence("hemolizë", "Nuk vërehen shenja të hemolizës.", Polarity.NEGATED, Certainty.CONFIRMED),
+    TermSentence(
+        "hemolizë", "Nuk vërehen shenja të hemolizës.", Polarity.NEGATED, Certainty.CONFIRMED
+    ),
     TermSentence(
         "eritropoezë",
         "Vlerësohet gjendja e përgjithshme e eritropoezës.",
@@ -334,16 +331,22 @@ UNEXPLAINED_TERM_SENTENCES: tuple[TermSentence, ...] = (
         Certainty.CONFIRMED,
         (_cond("785-6", *ABNORMAL_LOW),),
     ),
-    TermSentence("anizocitozë", "Vërehet anizocitozë e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED),
-    TermSentence("eozinofili", "Vërehet eozinofili e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED),
-    TermSentence("monocitozë", "Vërehet monocitozë e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED),
-    TermSentence("retikulocitozë", "Vërehet retikulocitozë e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED),
+    TermSentence(
+        "anizocitozë", "Vërehet anizocitozë e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED
+    ),
+    TermSentence(
+        "eozinofili", "Vërehet eozinofili e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED
+    ),
+    TermSentence(
+        "monocitozë", "Vërehet monocitozë e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED
+    ),
+    TermSentence(
+        "retikulocitozë", "Vërehet retikulocitozë e lehtë.", Polarity.AFFIRMED, Certainty.CONFIRMED
+    ),
 )
 
 
-# --------------------------------------------------------------------
 # Ndërtimi
-# --------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
@@ -370,8 +373,13 @@ class _Planned(NamedTuple):
 
 def _plain(text: str) -> _Planned:
     return _Planned(
-        text, None, Direction.UNSPECIFIED, Polarity.AFFIRMED,
-        Certainty.CONFIRMED, AssertionKind.FINDING, is_assertion=False,
+        text,
+        None,
+        Direction.UNSPECIFIED,
+        Polarity.AFFIRMED,
+        Certainty.CONFIRMED,
+        AssertionKind.FINDING,
+        is_assertion=False,
     )
 
 
@@ -469,8 +477,14 @@ def build_narrative(
     # 7. Rekomandimet — lënda e rregullit R8.
     for text in rng.sample(RECOMMENDATIONS, k=1 if rng.random() < 0.8 else 2):
         planned.append(
-            _assertion(text, None, Direction.UNSPECIFIED, Polarity.AFFIRMED,
-                       Certainty.CONFIRMED, kind=AssertionKind.RECOMMENDATION)
+            _assertion(
+                text,
+                None,
+                Direction.UNSPECIFIED,
+                Polarity.AFFIRMED,
+                Certainty.CONFIRMED,
+                kind=AssertionKind.RECOMMENDATION,
+            )
         )
 
     return _assemble(planned, new_id, tuple(explained), tuple(unexplained))
@@ -553,9 +567,7 @@ def _directional(
     """
     direction = finding.status.direction
     if not agree:
-        direction = (
-            Direction.DECREASED if direction is Direction.INCREASED else Direction.INCREASED
-        )
+        direction = Direction.DECREASED if direction is Direction.INCREASED else Direction.INCREASED
 
     name = display_names[finding.analyte_code]
     if direction is Direction.INCREASED:

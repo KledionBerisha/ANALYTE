@@ -1,23 +1,6 @@
 """
 PK1 — saktësia e nxjerrjes së vlerave laboratorike.
 
-Matet për fushë: analiti, vlera, njësia dhe intervali referent. Një fushë
-numërohet e saktë vetëm me përputhje të plotë pas normalizimit; nuk ka
-pikë të pjesshme. Kjo është zgjedhje e ashpër dhe e qëllimshme — një
-vlerë e nxjerrë "pothuajse saktë" është vlerë e gabuar në një raport
-mjekësor.
-
-**Si përputhen rreshtat.** Nxjerrja nuk i kthen gjetjet me identifikues;
-ato duhen çiftuar me të vërtetën bazë. Çiftimi bëhet me kodin LOINC:
-
-  - kod i parashikuar që gjendet te e vërteta  → çift për shqyrtim fushash
-  - kod i parashikuar që nuk gjendet           → fals pozitiv (analit i shpikur)
-  - kod i vërtetë që nuk u parashikua          → fals negativ, dhe me të
-                                                 humbin edhe të gjitha fushat e tij
-
-Pasoja e fundit ka rëndësi: një rresht i humbur nuk është neutral për
-fushat e tij. Po të mos numërohej ashtu, një sistem që nxjerr vetëm
-rreshtat e lehtë do të dukej i përsosur.
 """
 
 from __future__ import annotations
@@ -49,9 +32,7 @@ def measure(pairs: list[tuple[GroundingContext, GroundingContext]]) -> dict[str,
     }
 
 
-def _document_counts(
-    truth: GroundingContext, predicted: GroundingContext
-) -> dict[str, PRF]:
+def _document_counts(truth: GroundingContext, predicted: GroundingContext) -> dict[str, PRF]:
     truth_by_code = _by_code(truth)
     predicted_by_code = _by_code(predicted)
 

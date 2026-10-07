@@ -1,29 +1,6 @@
 """
 Rruga e plotë e një dokumenti: nga skedari te shpjegimi i dorëzuar.
 
-Moduli ndahet në dy pjesë që mund të thirren veçmas.
-
-`process` e merr dokumentin nga ngarkimi dhe e çon deri në një gjendje
-përfundimtare. `explain` fillon nga një kontekst i gatshëm dhe drejton
-vetëm ciklin gjenerim → verifikim → rigjenerim → shabllon. Ndarja nuk
-është kozmetike: eksperimentet e ablacionit duhet ta drejtojnë ciklin
-edhe mbi kontekstin e vërtetë të korpusit, pa kaluar nga nxjerrja, që
-gabimet e gjenerimit të maten të ndara nga gabimet e bazimit.
-
-**Asnjë tekst i paverifikuar nuk dorëzohet.** Dalja e gjeneruesit
-dorëzohet vetëm pasi verifikimi kalon pa shkelje (NFR1); përndryshe, pas
-`MAX_GENERATION_ATTEMPTS` përpjekjesh, dorëzohet shablloni (SP8).
-
-**Shablloni verifikohet gjithashtu.** Rezultati ruhet por nuk e ndal
-dorëzimin: shablloni është dalja më e bazuar që sistemi di të prodhojë,
-dhe nuk ka rrugë tjetër më të sigurt ku të shkohet. Një shkelje mbi të
-është gabim i një rregulli ose i shabllonit, dhe shfaqet në rezultate në
-vend që të fshihet.
-
-**Gabimet e verifikuesit dhe të bazimit nuk kapen.** Ato janë defekte të
-sistemit, jo gjendje të dokumentit. Kapja e tyre do ta kthente një gabim
-programimi në shabllon të dorëzuar pa zhurmë — dhe verifikuesi i prishur
-do të mbetej i padukshëm.
 """
 
 from __future__ import annotations
@@ -141,9 +118,7 @@ def process(
         log.advance(S.NO_FINDINGS, "asnjë vlerë laboratorike dhe asnjë pohim i mjekut")
         return Outcome(document_id, log.transitions, routing.channel, context)
 
-    log.advance(
-        S.GROUNDED, f"{len(context.findings)} gjetje, {len(context.assertions)} pohime"
-    )
+    log.advance(S.GROUNDED, f"{len(context.findings)} gjetje, {len(context.assertions)} pohime")
     choice = choose(context) if choose is not None else GeneratorChoice(generator)
     explanation = explain(context, choice.generator, verifier=verifier, log=log)
     return Outcome(

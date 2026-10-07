@@ -1,19 +1,6 @@
 """
 Modelet e domenit të ANALYTE.
 
-Ky modul nuk importon asgjë nga pjesa tjetër e sistemit. Ai përmban
-vetëm përfaqësimin e të dhënave, pa I/O dhe pa logjikë biznesi.
-Kjo e mban kontratën e të dhënave të qëndrueshme ndërsa modulet e
-tjera ndryshojnë.
-
-Objekti qendror është GroundingContext. Ai është i vetmi input që
-shtresa e gjenerimit i jep modelit gjuhësor. Kjo është garancia
-arkitekturore e punimit e shprehur si nënshkrim tipi:
-
-    def build_prompt(ctx: GroundingContext) -> str
-
-Modeli nuk ka qasje te dokumenti i papërpunuar, te teksti i nxjerrë
-prej tij, apo te ndonjë burim tjetër.
 """
 
 from __future__ import annotations
@@ -126,17 +113,11 @@ class AnalyteFinding(DomainModel):
 
         # SP5: pa interval nuk ka interpretim
         if not has_bounds and self.status is not AnalyteStatus.UNINTERPRETABLE:
-            raise ValueError(
-                "vlerë pa interval referent duhet të jetë UNINTERPRETABLE (SP5)"
-            )
+            raise ValueError("vlerë pa interval referent duhet të jetë UNINTERPRETABLE (SP5)")
         if has_bounds and self.status is AnalyteStatus.UNINTERPRETABLE:
             raise ValueError("intervali ekziston; statusi nuk mund të jetë UNINTERPRETABLE")
 
-        if (
-            self.ref_low is not None
-            and self.ref_high is not None
-            and self.ref_low >= self.ref_high
-        ):
+        if self.ref_low is not None and self.ref_high is not None and self.ref_low >= self.ref_high:
             raise ValueError("ref_low duhet të jetë më i vogël se ref_high")
 
         if self.status in {AnalyteStatus.NORMAL, AnalyteStatus.UNINTERPRETABLE}:
@@ -333,7 +314,7 @@ class GroundingContext(DomainModel):
 
         return self
 
-    # --- Ndihmësa për shtresën e verifikimit ---
+    # Ndihmësa për shtresën e verifikimit
 
     def critical_findings(self) -> tuple[AnalyteFinding, ...]:
         """Gjetjet që duhet detyrimisht të shfaqen në dalje (R4, SP4)."""

@@ -1,17 +1,6 @@
 """
 Mbrojtja e të dhënave (ADR 0019): pëlqimi për modelin, porta e çidentifikimit, fshirja, eksporti dhe afati i ruajtjes.
 
-Shërbimi ekzekutohet i plotë mbi SQLite me punë të menjëhershme; ofruesi i modelit është një klient i simuluar që numëron
-kërkesat e marra. Pohimet kryesore:
-
-  - **Pa pëlqim, ofruesi nuk thirret kurrë** dhe pacienti merr njoftimin e saktë; pëlqimi ruhet me kohë dhe regjistrohet
-    te auditimi pa të dhëna personale.
-  - **Me pëlqim, një emër te citimi e ndalon dërgimin** (dështim i mbyllur); pacienti sheh citimin origjinal, jo një të
-    redaktuar, dhe njoftimi thotë kategoritë, jo vargun.
-  - **Fshirja është e plotë:** skedarët e koduar largohen vërtet nga depoja, çdo tabelë e derivuar zbrazet, të dhënat e
-    një përdoruesi tjetër nuk preken; gjurma e auditimit mbetet pa emër, pa `user_id` dhe pa hash të skedarit.
-  - **Eksporti** ka vetëm të dhënat e pronarit, kurrë hash fjalëkalimi apo token.
-  - **Afati i ruajtjes** përdor të njëjtën rrugë fshirjeje, me një orë të rreme.
 """
 
 from __future__ import annotations
@@ -28,12 +17,11 @@ import pytest
 from cryptography.fernet import Fernet
 from sqlalchemy import func, select
 
+from analyte import erasure
 from analyte.config import Settings
 from analyte.generation.llm import Completion, LlmGenerator
 from analyte.generation.templates import TemplateGenerator, build
-from analyte.orchestration import process as process_module
 from analyte.orchestration.tasks import Services, run_document
-from analyte import erasure
 from analyte.persistence.database import create_schema, make_engine, make_session_factory
 from analyte.persistence.storage import EncryptedStore
 from analyte.persistence.tables import (
@@ -76,9 +64,7 @@ DOCUMENT_TABLES = (
 )
 
 
-# --------------------------------------------------------------------
 # Ndërtimi
-# --------------------------------------------------------------------
 
 
 def _pdf(seed: str, narrative: str | None = None) -> bytes:
@@ -122,7 +108,9 @@ class FakeClient:
 
 
 class World:
-    def __init__(self, tmp: Path, generator, runner=None, database_url: str | None = None, **overrides) -> None:
+    def __init__(
+        self, tmp: Path, generator, runner=None, database_url: str | None = None, **overrides
+    ) -> None:
         """`database_url` jepet nga testet e PostgreSQL-it, që e kanë skemën nga migrimet; pa të përdoret SQLite."""
         tmp.mkdir(parents=True, exist_ok=True)
         self.settings = Settings(
@@ -190,13 +178,13 @@ def _model_world(tmp: Path, outputs=(), **overrides) -> tuple[World, FakeClient]
     return World(tmp, LlmGenerator(fake), service_generator="model", **overrides), fake
 
 
-# --------------------------------------------------------------------
 # Pëlqimi për modelin
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("consent", [None, False])
-def test_without_consent_the_template_is_used_and_the_provider_is_never_called(tmp_path, pdfs, consent):
+def test_without_consent_the_template_is_used_and_the_provider_is_never_called(
+    tmp_path, pdfs, consent
+):
     world, fake = _model_world(tmp_path)  # pa dalje në radhë: një thirrje do të hidhte IndexError
     headers = world.user("pa-pelqim@shembull.al")
     document_id = world.upload(headers, pdfs["a"], consent=consent)
@@ -212,7 +200,9 @@ def test_without_consent_the_template_is_used_and_the_provider_is_never_called(t
     row = world.document_row(document_id)
     assert (row.model_consent, row.model_consent_at, row.model_use) == (False, None, "no_consent")
     assert [e.payload for e in world.audit("document.model_consent")] == [{"given": False}]
-    assert [e.payload for e in world.audit("document.model_use")] == [{"use": "no_consent", "kinds": []}]
+    assert [e.payload for e in world.audit("document.model_use")] == [
+        {"use": "no_consent", "kinds": []}
+    ]
 
 
 def test_consent_is_stored_with_a_time_audited_and_the_model_is_used(tmp_path, pdfs):
@@ -230,18 +220,30 @@ def test_consent_is_stored_with_a_time_audited_and_the_model_is_used(tmp_path, p
 
     before = datetime.now(UTC)
     response = world.client.post(
-        "/documents", headers=headers, files={"file": (FILENAME, pdfs["a"], "application/pdf")}, data={"model_consent": "true"}
+        "/documents",
+        headers=headers,
+        files={"file": (FILENAME, pdfs["a"], "application/pdf")},
+        data={"model_consent": "true"},
     )
     assert response.status_code == 202 and response.json()["model_consent"] is True
     document_id = response.json()["id"]
 
     row = world.document_row(document_id)
-    assert row.model_consent is True and row.model_consent_at is not None and row.model_consent_at >= before
+    assert (
+        row.model_consent is True
+        and row.model_consent_at is not None
+        and row.model_consent_at >= before
+    )
     assert row.model_use == "used" and row.model_gate_kinds is None
     assert len(fake.prompts) == 1
     body = world.explanation(headers, document_id)
-    assert body["generator"].startswith("fake:fake-model-1:") and "model" in [n["code"] for n in body["notices"]]
-    assert world.client.get(f"/documents/{document_id}", headers=headers).json()["model_consent"] is True
+    assert body["generator"].startswith("fake:fake-model-1:") and "model" in [
+        n["code"] for n in body["notices"]
+    ]
+    assert (
+        world.client.get(f"/documents/{document_id}", headers=headers).json()["model_consent"]
+        is True
+    )
 
     assert [e.payload for e in world.audit("document.model_consent")] == [{"given": True}]
     assert [e.payload for e in world.audit("document.model_use")] == [{"use": "used", "kinds": []}]
@@ -258,7 +260,9 @@ def test_a_name_in_a_doctor_quote_stops_the_model_even_with_consent_and_the_pati
     path = tmp_path / "n.pdf"
     path.write_bytes(pdfs["named"])
     context = build_grounding(UUID(int=2), route(path).pages).context
-    assert any("Krasniqi" in a.text_span for a in context.assertions), "PDF-ja e provës duhet ta ketë emrin te citimi"
+    assert any("Krasniqi" in a.text_span for a in context.assertions), (
+        "PDF-ja e provës duhet ta ketë emrin te citimi"
+    )
 
     world, fake = _model_world(tmp_path)
     headers = world.user("emer@shembull.al")
@@ -270,7 +274,8 @@ def test_a_name_in_a_doctor_quote_stops_the_model_even_with_consent_and_the_pati
     assert body["generator"] == "template" and body["verification"]["passed"] is True
     assert "model_withheld" in codes and "model_declined" not in codes and "model" not in codes
     notice = next(n["text"] for n in body["notices"] if n["code"] == "model_withheld")
-    assert "emër" in notice and "Krasniqi" not in notice and "Shala" not in notice  # kategoritë, jo vargu
+    # kategoritë, jo vargu
+    assert "emër" in notice and "Krasniqi" not in notice and "Shala" not in notice
     assert "Krasniqi" in body["text"]  # citimi i mjekut del i pandryshuar, jo i redaktuar
 
     row = world.document_row(document_id)
@@ -285,14 +290,21 @@ def test_a_template_only_service_ignores_a_consent_it_never_asked_for(tmp_path, 
     world = World(tmp_path, TemplateGenerator())  # service_generator = template
     headers = world.user("pa-model@shembull.al")
     response = world.client.post(
-        "/documents", headers=headers, files={"file": (FILENAME, pdfs["a"], "application/pdf")}, data={"model_consent": "true"}
+        "/documents",
+        headers=headers,
+        files={"file": (FILENAME, pdfs["a"], "application/pdf")},
+        data={"model_consent": "true"},
     )
     assert response.json()["model_consent"] is False
     document_id = response.json()["id"]
     row = world.document_row(document_id)
     assert (row.model_consent, row.model_consent_at, row.model_use) == (False, None, None)
     assert world.audit("document.model_consent") == [] and world.audit("document.model_use") == []
-    assert not [n for n in world.explanation(headers, document_id)["notices"] if n["code"].startswith("model")]
+    assert not [
+        n
+        for n in world.explanation(headers, document_id)["notices"]
+        if n["code"].startswith("model")
+    ]
 
 
 def test_privacy_config_says_what_the_service_does(tmp_path):
@@ -310,16 +322,20 @@ def test_privacy_config_says_what_the_service_does(tmp_path):
     }
 
 
-# --------------------------------------------------------------------
 # Fshirja e një dokumenti
-# --------------------------------------------------------------------
 
 
-def test_deleting_a_document_removes_rows_and_file_leaves_the_other_user_alone_and_scrubs_the_hash(tmp_path, pdfs):
+def test_deleting_a_document_removes_rows_and_file_leaves_the_other_user_alone_and_scrubs_the_hash(
+    tmp_path, pdfs
+):
     world = World(tmp_path, TemplateGenerator())
     alice, bob = world.user("alice@shembull.al"), world.user("bob@shembull.al")
     bob_doc = world.upload(bob, pdfs["b"], name="bob.pdf")
-    bob_counts, bob_files, bob_text = world.counts(), world.stored_files(), world.explanation(bob, bob_doc)["text"]
+    bob_counts, bob_files, bob_text = (
+        world.counts(),
+        world.stored_files(),
+        world.explanation(bob, bob_doc)["text"],
+    )
 
     alice_doc = world.upload(alice, pdfs["a"])
     assert world.counts() != bob_counts and len(world.stored_files()) == 2
@@ -331,7 +347,8 @@ def test_deleting_a_document_removes_rows_and_file_leaves_the_other_user_alone_a
     assert world.counts() == bob_counts  # çdo tabelë e derivuar e Alice-s është bosh
     assert world.stored_files() == bob_files  # skedari i koduar i saj u hoq vërtet nga depoja
     assert world.explanation(bob, bob_doc)["text"] == bob_text
-    assert world.client.delete(f"/documents/{alice_doc}", headers=alice).status_code == 404  # përsëritja
+    # përsëritja
+    assert world.client.delete(f"/documents/{alice_doc}", headers=alice).status_code == 404
 
     events = [e for e in world.audit() if e.document_id == UUID(alice_doc)]
     assert {"document.uploaded", "document.deleted"} <= {e.event_type for e in events}
@@ -345,11 +362,15 @@ def test_deletion_requires_authentication(tmp_path, pdfs):
     document_id = world.upload(headers, pdfs["a"])
     assert world.client.delete(f"/documents/{document_id}").status_code == 401
     assert world.client.get("/me/export").status_code == 401
-    assert world.client.request("DELETE", "/me/data", json={"password": PASSWORD}).status_code == 401
+    assert (
+        world.client.request("DELETE", "/me/data", json={"password": PASSWORD}).status_code == 401
+    )
     assert world.counts()["documents"] == 1
 
 
-def test_an_upload_that_fails_after_the_file_was_written_leaves_no_file_behind(tmp_path, pdfs, monkeypatch):
+def test_an_upload_that_fails_after_the_file_was_written_leaves_no_file_behind(
+    tmp_path, pdfs, monkeypatch
+):
     """Skedari shkruhet para rreshtit; nëse rreshti nuk ruhet (p.sh. llogaria u fshi pikërisht tani), skedari nuk
     mbetet pa pronar."""
     from analyte.audit import logger as audit
@@ -366,9 +387,7 @@ def test_an_upload_that_fails_after_the_file_was_written_leaves_no_file_behind(t
     assert world.stored_files() == set() and world.counts()["documents"] == 0
 
 
-# --------------------------------------------------------------------
 # Fshirja e llogarisë
-# --------------------------------------------------------------------
 
 
 def _erase(world: World, headers, password: str = PASSWORD):
@@ -379,13 +398,19 @@ def test_erasing_an_account_removes_everything_of_it_and_nothing_of_anyone_else(
     world = World(tmp_path, TemplateGenerator())
     bob = world.user("bob@shembull.al")
     bob_doc = world.upload(bob, pdfs["b"], name="bob.pdf")
-    bob_counts, bob_files, bob_text = world.counts(), world.stored_files(), world.explanation(bob, bob_doc)["text"]
+    bob_counts, bob_files, bob_text = (
+        world.counts(),
+        world.stored_files(),
+        world.explanation(bob, bob_doc)["text"],
+    )
 
     alice = world.user("alice@shembull.al")
     world.upload(alice, pdfs["a"])
     world.upload(alice, pdfs["a"], name="dytë.pdf")
     # Një hyrje e dështuar e Alice-s lë një numërues me HMAC të email-it të saj.
-    world.client.post("/auth/login", json={"email": "alice@shembull.al", "password": "gabim-gabim-gabim"})
+    world.client.post(
+        "/auth/login", json={"email": "alice@shembull.al", "password": "gabim-gabim-gabim"}
+    )
     with world.services.sessions() as session:
         alice_id = session.scalar(select(UserRow.id).where(UserRow.email == "alice@shembull.al"))
         assert session.scalar(select(func.count()).select_from(LoginFailureRow)) == 1
@@ -396,13 +421,24 @@ def test_erasing_an_account_removes_everything_of_it_and_nothing_of_anyone_else(
     assert world.stored_files() == bob_files
     assert world.explanation(bob, bob_doc)["text"] == bob_text
     with world.services.sessions() as session:
-        assert session.scalar(select(UserRow.id).where(UserRow.email == "alice@shembull.al")) is None
+        assert (
+            session.scalar(select(UserRow.id).where(UserRow.email == "alice@shembull.al")) is None
+        )
         assert session.scalar(select(func.count()).select_from(UserRow)) == 1
         assert session.scalar(select(func.count()).select_from(LoginFailureRow)) == 0
-        assert session.scalars(select(AuthSessionRow).where(AuthSessionRow.user_id == alice_id)).all() == []
-        assert session.scalars(select(EmailConfirmationRow).where(EmailConfirmationRow.user_id == alice_id)).all() == []
+        assert (
+            session.scalars(select(AuthSessionRow).where(AuthSessionRow.user_id == alice_id)).all()
+            == []
+        )
+        assert (
+            session.scalars(
+                select(EmailConfirmationRow).where(EmailConfirmationRow.user_id == alice_id)
+            ).all()
+            == []
+        )
         remaining_sessions = {row.user_id for row in session.scalars(select(AuthSessionRow))}
-        assert alice_id not in remaining_sessions and len(remaining_sessions) == 1  # vetëm ajo e Bob-it
+        # vetëm ajo e Bob-it
+        assert alice_id not in remaining_sessions and len(remaining_sessions) == 1
         assert session.scalar(select(func.count()).select_from(RefreshTokenRow)) == 1
 
     # Gjurma mbetet pa identifikues përdoruesi dhe pa email, emër skedari apo hash.
@@ -413,11 +449,17 @@ def test_erasing_an_account_removes_everything_of_it_and_nothing_of_anyone_else(
     serialized = json.dumps([e.payload for e in events], ensure_ascii=False)
     assert "alice" not in serialized and "dytë" not in serialized and FILENAME not in serialized
     uploads = [e for e in events if e.event_type == "document.uploaded"]
-    assert len(uploads) == 3 and sum("sha256" in e.payload for e in uploads) == 1  # vetëm ai i Bob-it
+    # vetëm ai i Bob-it
+    assert len(uploads) == 3 and sum("sha256" in e.payload for e in uploads) == 1
 
     # Pas fshirjes tokeni nuk vlen, dhe llogaria nuk hyn më.
     assert world.client.get("/auth/me", headers=alice).status_code == 401
-    assert world.client.post("/auth/login", json={"email": "alice@shembull.al", "password": PASSWORD}).status_code == 401
+    assert (
+        world.client.post(
+            "/auth/login", json={"email": "alice@shembull.al", "password": PASSWORD}
+        ).status_code
+        == 401
+    )
     assert _erase(world, alice).status_code == 401  # përsëritja: tokeni nuk ekziston më
 
 
@@ -454,7 +496,9 @@ def test_erasing_twice_in_a_row_is_harmless(tmp_path, pdfs):
         user = session.scalar(select(UserRow).where(UserRow.email == "dyfish@shembull.al"))
         assert erasure.erase_user(session, world.services.store, user, world.settings) == 1
         session.commit()
-    with world.services.sessions() as session:  # i njëjti objekt përdoruesi, tashmë i fshirë nga një kërkesë tjetër
+    with (
+        world.services.sessions() as session
+    ):  # i njëjti objekt përdoruesi, tashmë i fshirë nga një kërkesë tjetër
         assert erasure.erase_user(session, world.services.store, user, world.settings) == 0
         session.commit()
     assert world.counts()["documents"] == 0 and world.stored_files() == set()
@@ -501,11 +545,16 @@ def test_a_foreign_key_violation_because_the_document_just_vanished_is_swallowed
 
     world = World(tmp_path, TemplateGenerator(), runner=_NotYet())
     headers = world.user("integritet@shembull.al")
-    vanished, real_defect = world.upload(headers, pdfs["a"]), world.upload(headers, pdfs["a"], name="dytë.pdf")
+    vanished, real_defect = (
+        world.upload(headers, pdfs["a"]),
+        world.upload(headers, pdfs["a"], name="dytë.pdf"),
+    )
 
     def delete_then_fail(session, context):
         if context.document_id == UUID(vanished):
-            erasure.erase_documents(session, world.services.store, [session.get(DocumentRow, context.document_id)])
+            erasure.erase_documents(
+                session, world.services.store, [session.get(DocumentRow, context.document_id)]
+            )
             session.commit()
         raise IntegrityError("INSERT", {}, Exception("FOREIGN KEY constraint failed"))
 
@@ -516,9 +565,7 @@ def test_a_foreign_key_violation_because_the_document_just_vanished_is_swallowed
         run_document(world.services, UUID(real_defect))
 
 
-# --------------------------------------------------------------------
 # Eksporti
-# --------------------------------------------------------------------
 
 
 def test_export_has_the_owners_data_and_never_credentials_or_other_users(tmp_path, pdfs):
@@ -533,7 +580,10 @@ def test_export_has_the_owners_data_and_never_credentials_or_other_users(tmp_pat
 
     response = world.client.get("/me/export", headers=alice)
     assert response.status_code == 200
-    assert response.headers["cache-control"] == "no-store" and "attachment" in response.headers["content-disposition"]
+    assert (
+        response.headers["cache-control"] == "no-store"
+        and "attachment" in response.headers["content-disposition"]
+    )
     data = response.json()
     text = response.text
 
@@ -541,12 +591,32 @@ def test_export_has_the_owners_data_and_never_credentials_or_other_users(tmp_pat
     assert [d["id"] for d in data["documents"]] == [document_id]
     document = data["documents"][0]
     assert document["filename"] == FILENAME and document["state"] == "delivered"
-    assert document["findings"] and document["explanation"]["text"] == world.explanation(alice, document_id)["text"]
-    assert {"analyte_name_canonical", "value", "unit_canonical", "status"} <= set(document["findings"][0])
-    assert document["model"] == {"consent": False, "consent_at": None, "use": None, "gate_kinds": []}
-    assert {e["event_type"] for e in data["audit_events"]} >= {"document.uploaded", "state.transition"}
+    assert (
+        document["findings"]
+        and document["explanation"]["text"] == world.explanation(alice, document_id)["text"]
+    )
+    assert {"analyte_name_canonical", "value", "unit_canonical", "status"} <= set(
+        document["findings"][0]
+    )
+    assert document["model"] == {
+        "consent": False,
+        "consent_at": None,
+        "use": None,
+        "gate_kinds": [],
+    }
+    assert {e["event_type"] for e in data["audit_events"]} >= {
+        "document.uploaded",
+        "state.transition",
+    }
 
-    for forbidden in ("bob-eksport", "SKEDARI_I_BOBIT", "password", "argon2", tokens["access_token"], tokens["refresh_token"]):
+    for forbidden in (
+        "bob-eksport",
+        "SKEDARI_I_BOBIT",
+        "password",
+        "argon2",
+        tokens["access_token"],
+        tokens["refresh_token"],
+    ):
         assert forbidden not in text, forbidden
     assert "user.exported" in {e.event_type for e in world.audit()}
 
@@ -558,9 +628,7 @@ def test_export_of_an_account_without_documents(tmp_path):
     assert data["documents"] == [] and data["account"]["email"] == "bosh@shembull.al"
 
 
-# --------------------------------------------------------------------
 # Afati i ruajtjes
-# --------------------------------------------------------------------
 
 NOW = datetime(2026, 10, 5, 12, 0, tzinfo=UTC)
 
@@ -571,7 +639,9 @@ def _aged(world: World, document_id: str, age_days: int) -> None:
         session.commit()
 
 
-def test_retention_deletes_only_what_is_older_than_the_limit_with_the_same_path_as_deletion(tmp_path, pdfs):
+def test_retention_deletes_only_what_is_older_than_the_limit_with_the_same_path_as_deletion(
+    tmp_path, pdfs
+):
     world = World(tmp_path, TemplateGenerator())
     headers = world.user("afat@shembull.al")
     old, edge, fresh = (world.upload(headers, pdfs["a"], name=f"{i}.pdf") for i in range(3))
@@ -579,20 +649,36 @@ def test_retention_deletes_only_what_is_older_than_the_limit_with_the_same_path_
     _aged(world, edge, 30)  # saktësisht në afat: ruhet
     _aged(world, fresh, 29)
 
-    result = erasure.purge_expired(world.services.sessions, world.services.store, now=NOW, retention_days=30)
+    result = erasure.purge_expired(
+        world.services.sessions, world.services.store, now=NOW, retention_days=30
+    )
     assert (result.purged, result.failed) == (1, 0)
     assert {r.id for r in _documents(world)} == {UUID(edge), UUID(fresh)}
     assert len(world.stored_files()) == 2
 
     # Një orë më vonë "edge" kalon afatin ("fresh" jo); përsëritja e së njëjtës kohë nuk fshin asgjë tjetër.
-    assert erasure.purge_expired(world.services.sessions, world.services.store, now=NOW, retention_days=30).purged == 0
+    assert (
+        erasure.purge_expired(
+            world.services.sessions, world.services.store, now=NOW, retention_days=30
+        ).purged
+        == 0
+    )
     later = NOW + timedelta(hours=1)
-    assert erasure.purge_expired(world.services.sessions, world.services.store, now=later, retention_days=30).purged == 1
+    assert (
+        erasure.purge_expired(
+            world.services.sessions, world.services.store, now=later, retention_days=30
+        ).purged
+        == 1
+    )
     assert {r.id for r in _documents(world)} == {UUID(fresh)} and len(world.stored_files()) == 1
 
     expired = world.audit("document.expired")
     assert [e.payload for e in expired] == [{"retention_days": 30}, {"retention_days": 30}]
-    assert all("sha256" not in e.payload for e in world.audit("document.uploaded") if e.document_id in {UUID(old), UUID(edge)})
+    assert all(
+        "sha256" not in e.payload
+        for e in world.audit("document.uploaded")
+        if e.document_id in {UUID(old), UUID(edge)}
+    )
 
 
 def _documents(world: World) -> list[DocumentRow]:
@@ -606,14 +692,19 @@ def test_retention_of_zero_keeps_everything(tmp_path, pdfs):
     document_id = world.upload(headers, pdfs["a"])
     _aged(world, document_id, 10_000)
     assert world.settings.document_retention_days == 0
-    result = erasure.purge_expired(world.services.sessions, world.services.store, now=NOW, retention_days=0)
+    result = erasure.purge_expired(
+        world.services.sessions, world.services.store, now=NOW, retention_days=0
+    )
     assert (result.purged, result.failed) == (0, 0) and len(_documents(world)) == 1
 
 
 def test_one_document_that_cannot_be_deleted_does_not_stop_the_others(tmp_path, pdfs):
     world = World(tmp_path, TemplateGenerator())
     headers = world.user("pengese@shembull.al")
-    stuck, other = world.upload(headers, pdfs["a"]), world.upload(headers, pdfs["a"], name="tjetri.pdf")
+    stuck, other = (
+        world.upload(headers, pdfs["a"]),
+        world.upload(headers, pdfs["a"], name="tjetri.pdf"),
+    )
     _aged(world, stuck, 90)
     _aged(world, other, 90)
     stuck_path = world.document_row(stuck).storage_path
@@ -628,12 +719,23 @@ def test_one_document_that_cannot_be_deleted_does_not_stop_the_others(tmp_path, 
     result = erasure.purge_expired(world.services.sessions, store, now=NOW, retention_days=30)
     assert (result.purged, result.failed) == (1, 1)
     # Dokumenti që nuk u fshi mbetet i plotë dhe i ripërsëritshëm, nuk ka skedar pa rresht.
-    assert {r.id for r in _documents(world)} == {UUID(stuck)} and world.stored_files() == {stuck_path}
-    assert erasure.purge_expired(world.services.sessions, world.services.store, now=NOW, retention_days=30).purged == 1
+    assert {r.id for r in _documents(world)} == {UUID(stuck)} and world.stored_files() == {
+        stuck_path
+    }
+    assert (
+        erasure.purge_expired(
+            world.services.sessions, world.services.store, now=NOW, retention_days=30
+        ).purged
+        == 1
+    )
 
 
 def test_the_retention_setting_defaults_to_off_and_rejects_negative_values():
-    base = {"_env_file": None, "jwt_secret": "t" * 48, "storage_key": Fernet.generate_key().decode()}
+    base = {
+        "_env_file": None,
+        "jwt_secret": "t" * 48,
+        "storage_key": Fernet.generate_key().decode(),
+    }
     assert Settings(**base).document_retention_days == 0
     assert Settings(**base, document_retention_days=45).document_retention_days == 45
     with pytest.raises(ValueError):
@@ -648,8 +750,13 @@ def test_the_worker_schedules_the_purge(monkeypatch):
     get_settings.cache_clear()
     try:
         worker = importlib.reload(importlib.import_module("analyte.orchestration.worker"))
-        jobs = [job for job in worker.WorkerSettings.cron_jobs if job.coroutine is worker.purge_expired_job]
-        assert len(jobs) == 1  # puna e fshirjes është e planifikuar (bashkë me atë të rindërgimit, ADR 0018)
+        jobs = [
+            job
+            for job in worker.WorkerSettings.cron_jobs
+            if job.coroutine is worker.purge_expired_job
+        ]
+        # puna e fshirjes është e planifikuar (bashkë me atë të rindërgimit, ADR 0018)
+        assert len(jobs) == 1
         assert jobs[0].minute == {7} and jobs[0].hour is None  # çdo orë
     finally:
         get_settings.cache_clear()

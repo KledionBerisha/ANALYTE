@@ -1,24 +1,6 @@
 """
 Regjistrimi, konfirmimi i email-it, hyrja dhe rifreskimi.
 
-**Asnjë përgjigje nuk tregon nëse një email ka llogari** (ADR 0014, 0016).
-Hyrja e dështuar ka një përgjigje të vetme, qoftë email-i i panjohur apo
-fjalëkalimi i gabuar. Regjistrimi kthen gjithmonë të njëjtën 202, qoftë email-i
-i ri, i regjistruar, apo i regjistruar e ende i pakonfirmuar: ajo që ndryshon
-është vetëm mesazhi që merr zotëruesi i kutisë postare. Mesazhi dërgohet pas
-përgjigjes, nga një detyrë në sfond, që koha e SMTP-së të mos e tregojë rastin.
-
-Llogaria nuk hyn derisa email-i të konfirmohet me lidhjen e dërguar. Hyrja me
-fjalëkalim të saktë por pa konfirmim kthen 403 me udhëzim; ajo arrihet vetëm nga
-dikush që e di fjalëkalimin, prandaj nuk zbulon asgjë për të tjerët.
-
-**Rivendosja e fjalëkalimit** (ADR 0018) ndjek të njëjtat rregulla: `forgot-password` kthen gjithmonë të njëjtën
-202, lidhja ruhet vetëm si HMAC dhe vlen një herë, dhe pas suksesit çdo seancë e përdoruesit revokohet. Një
-rivendosje nuk e konfirmon një llogari të pakonfirmuar: për të, `forgot-password` dërgon lidhjen e konfirmimit.
-
-Hapi i dytë (TOTP) është te `two_factor.py`; hyrja këtu kthen një sfidë në vend të tokenëve kur llogaria e ka.
-Seancat, rrotullimi i tokenëve të rifreskimit dhe dalja janë te `auth_sessions.py`; kufizimi i shpeshtësisë te
-`throttle.py`; dërgimi i email-eve te `outbox.py`; të gjitha shpjegohen te ADR 0014, 0016 dhe 0018.
 """
 
 from __future__ import annotations
@@ -105,7 +87,9 @@ def register(
         )
     now = datetime.now(UTC)
     keys = throttle.registration_keys(
-        email, throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits), config
+        email,
+        throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits),
+        config,
     )
     throttle.check_registration(db, config, keys, now)
     throttle.record_registration(db, config, keys, now)
@@ -132,7 +116,9 @@ def register(
         user.password_hash = password_hash
         outgoing = outbox.prepare_confirmation(db, user, config, now)
     else:
-        subject, body_text = mail.already_registered_message(f"{config.frontend_url.rstrip('/')}/login")
+        subject, body_text = mail.already_registered_message(
+            f"{config.frontend_url.rstrip('/')}/login"
+        )
         outgoing = outbox.Outgoing(email, subject, body_text)
 
     # Ruhet para dërgimit: mesazhi nuk duhet të mbërrijë përpara tokenit që e verifikon, dhe detyra në
@@ -154,12 +140,15 @@ def resend_confirmation(
     email = _normalize(body.email)
     now = datetime.now(UTC)
     keys = throttle.registration_keys(
-        email, throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits), config
+        email,
+        throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits),
+        config,
     )
     throttle.check_registration(db, config, keys, now)
     throttle.record_registration(db, config, keys, now)
 
-    hash_password("kohë-e-barabartë")  # koha e njëjtë me regjistrimin, qoftë llogaria e pakonfirmuar apo jo
+    # koha e njëjtë me regjistrimin, qoftë llogaria e pakonfirmuar apo jo
+    hash_password("kohë-e-barabartë")
     user = db.scalars(select(UserRow).where(UserRow.email == email)).first()
     if user is not None and user.email_confirmed_at is None:
         outgoing = outbox.prepare_confirmation(db, user, config, now)
@@ -184,12 +173,15 @@ def forgot_password(
     email = _normalize(body.email)
     now = datetime.now(UTC)
     keys = throttle.reset_keys(
-        email, throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits), config
+        email,
+        throttle.client_ip(request, config.trusted_proxy_hops, config.ipv6_prefix_bits),
+        config,
     )
     throttle.check_registration(db, config, keys, now)
     throttle.record_registration(db, config, keys, now)
 
-    hash_password("kohë-e-barabartë")  # koha e njëjtë, qoftë llogaria e konfirmuar, e pakonfirmuar apo e munguar
+    # koha e njëjtë, qoftë llogaria e konfirmuar, e pakonfirmuar apo e munguar
+    hash_password("kohë-e-barabartë")
     user = db.scalars(select(UserRow).where(UserRow.email == email)).first()
     if user is not None:
         if user.email_confirmed_at is not None:
@@ -230,7 +222,8 @@ def reset_password(
     invalid = Problem(400, "Lidhja e rivendosjes është e pavlefshme ose ka skaduar")
     row = db.scalars(
         select(PasswordResetRow).where(
-            PasswordResetRow.token_key == keyed_hash(config.jwt_secret, "password-reset", body.token)
+            PasswordResetRow.token_key
+            == keyed_hash(config.jwt_secret, "password-reset", body.token)
         )
     ).first()
     if row is None or row.expires_at <= now:
@@ -270,7 +263,8 @@ def confirm(
     invalid = Problem(400, "Lidhja e konfirmimit është e pavlefshme ose ka skaduar")
     row = db.scalars(
         select(EmailConfirmationRow).where(
-            EmailConfirmationRow.token_key == keyed_hash(config.jwt_secret, "email-confirm", body.token)
+            EmailConfirmationRow.token_key
+            == keyed_hash(config.jwt_secret, "email-confirm", body.token)
         )
     ).first()
     if row is None or row.expires_at <= now:
@@ -325,7 +319,9 @@ def login(
     throttle.clear_pair(db, keys)
     if user.totp_enabled_at is not None:
         # Fjalëkalimi është i saktë: vetëm tani del një sfidë, që hapi i dytë të mos tregojë asgjë para saj (ADR 0018).
-        binding = credential_binding(config.jwt_secret, user.id, user.password_hash, user.totp_enabled_at)
+        binding = credential_binding(
+            config.jwt_secret, user.id, user.password_hash, user.totp_enabled_at
+        )
         return MfaChallenge(
             challenge=issue_challenge(
                 user.id, binding, timedelta(minutes=config.mfa_challenge_minutes), config.jwt_secret

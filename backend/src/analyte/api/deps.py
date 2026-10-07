@@ -1,9 +1,6 @@
 """
 Varësitë e pikave fundore: sesioni, përdoruesi, dokumenti i tij.
 
-Dokumenti i një përdoruesi tjetër kthehet si 404, jo 403. Një 403 do të
-pohonte se dokumenti ekziston — dhe identifikuesit e dokumenteve nuk
-duhet të zbulojnë asgjë për askënd tjetër.
 """
 
 from __future__ import annotations

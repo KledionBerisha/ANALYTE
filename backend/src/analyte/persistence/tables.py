@@ -1,24 +1,6 @@
 """
 Tabelat e bazës së të dhënave (§4 e specifikimit).
 
-Tabelat pasqyrojnë modelet e domenit fushë për fushë, që një kontekst i
-ruajtur dhe i lexuar sërish të jetë i barabartë me origjinalin — testi i
-kthimit e kontrollon këtë. Identifikuesit e gjetjeve dhe të pohimeve
-ruhen ata të domenit, sepse krahasimet e kryqëzuar dhe kombinimet u
-referohen atyre.
-
-**Numrat dhjetorë ruhen si tekst i saktë.** Rregulli R1 krahason numrat me
-barazi të saktë, dhe SQLite — ku ekzekutohen testet — e kthen `Numeric`-un
-në numër me presje lundruese. `ExactDecimal` e ruan vargun e `Decimal`-it
-dhe e kthen të njëjtin `Decimal`, në çdo bazë.
-
-**Çfarë nuk është këtu.** Terminologjia dhe intervalet referente mbeten te
-`resources/`, burimi i vetëm i së vërtetës; një kopje në bazë do të fillonte
-të largohej prej tij. Tabelat e bisedës dhe të ekzekutimeve të vlerësimit
-shtohen bashkë me veçoritë e tyre.
-
-**Emri i skedarit është i koduar.** Pacientët i emërtojnë skedarët me
-emrin e tyre; kolona mban tekstin e koduar, jo emrin (NFR5).
 """
 
 from __future__ import annotations
@@ -465,7 +447,9 @@ class VerificationRow(Base):
 
     explanation: Mapped[ExplanationRow] = relationship(back_populates="verification")
     violations: Mapped[list[ViolationRow]] = relationship(
-        back_populates="verification", cascade="all, delete-orphan", order_by="ViolationRow.position"
+        back_populates="verification",
+        cascade="all, delete-orphan",
+        order_by="ViolationRow.position",
     )
 
 

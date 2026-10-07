@@ -1,18 +1,6 @@
 """
 Modeli gjuhësor te aplikacioni i uebit (ADR 0017).
 
-Pohimet më të rëndësishme:
-
-  - **Është zgjedhje e shprehur.** Pa `ANALYTE_SERVICE_GENERATOR=model`, aplikacioni gjeneron me shabllon, edhe nëse `.env` ka
-    ofruesin për eksperimentet. Me të, gjeneron me modelin; konfigurim i paplotë e ndalon shërbimin kur nis.
-  - **Asnjë cache në disk.** Kërkesat dhe përgjigjet përmbajnë të dhëna të pacientëve të vërtetë.
-  - **Ciklin e njëjtë si te eksperimentet:** verifikim, një rigjenerim me shkeljet e para, pastaj shablloni rezervë; një
-    ofrues që dështon nuk e humbet dokumentin.
-  - **Çfarë i dërgohet ofruesit:** konteksti i strukturuar, kurrë emri i pacientit apo i skedarit.
-  - **Pacienti e di:** teksti i modelit mban njoftimin përkatës; shablloni dhe shablloni rezervë jo.
-
-Që nga ADR 0019 modeli përdoret vetëm për ngarkimet me pëlqim të shprehur dhe që kalojnë portën e çidentifikimit;
-ato kushte provohen te `test_data_protection.py`. Këtu çdo ngarkim jep pëlqimin.
 """
 
 from __future__ import annotations
@@ -38,8 +26,13 @@ FILENAME = "Analiza_Arben_Krasniqi_2026.pdf"
 def _settings(tmp: Path, **overrides) -> Settings:
     return Settings(
         _env_file=None,  # kopja e zhvilluesit mund të ketë çelësin e vërtetë; testet nuk e lexojnë
-        database_url=f"sqlite:///{tmp / 'a.db'}", jwt_secret="t" * 48, storage_key=Fernet.generate_key().decode(),
-        storage_dir=tmp / "storage", job_runner="inline", ocr=False, **overrides,
+        database_url=f"sqlite:///{tmp / 'a.db'}",
+        jwt_secret="t" * 48,
+        storage_key=Fernet.generate_key().decode(),
+        storage_dir=tmp / "storage",
+        job_runner="inline",
+        ocr=False,
+        **overrides,
     )
 
 
@@ -72,7 +65,8 @@ class FakeClient:
 
 
 def _app(tmp: Path, generator):
-    settings = _settings(tmp, service_generator="model")  # pëlqimi pyetet vetëm kur modeli është i ndezur (ADR 0019)
+    # pëlqimi pyetet vetëm kur modeli është i ndezur (ADR 0019)
+    settings = _settings(tmp, service_generator="model")
     engine = make_engine(settings.database_url)
     create_schema(engine)
     services = Services(
@@ -82,7 +76,9 @@ def _app(tmp: Path, generator):
     )
     client = client_for(settings, services)
     register_confirmed(client, "model@shembull.al", PASSWORD)
-    token = client.post("/auth/login", json={"email": "model@shembull.al", "password": PASSWORD}).json()["access_token"]
+    token = client.post(
+        "/auth/login", json={"email": "model@shembull.al", "password": PASSWORD}
+    ).json()["access_token"]
     return client, {"Authorization": f"Bearer {token}"}
 
 
@@ -98,9 +94,7 @@ def _upload(client, headers, pdf: bytes, consent: bool = True) -> str:
     return response.json()["id"]
 
 
-# --------------------------------------------------------------------
 # Zgjedhja e gjeneruesit
-# --------------------------------------------------------------------
 
 
 def test_by_default_the_app_generates_with_the_template(tmp_path):
@@ -109,7 +103,9 @@ def test_by_default_the_app_generates_with_the_template(tmp_path):
 
 def test_a_provider_configured_for_the_experiments_does_not_turn_the_model_on_in_the_app(tmp_path):
     """`.env` ka ofruesin dhe çelësin për harness-in; kjo vetëm nuk duhet t'u dërgojë ngarkimet e vërteta një ofruesi."""
-    settings = _settings(tmp_path, llm_provider="mistral", llm_model="ministral-14b-2512", llm_api_key="çelës-prove")
+    settings = _settings(
+        tmp_path, llm_provider="mistral", llm_model="ministral-14b-2512", llm_api_key="çelës-prove"
+    )
     assert settings.service_generator == "template"
     assert isinstance(build_generator(settings), TemplateGenerator)
     assert isinstance(build_services(settings).generator, TemplateGenerator)
@@ -117,7 +113,11 @@ def test_a_provider_configured_for_the_experiments_does_not_turn_the_model_on_in
 
 def test_with_the_switch_on_the_app_generates_with_the_model_and_keeps_no_cache(tmp_path):
     settings = _settings(
-        tmp_path, service_generator="model", llm_provider="mistral", llm_model="ministral-14b-2512", llm_api_key="çelës-prove"
+        tmp_path,
+        service_generator="model",
+        llm_provider="mistral",
+        llm_model="ministral-14b-2512",
+        llm_api_key="çelës-prove",
     )
     generator = build_generator(settings)
     assert isinstance(generator, LlmGenerator)
@@ -130,7 +130,10 @@ def test_with_the_switch_on_the_app_generates_with_the_model_and_keeps_no_cache(
     [
         ({"llm_provider": "mistral", "llm_model": "ministral-14b-2512"}, "ANALYTE_LLM_API_KEY"),
         ({"llm_provider": "mistral", "llm_api_key": "çelës-prove"}, "ANALYTE_LLM_MODEL"),
-        ({"llm_provider": "nuk-ekziston", "llm_model": "m", "llm_api_key": "çelës-prove"}, "ofrues i panjohur"),
+        (
+            {"llm_provider": "nuk-ekziston", "llm_model": "m", "llm_api_key": "çelës-prove"},
+            "ofrues i panjohur",
+        ),
         ({}, "ofrues i panjohur"),  # çelësi `model` pa ofrues fare
     ],
 )
@@ -139,15 +142,23 @@ def test_an_incomplete_model_configuration_stops_the_service_at_start(tmp_path, 
         build_services(_settings(tmp_path, service_generator="model", **overrides))
 
 
-# --------------------------------------------------------------------
 # Rruga e plotë me modelin
-# --------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
 def document():
+    """Dokumenti dhe e vërteta e tij, me këshillat e tabelës të bashkangjitura ashtu si i bashkangjit shërbimi.
+
+    Korpusi nuk i mban këshillat (ADR 0023), kurse shërbimi ia shton kontekstit; R8 kërkon fjalitë e tyre
+    fjalë për fjalë, prandaj teksti i shabllonit që i jepet modelit të rremë duhet ndërtuar mbi po atë kontekst.
+    """
+    from dataclasses import replace
+
+    from analyte.grounding.branch_a.advice import attach
+
     pdf, truth = _document()
-    return pdf, truth
+    context = truth.context.model_copy(update={"advice": attach(truth.context.findings)})
+    return pdf, replace(truth, context=context)
 
 
 def _explanation(client, headers, document_id):
@@ -167,7 +178,9 @@ def test_a_verified_model_text_is_delivered_with_the_model_notice(tmp_path, docu
     assert len(fake.prompts) == 1
 
 
-def test_what_is_sent_to_the_provider_never_holds_the_patients_name_or_the_filename(tmp_path, document):
+def test_what_is_sent_to_the_provider_never_holds_the_patients_name_or_the_filename(
+    tmp_path, document
+):
     pdf, truth = document
     fake = FakeClient([build(truth.context)])
     client, headers = _app(tmp_path, LlmGenerator(fake))
@@ -180,7 +193,9 @@ def test_what_is_sent_to_the_provider_never_holds_the_patients_name_or_the_filen
     assert "Arben" not in sent and "Krasniqi_2026" not in sent and FILENAME not in sent
 
 
-def test_a_rejected_first_attempt_is_retried_once_with_the_violations_and_then_delivered(tmp_path, document):
+def test_a_rejected_first_attempt_is_retried_once_with_the_violations_and_then_delivered(
+    tmp_path, document
+):
     pdf, truth = document
     good = build(truth.context)
     fake = FakeClient([good + " Vlera e matur është 987654.", good])
@@ -190,19 +205,26 @@ def test_a_rejected_first_attempt_is_retried_once_with_the_violations_and_then_d
     body = _explanation(client, headers, document_id)
     assert body["verification"]["passed"] is True and body["generator"] == "fake:fake-model-1:p1"
     assert len(fake.prompts) == 2
-    assert "987654" in fake.prompts[1]  # shkelja e përpjekjes së parë shkon te e dyta, si te eksperimentet
-    attempts = client.get(f"/documents/{document_id}/verification", headers=headers).json()["attempts"]
+    # shkelja e përpjekjes së parë shkon te e dyta, si te eksperimentet
+    assert "987654" in fake.prompts[1]
+    attempts = client.get(f"/documents/{document_id}/verification", headers=headers).json()[
+        "attempts"
+    ]
     assert [(a["attempt"], a["delivered"]) for a in attempts] == [(1, False), (2, True)]
 
 
-def test_two_rejected_attempts_fall_back_to_the_template_without_the_model_notice(tmp_path, document):
+def test_two_rejected_attempts_fall_back_to_the_template_without_the_model_notice(
+    tmp_path, document
+):
     pdf, truth = document
     bad = build(truth.context) + " Vlera e matur është 987654."
     client, headers = _app(tmp_path, LlmGenerator(FakeClient([bad, bad])))
 
     body = _explanation(client, headers, _upload(client, headers, pdf))
     codes = [n["code"] for n in body["notices"]]
-    assert body["verification"]["is_fallback"] is True and "fallback" in codes and "model" not in codes
+    assert (
+        body["verification"]["is_fallback"] is True and "fallback" in codes and "model" not in codes
+    )
     assert "987654" not in body["text"]
 
 
@@ -215,10 +237,17 @@ def test_a_provider_outage_does_not_lose_the_document(tmp_path, document):
     status = client.get(f"/documents/{document_id}/status", headers=headers).json()
     body = _explanation(client, headers, document_id)
     assert status["state"] == "delivered"
-    assert body["verification"]["is_fallback"] is True and body["text"].strip() == build(truth.context).strip()
+    assert (
+        body["verification"]["is_fallback"] is True
+        and body["text"].strip() == build(truth.context).strip()
+    )
     assert len(fake.prompts) == 2  # dy përpjekje, pastaj shablloni
-    attempts = client.get(f"/documents/{document_id}/verification", headers=headers).json()["attempts"]
-    assert [a["delivered"] for a in attempts][-1] is True  # rreshti i dorëzuar është ai i shablloni rezervë
+    attempts = client.get(f"/documents/{document_id}/verification", headers=headers).json()[
+        "attempts"
+    ]
+    assert [a["delivered"] for a in attempts][
+        -1
+    ] is True  # rreshti i dorëzuar është ai i shablloni rezervë
 
 
 def test_the_template_alone_carries_no_model_notice(tmp_path, document):

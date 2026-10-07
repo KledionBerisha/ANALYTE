@@ -136,7 +136,9 @@ def status(
     db: Session = Depends(deps.session),
 ) -> TwoFactorStatus:
     enabled = user.totp_enabled_at is not None
-    return TwoFactorStatus(enabled=enabled, recovery_codes_remaining=_remaining(db, user.id) if enabled else 0)
+    return TwoFactorStatus(
+        enabled=enabled, recovery_codes_remaining=_remaining(db, user.id) if enabled else 0
+    )
 
 
 @router.post("/2fa/enroll", response_model=TwoFactorEnrollment)
@@ -148,7 +150,9 @@ def enroll(
     """Nis regjistrimin: një sekret i ri, i dukshëm vetëm në këtë përgjigje. Thirrja e dytë para konfirmimit e
     zëvendëson sekretin; pasi hapi i dytë aktivizohet, kjo pikë kthen 409 dhe sekreti nuk lexohet më."""
     if user.totp_enabled_at is not None:
-        raise Problem(409, "Hapi i dytë është tashmë aktiv", "Çaktivizojeni para se ta regjistroni sërish.")
+        raise Problem(
+            409, "Hapi i dytë është tashmë aktiv", "Çaktivizojeni para se ta regjistroni sërish."
+        )
     secret = twofactor.new_secret()
     user.totp_secret_encrypted = store.encrypt_text(secret)
     user.totp_last_step = None
@@ -176,7 +180,11 @@ def confirm(
     throttle.check_mfa(db, config, keys, now)
     if _consume(db, store, config, user, body.code, now, recovery=False) is None:
         throttle.record_mfa_failure(db, config, keys, now)
-        raise Problem(400, "Kodi është i pavlefshëm", "Kontrolloni orën e telefonit dhe provoni kodin e radhës.")
+        raise Problem(
+            400,
+            "Kodi është i pavlefshëm",
+            "Kontrolloni orën e telefonit dhe provoni kodin e radhës.",
+        )
 
     user.totp_enabled_at = now
     codes = [twofactor.new_recovery_code() for _ in range(config.mfa_recovery_codes)]
@@ -185,7 +193,9 @@ def confirm(
         normalized = twofactor.normalize_recovery_code(code)
         assert normalized is not None
         db.add(
-            RecoveryCodeRow(user_id=user.id, code_key=_recovery_key(config, user, normalized), created_at=now)
+            RecoveryCodeRow(
+                user_id=user.id, code_key=_recovery_key(config, user, normalized), created_at=now
+            )
         )
     throttle.clear_pair(db, keys)
     auth_sessions.revoke_others(db, user.id, current.auth_session.id, "two_factor_enabled", now)

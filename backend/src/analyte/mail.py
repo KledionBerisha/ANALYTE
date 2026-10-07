@@ -1,23 +1,6 @@
 """
 Dërgimi i email-eve (ADR 0016).
 
-Shërbimi dërgon tri lloje mesazhesh: lidhjen e konfirmimit të email-it, lidhjen e
-rivendosjes së fjalëkalimit (ADR 0018) dhe njoftimin «ky email ka tashmë llogari».
-Të gjitha dërgohen pas përgjigjes, nga një detyrë në sfond, që koha e SMTP-së të
-mos tregojë cili rast ndodhi (`api/auth.py`, `outbox.py`).
-
-Tri realizime të një ndërfaqeje të vetme:
-
-  - **`SmtpMailer`** — SMTP i vërtetë; në zhvillim, kutia e provës e Mailtrap
-    (`sandbox.smtp.mailtrap.io`). Kredencialet vijnë nga mjedisi dhe nuk
-    shkruhen kurrë në kod ose në depo.
-  - **`ConsoleMailer`** — vetëm zhvillim pa SMTP: shkruan mesazhin te log-u.
-    Log-u mban adresën dhe lidhjen, prandaj nuk përdoret në prodhim.
-  - **`OutboxMailer`** — testet: mban mesazhet në kujtesë.
-
-Asnjë mesazh nuk mban fjalëkalim, token hyrjeje, vlerë laboratorike apo
-përmbajtje dokumenti. Lidhja e konfirmimit mban një token të rastësishëm që
-ruhet vetëm si HMAC te baza.
 """
 
 from __future__ import annotations
@@ -122,9 +105,7 @@ def build_mailer(settings: Settings) -> Mailer:
     )
 
 
-# --------------------------------------------------------------------
 # Mesazhet
-# --------------------------------------------------------------------
 
 
 def confirmation_message(link: str, hours: int) -> tuple[str, str]:

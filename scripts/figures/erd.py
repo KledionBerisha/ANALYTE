@@ -1,14 +1,6 @@
 """
 Figura 7 — diagrami entitet-lidhje i bazës së të dhënave.
 
-Tabelat, çelësat primarë, çelësat e huaj dhe kardinaliteti lexohen nga
-`Base.metadata` (`persistence/tables.py`), jo nga një kopje e shtypur. Kutitë
-tregojnë vetëm çelësat dhe numrin e kolonave të tjera: me njëzet kolona për
-gjetje laboratorike, figura do të ishte e palexueshme në gjerësinë e një
-faqeje, dhe skema e plotë është Shtojca G.
-
-Vendosja në faqe është e shkruar me dorë; `check_positions` dështon nëse një
-tabelë e re nuk ka vend, që figura të mos heqë një tabelë pa u vënë re.
 """
 
 from __future__ import annotations
@@ -116,10 +108,13 @@ def _lines(table: Table) -> list[tuple[str, str]]:
 
 def _size(table: Table) -> tuple[float, float, list[tuple[str, str]]]:
     lines = _lines(table)
-    width = max(
-        len(table.name) * 0.064,
-        max(len(f"{tag:<3} {text}") for tag, text in lines) * CHAR,
-    ) + 0.24
+    width = (
+        max(
+            len(table.name) * 0.064,
+            max(len(f"{tag:<3} {text}") for tag, text in lines) * CHAR,
+        )
+        + 0.24
+    )
     return width, 0.24 + LINE * len(lines), lines
 
 
@@ -150,21 +145,46 @@ def build():
     centers = _layout(sizes)
 
     boxes: dict[str, style.Box] = {}
-    for name, table in tables.items():
+    for name in tables:
         width, height, lines = sizes[name]
         cx, cy = centers[name]
         boxes[name] = style.box(ax, cx, cy, width, height, "", fill=style.SURFACE, lw=1.0)
         top = cy + height / 2
-        style.box(ax, cx, top - 0.11, width, 0.22, name, fill=style.BLUE_TINT,
-                  size=7, weight="bold", lw=1.0)
+        style.box(
+            ax,
+            cx,
+            top - 0.11,
+            width,
+            0.22,
+            name,
+            fill=style.BLUE_TINT,
+            size=7,
+            weight="bold",
+            lw=1.0,
+        )
         for i, (tag, text) in enumerate(lines):
             y = top - 0.22 - LINE * (i + 0.6)
             note = tag == ""
-            style.label(ax, cx - width / 2 + 0.09, y, tag, size=6.2,
-                        color=style.BLUE_DEEP, ha="left", weight="bold")
-            style.label(ax, cx - width / 2 + 0.09 + (0 if note else 0.27), y, text,
-                        size=6.2, ha="left", style="italic" if note else "normal",
-                        color=style.MUTED if note else style.INK)
+            style.label(
+                ax,
+                cx - width / 2 + 0.09,
+                y,
+                tag,
+                size=6.2,
+                color=style.BLUE_DEEP,
+                ha="left",
+                weight="bold",
+            )
+            style.label(
+                ax,
+                cx - width / 2 + 0.09 + (0 if note else 0.27),
+                y,
+                text,
+                size=6.2,
+                ha="left",
+                style="italic" if note else "normal",
+                color=style.MUTED if note else style.INK,
+            )
 
     relation_list = relations()
     starts = _fan_starts(boxes, relation_list)
@@ -176,15 +196,29 @@ def build():
             start, end = starts[(parent, child)], (b.left, b.cy)
         else:
             start, end = a.anchor((b.cx, b.cy)), b.anchor((a.cx, a.cy))
-        style.arrow(ax, start, end, head=False, lw=1.0, ls="--" if logical else "-",
-                    color=style.MUTED if logical else style.INK)
+        style.arrow(
+            ax,
+            start,
+            end,
+            head=False,
+            lw=1.0,
+            ls="--" if logical else "-",
+            color=style.MUTED if logical else style.INK,
+        )
         if logical:
             continue
         if (parent, child) in starts:
             # Fëmijët e një kolone ndajnë një "1" të vetëm te prindi; "N" qëndron
             # në të majtë të kutisë së fëmijës, jashtë kornizës.
-            style.label(ax, end[0] - 0.13, end[1] + 0.11, "1" if one_to_one else "N",
-                        size=6.5, color=style.INK, weight="bold")
+            style.label(
+                ax,
+                end[0] - 0.13,
+                end[1] + 0.11,
+                "1" if one_to_one else "N",
+                size=6.5,
+                color=style.INK,
+                weight="bold",
+            )
         else:
             _mark(ax, start, end, "1")
             _mark(ax, end, start, "1" if one_to_one else "N")
@@ -225,7 +259,19 @@ def _mark(ax, origin, toward, text: str) -> None:
 
 
 def _key(ax) -> None:
-    style.label(ax, 0.1, 0.3, "PK çelës primar  ·  FK çelës i huaj  ·  1 — N  një prind, shumë fëmijë",
-                size=6.8, ha="left")
-    style.label(ax, 0.1, 0.1, "vija e ndërprerë (ref): lidhje logjike pa çelës të huaj, me qëllim",
-                size=6.8, ha="left")
+    style.label(
+        ax,
+        0.1,
+        0.3,
+        "PK çelës primar  ·  FK çelës i huaj  ·  1 — N  një prind, shumë fëmijë",
+        size=6.8,
+        ha="left",
+    )
+    style.label(
+        ax,
+        0.1,
+        0.1,
+        "vija e ndërprerë (ref): lidhje logjike pa çelës të huaj, me qëllim",
+        size=6.8,
+        ha="left",
+    )

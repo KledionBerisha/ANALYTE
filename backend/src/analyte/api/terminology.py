@@ -1,9 +1,6 @@
 """
 Fjalori publik — nga `resources/terminology.csv`, burimi i vetëm.
 
-Nuk kërkon hyrje: fjalori nuk mban të dhëna të askujt. Burimi i secilit zë
-kthehet bashkë me shpjegimin, edhe kur është ende vendmbajtëse; fshehja e
-tij do ta paraqiste tabelën më të verifikuar seç është.
 """
 
 from __future__ import annotations

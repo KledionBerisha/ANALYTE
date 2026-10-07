@@ -4,11 +4,6 @@ Skema OpenAPI e shërbimit, për tipat e ndërfaqes.
     python scripts/export_openapi.py
     cd frontend && npm run api:types
 
-Skema nxirret pa nisur shërbimin: aplikacioni ndërtohet me sekrete të
-rastësishme dhe me bazë në kujtesë, sepse skema varet vetëm nga pikat
-fundore dhe modelet, jo nga konfigurimi. Tipat e ndërfaqes dalin prej saj
-dhe nuk shkruhen me dorë — një tip i shkruar me dorë largohet nga API-ja
-që ditën e dytë.
 """
 
 from __future__ import annotations
@@ -23,14 +18,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend" / "src"))
 sys.path.insert(0, str(ROOT))
 
-from cryptography.fernet import Fernet  # noqa: E402
+from cryptography.fernet import Fernet
 
-from analyte.config import Settings  # noqa: E402
-from analyte.generation.templates import TemplateGenerator  # noqa: E402
-from analyte.main import create_app  # noqa: E402
-from analyte.orchestration.tasks import InlineRunner, Services  # noqa: E402
-from analyte.persistence.database import make_engine, make_session_factory  # noqa: E402
-from analyte.persistence.storage import EncryptedStore  # noqa: E402
+from analyte.config import Settings
+from analyte.generation.templates import TemplateGenerator
+from analyte.main import create_app
+from analyte.orchestration.tasks import InlineRunner, Services
+from analyte.persistence.database import make_engine, make_session_factory
+from analyte.persistence.storage import EncryptedStore
 
 OUT = ROOT / "frontend" / "src" / "lib" / "api" / "openapi.json"
 

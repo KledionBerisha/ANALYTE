@@ -1,19 +1,6 @@
 """
 Politika e sigurisë si rregull: SP1-SP3.
 
-Tri ndalime — diagnoza, trajtimi, prognoza — zbatohen me një rregull të
-vetëm, sepse të tria kanë të njëjtën pasojë: teksti ndalohet, pavarësisht
-se cili prej tyre u shkel.
-
-Shenjat janë leksikore dhe lista mbahet e shkurtër e lexueshme. Kjo e bën
-rregullin të anashkalueshëm nga një formulim i zgjuar, dhe kjo pranohet:
-ai është shtresa e fundit dhe jo e vetmja. Shpjegimi vjen nga një model i
-udhëzuar shprehimisht të mos i lëshojë këto pohime, dhe konteksti që i
-jepet nuk përmban asgjë diagnostike për të riprodhuar.
-
-Alternativa — një klasifikues i trajnuar për qëllimin — do të kërkonte
-korpus të anotuar që nuk ekziston për shqipen, dhe do ta zëvendësonte një
-dobësi të dukshme me një të padukshme.
 """
 
 from __future__ import annotations

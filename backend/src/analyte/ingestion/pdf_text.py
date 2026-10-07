@@ -1,20 +1,6 @@
 """
 Leximi i shtresës së tekstit të një PDF-je, me pozicione.
 
-PDF-ja nuk ruan tabela. Ajo ruan vargje teksti të vendosura në
-koordinata, dhe "rreshti" është diçka që ne e rindërtojmë prej tyre.
-Prandaj moduli kthen fragmente me kuti dhe i grupon në rreshta sipas
-lartësisë — çdo gjë që ndodhet në të njëjtën vijë bazë i përket të njëjtit
-rresht, pavarësisht sa larg janë horizontalisht.
-
-Toleranca vertikale është e vogël me qëllim. Një dokument dixhital i
-vizatuar ka vija bazë të sakta; nëse ato nuk përputhen, ka të ngjarë të
-jenë vërtet rreshta të ndryshëm. Faqja e skanuar dhe e anuar është
-problem tjetër dhe trajtohet nga rruga e OCR-së, jo duke e zbutur këtë
-tolerancë derisa të bashkojë gjëra që nuk shkojnë bashkë.
-
-Koordinatat janë me origjinë lart-majtas, ashtu si i jep PyMuPDF dhe
-ashtu si i ruan gjeneruesi.
 """
 
 from __future__ import annotations
@@ -131,6 +117,5 @@ def group_into_rows(fragments: list[TextFragment], page: int) -> tuple[TextRow, 
             rows.append([fragment])
 
     return tuple(
-        TextRow(page=page, fragments=tuple(sorted(row, key=lambda f: f.x0)))
-        for row in rows
+        TextRow(page=page, fragments=tuple(sorted(row, key=lambda f: f.x0))) for row in rows
     )

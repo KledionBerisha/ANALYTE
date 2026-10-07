@@ -1,11 +1,6 @@
 """
 Stili i përbashkët i figurave.
 
-Figurat shtypen, shpesh bardhezi, prandaj asnjë kuptim nuk mbahet vetëm nga
-ngjyra: gjendja dallohet edhe nga mbushja, nga lloji i kornizës dhe nga një
-fjalë. Ngjyrat janë ato të paletës së referencës (një nuancë blu dhe gri
-neutrale); një nuancë e vetme nuk ka çift që të ngatërrohet për sy që dallojnë
-keq ngjyrat, ndaj këtu nuk ka çfarë të validohet mes çifteve.
 """
 
 from __future__ import annotations
@@ -18,10 +13,10 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-import matplotlib.pyplot as plt  # noqa: E402
-from matplotlib.axes import Axes  # noqa: E402
-from matplotlib.figure import Figure  # noqa: E402
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch  # noqa: E402
+import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 INK = "#0b0b0b"
 MUTED = "#52514e"
@@ -212,8 +207,16 @@ def label(
     style: str = "normal",
 ) -> None:
     ax.text(
-        x, y, text, ha=ha, va=va, fontsize=size, color=color, fontweight=weight,
-        fontstyle=style, zorder=6,
+        x,
+        y,
+        text,
+        ha=ha,
+        va=va,
+        fontsize=size,
+        color=color,
+        fontweight=weight,
+        fontstyle=style,
+        zorder=6,
     )
 
 

@@ -1,9 +1,6 @@
 """
 Testet e kontratës së domenit.
 
-Këto teste nuk kontrollojnë sjellje biznesi — ato kontrollojnë që
-gjendjet e pamundura janë vërtet të pamundura. Çdo test që dështon këtu
-tregon se një shtresë tjetër mund të prodhojë të dhëna të pavlefshme.
 """
 
 from decimal import Decimal
@@ -29,15 +26,12 @@ from analyte.domain.models import (
     CrossReference,
     GroundingContext,
     ReportAssertion,
-    Violation,
     VerificationResult,
+    Violation,
 )
 from tests.fixtures.grounding_context import build_reference_context
 
-
-# --------------------------------------------------------------------
 # Fixture-i referues
-# --------------------------------------------------------------------
 
 
 @pytest.fixture
@@ -61,9 +55,7 @@ def test_reference_context_covers_all_cross_reference_states(ctx):
     assert CrossReferenceState.MEASURED_NOT_MENTIONED in states
 
 
-# --------------------------------------------------------------------
 # Serializimi — round-trip
-# --------------------------------------------------------------------
 
 
 def test_context_round_trip_preserves_everything(ctx):
@@ -87,7 +79,7 @@ def test_decimal_precision_survives_round_trip():
 
 def test_models_are_immutable(ctx):
     with pytest.raises(ValidationError):
-        ctx.findings[0].value = Decimal("999")  # type: ignore[misc]
+        ctx.findings[0].value = Decimal(999)  # type: ignore[misc]
 
 
 def test_unknown_field_is_rejected():
@@ -106,9 +98,7 @@ def test_unknown_field_is_rejected():
         )
 
 
-# --------------------------------------------------------------------
 # SP5 — pa interval referent nuk ka interpretim
-# --------------------------------------------------------------------
 
 
 def _finding(**overrides):
@@ -117,12 +107,12 @@ def _finding(**overrides):
         analyte_name_raw="Glukoza",
         analyte_name_canonical="Glukozë në serum",
         value_raw="128",
-        value=Decimal("128"),
+        value=Decimal(128),
         unit_raw="mg/dL",
         unit_canonical="mg/dL",
-        value_canonical=Decimal("128"),
-        ref_low=Decimal("70"),
-        ref_high=Decimal("99"),
+        value_canonical=Decimal(128),
+        ref_low=Decimal(70),
+        ref_high=Decimal(99),
         ref_source=ReferenceSource.DOCUMENT,
         status=AnalyteStatus.HIGH,
         severity=Decimal("1.0"),
@@ -155,7 +145,7 @@ def test_reference_source_none_with_bounds_is_rejected():
 
 def test_inverted_interval_is_rejected():
     with pytest.raises(ValidationError, match="ref_low"):
-        _finding(ref_low=Decimal("99"), ref_high=Decimal("70"))
+        _finding(ref_low=Decimal(99), ref_high=Decimal(70))
 
 
 def test_severity_required_for_abnormal_status():
@@ -166,16 +156,14 @@ def test_severity_required_for_abnormal_status():
 def test_severity_forbidden_for_normal_status():
     with pytest.raises(ValidationError, match="severity"):
         _finding(
-            value=Decimal("85"),
-            value_canonical=Decimal("85"),
+            value=Decimal(85),
+            value_canonical=Decimal(85),
             status=AnalyteStatus.NORMAL,
             severity=Decimal("0.2"),
         )
 
 
-# --------------------------------------------------------------------
 # Statuset dhe drejtimi (R3)
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -204,24 +192,22 @@ def test_uninterpretable_is_not_abnormal():
     assert not AnalyteStatus.UNINTERPRETABLE.is_critical
 
 
-# --------------------------------------------------------------------
 # Ndihmësat e verifikimit
-# --------------------------------------------------------------------
 
 
 def test_grounded_numbers_include_value_and_bounds(ctx):
     glu = next(f for f in ctx.findings if f.analyte_code == "2345-7")
     nums = glu.grounded_numbers()
-    assert Decimal("128") in nums
-    assert Decimal("70") in nums and Decimal("99") in nums
+    assert Decimal(128) in nums
+    assert Decimal(70) in nums and Decimal(99) in nums
 
 
 def test_all_grounded_numbers_excludes_absent_values(ctx):
     """Numri që nuk gjendet askund në kontekst duhet të konsiderohet i
     pambështetur — kjo është baza e rregullit R1."""
     nums = ctx.all_grounded_numbers()
-    assert Decimal("6.9") in nums          # kaliumi
-    assert Decimal("250") not in nums      # i shpikur
+    assert Decimal("6.9") in nums  # kaliumi
+    assert Decimal(250) not in nums  # i shpikur
 
 
 def test_critical_findings_are_isolated(ctx):
@@ -246,9 +232,7 @@ def test_empty_context_is_detected():
     assert empty.is_empty()
 
 
-# --------------------------------------------------------------------
 # Integriteti i kontekstit
-# --------------------------------------------------------------------
 
 
 def test_cross_ref_to_unknown_finding_is_rejected():
@@ -306,9 +290,7 @@ def test_assertion_span_must_be_ordered():
         )
 
 
-# --------------------------------------------------------------------
 # Shkeljet dhe rezultati i verifikimit
-# --------------------------------------------------------------------
 
 
 def _violation(**overrides):
@@ -337,9 +319,7 @@ def test_classifier_violation_may_have_confidence():
 
 
 def test_verification_passes_only_without_violations():
-    clean = VerificationResult(
-        explanation_id=uuid4(), rules_version="r1.0", duration_ms=12
-    )
+    clean = VerificationResult(explanation_id=uuid4(), rules_version="r1.0", duration_ms=12)
     assert clean.passed
 
     dirty = VerificationResult(
@@ -377,9 +357,7 @@ def test_violation_types_map_to_correct_branch():
     assert ViolationType.POLARITY_FLIP.branch == "B"
 
 
-# --------------------------------------------------------------------
 # Makina e gjendjeve
-# --------------------------------------------------------------------
 
 
 def test_terminal_states():

@@ -4,27 +4,6 @@ Shembujt e shkruar me dorë: përgatitja dhe matja e tyre.
     python -m evaluation.kits build     # shkruan kontekstet dhe skeletet
     python -m evaluation.kits check     # mat atë që është plotësuar
 
-Korpusi sintetik dhe korpusi i korruptuar dalin nga shabllonet e sistemit, dhe
-çdo zbulues i shkruar me ato shabllone para syve mat kryesisht sa mirë i
-mban mend ato. Tri grupet këtu shkruhen nga autori, me fjalët e veta, dhe
-janë e vetmja lëndë e punimit që nuk ka kaluar nëpër gjenerues:
-
-  - **A — shpjegime referuese.** 25 kontekste të fiksuara, secili me
-    shpjegimin që autori do t'i jepte pacientit. Shërbejnë si pikë
-    krahasimi për testin e modelit gjuhësor në shqip, dhe që sot si matja
-    e vetme e alarmeve të rreme të rregullave mbi prozë të natyrshme.
-  - **B — fjali me defekt.** Fjali të daljes, secila me një defekt të
-    vetëm ose asnjë, të shkruara për kontekstet e A-së. Grupi testues i
-    PK6 që nuk rrjedh nga korruptuesit e sistemit.
-  - **C — narrativë mjeku.** Fjali raporti me etiketat e tyre — polariteti,
-    siguria, lloji, analiti, drejtimi. Matja e Degës B jashtë fjalorit të
-    gjeneruesit.
-
-Kontekstet e A-së janë të shkurtuara: dokumenti sintetik mbart deri në
-njëzet analite, dhe njëzet e pesë shpjegime të tilla do të ishin punë
-javësh. Shkurtimi ruan gjetjet jonormale, kritike dhe pa interval, ato që
-mjeku i përmend, dhe dy normale; krahasimi i kryqëzuar dhe kombinimet
-rindërtohen mbi gjetjet që mbetën.
 """
 
 from __future__ import annotations
@@ -90,9 +69,7 @@ STATUS_SQ = {
 }
 
 
-# --------------------------------------------------------------------
 # Kontekstet e A-së
-# --------------------------------------------------------------------
 
 
 @lru_cache(maxsize=1)
@@ -198,7 +175,12 @@ def render_contexts(contexts: tuple[tuple[str, GroundingContext], ...]) -> str:
         "",
     ]
     for kit_id, context in contexts:
-        lines += [f"## {kit_id}", "", "| Analiti | Vlera | Intervali | Statusi |", "|---|---|---|---|"]
+        lines += [
+            f"## {kit_id}",
+            "",
+            "| Analiti | Vlera | Intervali | Statusi |",
+            "|---|---|---|---|",
+        ]
         for f in context.findings:
             interval = "—"
             if f.ref_low is not None and f.ref_high is not None:
@@ -233,7 +215,10 @@ def render_contexts(contexts: tuple[tuple[str, GroundingContext], ...]) -> str:
             lines += ["", "**Terma që lejohen të shpjegohen:**", ""]
             lines += [f"- {e.term} — {e.explanation_sq}" for e in context.glossary]
         if context.unexplained_terms:
-            lines += ["", "**Terma që nuk shpjegohen (SP6):** " + ", ".join(context.unexplained_terms)]
+            lines += [
+                "",
+                "**Terma që nuk shpjegohen (SP6):** " + ", ".join(context.unexplained_terms),
+            ]
         lines += ["", "---", ""]
     return "\n".join(lines)
 
@@ -251,9 +236,7 @@ def skeleton_explanations(contexts: tuple[tuple[str, GroundingContext], ...]) ->
     return "\n".join(lines)
 
 
-# --------------------------------------------------------------------
 # Leximi i asaj që shkroi autori
-# --------------------------------------------------------------------
 
 
 HEADING = re.compile(r"^##\s+(A\d\d)\s*$", re.MULTILINE)
@@ -297,9 +280,7 @@ def read_rows(
         ]
 
 
-# --------------------------------------------------------------------
 # Matja
-# --------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
@@ -363,7 +344,9 @@ def check_sentences(
             errors.append(RowError(row["id"], str(problem)))
             continue
         actual = None if row["etiketa"] == "clean" else ViolationType(row["etiketa"])
-        judgements.append(Judgement(actual, _single_label(verify(context, text, rules=rules).violations)))
+        judgements.append(
+            Judgement(actual, _single_label(verify(context, text, rules=rules).violations))
+        )
 
     return detector.measure(judgements), errors
 
@@ -441,9 +424,7 @@ def check_narrative(rows: list[dict[str, str]]) -> tuple[dict[str, Any], list[Ro
     return {"sentences": measured, "accuracy": accuracy, "confusion": confusions}, errors
 
 
-# --------------------------------------------------------------------
 # CLI
-# --------------------------------------------------------------------
 
 
 def build(directory: Path = KIT_DIR) -> list[Path]:

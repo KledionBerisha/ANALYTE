@@ -1,29 +1,6 @@
 """
 Njohja optike: faqja si fotografi → rreshta me pozicione.
 
-Dalja ka të njëjtën formë si ajo e shtresës së tekstit — `PageText` me
-rreshta dhe kuti — që nxjerrësi të mos dijë nga cila rrugë erdhi faqja.
-Ndryshimi i vetëm është cilësia, dhe pikërisht ajo matet te E2.
-
-**Rreshtat i ndërton Tesseract-i, jo toleranca e vijës bazë.** Skanimi i
-anuar 1° e zhvendos vijën bazë rreth 10 pikë nga njëri skaj i faqes te
-tjetri — më shumë se trefishi i tolerancës që përdor shtresa e tekstit.
-Tesseract-i i gjen rreshtat duke ndjekur vetë vijën e anuar, prandaj
-grupimi i tij përdoret drejtpërdrejt.
-
-**Drejtimi i faqes korrigjohet para leximit.** Këndi gjendet duke provuar
-rrotullime të vogla dhe duke zgjedhur atë që i bën rreshtat më të mprehtë
-në projeksionin horizontal. Tesseract-i e duron një anim të vogël, por jo
-pa kosto te shifrat, dhe shifrat janë gjithçka këtu.
-
-**Asnjë korrigjim i përmbajtjes.** Nëse OCR-ja lexon "157" aty ku shkruhet
-"15,7", ky modul nuk e di dhe nuk e hamendëson. Vlera e gabuar ose kalon
-te nxjerrësi si e tillë, ose refuzohet prej tij; në të dy rastet ajo
-shfaqet në rezultatet e E2, jo e fshehur pas një "rregullimi".
-
-Motori thirret si program i jashtëm. Rruga e tij dhe e të dhënave të
-gjuhës lexohen nga `ANALYTE_TESSERACT` dhe `ANALYTE_TESSDATA`, me vendet
-e zakonshme si parazgjedhje.
 """
 
 from __future__ import annotations

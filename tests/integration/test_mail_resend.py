@@ -1,15 +1,6 @@
 """
 Dërgimi me rishikim dhe rindërgimi i mesazheve të humbura (ADR 0018).
 
-Pohimet më të rëndësishme:
-
-  - **Dërgimi provohet disa herë** me pritje, dhe një dështim përfundimtar lë rreshtin `pending` dhe një ngjarje
-    auditimi me vetëm llojin e gabimit.
-  - **Kalimi periodik lëshon token të ri**, sepse tokeni i vjetër nuk rikthehet (ruhet vetëm HMAC-u): lidhja e vjetër
-    pushon, e reja vlen.
-  - **Kalimi është i kufizuar**: nuk prek mesazhe të dërguara, të përdorura ose të skaduara, nuk vepron para kohës së
-    pritjes, dhe nuk lëshon më shumë se kufiri ditor për përdorues.
-  - **Regjistri i dërgimit nuk mban adresë, lidhje apo tekst.**
 """
 
 from __future__ import annotations
@@ -84,21 +75,27 @@ def broken_world(tmp_path):
     return w
 
 
-# --------------------------------------------------------------------
 # Rishikimi në sfond
-# --------------------------------------------------------------------
 
 
-def test_a_failing_transport_is_tried_the_configured_number_of_times_then_left_pending(broken_world):
+def test_a_failing_transport_is_tried_the_configured_number_of_times_then_left_pending(
+    broken_world,
+):
     w = broken_world
     assert w.register().status_code == 202
     assert w.mailer.calls == 3  # mail_send_attempts
     (row,) = _deliveries(w)
     assert (row.status, row.attempts, row.last_error, row.origin, row.kind) == (
-        "pending", 3, "ConnectionRefusedError", "request", "confirmation",
+        "pending",
+        3,
+        "ConnectionRefusedError",
+        "request",
+        "confirmation",
     )
     assert row.sent_at is None
-    assert [e.payload for e in w.audit("mail.failed")] == [{"error_type": "ConnectionRefusedError"}]  # një, jo tri
+    assert [e.payload for e in w.audit("mail.failed")] == [
+        {"error_type": "ConnectionRefusedError"}
+    ]  # një, jo tri
 
 
 def test_a_transient_failure_is_retried_and_the_mail_arrives(tmp_path):
@@ -141,7 +138,10 @@ def test_the_delivery_record_holds_no_address_link_or_text(tmp_path):
     w.confirmed("tjeter@shembull.al")
     w.forgot("tjeter@shembull.al")
     columns = (
-        "kind", "origin", "status", "last_error",
+        "kind",
+        "origin",
+        "status",
+        "last_error",
     )
     for row in _deliveries(w):
         dump = " ".join(str(getattr(row, c)) for c in columns)
@@ -149,8 +149,17 @@ def test_the_delivery_record_holds_no_address_link_or_text(tmp_path):
     assert {r.kind for r in _deliveries(w)} == {"confirmation", "password_reset"}
     # asnjë kolonë e tabelës nuk është e llojit tekst i lirë
     assert {c.name for c in MailDeliveryRow.__table__.columns} == {
-        "id", "user_id", "kind", "token_id", "origin", "status", "attempts", "last_error",
-        "created_at", "last_attempt_at", "sent_at",
+        "id",
+        "user_id",
+        "kind",
+        "token_id",
+        "origin",
+        "status",
+        "attempts",
+        "last_error",
+        "created_at",
+        "last_attempt_at",
+        "sent_at",
     }
 
 
@@ -162,16 +171,20 @@ def test_mails_without_a_token_are_sent_with_retry_but_have_no_record(tmp_path):
     from analyte.security import hash_password
 
     with w.db() as db:
-        db.add(UserRow(email=EMAIL, password_hash=hash_password(PASSWORD), email_confirmed_at=datetime.now(UTC)))
+        db.add(
+            UserRow(
+                email=EMAIL,
+                password_hash=hash_password(PASSWORD),
+                email_confirmed_at=datetime.now(UTC),
+            )
+        )
         db.commit()
     w.register()
     assert flaky.calls == 2 and len(flaky.to(EMAIL)) == 1
     assert _deliveries(w) == []
 
 
-# --------------------------------------------------------------------
 # Kalimi periodik
-# --------------------------------------------------------------------
 
 
 def test_the_sweep_issues_a_fresh_token_and_the_old_link_stops_working(broken_world):
@@ -187,7 +200,9 @@ def test_the_sweep_issues_a_fresh_token_and_the_old_link_stops_working(broken_wo
     (message,) = working.to(EMAIL)
     new_token = token_in(message)
     with w.db() as db:
-        row = db.scalars(select(EmailConfirmationRow)).one()  # i vjetri u shfuqizua, vetëm i riu mbetet
+        row = db.scalars(
+            select(EmailConfirmationRow)
+        ).one()  # i vjetri u shfuqizua, vetëm i riu mbetet
         assert row.token_key != old_key
     first, second = _deliveries(w)
     assert (first.status, first.origin) == ("superseded", "request")
@@ -232,7 +247,9 @@ def test_an_expired_link_is_marked_expired_and_nothing_is_sent(tmp_path):
     w = World(tmp_path, mailer=mailer)
     w.register()
     working = OutboxMailer()
-    report = _sweep(w, working, now=datetime.now(UTC) + timedelta(hours=w.settings.confirm_token_hours + 1))
+    report = _sweep(
+        w, working, now=datetime.now(UTC) + timedelta(hours=w.settings.confirm_token_hours + 1)
+    )
     assert (report.expired, report.reissued) == (1, 0)
     assert working.sent == []
 
@@ -246,7 +263,8 @@ def test_a_link_replaced_by_the_user_meanwhile_is_not_resent(broken_world):
     assert len(pending) == 2
     working = OutboxMailer()
     report = _sweep(w, working, now=_later())
-    assert report.expired == 1 and report.reissued == 1  # i vjetri skadon, vetëm i fundit rilëshohet
+    # i vjetri skadon, vetëm i fundit rilëshohet
+    assert report.expired == 1 and report.reissued == 1
     assert len(working.sent) == 1
 
 
@@ -283,7 +301,10 @@ def test_the_limit_is_per_user_not_global(tmp_path):
     w.register("b@shembull.al")
     working = OutboxMailer()
     report = _sweep(w, working, now=_later())
-    assert report.reissued == 2 and {m.to for m in working.sent} == {"a@shembull.al", "b@shembull.al"}
+    assert report.reissued == 2 and {m.to for m in working.sent} == {
+        "a@shembull.al",
+        "b@shembull.al",
+    }
 
 
 def test_the_sweep_handles_at_most_limit_messages_per_run(tmp_path):
@@ -302,7 +323,11 @@ def test_a_sweep_that_still_cannot_send_leaves_the_new_record_pending(broken_wor
     report = _sweep(w, Broken(), now=_later())
     assert (report.reissued, report.sent, report.failed) == (1, 0, 1)
     last = _deliveries(w)[-1]
-    assert (last.status, last.origin, last.last_error) == ("pending", "sweep", "ConnectionRefusedError")
+    assert (last.status, last.origin, last.last_error) == (
+        "pending",
+        "sweep",
+        "ConnectionRefusedError",
+    )
 
 
 def test_the_sweep_resends_password_reset_mail_too_with_a_fresh_token(tmp_path):
@@ -312,7 +337,13 @@ def test_the_sweep_resends_password_reset_mail_too_with_a_fresh_token(tmp_path):
     from analyte.security import hash_password
 
     with w.db() as db:
-        db.add(UserRow(email=EMAIL, password_hash=hash_password(PASSWORD), email_confirmed_at=datetime.now(UTC)))
+        db.add(
+            UserRow(
+                email=EMAIL,
+                password_hash=hash_password(PASSWORD),
+                email_confirmed_at=datetime.now(UTC),
+            )
+        )
         db.commit()
     flaky.failures = 3  # transporti pushon pikërisht kur kërkohet rivendosja
     w.forgot()
@@ -337,7 +368,9 @@ def test_the_audit_log_of_a_failed_sweep_holds_only_the_failure_kind(broken_worl
     w.register()
     _sweep(w, Broken(), now=_later())
     with w.db() as db:
-        events = list(db.scalars(select(AuditEventRow).where(AuditEventRow.event_type.like("mail.%"))))
+        events = list(
+            db.scalars(select(AuditEventRow).where(AuditEventRow.event_type.like("mail.%")))
+        )
     for event in events:
         dump = str(event.payload)
         assert "shembull" not in dump and "http" not in dump and "token" not in dump
@@ -347,7 +380,11 @@ def test_the_audit_log_of_a_failed_sweep_holds_only_the_failure_kind(broken_worl
 def test_old_delivery_records_are_deleted(broken_world):
     w = broken_world
     w.register()
-    _sweep(w, OutboxMailer(), now=datetime.now(UTC) + timedelta(days=w.settings.mail_delivery_retention_days + 1))
+    _sweep(
+        w,
+        OutboxMailer(),
+        now=datetime.now(UTC) + timedelta(days=w.settings.mail_delivery_retention_days + 1),
+    )
     assert _deliveries(w) == []  # regjistri i vjetër fshihet; asgjë më nuk pret
 
 
@@ -357,7 +394,8 @@ def test_the_worker_schedules_the_sweep_and_skips_it_without_mail_configuration(
     from analyte.orchestration import worker
 
     names = [job.name for job in worker.WorkerSettings.cron_jobs]
-    assert "cron:resend_unsent_job" in names  # puna e rindërgimit është e planifikuar (bashkë me atë të fshirjes, ADR 0019)
+    # puna e rindërgimit është e planifikuar (bashkë me atë të fshirjes, ADR 0019)
+    assert "cron:resend_unsent_job" in names
     import asyncio
 
     asyncio.run(worker.resend_unsent_job({"mailer": None}))  # pa postë: nuk bën asgjë, nuk hedh

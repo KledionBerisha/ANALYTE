@@ -3,25 +3,6 @@ E12 — modeli gjuhësor si gjykatës (PK6): detektori i tretë.
 
     python -m evaluation.llm_judge --n 200 --split test      # E10 + grupi B
 
-Gjykatësi merr po atë që marrin rregullat dhe klasifikuesi i kontekstit:
-kontekstin e strukturuar dhe tekstin e një shpjegimi, dhe kthen një etiketë —
-një nga llojet e shkeljeve të katalogut, ose `clean`. Mostrat janë të njëjtat
-192 tekste të E10 dhe 105 rreshtat e grupit B, pra tre detektorët krahasohen
-mbi të njëjtën lëndë.
-
-**Çfarë i jepet.** Përkufizimet e rregullave R1–R9 dhe SP1–3 nga katalogu
-(`RULE_CATALOG`), jo kodi i rregullave. Nuk i thuhet cilat forma i njeh
-verifikuesi ("i lartë" kundrejt "mbi intervalin"): gjykatësi duhet të kuptojë
-tekstin, jo të përsërisë një fjalor.
-
-**Një etiketë për tekst**, si te E10 dhe te klasifikuesi (`_single_label`):
-mostra mban një defekt ose asnjë. Një përgjigje që nuk lexohet si etiketë e
-njohur numërohet si "asnjë defekt" dhe raportohet veçmas (`unparsed`); nuk
-fshihet, sepse një gjykatës që përgjigjet pa formë nuk e ka zbuluar defektin.
-
-**Kufizim që duhet raportuar:** nëse `ANALYTE_LLM_JUDGE_MODEL` është bosh,
-gjykatësi është i njëjti model që gjeneron te E6–E9; një model që gjykon
-daljen e vet mund ta favorizojë atë. Rezultati e shënon `judge_equals_generator`.
 """
 
 from __future__ import annotations
@@ -52,10 +33,11 @@ SYSTEM = (
     "Vendos nëse shpjegimi e shkel kontekstin. Shpjegimi ka më së shumti NJË shkelje.\n\n"
     "Llojet e shkeljeve:\n"
     + "\n".join(
-        f"- {violation.value}: {rule.description_sq}" for violation, rule in RULE_BY_VIOLATION.items()
+        f"- {violation.value}: {rule.description_sq}"
+        for violation, rule in RULE_BY_VIOLATION.items()
     )
-    + "\n\nKthe vetëm një rresht JSON të formës {\"label\": \"...\"}, ku label është ose "
-    f"një nga ({', '.join(LABELS)}), ose \"{CLEAN}\" nëse shpjegimi nuk e shkel kontekstin. "
+    + '\n\nKthe vetëm një rresht JSON të formës {"label": "..."}, ku label është ose '
+    f'një nga ({", ".join(LABELS)}), ose "{CLEAN}" nëse shpjegimi nuk e shkel kontekstin. '
     "Mos shpjego asgjë."
 )
 
@@ -158,9 +140,7 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = get_settings()
     try:
-        client = StrictClient(
-            build_client(settings, role="judge", cache_dir=args.llm_cache)
-        )
+        client = StrictClient(build_client(settings, role="judge", cache_dir=args.llm_cache))
     except ProviderError as error:
         raise SystemExit(f"E12: {error}") from None
 

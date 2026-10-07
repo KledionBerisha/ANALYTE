@@ -1,27 +1,6 @@
 """
 Tokenët e lidhjeve me email, dërgimi me rishikim dhe rindërgimi i mesazheve të humbura (ADR 0018).
 
-**Problemi.** Lidhja ruhet në bazë para se mesazhi të nisë (ADR 0016), dhe mesazhi nis nga një detyrë në sfond
-pas përgjigjes. Nëse transporti dështon, ose procesi ndalet midis ruajtjes dhe dërgimit, tokeni ekziston por
-mesazhi s'ka mbërritur, dhe përdoruesi duhet ta kërkojë vetë një të ri.
-
-**Regjistri i dërgimit.** Çdo mesazh me lidhje (konfirmim, rivendosje) ka një rresht te `mail_deliveries`: lloji,
-tokeni që mbart (`token_id`), sa herë u provua dhe lloji i gabimit të fundit. Rreshti nuk mban adresë, lidhje apo
-tekst; adresa nxirret nga `users` kur duhet.
-
-**Rishikimi në sfond** (`deliver`): dërgimi provohet deri `mail_send_attempts` herë me pritje që dyfishohet. Një
-dështim përfundimtar lë rreshtin `pending` dhe një ngjarje auditimi me llojin e gabimit.
-
-**Kalimi periodik** (`resend_unsent`, i thirrur nga punëtori arq): merr mesazhet `pending` që kanë pritur
-`mail_resend_after_minutes`. **Tokeni i vjetër nuk rikthehet**: ruhet vetëm si HMAC, prandaj lidhja e plotë nuk
-mund të ndërtohet sërish, dhe të ruhej e pastër do ta prishte vetinë që një kopje e bazës nuk jep lidhje të
-përdorshme. Prandaj kalimi lëshon një token të ri (që shfuqizon të vjetrin të papërdorur), dërgon lidhjen e re,
-dhe e shënon rreshtin e vjetër `superseded`. Kufijtë:
-
-  - vetëm mesazhet me token të papërdorur dhe të pa skaduar (ndryshe `expired`: s'ka çfarë të dërgohet);
-  - jo më shumë se `mail_auto_reissue_per_day` rilëshime automatike për një përdorues në 24 orë, që kalimi të mos
-    përdoret për të mbushur një kuti postare (tejkalimi shënohet `skipped`);
-  - `limit` mesazhe për kalim.
 """
 
 from __future__ import annotations
@@ -32,7 +11,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import NamedTuple
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session, sessionmaker
@@ -74,9 +53,7 @@ class Issued(NamedTuple):
     token_id: UUID
 
 
-# --------------------------------------------------------------------
 # Tokenët dhe mesazhet
-# --------------------------------------------------------------------
 
 
 def _base(config: Settings) -> str:
@@ -163,9 +140,7 @@ def prepare_password_reset(
     return Outgoing(user.email, subject, body, delivery)
 
 
-# --------------------------------------------------------------------
 # Dërgimi me rishikim
-# --------------------------------------------------------------------
 
 
 class SendResult(NamedTuple):
@@ -194,7 +169,9 @@ def send_with_retry(
             return SendResult(attempt, None)
         except Exception as caught:  # noqa: BLE001 — çdo dështim i transportit trajtohet njësoj
             error = type(caught).__name__
-            mail.log.warning("dërgimi i email-it dështoi (prova %d nga %d): %s", attempt, attempts, error)
+            mail.log.warning(
+                "dërgimi i email-it dështoi (prova %d nga %d): %s", attempt, attempts, error
+            )
             if attempt < attempts and backoff > 0:
                 sleep(backoff * 2 ** (attempt - 1))
     return SendResult(attempts, error)
@@ -232,9 +209,7 @@ def deliver(app, outgoing: Outgoing) -> None:
     _settle(app.state.sessions, outgoing, result, datetime.now(UTC))
 
 
-# --------------------------------------------------------------------
 # Kalimi periodik
-# --------------------------------------------------------------------
 
 
 @dataclass(slots=True)
@@ -263,7 +238,12 @@ def _reissue(
         user = db.get(UserRow, delivery.user_id)
         token_table = EmailConfirmationRow if delivery.kind == CONFIRMATION else PasswordResetRow
         token = db.get(token_table, delivery.token_id)
-        live = user is not None and token is not None and token.used_at is None and token.expires_at > now
+        live = (
+            user is not None
+            and token is not None
+            and token.used_at is None
+            and token.expires_at > now
+        )
         if live and delivery.kind == CONFIRMATION:
             live = user.email_confirmed_at is None
         if live and delivery.kind == PASSWORD_RESET:
@@ -320,7 +300,8 @@ def resend_unsent(
     with sessions() as db:
         db.execute(
             delete(MailDeliveryRow).where(
-                MailDeliveryRow.created_at < now - timedelta(days=config.mail_delivery_retention_days)
+                MailDeliveryRow.created_at
+                < now - timedelta(days=config.mail_delivery_retention_days)
             )
         )
         db.commit()
@@ -329,7 +310,8 @@ def resend_unsent(
             select(MailDeliveryRow.id)
             .where(
                 MailDeliveryRow.status == PENDING,
-                func.coalesce(MailDeliveryRow.last_attempt_at, MailDeliveryRow.created_at) <= waited,
+                func.coalesce(MailDeliveryRow.last_attempt_at, MailDeliveryRow.created_at)
+                <= waited,
             )
             .order_by(MailDeliveryRow.created_at)
             .limit(limit)

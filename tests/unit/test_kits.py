@@ -1,11 +1,6 @@
 """
 Testet e grupeve të shkruara me dorë.
 
-Këtu nuk testohet cilësia e rregullave — atë e mat autori me fjalitë e
-veta. Testohet që matja të jetë e besueshme para se të ketë çfarë të
-masë: kontekstet janë të qëndrueshme, shablloni i tyre kalon çdo rregull
-(përndryshe çdo fjali e B-së do të merrte shkelje që nuk janë të saj), dhe
-një `build` i dytë nuk fshin punën e autorit.
 """
 
 from __future__ import annotations
@@ -58,9 +53,7 @@ def test_template_passes_every_rule_on_every_kit_context(contexts):
         assert result.passed, (kit_id, [(v.type.value, v.evidence) for v in result.violations])
 
 
-# --------------------------------------------------------------------
 # Skedarët e autorit
-# --------------------------------------------------------------------
 
 
 def test_build_never_overwrites_the_authors_files(tmp_path):
@@ -88,9 +81,7 @@ def test_a_csv_without_the_expected_columns_is_refused(tmp_path):
         kits.read_rows(path, kits.B_COLUMNS)
 
 
-# --------------------------------------------------------------------
 # Matja
-# --------------------------------------------------------------------
 
 
 def test_template_explanations_raise_no_alarm(contexts):
@@ -160,11 +151,19 @@ def test_a_csv_saved_with_a_byte_order_mark_and_quoted_headers_is_read(tmp_path)
     path = tmp_path / "B.csv"
     path.write_bytes(
         b'\xef\xbb\xbf"id","konteksti","fjalia","etiketa","shenim","burimi"\r\n'
-        + '"B001","A01","Një fjali me ë.","clean","",""\r\n'.encode("utf-8")
+        + '"B001","A01","Një fjali me ë.","clean","",""\r\n'.encode()
     )
     rows = kits.read_rows(path, kits.B_COLUMNS, kits.B_OPTIONAL)
-    assert rows == [{"id": "B001", "konteksti": "A01", "fjalia": "Një fjali me ë.",
-                     "etiketa": "clean", "shenim": "", "burimi": ""}]
+    assert rows == [
+        {
+            "id": "B001",
+            "konteksti": "A01",
+            "fjalia": "Një fjali me ë.",
+            "etiketa": "clean",
+            "shenim": "",
+            "burimi": "",
+        }
+    ]
 
 
 def test_a_repeated_row_is_reported_even_when_only_the_final_period_differs():
@@ -173,8 +172,12 @@ def test_a_repeated_row_is_reported_even_when_only_the_final_period_differs():
         {**base, "id": "B1", "fjalia": "Mjeku ka shënuar: MCHC është mbi intervalin referent."},
         {**base, "id": "B2", "fjalia": "Mjeku ka shënuar: MCHC është mbi intervalin referent"},
         {**base, "id": "B3", "fjalia": "Mjeku ka shënuar: MCHC kalon intervalin referent."},
-        {**base, "id": "B4", "fjalia": "Mjeku ka shënuar: MCHC është mbi intervalin referent.",
-         "konteksti": "A14"},
+        {
+            **base,
+            "id": "B4",
+            "fjalia": "Mjeku ka shënuar: MCHC është mbi intervalin referent.",
+            "konteksti": "A14",
+        },
     ]
     assert kits.duplicate_rows(rows) == [["B1", "B2"]]
 
@@ -189,9 +192,7 @@ def test_the_authors_set_b_has_no_repeated_row():
 
 def test_the_optional_source_column_may_be_absent(tmp_path):
     path = tmp_path / "B.csv"
-    path.write_text(
-        ",".join(kits.B_COLUMNS) + "\nB001,A01,Një fjali.,clean,\n", encoding="utf-8"
-    )
+    path.write_text(",".join(kits.B_COLUMNS) + "\nB001,A01,Një fjali.,clean,\n", encoding="utf-8")
     rows = kits.read_rows(path, kits.B_COLUMNS, kits.B_OPTIONAL)
     assert rows[0]["burimi"] == "" and rows[0]["fjalia"] == "Një fjali."
 
@@ -204,9 +205,15 @@ def test_the_authors_set_b_is_complete_and_measurable(contexts):
     from collections import Counter
 
     assert Counter(r["etiketa"] for r in rows) == {
-        "clean": 30, "ungrounded_number": 10, "ungrounded_analyte": 10,
-        "direction_mismatch": 10, "polarity_flip": 10, "hedge_removed": 10,
-        "fabricated_finding": 10, "ungrounded_term_explanation": 5, "prohibited_claim": 10,
+        "clean": 30,
+        "ungrounded_number": 10,
+        "ungrounded_analyte": 10,
+        "direction_mismatch": 10,
+        "polarity_flip": 10,
+        "hedge_removed": 10,
+        "fabricated_finding": 10,
+        "ungrounded_term_explanation": 5,
+        "prohibited_claim": 10,
     }
     metrics, errors = kits.check_sentences(rows, dict(contexts))
     assert not errors and metrics["samples"] == len(rows)

@@ -3,19 +3,6 @@ Pika hyrëse e gjeneruesit të korpusit sintetik.
 
     python -m data_generator.generate --seed 42 --n 500 --out data/v1
 
-Dy ekzekutime me të njëjtin seed japin bajt për bajt të njëjtat skedarë.
-Kjo nuk është hollësi zbatimi por kërkesë e vlerësimit (NFR3): një
-rezultat eksperimenti ka kuptim vetëm nëse korpusi mbi të cilin u mat
-mund të rindërtohet.
-
-Prandaj:
-  - asnjë vulë kohore dhe asnjë identifikues i rastësishëm nuk hyn në dalje,
-  - çdo dokument merr farën e vet të prejardhur nga seed-i dhe indeksi i tij,
-    çka e bën dokumentin i-të të pavarur nga numri i përgjithshëm i
-    dokumenteve dhe gjenerimin e ndashëm në procese,
-  - manifesti mban shumat kontrolluese të skedarëve burimorë: nëse tabela e
-    analiteve ndryshon, kjo duket menjëherë dhe korpusi nuk ngatërrohet me
-    një të mëparshëm.
 """
 
 from __future__ import annotations
@@ -29,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from analyte.catalog import RESOURCES_DIR
+
 from .degrade import degrade_pdf, sample_profile
 from .ground_truth import SCANNED_SHARE, DocumentTruth, build_document
 from .ids import IdFactory
@@ -64,9 +52,7 @@ def build_corpus(
     documents = []
     for index in range(count):
         rng = random.Random(document_seed(seed, index))
-        documents.append(
-            build_document(rng, IdFactory(rng), scanned_share=scanned_share)
-        )
+        documents.append(build_document(rng, IdFactory(rng), scanned_share=scanned_share))
     return documents
 
 

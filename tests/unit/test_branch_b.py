@@ -1,14 +1,9 @@
 """
 Testet e Degës B: terma, mohim, pasiguri, pohime, krahasim i kryqëzuar.
 
-Fjalitë e provës janë shkruar me dorë dhe NUK janë ato të gjeneruesit.
-Kjo është e qëllimshme: detektorët u shkruan duke pasur parasysh
-shabllonet e korpusit, prandaj një provë mbi ato shabllone do të tregonte
-vetëm se kodi kujton veten. Fjalitë këtu përdorin ndërtime të tjera — për
-aq sa mund të shkruhen pa dokumente reale, të cilat mbeten prova e vetme
-e vërtetë (E13).
 """
 
+from decimal import Decimal
 from uuid import uuid4
 
 import pytest
@@ -27,18 +22,13 @@ from analyte.grounding.branch_b import hedging, negation, terminology
 from analyte.grounding.branch_b.assertions import (
     extract_assertions,
     find_analyte,
-    find_direction,
     find_report_text,
     split_sentences,
     unexplained_terms,
 )
 from analyte.grounding.branch_b.crossref import build_cross_references
-from decimal import Decimal
 
-
-# --------------------------------------------------------------------
 # Mohimi
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -75,7 +65,7 @@ def test_affirmed_sentences_stay_affirmed(sentence):
     ],
 )
 def test_pseudo_negation_does_not_negate(sentence):
-    """"Nuk përjashtohet X" pohon me rezervë.
+    """ "Nuk përjashtohet X" pohon me rezervë.
 
     Po ta lexonim si mohim, do të përmbysnim kuptimin e mjekut pikërisht
     ashtu si rregulli R5 druhet se do ta bëjë modeli gjuhësor.
@@ -111,9 +101,7 @@ def test_cues_are_matched_as_whole_words():
     assert negation.polarity_of("Vlera e pastër u konfirmua.") is Polarity.AFFIRMED
 
 
-# --------------------------------------------------------------------
 # Pasiguria
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -144,14 +132,10 @@ def test_confirmed_sentences_stay_confirmed(sentence):
 
 def test_reported_cue_is_the_one_that_decided():
     """Dëshmia e shkeljes përmban shenjën; ajo duhet të jetë e vërteta."""
-    assert hedging.detect("Nuk përjashtohet se mund të jetë kalimtare.").cue == (
-        "nuk perjashtohet"
-    )
+    assert hedging.detect("Nuk përjashtohet se mund të jetë kalimtare.").cue == "nuk perjashtohet"
 
 
-# --------------------------------------------------------------------
 # Termat
-# --------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -187,20 +171,18 @@ def test_unknown_medical_words_are_reported_not_explained():
 
 
 def test_analyte_names_are_not_reported_as_unknown_terms():
-    """"Glukoza" mbaron me -oza por trajtohet nga Dega A."""
+    """ "Glukoza" mbaron me -oza por trajtohet nga Dega A."""
     assert unexplained_terms("Glukoza është matur esëll.") == ()
 
 
 def test_common_words_with_medical_endings_are_not_terms():
-    """"Paraqitet" është folje; pa kjo mbrojtje ajo dilte term i
+    """ "Paraqitet" është folje; pa kjo mbrojtje ajo dilte term i
     pashpjeguar në pothuajse çdo dokument."""
     assert unexplained_terms("Pacienti paraqitet për kontroll.") == ()
     assert unexplained_terms("Profili lipidik është brenda kufijve.") == ()
 
 
-# --------------------------------------------------------------------
 # Pohimet
-# --------------------------------------------------------------------
 
 
 def test_sentence_offsets_point_back_at_the_text():
@@ -234,13 +216,13 @@ def test_finding_is_linked_to_its_analyte():
 
 
 def test_longer_analyte_name_wins():
-    """"HDL-kolesteroli" dhe "Kolesteroli" janë dy analite me dy intervale."""
+    """ "HDL-kolesteroli" dhe "Kolesteroli" janë dy analite me dy intervale."""
     assert find_analyte("HDL-kolesteroli është i ulët.") == "2085-9"
     assert find_analyte("Kolesteroli total është i lartë.") == "2093-3"
 
 
 def test_direction_is_kept_apart_from_polarity():
-    """"Nuk rezulton mbi intervalin" ka drejtim INCREASED dhe polaritet
+    """ "Nuk rezulton mbi intervalin" ka drejtim INCREASED dhe polaritet
     NEGATED. Bashkimi i tyre do ta bënte të pamundur dallimin mes "është i
     ulët" dhe "nuk është i lartë"."""
     sentence = "Glukoza nuk rezulton mbi intervalin referent."
@@ -256,9 +238,7 @@ def test_report_text_is_located_and_unwrapped():
     def row(text: str, y: float) -> TextRow:
         return TextRow(
             page=1,
-            fragments=(
-                TextFragment(text=text, bbox=BoundingBox(x0=56, y0=y - 10, x1=400, y1=y)),
-            ),
+            fragments=(TextFragment(text=text, bbox=BoundingBox(x0=56, y0=y - 10, x1=400, y1=y)),),
         )
 
     page = PageText(
@@ -276,9 +256,7 @@ def test_report_text_is_located_and_unwrapped():
     )
 
 
-# --------------------------------------------------------------------
 # Krahasimi i kryqëzuar
-# --------------------------------------------------------------------
 
 
 def _finding(code: str, status: AnalyteStatus) -> AnalyteFinding:
@@ -287,14 +265,14 @@ def _finding(code: str, status: AnalyteStatus) -> AnalyteFinding:
         analyte_name_raw="X",
         analyte_name_canonical="X",
         value_raw="1",
-        value=Decimal("1"),
+        value=Decimal(1),
         unit_canonical="u",
-        value_canonical=Decimal("1"),
-        ref_low=Decimal("0"),
-        ref_high=Decimal("10"),
+        value_canonical=Decimal(1),
+        ref_low=Decimal(0),
+        ref_high=Decimal(10),
         ref_source=ReferenceSource.INTERNAL_TABLE,
         status=status,
-        severity=None if status is AnalyteStatus.NORMAL else Decimal("1"),
+        severity=None if status is AnalyteStatus.NORMAL else Decimal(1),
         page=1,
     )
 
@@ -324,13 +302,11 @@ def test_agreement_and_contradiction():
 
 
 def test_negation_is_not_the_opposite_of_affirmation():
-    """"Nuk rezulton mbi intervalin" përputhet me çdo status që nuk është i
+    """ "Nuk rezulton mbi intervalin" përputhet me çdo status që nuk është i
     rritur, jo vetëm me atë të ulët."""
     normal = _finding("2345-7", AnalyteStatus.NORMAL)
     denial = _assertion("2345-7", Direction.INCREASED, Polarity.NEGATED)
-    assert build_cross_references((normal,), (denial,))[0].state is (
-        CrossReferenceState.AGREEMENT
-    )
+    assert build_cross_references((normal,), (denial,))[0].state is (CrossReferenceState.AGREEMENT)
 
 
 def test_mentioned_but_not_measured():
@@ -351,9 +327,7 @@ def test_recommendations_do_not_produce_cross_references():
     assert build_cross_references((), (recommendation,)) == ()
 
 
-# --------------------------------------------------------------------
 # Nga skaji në skaj
-# --------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")

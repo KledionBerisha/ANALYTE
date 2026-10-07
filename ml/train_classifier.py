@@ -4,21 +4,6 @@ Trajnimi i klasifikuesit të fjalive (Faza 7) — ekzekutohet në Colab.
     python train_classifier.py --data classifier_data --input sentence --out runs/sentence
     python train_classifier.py --data classifier_data --input context  --out runs/context
 
-Skripti është i pavarur nga pjesa tjetër e depove me qëllim: Colab-u merr
-vetëm dosjen e të dhënave dhe këtë skedar, pa paketën `analyte`. Varet nga
-torch, transformers dhe scikit-learn, që Colab-u i ka.
-
-**Çfarë prodhon.** Modelin më të mirë sipas macro F1 mbi fjalitë e
-validimit, dhe probabilitetet për çdo fjali të teksteve të validimit dhe
-të testit. Vendimi mbi tekstin e plotë — pragu, zgjedhja e fjalisë — nuk
-merret këtu: ai merret lokalisht nga `ml.evaluate_classifier`, me pragun
-e zgjedhur vetëm mbi validimin, që testi të mos preket nga asnjë zgjedhje.
-
-**Kufiri i gjatësisë.** Hyrja `context` e shkurton kontekstin, jo fjalinë
-(`only_second`): fjala që gjykohet nuk humbet kurrë, konteksti humbet nga
-fundi. Për dokumente të gjata kjo do të thotë se pohimet e mjekut, që vijnë
-pas vlerave, mund të mos arrijnë te modeli — kufizim që duhet thënë kur
-krahasohen dy hyrjet.
 """
 
 from __future__ import annotations
@@ -32,6 +17,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+import transformers
 from sklearn.metrics import f1_score
 from torch.utils.data import Dataset
 from transformers import (
@@ -41,7 +27,6 @@ from transformers import (
     TrainingArguments,
     set_seed,
 )
-import transformers
 
 DEFAULT_LENGTH = {"sentence": 128, "context": 384}
 
@@ -243,7 +228,9 @@ def main(argv=None) -> int:
         },
         "data_meta": json.loads((args.data / "meta.json").read_text(encoding="utf-8")),
     }
-    (args.out / "run.json").write_text(json.dumps(run, ensure_ascii=False, indent=2), encoding="utf-8")
+    (args.out / "run.json").write_text(
+        json.dumps(run, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(json.dumps({k: run[k] for k in ("input", "val_macro_f1_sentences", "training_seconds")}))
     return 0
 

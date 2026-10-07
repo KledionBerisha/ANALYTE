@@ -1,17 +1,6 @@
 """
 Figura 11 — tubacioni i vlerësimit dhe gjurmueshmëria e eksperimenteve.
 
-Gjithçka lexohet nga burimi: eksperimentet nga regjistri
-(`evaluation/experiments.py`), statusi nga skedarët që ekzistojnë vërtet te
-`evaluation/results/`, dhe fushat e prejardhjes nga metadata e një rezultati
-të vërtetë. Një eksperiment quhet **i matur** vetëm nëse ka `result.json`; një
-numër i cituar diku tjetër pa skedar nuk e bën të matur. Prandaj figura mund të
-tregojë më pak se ç'besohet se është bërë, dhe kjo është e qëllimshme: ajo
-është matësi i asaj që mund të gjurmohet.
-
-Kolona "gjurma" thotë sa e ndjekshme është secila matje: `e plotë` kur rezultati
-mban versionin e korpusit dhe git sha; `pa commit` kur u prodhua me ndryshime të
-pakomituara (sha nuk e përcakton kodin); `pjesore` kur metadata mungon.
 """
 
 from __future__ import annotations
@@ -37,7 +26,9 @@ def load_results(directory: Path = RESULTS) -> dict[str, dict[str, Any]]:
     (`E11/sentence/`, `E11/context/`); mban i pari sipas emrit, dhe për figurën
     vlen vetëm që ekziston."""
     found: dict[str, dict[str, Any]] = {}
-    for path in sorted(directory.glob("E*/result.json")) + sorted(directory.glob("E*/*/result.json")):
+    for path in sorted(directory.glob("E*/result.json")) + sorted(
+        directory.glob("E*/*/result.json")
+    ):
         experiment_id = path.relative_to(directory).parts[0]
         found.setdefault(experiment_id, json.loads(path.read_text(encoding="utf-8")))
     # Eksperimentet me modelin gjuhësor (E4, E6, E12 dhe versionet e E7–E9 me modelin) jetojnë te `llm/`.
@@ -92,15 +83,24 @@ def _flow(ax, top: float, results: dict[str, dict]) -> float:
     # E10 dhe E11 dalin nga skriptet e `ml/`, jo nga harness-i: metadata e tyre nuk ka `pipeline`.
     # Emri i plotë i një pipeline-i mban modelin, kërkesën dhe pragun (`e9[mistral:…:p1]+ocr+xlm-…@0.85`); figura
     # tregon vetëm familjen, që të mos mbushet kutia.
-    pipelines = sorted({
-        re.split(r"[\[+]", r["metadata"]["pipeline"]["name"])[0]
-        for r in results.values()
-        if (r.get("metadata") or {}).get("pipeline")
-    })
+    pipelines = sorted(
+        {
+            re.split(r"[\[+]", r["metadata"]["pipeline"]["name"])[0]
+            for r in results.values()
+            if (r.get("metadata") or {}).get("pipeline")
+        }
+    )
     metrics = sorted({e.metric for e in registry.EXPERIMENTS})
 
     stages = [
-        ("Korpusi", ["data_generator", f"{dataset.get('version', '?')}", f"fara {dataset.get('seed', '?')}"]),
+        (
+            "Korpusi",
+            [
+                "data_generator",
+                f"{dataset.get('version', '?')}",
+                f"fara {dataset.get('seed', '?')}",
+            ],
+        ),
         ("Pipeline", ["në rezultatet:", ", ".join(pipelines) or "?"]),
         ("Metrika", ["evaluation/metrics,", f"{len(metrics)} module:", ", ".join(metrics)]),
         ("result.json", ["prejardhja në çdo rezultat:"] + provenance_fields(results)),
@@ -118,8 +118,15 @@ def _flow(ax, top: float, results: dict[str, dict]) -> float:
         current = style.box(ax, cx, cy, box_w, height, "", fill=style.BLUE_TINT, lw=1.0)
         style.label(ax, cx, top - 0.14, title, size=7.5, color=style.INK, weight="bold")
         for j, line in enumerate(lines):
-            style.label(ax, cx - box_w / 2 + 0.07, top - 0.3 - 0.125 * j, line,
-                        size=6.2, color=style.INK, ha="left")
+            style.label(
+                ax,
+                cx - box_w / 2 + 0.07,
+                top - 0.3 - 0.125 * j,
+                line,
+                size=6.2,
+                color=style.INK,
+                ha="left",
+            )
         if previous:
             style.arrow(ax, (previous.right + 0.01, cy), (current.left - 0.01, cy), lw=1.2)
         previous = current
@@ -143,12 +150,25 @@ def build():
     fig, ax = style.canvas(WIDTH, height, (0, WIDTH), (0, height))
     strip_bottom = _flow(ax, height - strip_top_pad, results)
 
-    columns = {"id": 0.08, "title": 0.5, "pk": 2.85, "data": 3.3, "metric": 4.3,
-               "status": 5.15, "trace": 5.78}
+    columns = {
+        "id": 0.08,
+        "title": 0.5,
+        "pk": 2.85,
+        "data": 3.3,
+        "metric": 4.3,
+        "status": 5.15,
+        "trace": 5.78,
+    }
     y = strip_bottom - 0.35
-    for key, text in (("id", "ID"), ("title", "Eksperimenti"), ("pk", "Pyetja"),
-                      ("data", "Të dhënat"), ("metric", "Metrika"), ("status", "Statusi"),
-                      ("trace", "Gjurma")):
+    for key, text in (
+        ("id", "ID"),
+        ("title", "Eksperimenti"),
+        ("pk", "Pyetja"),
+        ("data", "Të dhënat"),
+        ("metric", "Metrika"),
+        ("status", "Statusi"),
+        ("trace", "Gjurma"),
+    ):
         style.label(ax, columns[key], y, text, size=7, ha="left", color=style.INK, weight="bold")
     ax.plot([0.05, WIDTH - 0.05], [y - 0.14, y - 0.14], color=style.INK, lw=0.8, zorder=2)
 
@@ -156,23 +176,71 @@ def build():
         cy = y - header_h - row_h * (index + 0.5) + 0.06
         status = status_of(experiment, results)
         condition = "" if experiment.condition in ("—", "") else f" · {experiment.condition}"
-        style.label(ax, columns["id"], cy, experiment.id, size=7.5, ha="left",
-                    color=style.INK, weight="bold")
-        style.label(ax, columns["title"], cy + 0.05, experiment.title + condition, size=6.8,
-                    ha="left", color=style.INK)
+        style.label(
+            ax,
+            columns["id"],
+            cy,
+            experiment.id,
+            size=7.5,
+            ha="left",
+            color=style.INK,
+            weight="bold",
+        )
+        style.label(
+            ax,
+            columns["title"],
+            cy + 0.05,
+            experiment.title + condition,
+            size=6.8,
+            ha="left",
+            color=style.INK,
+        )
         if status != MEASURED:
-            reason = experiment.waiting_for or experiment.pending_reason or "gati për t'u ekzekutuar"
-            style.label(ax, columns["title"], cy - 0.09, reason, size=5.8, ha="left",
-                        color=style.MUTED, style="italic")
-        style.label(ax, columns["pk"], cy, experiment.answers.replace("vlefshmëri e jashtme", "jashtme"),
-                    size=6.8, ha="left", color=style.INK)
-        style.label(ax, columns["data"], cy, experiment.dataset, size=6.8, ha="left", color=style.INK)
-        style.label(ax, columns["metric"], cy, experiment.metric, size=6.8, ha="left", color=style.INK)
+            reason = (
+                experiment.waiting_for or experiment.pending_reason or "gati për t'u ekzekutuar"
+            )
+            style.label(
+                ax,
+                columns["title"],
+                cy - 0.09,
+                reason,
+                size=5.8,
+                ha="left",
+                color=style.MUTED,
+                style="italic",
+            )
+        style.label(
+            ax,
+            columns["pk"],
+            cy,
+            experiment.answers.replace("vlefshmëri e jashtme", "jashtme"),
+            size=6.8,
+            ha="left",
+            color=style.INK,
+        )
+        style.label(
+            ax, columns["data"], cy, experiment.dataset, size=6.8, ha="left", color=style.INK
+        )
+        style.label(
+            ax, columns["metric"], cy, experiment.metric, size=6.8, ha="left", color=style.INK
+        )
         _status_cell(ax, columns["status"], cy, status)
-        style.label(ax, columns["trace"], cy, trace_of(results.get(experiment.id)), size=6.3,
-                    ha="left", color=style.INK)
-        ax.plot([0.05, WIDTH - 0.05], [cy - row_h / 2 + 0.06 - 0.0] * 2, color="#dcdbd5",
-                lw=0.5, zorder=1)
+        style.label(
+            ax,
+            columns["trace"],
+            cy,
+            trace_of(results.get(experiment.id)),
+            size=6.3,
+            ha="left",
+            color=style.INK,
+        )
+        ax.plot(
+            [0.05, WIDTH - 0.05],
+            [cy - row_h / 2 + 0.06 - 0.0] * 2,
+            color="#dcdbd5",
+            lw=0.5,
+            zorder=1,
+        )
 
     _legend(ax, 0.1)
     return fig, {e.id: status_of(e, results) for e in experiments}

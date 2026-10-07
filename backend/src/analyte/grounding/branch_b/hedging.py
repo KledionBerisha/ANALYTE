@@ -1,21 +1,6 @@
 """
 Zbulimi i pasigurisë së shprehur.
 
-Mjeku shkruan me shkallë të ndryshme sigurie, dhe ajo shkallë është
-përmbajtje e vërtetë e raportit. "Nuk përjashtohet hipotiroidizëm" nuk
-është e njëjta gjë me "ka hipotiroidizëm", dhe dallimi mes tyre është
-pikërisht ai që humbet më lehtë kur teksti thjeshtohet: fjalia bëhet më e
-qartë, më e lexueshme dhe e pasaktë.
-
-Prandaj rregulli R6 e ndalon heqjen e saj, dhe prandaj ky modul ekziston:
-pa e njohur pasigurinë në burim, nuk ka si të matet nëse ajo mbijetoi.
-
-Lista e shenjave është e vogël dhe e dukshme. Ajo mbulon katër mënyrat me
-të cilat shqipja e shpreh rezervën: foljet modale ("mund të"), ndajfoljet
-("ndoshta", "ka gjasa"), foljet e dukjes ("duket", "sugjeron") dhe mohimin
-e përjashtimit ("nuk përjashtohet"). Kjo e fundit është njëkohësisht
-pseudo-mohim te `negation`, dhe të dy modulet duhet ta trajtojnë njësoj:
-pohim, por me rezervë.
 """
 
 from __future__ import annotations

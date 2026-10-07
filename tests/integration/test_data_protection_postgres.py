@@ -3,9 +3,6 @@ Mbrojtja e të dhënave mbi PostgreSQL të vërtetë (ADR 0019).
 
     make test-postgres
 
-Anashkalohet kur `ANALYTE_TEST_DATABASE_URL` mungon. Baza ndërtohet nga migrimet, jo nga modelet, kështu që provohet
-skema që sheh prodhimi, përfshirë kaskadat e çelësave të huaj që fshirja mbështetet te ato, dhe dy fshirje
-njëkohësisht të së njëjtës llogari, që SQLite nuk i provon dot (aty ka një shkrues të vetëm).
 """
 
 from __future__ import annotations
@@ -19,12 +16,11 @@ from uuid import UUID
 import pytest
 from sqlalchemy import func, select
 
-from analyte.generation.templates import TemplateGenerator
 from analyte import erasure
+from analyte.generation.templates import TemplateGenerator
 from analyte.persistence.tables import AuditEventRow, DocumentRow, UserRow
 from tests.integration.test_data_protection import (
     FILENAME,
-    PASSWORD,
     FakeClient,
     World,
     _erase,
@@ -62,7 +58,10 @@ def database(monkeypatch):
 def pdfs():
     return {
         "a": _pdf("pg-a"),
-        "named": _pdf("pg-named", "Dr. Arben Krasniqi vëren anemi të lehtë. Rekomandohet kontroll pas tre muajsh."),
+        "named": _pdf(
+            "pg-named",
+            "Dr. Arben Krasniqi vëren anemi të lehtë. Rekomandohet kontroll pas tre muajsh.",
+        ),
     }
 
 
@@ -102,11 +101,20 @@ def test_erasure_cascades_on_postgres_and_leaves_the_other_user_alone(tmp_path, 
     assert world.client.get(f"/documents/{bob_doc}/explanation", headers=bob).status_code == 200
     with world.services.sessions() as session:
         assert session.scalar(select(func.count()).select_from(UserRow)) == 1
-        assert session.scalar(select(func.count()).select_from(AuditEventRow).where(AuditEventRow.user_id.is_(None))) >= 3
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(AuditEventRow)
+                .where(AuditEventRow.user_id.is_(None))
+            )
+            >= 3
+        )
         assert session.get(DocumentRow, UUID(two)) is None
 
 
-def test_two_simultaneous_erasures_of_the_same_account_both_succeed_and_leave_nothing(tmp_path, database, pdfs):
+def test_two_simultaneous_erasures_of_the_same_account_both_succeed_and_leave_nothing(
+    tmp_path, database, pdfs
+):
     world = World(tmp_path, TemplateGenerator(), database_url=database)
     headers = world.user("pg-gare@shembull.al")
     for _ in range(3):
@@ -120,8 +128,11 @@ def test_two_simultaneous_erasures_of_the_same_account_both_succeed_and_leave_no
         try:
             with world.services.sessions() as session:
                 user = session.get(UserRow, user_id)
-                barrier.wait(timeout=10)  # të dyja e kanë ngarkuar përdoruesin para se ndonjëra të fshijë
-                erased.append(erasure.erase_user(session, world.services.store, user, world.settings))
+                # të dyja e kanë ngarkuar përdoruesin para se ndonjëra të fshijë
+                barrier.wait(timeout=10)
+                erased.append(
+                    erasure.erase_user(session, world.services.store, user, world.settings)
+                )
                 session.commit()
         except Exception as error:  # noqa: BLE001
             errors.append(error)
@@ -138,7 +149,9 @@ def test_two_simultaneous_erasures_of_the_same_account_both_succeed_and_leave_no
         assert session.scalar(select(func.count()).select_from(UserRow)) == 0
 
 
-def test_two_simultaneous_deletions_of_one_document_leave_one_204_and_no_error(tmp_path, database, pdfs):
+def test_two_simultaneous_deletions_of_one_document_leave_one_204_and_no_error(
+    tmp_path, database, pdfs
+):
     world = World(tmp_path, TemplateGenerator(), database_url=database)
     headers = world.user("pg-dyfish@shembull.al")
     document_id = world.upload(headers, pdfs["a"])
@@ -148,7 +161,9 @@ def test_two_simultaneous_deletions_of_one_document_leave_one_204_and_no_error(t
 
     def delete() -> None:
         barrier.wait(timeout=10)
-        statuses.append(world.client.delete(f"/documents/{document_id}", headers=headers).status_code)
+        statuses.append(
+            world.client.delete(f"/documents/{document_id}", headers=headers).status_code
+        )
 
     threads = [threading.Thread(target=delete) for _ in range(2)]
     for thread in threads:
@@ -170,7 +185,9 @@ def test_retention_on_postgres(tmp_path, database, pdfs):
         session.get(DocumentRow, UUID(fresh)).uploaded_at = now - timedelta(days=5)
         session.commit()
 
-    result = erasure.purge_expired(world.services.sessions, world.services.store, now=now, retention_days=30)
+    result = erasure.purge_expired(
+        world.services.sessions, world.services.store, now=now, retention_days=30
+    )
     assert (result.purged, result.failed) == (1, 0)
     with world.services.sessions() as session:
         assert [d for d in session.scalars(select(DocumentRow.id))] == [UUID(fresh)]

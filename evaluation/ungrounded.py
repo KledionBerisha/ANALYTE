@@ -1,24 +1,6 @@
 """
 Kushti A i ablacionit (E6): modeli pa bazim.
 
-Ky është i vetmi vend ku një model gjuhësor sheh tekstin e dokumentit. Garancia
-e punimit — gjeneruesi merr vetëm `GroundingContext` — nuk preket: kjo klasë
-nuk është `Generator`, nuk hyn në shërbim dhe nuk përdoret nga asnjë kusht tjetër.
-Ajo ekziston që `PK5` të ketë bazën krahasuese që plani e quan "kërkesë naive
-pa bazim": e njëjta detyrë, pa strukturë, pa rregulla dhe pa verifikim.
-
-**Kërkesa është naive me qëllim.** Nuk ka udhëzim kundër shpikjes, as rregulla
-sigurie, as format. Një udhëzim "mos shpik" do ta bënte bazën më të fortë, por
-punimi e ka thënë që ai nuk është mbrojtje (§4); këtu matet ajo që ndodh pa të.
-
-**Çfarë matet.** Teksti vlerësohet nga i njëjti verifikues (R1–R9, SP1–3)
-kundrejt kontekstit që nxorri sistemi nga po ai dokument (jo kundrejt së vërtetës
-bazë), dhe dorëzohet pavarësisht shkeljeve. Dy pasoja që duhen thënë: (1) çdo
-numër që nuk është ndër vlerat e matura — përfshirë një datë ose një moshë nga
-teksti i dokumentit — numërohet si `ungrounded_number`; kushtet B–D e kanë të
-ndaluar shprehimisht, ky jo; (2) kur OCR-ja lexon gabim një vlerë, konteksti
-bazë është i gabuar dhe një shpjegim besnik ndaj dokumentit mund të dalë si
-shkelje.
 """
 
 from __future__ import annotations
@@ -68,9 +50,7 @@ class UngroundedPipeline:
     @property
     def name(self) -> str:
         suffix = "+ocr" if self.ocr is not None else ""
-        return (
-            f"e6[{self.client.provider}:{self.client.model}:{UNGROUNDED_PROMPT_VERSION}]{suffix}"
-        )
+        return f"e6[{self.client.provider}:{self.client.model}:{UNGROUNDED_PROMPT_VERSION}]{suffix}"
 
     @property
     def generator(self) -> Any:

@@ -5,23 +5,7 @@ Pamjet e ndërfaqes për punim (Figurat 12–16), nga aplikacioni që punon.
     python scripts/export_screenshots.py                      # Chromium i Playwright, ose Edge/Chrome i instaluar
     python scripts/export_screenshots.py --channel msedge
     python scripts/export_screenshots.py --out /tmp/pamjet --document data/v1/documents/doc_00335.pdf
-
-Skripti nuk prek asgjë të vërtetë: ndez shërbimin në proces me bazë SQLite të përkohshme, sekrete të
-rastësishme, postë në kujtesë dhe gjeneruesin determinist (parazgjedhja e aplikacionit; modeli është zgjedhje e shprehur,
-ADR 0017, dhe pamjet nuk duhet të varen nga një ofrues i jashtëm), dhe ndez serverin e zhvillimit të ndërfaqes. Regjistron
-një përdorues provë, e konfirmon me lidhjen nga posta e kujtesës, hyn përmes formularit, ngarkon një dokument të
-korpusit sintetik dhe ruan pamjet:
-
-  12  faqja e hyrjes
-  13  hapat e përpunimit, ndërsa ndodhin (përpunimi ngadalësohet qëllimisht, që hapi i tanishëm të duket)
-  14  gjetjet laboratorike dhe faqja origjinale me rreshtin e theksuar
-  15  shpjegimi me treguesin e verifikimit
-  16  krahasimi i raportit mjekësor me rezultatet (kundërshtimet që duhen diskutuar me mjekun)
-
-Dokumenti zgjidhet nga e vërteta bazë e korpusit: dixhital, me një vlerë kritike dhe një kundërshtim raport–laborator,
-me më pak gjetje (që pamja të lexohet). Pamjet tregojnë tekstin e shabllonit dhe të dhëna sintetike.
-
-Portat 8000 dhe 3000 duhet të jenë të lira; skripti i lë të lira kur mbaron.
+    
 """
 
 from __future__ import annotations
@@ -57,9 +41,7 @@ NAMES = {
 }
 
 
-# --------------------------------------------------------------------
 # Dokumenti
-# --------------------------------------------------------------------
 
 
 def pick_document(data: Path) -> Path:
@@ -76,13 +58,13 @@ def pick_document(data: Path) -> Path:
             candidate = (len(truth["findings"]), entry["index"], data / entry["pdf"])
             best = min(best, candidate) if best else candidate
     if best is None:
-        raise SystemExit("asnjë dokument i korpusit nuk ka vlerë kritike dhe kundërshtim; jepni --document")
+        raise SystemExit(
+            "asnjë dokument i korpusit nuk ka vlerë kritike dhe kundërshtim; jepni --document"
+        )
     return best[2]
 
 
-# --------------------------------------------------------------------
 # Shërbimet
-# --------------------------------------------------------------------
 
 
 class SlowGenerator:
@@ -108,7 +90,9 @@ class ThreadRunner:
     def submit(self, document_id: UUID) -> None:
         from analyte.orchestration.tasks import run_document
 
-        threading.Thread(target=run_document, args=(self.services, document_id), daemon=True).start()
+        threading.Thread(
+            target=run_document, args=(self.services, document_id), daemon=True
+        ).start()
 
 
 def _port_free(port: int) -> bool:
@@ -145,7 +129,9 @@ def start_backend(tmp: Path, delay: float):
     )
     outbox = OutboxMailer()
     app = create_app(settings, services, ThreadRunner(services), outbox)
-    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=API_PORT, log_level="warning"))
+    server = uvicorn.Server(
+        uvicorn.Config(app, host="127.0.0.1", port=API_PORT, log_level="warning")
+    )
     threading.Thread(target=server.run, daemon=True).start()
     return server, outbox
 
@@ -153,8 +139,11 @@ def start_backend(tmp: Path, delay: float):
 def start_frontend(log: Path) -> subprocess.Popen:
     handle = log.open("w", encoding="utf-8")
     return subprocess.Popen(
-        ["npm", "run", "dev"], cwd=ROOT / "frontend", shell=sys.platform == "win32",
-        stdout=handle, stderr=subprocess.STDOUT,
+        ["npm", "run", "dev"],
+        cwd=ROOT / "frontend",
+        shell=sys.platform == "win32",
+        stdout=handle,
+        stderr=subprocess.STDOUT,
     )
 
 
@@ -176,9 +165,7 @@ def wait_for(url: str, seconds: float) -> None:
     raise SystemExit(f"{url} nuk u ngrit brenda {seconds:.0f} sekondave")
 
 
-# --------------------------------------------------------------------
 # Shfletuesi
-# --------------------------------------------------------------------
 
 
 def launch(playwright, channel: str | None):
@@ -187,7 +174,9 @@ def launch(playwright, channel: str | None):
     last: Exception | None = None
     for name in candidates:
         try:
-            return playwright.chromium.launch(channel=name) if name else playwright.chromium.launch()
+            return (
+                playwright.chromium.launch(channel=name) if name else playwright.chromium.launch()
+            )
         except Exception as error:  # noqa: BLE001 — provohet kandidati tjetër
             last = error
     raise SystemExit(f"nuk u gjet shfletues (provuar: {candidates}): {last}")
@@ -219,7 +208,12 @@ def shot_region(page, locators, path: Path, *, height: int = VIEWPORT[1]) -> Non
     pad = 12
     page.screenshot(
         path=str(path),
-        clip={"x": max(0, left - pad), "y": max(0, top - pad), "width": right - left + 2 * pad, "height": bottom - top + 2 * pad},
+        clip={
+            "x": max(0, left - pad),
+            "y": max(0, top - pad),
+            "width": right - left + 2 * pad,
+            "height": bottom - top + 2 * pad,
+        },
     )
     page.set_viewport_size({"width": VIEWPORT[0], "height": VIEWPORT[1]})
 
@@ -243,7 +237,10 @@ def capture(page, outbox, pdf: Path, out: Path) -> list[Path]:
 
     email, password = "pamje@shembull.test", secrets.token_urlsafe(18)
     request = page.context.request
-    assert request.post(f"{API}/auth/register", data={"email": email, "password": password}).status == 202
+    assert (
+        request.post(f"{API}/auth/register", data={"email": email, "password": password}).status
+        == 202
+    )
     link = re.search(r"/confirm\?token=([A-Za-z0-9_\-]+)", outbox.to(email)[-1].body)
     assert link, "mesazhi i konfirmimit nuk ka lidhje"
     assert request.post(f"{API}/auth/confirm", data={"token": link.group(1)}).status == 204
@@ -261,7 +258,8 @@ def capture(page, outbox, pdf: Path, out: Path) -> list[Path]:
 
     page.get_by_role("heading", name="Shpjegimi", exact=True).wait_for(timeout=60_000)
     page.wait_for_timeout(1200)
-    shot_region(page, [section_with(page, "Shpjegimi")], target(15), height=1400)  # e gjatë: duhet të hyjë e tëra
+    # e gjatë: duhet të hyjë e tëra
+    shot_region(page, [section_with(page, "Shpjegimi")], target(15), height=1400)
 
     findings = section_with(page, "Vlerat")
     findings.locator("tbody tr").first.click()
@@ -275,9 +273,17 @@ def capture(page, outbox, pdf: Path, out: Path) -> list[Path]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="export_screenshots")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
-    parser.add_argument("--document", type=Path, default=None, help="PDF; parazgjedhja zgjidhet nga korpusi data/v1")
-    parser.add_argument("--channel", default=None, help="msedge | chrome (shfletues i instaluar); bosh = provon të gjitha")
-    parser.add_argument("--delay", type=float, default=4.0, help="sekonda pritje te gjeneruesi, që hapat të duken")
+    parser.add_argument(
+        "--document", type=Path, default=None, help="PDF; parazgjedhja zgjidhet nga korpusi data/v1"
+    )
+    parser.add_argument(
+        "--channel",
+        default=None,
+        help="msedge | chrome (shfletues i instaluar); bosh = provon të gjitha",
+    )
+    parser.add_argument(
+        "--delay", type=float, default=4.0, help="sekonda pritje te gjeneruesi, që hapat të duken"
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -301,7 +307,9 @@ def main(argv: list[str] | None = None) -> int:
             with sync_playwright() as playwright:
                 browser = launch(playwright, args.channel)
                 context = browser.new_context(
-                    viewport={"width": VIEWPORT[0], "height": VIEWPORT[1]}, device_scale_factor=2, locale="sq-AL"
+                    viewport={"width": VIEWPORT[0], "height": VIEWPORT[1]},
+                    device_scale_factor=2,
+                    locale="sq-AL",
                 )
                 try:
                     written = capture(context.new_page(), outbox, pdf, args.out)

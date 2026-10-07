@@ -1,19 +1,6 @@
 """
 Dega B e verifikimit: rregullat R5-R9.
 
-Këto rregulla krahasojnë kuptimin e daljes me kuptimin e burimit, dhe
-prandaj janë më të brishta se ato të Degës A. Ato mbështeten te po ata
-detektorë leksikorë që nxjerrin pohimet nga narrativa, çka do të thotë se
-ato e shohin vetëm atë që ata detektorë shohin.
-
-Kjo kufizë duhet mbajtur parasysh kur lexohen rezultatet e PK3: nëse një
-mohim përmbyset dhe detektori nuk e kap, PK3 do të tregojë ruajtje të
-përsosur. Prandaj PK3 nuk qëndron vetëm — ai lexohet bashkë me PK6, që mat
-pikërisht aftësinë zbuluese.
-
-Lidhja ndërmjet një pohimi të burimit dhe një fjalie të daljes bëhet me
-analitin ose me termin e përmendur. Ky është krahasim i thjeshtë dhe i
-dukshëm; një përafrim semantik do të fshihte se ku gabon rregulli.
 """
 
 from __future__ import annotations
@@ -24,7 +11,6 @@ from collections.abc import Iterator
 from analyte.domain.enums import (
     AssertionKind,
     Certainty,
-    Polarity,
     ViolationType,
 )
 from analyte.domain.models import GroundingContext, ReportAssertion, Violation
@@ -45,9 +31,7 @@ from . import ruleset
 from .base import analytes_in, is_attributed, sentences, violation
 
 
-def _sentence_for(
-    assertion: ReportAssertion, text: str, context: GroundingContext
-) -> str | None:
+def _sentence_for(assertion: ReportAssertion, text: str, context: GroundingContext) -> str | None:
     """Fjalia e daljes që i përgjigjet një pohimi të burimit.
 
     Shqyrtohen vetëm fjalitë e atribuuara. Një përmbysje polariteti
@@ -103,8 +87,7 @@ def check_polarity(context: GroundingContext, text: str) -> Iterator[Violation]:
             yield violation(
                 ViolationType.POLARITY_FLIP,
                 sentence,
-                f"burimi thotë {assertion.polarity.value} për "
-                f"“{assertion.text_span}”",
+                f"burimi thotë {assertion.polarity.value} për “{assertion.text_span}”",
             )
 
 
@@ -232,8 +215,19 @@ def check_term_explanations(context: GroundingContext, text: str) -> Iterator[Vi
     explanatory = ("do te thote", "quhet", "eshte nje gjendje", "nenkupton", "tregon se")
     if ruleset.modern():
         explanatory += (
-            "eshte nje ", "eshte nje lloj", "ndodh kur", "shkaktohet", "lidhet me", "perfshin", "ka te beje me",
-            "pasqyron", "reflekton", "eshte semundje", "eshte inflamacion", "eshte demtim", "d m th",
+            "eshte nje ",
+            "eshte nje lloj",
+            "ndodh kur",
+            "shkaktohet",
+            "lidhet me",
+            "perfshin",
+            "ka te beje me",
+            "pasqyron",
+            "reflekton",
+            "eshte semundje",
+            "eshte inflamacion",
+            "eshte demtim",
+            "d m th",
         )
         yield from _unsupported_glosses(context, text)
 

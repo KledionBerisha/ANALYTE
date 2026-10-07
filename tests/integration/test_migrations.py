@@ -1,10 +1,6 @@
 """
 Migrimet dhe skema e modeleve nuk ndahen.
 
-Testet e API-së e ndërtojnë skemën nga modelet (`create_schema`); shërbimi
-e ndërton nga migrimet. Po të ndaheshin, testet do të kalonin mbi një
-skemë që prodhimi nuk e ka. Ky test e ekzekuton migrimin dhe e krahason
-rezultatin me modelet: çdo tabelë e ndryshuar pa migrim e rrëzon atë.
 """
 
 from __future__ import annotations
@@ -55,7 +51,9 @@ def test_migrations_can_be_undone(tmp_path, monkeypatch):
     assert tables == []
 
 
-def test_0004_keeps_existing_accounts_without_a_second_factor_and_can_be_undone(tmp_path, monkeypatch):
+def test_0004_keeps_existing_accounts_without_a_second_factor_and_can_be_undone(
+    tmp_path, monkeypatch
+):
     from sqlalchemy import text
 
     url = f"sqlite:///{tmp_path / 'u.db'}"
@@ -77,12 +75,22 @@ def test_0004_keeps_existing_accounts_without_a_second_factor_and_can_be_undone(
         row = connection.execute(
             text("SELECT totp_secret_encrypted, totp_enabled_at, totp_last_step FROM users")
         ).one()
-        tables = {n for (n,) in connection.exec_driver_sql("SELECT name FROM sqlite_master WHERE type='table'")}
+        tables = {
+            n
+            for (n,) in connection.exec_driver_sql(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
     assert tuple(row) == (None, None, None)
     assert new_tables <= tables
 
     command.downgrade(config, "0003")
     with engine.connect() as connection:
         assert connection.execute(text("SELECT email FROM users")).scalar() == "vjeter@shembull.al"
-        tables = {n for (n,) in connection.exec_driver_sql("SELECT name FROM sqlite_master WHERE type='table'")}
+        tables = {
+            n
+            for (n,) in connection.exec_driver_sql(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
     assert not new_tables & tables

@@ -1,18 +1,6 @@
 """
 Fjalëkalimet dhe tokenët.
 
-Argon2id për fjalëkalimet — algoritmi i rekomanduar sot, me parametrat e
-parazgjedhur të `argon2-cffi`. JWT me HS256 për hyrjen: një token aksesi
-jetëshkurtër dhe një token rifreskimi, të dalluar nga fusha `typ` që njëri
-të mos pranohet në vend të tjetrit.
-
-Tokenët nuk mbajnë asgjë përveç identifikuesve dhe kohëve. Email-i nuk hyn:
-tokeni lexohet nga kushdo që e mban, dhe email-i është e dhënë personale.
-
-Çdo token i përket një seance (`sid`) që shërbimi mund ta revokojë, dhe
-tokeni i rifreskimit mban edhe identifikuesin e vet (`jti`), që përdoret
-vetëm një herë (ADR 0014). Një token pa këto fusha — i lëshuar para ADR 0014
-— refuzohet, jo pranohet si i vlefshëm.
 """
 
 from __future__ import annotations
@@ -104,9 +92,7 @@ def read_token(token: str, kind: str, secret: str) -> TokenClaims:
     return TokenClaims(user_id, session_id, token_id)
 
 
-# --------------------------------------------------------------------
 # Sfida e hapit të dytë (ADR 0018)
-# --------------------------------------------------------------------
 
 
 def issue_challenge(user_id: UUID, binding: str, lifetime: timedelta, secret: str) -> str:

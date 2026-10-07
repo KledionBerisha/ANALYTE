@@ -1,11 +1,6 @@
 """
 Testet e gjeneruesit të korpusit sintetik.
 
-Gjeneruesi prodhon njëkohësisht dokumentin dhe etiketat e tij. Nëse
-etiketa nuk i përgjigjet asaj që shtypet, çdo metrikë e mëpasme mat
-diçka tjetër nga ajo që mendon se mat — dhe kjo nuk duket në asnjë
-rezultat. Prandaj testet këtu nuk kontrollojnë "a punon", por
-"a është e vërteta bazë vërtet e vërtetë".
 """
 
 import re
@@ -13,6 +8,13 @@ from decimal import Decimal
 
 import pytest
 
+from analyte.catalog import (
+    Sex,
+    analytes_by_code,
+    load_analytes,
+    load_analytes_without_reference,
+    terms_by_name,
+)
 from analyte.domain.enums import (
     AnalyteStatus,
     AssertionKind,
@@ -22,13 +24,6 @@ from analyte.domain.enums import (
     ReferenceSource,
 )
 from analyte.grounding.branch_a.classify import classify
-from analyte.catalog import (
-    Sex,
-    analytes_by_code,
-    load_analytes,
-    load_analytes_without_reference,
-    terms_by_name,
-)
 from data_generator.generate import build_corpus, summarize, write_corpus
 from data_generator.narrative import (
     EXPLAINED_TERM_SENTENCES,
@@ -43,9 +38,7 @@ def corpus():
     return build_corpus(seed=42, count=CORPUS_SIZE)
 
 
-# --------------------------------------------------------------------
 # Përsëritshmëria — NFR3
-# --------------------------------------------------------------------
 
 
 def test_same_seed_gives_identical_bytes(tmp_path):
@@ -91,9 +84,7 @@ def test_manifest_records_resource_checksums(tmp_path):
     assert len(manifest["documents"]) == 2
 
 
-# --------------------------------------------------------------------
 # Pajtueshmëria e etiketave me atë që shtypet
-# --------------------------------------------------------------------
 
 
 def test_every_row_matches_its_finding(corpus):
@@ -153,9 +144,7 @@ def test_decimal_comma_is_applied_consistently(corpus):
                 assert "," not in row.value_printed
 
 
-# --------------------------------------------------------------------
 # Narrativa dhe pohimet
-# --------------------------------------------------------------------
 
 
 def test_assertion_offsets_point_at_their_own_text(corpus):
@@ -220,9 +209,7 @@ def test_glossary_covers_only_mentioned_known_terms(corpus):
             assert term not in table
 
 
-# --------------------------------------------------------------------
 # Krahasimi i kryqëzuar
-# --------------------------------------------------------------------
 
 
 def test_cross_references_cover_every_finding_and_assertion(corpus):
@@ -260,9 +247,7 @@ def test_agreement_means_the_directions_match(corpus):
             assert ref.state is expected
 
 
-# --------------------------------------------------------------------
 # Mbulimi i korpusit
-# --------------------------------------------------------------------
 
 
 def test_corpus_covers_every_case_the_evaluation_needs(corpus):
@@ -271,9 +256,7 @@ def test_corpus_covers_every_case_the_evaluation_needs(corpus):
     pikërisht rastet që punimi pretendon se i trajton."""
     summary = summarize(corpus)
     assert summary["status"].keys() >= {"normal", "low", "high"}
-    assert summary["status"].get("critical_high", 0) + summary["status"].get(
-        "critical_low", 0
-    ) > 0
+    assert summary["status"].get("critical_high", 0) + summary["status"].get("critical_low", 0) > 0
     assert summary["status"].get("uninterpretable", 0) > 0
     assert set(summary["reference_source"]) == {"document", "internal_table", "none"}
     assert set(summary["cross_reference_state"]) == {
@@ -287,9 +270,7 @@ def test_corpus_covers_every_case_the_evaluation_needs(corpus):
     assert summary["unexplained_terms"] > 0
 
 
-# --------------------------------------------------------------------
 # Tabelat burimore
-# --------------------------------------------------------------------
 
 
 def test_analyte_table_is_well_formed():
@@ -324,6 +305,6 @@ def test_sex_specific_ranges_exist():
 
 def test_quantization_matches_printed_decimals():
     glucose = analytes_by_code()["2345-7"]
-    assert glucose.quantize(Decimal("128.4")) == Decimal("128")
+    assert glucose.quantize(Decimal("128.4")) == Decimal(128)
     potassium = analytes_by_code()["2823-3"]
     assert potassium.quantize(Decimal("6.94")) == Decimal("6.9")

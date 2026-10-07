@@ -1,14 +1,6 @@
 """
 Matrica e eksperimenteve (§8.1 e specifikimit).
 
-Regjistri ekziston që numrat e Kapitullit 6 të kenë secili një adresë. Një
-qelizë e tabelës që nuk u mat nuk fshihet dhe nuk lihet bosh: ajo shtypet
-`[TO BE MEASURED]`, sepse ndryshimi mes "nuk u mat ende" dhe "doli zero"
-është ndryshimi mes një boshllëku të njohur dhe një gabimi të fshehur.
-
-`status` thotë pse një eksperiment nuk mund të ekzekutohet ende. Kjo e bën
-listën e mbetur të punës të lexueshme nga vetë harness-i në vend që të
-mbahet mend.
 """
 
 from __future__ import annotations
@@ -71,38 +63,87 @@ class Experiment:
 
 
 EXPERIMENTS: tuple[Experiment, ...] = (
-    Experiment("E1", "Saktësia e nxjerrjes", "dixhital", "synthetic-v1",
-               "extraction", "PK1", channel="digital"),
-    Experiment("E2", "Saktësia e nxjerrjes", "i skanuar", "synthetic-v1",
-               "extraction", "PK1", channel="scanned"),
-    Experiment("E3", "Klasifikimi i statusit", "—", "synthetic-v1",
-               "classification", "PK2"),
-    Experiment("E4", "Besnikëria e thjeshtimit", "—", "synthetic-v1",
-               "prose", "PK3"),
-    Experiment("E5", "Krahasimi i kryqëzuar", "—", "synthetic-v1",
-               "crossref", "PK4"),
-    Experiment("E6", "Ablacion A", "pa bazim", "synthetic-v1",
-               "violations", "PK5"),
-    Experiment("E7", "Ablacion B", "vetëm bazim", "synthetic-v1",
-               "violations", "PK5"),
-    Experiment("E8", "Ablacion C", "+ verifikim me rregulla", "synthetic-v1",
-               "violations", "PK5"),
-    Experiment("E9", "Ablacion D", "+ klasifikues", "synthetic-v1",
-               "violations", "PK5"),
-    Experiment("E10", "Zbuluesi: rregulla", "—", "corruption-test",
-               "detector", "PK6", status=NEEDS_CORRUPTION_SET),
-    Experiment("E11", "Zbuluesi: klasifikues", "—", "corruption-test",
-               "detector", "PK6", status=NEEDS_CORRUPTION_SET,
-               waiting_for="klasifikuesi XLM-R i trajnuar në Colab"),
-    Experiment("E12", "Zbuluesi: gjykatës LLM", "—", "corruption-test",
-               "detector", "PK6", status=NEEDS_CORRUPTION_SET,
-               waiting_for="një model gjuhësor si gjykatës"),
-    Experiment("E13", "Vlefshmëria mbi të dhëna reale", "—", "real-subset",
-               "extraction", "vlefshmëri e jashtme", status=NEEDS_REAL_DATA),
-    Experiment("E14", "Kuptueshmëria te përdoruesit", "me / pa sistem", "n=12-20",
-               "comprehension", "PK7", status=NEEDS_USER_STUDY),
-    Experiment("E15", "Model lokal kundrejt në re", "opsional", "synthetic-v1",
-               "violations", "diskutim", status=NEEDS_SECOND_PROVIDER),
+    Experiment(
+        "E1",
+        "Saktësia e nxjerrjes",
+        "dixhital",
+        "synthetic-v1",
+        "extraction",
+        "PK1",
+        channel="digital",
+    ),
+    Experiment(
+        "E2",
+        "Saktësia e nxjerrjes",
+        "i skanuar",
+        "synthetic-v1",
+        "extraction",
+        "PK1",
+        channel="scanned",
+    ),
+    Experiment("E3", "Klasifikimi i statusit", "—", "synthetic-v1", "classification", "PK2"),
+    Experiment("E4", "Besnikëria e thjeshtimit", "—", "synthetic-v1", "prose", "PK3"),
+    Experiment("E5", "Krahasimi i kryqëzuar", "—", "synthetic-v1", "crossref", "PK4"),
+    Experiment("E6", "Ablacion A", "pa bazim", "synthetic-v1", "violations", "PK5"),
+    Experiment("E7", "Ablacion B", "vetëm bazim", "synthetic-v1", "violations", "PK5"),
+    Experiment("E8", "Ablacion C", "+ verifikim me rregulla", "synthetic-v1", "violations", "PK5"),
+    Experiment("E9", "Ablacion D", "+ klasifikues", "synthetic-v1", "violations", "PK5"),
+    Experiment(
+        "E10",
+        "Zbuluesi: rregulla",
+        "—",
+        "corruption-test",
+        "detector",
+        "PK6",
+        status=NEEDS_CORRUPTION_SET,
+    ),
+    Experiment(
+        "E11",
+        "Zbuluesi: klasifikues",
+        "—",
+        "corruption-test",
+        "detector",
+        "PK6",
+        status=NEEDS_CORRUPTION_SET,
+        waiting_for="klasifikuesi XLM-R i trajnuar në Colab",
+    ),
+    Experiment(
+        "E12",
+        "Zbuluesi: gjykatës LLM",
+        "—",
+        "corruption-test",
+        "detector",
+        "PK6",
+        status=NEEDS_CORRUPTION_SET,
+        waiting_for="një model gjuhësor si gjykatës",
+    ),
+    Experiment(
+        "E13",
+        "Vlefshmëria mbi të dhëna reale",
+        "—",
+        "real-subset",
+        "extraction",
+        "vlefshmëri e jashtme",
+        status=NEEDS_REAL_DATA,
+    ),
+    Experiment(
+        "E14",
+        "Kuptueshmëria te përdoruesit",
+        "me / pa sistem",
+        "n=12-20",
+        "comprehension",
+        "PK7",
+        status=NEEDS_USER_STUDY,
+    ),
+    Experiment(
+        "E15",
+        "Model lokal kundrejt në re",
+        "opsional",
+        "synthetic-v1",
+        "violations",
+        "diskutim",
+        status=NEEDS_SECOND_PROVIDER,
+    ),
 )
 
 BY_ID: dict[str, Experiment] = {e.id: e for e in EXPERIMENTS}

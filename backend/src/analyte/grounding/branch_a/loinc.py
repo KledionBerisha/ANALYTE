@@ -1,20 +1,6 @@
 """
 Nga emri i shtypur te kodi LOINC.
 
-Laboratorët e shkruajnë të njëjtin analit në shumë mënyra: "Hemoglobina",
-"HGB", "Hb". Tabela e analiteve i mban këto forma, dhe ky modul i kthen
-në një indeks kërkimi.
-
-Përputhja është e saktë pas normalizimit dhe jo e afërt. Një përputhje e
-afërt — distancë vargjesh, nënvargje — do ta ngatërronte "Kalciumi" me
-"Kaliumi" herët a vonë, dhe ngatërrimi do të hynte i heshtur në një
-shpjegim për pacientin. Emri i panjohur kthehet si i panjohur; kjo e ul
-mbulimin e PK1 në mënyrë të dukshme, e cila është pikërisht sjellja e
-dëshiruar.
-
-Rasti i dykuptimësisë trajtohet shprehimisht: nëse dy analite pretendojnë
-të njëjtën formë, asnjëri nuk e fiton. Zgjedhja e "të parit" do të
-varej nga rendi i rreshtave në një CSV.
 """
 
 from __future__ import annotations
@@ -140,8 +126,3 @@ def resolve_inflected(name: str) -> str | None:
 
 def is_known(name: str) -> bool:
     return resolve(name) is not None
-
-
-def known_forms() -> int:
-    """Sa forma të shkruara njihen. Shifër përshkruese për Tabelën T1."""
-    return sum(1 for value in _index().values() if value != AMBIGUOUS)
