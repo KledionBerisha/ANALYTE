@@ -46,11 +46,17 @@ class Grounding:
         return not self.context.is_empty()
 
 
-def build(document_id: UUID, pages: tuple[PageText, ...], *, ocr_guard: bool = True) -> Grounding:
+def build(
+    document_id: UUID, pages: tuple[PageText, ...], *, ocr_guard: bool = True, advice: bool = True
+) -> Grounding:
     """Ndërton kontekstin nga faqet e lexuara të një dokumenti.
 
     `ocr_guard` ndez kontrollin e besueshmërisë për faqet e OCR-së (ADR 0020). Shërbimi e ka të ndezur; eksperimentet e
     ngrira (E7–E9, të matura para tij) e kalojnë të fikur, që cache-i i modelit dhe rezultatet e tyre të mbeten të vlefshme.
+
+    `advice` lidh këshillat me burim të tabelës me gjetjet jashtë intervalit (ADR 0023). Po ashtu: i ndezur te shërbimi,
+    i fikur te eksperimentet e ngrira, sepse këshilla hyn në kërkesën e modelit dhe në shabllon dhe do t'i ndryshonte
+    kontekstet, çelësat e cache-it dhe rezultatet e matura para saj.
     """
     findings = extract(pages, ocr_guard=ocr_guard)
     narrative = branch_b_assertions.find_report_text(pages)
@@ -64,6 +70,6 @@ def build(document_id: UUID, pages: tuple[PageText, ...], *, ocr_guard: bool = T
         glossary=terminology.glossary_for(narrative),
         unexplained_terms=branch_b_assertions.unexplained_terms(narrative),
         patterns=patterns.detect(findings.findings),
-        advice=branch_a_advice.attach(findings.findings),
+        advice=branch_a_advice.attach(findings.findings) if advice else (),
     )
     return Grounding(context=context, narrative_text=narrative, extraction=findings)

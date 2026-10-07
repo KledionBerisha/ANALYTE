@@ -60,6 +60,8 @@ class UngroundedPipeline:
     ablation: str = "E6"
     version: str = "1"
     ocr_guard: bool = False
+    advice: bool = False
+    """Këshillat me burim (ADR 0023); i fikur te eksperimentet e ngrira."""
     rules: str = LEGACY_RULES_VERSION
     """E6 mat shkeljet e tekstit pa bazim me katalogun e zgjedhur; parazgjedhja është r1.3 e ngrirë."""
 
@@ -89,7 +91,7 @@ class UngroundedPipeline:
                 failures=(failure,),
             )
 
-        grounding = build(document.document_id, pages, ocr_guard=self.ocr_guard)
+        grounding = build(document.document_id, pages, ocr_guard=self.ocr_guard, advice=self.advice)
         context = grounding.context
         if not grounding.has_content:
             return PipelineOutput(context=context, state=ProcessingState.NO_FINDINGS)

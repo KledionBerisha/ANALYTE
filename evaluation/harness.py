@@ -431,17 +431,19 @@ def build_pipeline(
     cache: Path = LLM_CACHE,
     ocr_guard: bool = False,
     rules: str = LEGACY_RULES_VERSION,
+    advice: bool = False,
 ) -> Pipeline:
     engine = build_ocr(ocr)
     suffix = "+ocr" if engine is not None else ""
     suffix += "+guard" if ocr_guard else ""
+    suffix += "+advice" if advice else ""
     if name == "e6":
         if generator != "llm":
             raise SystemExit("e6 (pa bazim) kërkon --generator llm: shablloni nuk ka çfarë të lexojë")
         from .ungrounded import UngroundedPipeline
 
         return UngroundedPipeline(
-            client=build_llm_client(cache=cache), ocr=engine, ocr_guard=ocr_guard, rules=rules
+            client=build_llm_client(cache=cache), ocr=engine, ocr_guard=ocr_guard, advice=advice, rules=rules
         )
     if name in {"e7", "e8", "e9"}:
         predictor, threshold = build_classifier(classifier) if name == "e9" else (None, None)
@@ -452,6 +454,7 @@ def build_pipeline(
             ablation=name.upper(),
             ocr=engine,
             ocr_guard=ocr_guard,
+            advice=advice,
             rules=rules,
             classifier=predictor,
             threshold=threshold,
@@ -463,7 +466,7 @@ def build_pipeline(
     if name == "branch_a":
         return BranchAPipeline(name=f"branch_a{suffix}", ocr=engine, ocr_guard=ocr_guard)
     if name == "grounding":
-        return GroundingPipeline(name=f"grounding{suffix}", ocr=engine, ocr_guard=ocr_guard)
+        return GroundingPipeline(name=f"grounding{suffix}", ocr=engine, ocr_guard=ocr_guard, advice=advice)
     raise SystemExit(
         f"pipeline i panjohur '{name}'; njihen: empty, oracle, branch_a, grounding, e6, e7, e8, e9"
     )
@@ -497,6 +500,11 @@ def main(argv: list[str] | None = None) -> int:
         help="ndiz kontrollin e besueshmërisë për faqet e OCR-së (ADR 0020); rezultatet e ngrira nuk e kanë",
     )
     parser.add_argument(
+        "--advice",
+        action="store_true",
+        help="lidh këshillat me burim (ADR 0023) te konteksti; rezultatet e ngrira nuk i kanë, kërkesat ndryshojnë",
+    )
+    parser.add_argument(
         "--rules",
         default=LEGACY_RULES_VERSION,
         choices=RULES_VERSIONS,
@@ -518,6 +526,7 @@ def main(argv: list[str] | None = None) -> int:
         args.llm_cache,
         ocr_guard=args.ocr_guard,
         rules=args.rules,
+        advice=args.advice,
     )
 
     chosen = (

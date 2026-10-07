@@ -8,6 +8,7 @@ vetë dhe ia japin `attach` si tabelë. Asnjë fjali këtu nuk është këshill�
 from __future__ import annotations
 
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -232,6 +233,41 @@ def test_every_filled_row_of_the_shipped_table_survives_its_own_verification():
         assert ctx.advice, row
         result = verify(ctx, build(ctx))
         assert result.passed, (row, [v.evidence for v in result.violations])
+
+
+# --------------------------------------------------------------------
+# Eksperimentet e ngrira
+# --------------------------------------------------------------------
+
+CORPUS_PDF = Path(__file__).resolve().parents[2] / "data" / "v1" / "documents" / "doc_00002.pdf"
+
+
+def test_every_experiment_pipeline_leaves_advice_off_by_default():
+    """Si `ocr_guard` (ADR 0020): rezultatet e ngrira u matën pa këshilla dhe kërkesat e tyre nuk ndryshojnë."""
+    from analyte.generation.templates import TemplateGenerator
+    from evaluation.pipeline import GenerationPipeline, GroundingPipeline
+    from evaluation.ungrounded import UngroundedPipeline
+
+    assert GroundingPipeline().advice is False
+    assert GenerationPipeline(TemplateGenerator(), ablation="E8").advice is False
+    assert UngroundedPipeline.__dataclass_fields__["advice"].default is False
+    assert "+advice" not in GenerationPipeline(TemplateGenerator(), ablation="E8").name
+    assert "+advice" in GenerationPipeline(TemplateGenerator(), ablation="E8", advice=True).name
+
+
+@pytest.mark.skipif(not CORPUS_PDF.exists(), reason="korpusi data/v1 mungon")
+def test_the_service_attaches_advice_and_the_frozen_experiments_do_not():
+    from uuid import uuid4
+
+    from analyte.grounding.context import build
+    from analyte.ingestion.pdf_text import read_pdf
+
+    pages = read_pdf(CORPUS_PDF)
+    service = build(uuid4(), pages).context
+    frozen = build(uuid4(), pages, advice=False).context
+    assert service.advice == attach(service.findings)
+    assert frozen.advice == ()
+    assert len(service.advice) == sum(1 for f in service.findings if f.status.is_abnormal and attach((f,)))
 
 
 def test_advice_entries_round_trip_through_json():

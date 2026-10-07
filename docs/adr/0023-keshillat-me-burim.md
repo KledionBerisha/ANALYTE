@@ -50,6 +50,11 @@ shërbimeve shëndetësore kombëtare), dhe fjalia shqipe nuk guxon të thotë m
 
 ## Pasojat
 
+- **Eksperimentet e ngrira nuk i shohin këshillat.** `grounding.build(..., advice=False)` te çdo pipeline i
+  vlerësimit (`evaluation/pipeline.py`, `ungrounded.py`), si `ocr_guard` (ADR 0020): përndryshe E7–E9 do të merrnin
+  një bllok të ri në kërkesë dhe fjali të reja në shabllon, çelësat e cache-it do të ndryshonin dhe rezultatet e matura
+  para tabelës nuk do të rindërtoheshin. Një ekzekutim me këshilla kërkohet shprehimisht: `--advice` te harness-i,
+  dhe emri i pipeline-it merr prapashtesën `+advice`, që rezultati të mos ngatërrohet me të ngrirët.
 - Korpusi `data/v1` nuk preket: `advice.csv` nuk hyn në `RESOURCE_FILES` të gjeneruesit, sepse nuk ndryshon
   asnjë dokument dhe asnjë të vërtetë bazë; `GroundingContext.advice` ka vlerë të parazgjedhur bosh.
 - Fleta e punës `docs/thesis/worksheets/burimet.md` radhit edhe rreshtat e paplotësuar të këshillave.

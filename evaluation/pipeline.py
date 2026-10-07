@@ -217,6 +217,8 @@ class GroundingPipeline:
     ocr: Any = None
     ocr_guard: bool = False
     """Kontrolli i besueshmërisë i OCR-së (ADR 0020). I fikur te eksperimentet e ngrira."""
+    advice: bool = False
+    """Këshillat me burim (ADR 0023). I fikur te eksperimentet e ngrira: ato ndryshojnë kërkesën dhe shabllonin."""
 
     def run(self, document: DocumentInput) -> PipelineOutput:
         from analyte.grounding.context import build
@@ -229,7 +231,7 @@ class GroundingPipeline:
                 failures=(failure,),
             )
 
-        grounding = build(document.document_id, pages, ocr_guard=self.ocr_guard)
+        grounding = build(document.document_id, pages, ocr_guard=self.ocr_guard, advice=self.advice)
         return PipelineOutput(
             context=grounding.context,
             state=(
@@ -276,6 +278,8 @@ class GenerationPipeline:
     version: str = "1"
     ocr: Any = None
     ocr_guard: bool = False
+    advice: bool = False
+    """Këshillat me burim (ADR 0023) te konteksti; i fikur te eksperimentet e ngrira."""
     rules: str = LEGACY_RULES_VERSION
     """Versioni i katalogut me të cilin verifikohet (r1.3 e ngrirë; shih `verification/ruleset.py`)."""
     classifier: Any = None
@@ -294,6 +298,7 @@ class GenerationPipeline:
     def name(self) -> str:
         suffix = "+ocr" if self.ocr is not None else ""
         suffix += "+guard" if self.ocr_guard else ""
+        suffix += "+advice" if self.advice else ""
         if self.classifier is not None:
             suffix += f"+{self.classifier.version}@{self.threshold}"
         return f"{self.ablation.lower()}[{self.generator.name}]{suffix}"
@@ -313,7 +318,7 @@ class GenerationPipeline:
         from analyte.orchestration.process import Attempt, Delivery, explain
         from analyte.verification.pipeline import verify
 
-        grounded = GroundingPipeline(ocr=self.ocr, ocr_guard=self.ocr_guard).run(document)
+        grounded = GroundingPipeline(ocr=self.ocr, ocr_guard=self.ocr_guard, advice=self.advice).run(document)
         if grounded.state is not ProcessingState.GROUNDED:
             return grounded
         context = grounded.context
