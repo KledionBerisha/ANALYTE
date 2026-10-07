@@ -215,7 +215,7 @@ RULE_CATALOG: tuple[Rule, ...] = (
         "R8",
         ViolationType.OMITTED_RECOMMENDATION,
         "B",
-        "Çdo rekomandim i mjekut duhet të ruhet në dalje.",
+        "Çdo rekomandim i mjekut, dhe çdo këshillë me burim e tabelës, duhet të ruhet në dalje.",
         requires_context=True,
     ),
     Rule(

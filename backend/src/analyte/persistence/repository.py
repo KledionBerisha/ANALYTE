@@ -17,6 +17,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from analyte.domain.models import (
+    AdviceEntry,
     AnalyteFinding,
     BoundingBox,
     CrossReference,
@@ -30,6 +31,7 @@ from analyte.domain.models import (
 from analyte.domain.processing import Delivery, Explanation
 
 from .tables import (
+    AdviceRow,
     AssertionRow,
     CrossReferenceRow,
     ExplanationRow,
@@ -48,6 +50,7 @@ CONTEXT_TABLES = (
     GlossaryRow,
     UnexplainedTermRow,
     PatternRow,
+    AdviceRow,
 )
 
 
@@ -139,6 +142,18 @@ def save_context(session: Session, context: GroundingContext) -> None:
                 source_ref=p.source_ref,
             )
         )
+    for position, e in enumerate(context.advice):
+        session.add(
+            AdviceRow(
+                document_id=document_id,
+                position=position,
+                finding_id=e.finding_id,
+                analyte_code=e.analyte_code,
+                direction=e.direction.value,
+                advice_sq=e.advice_sq,
+                source_ref=e.source_ref,
+            )
+        )
     session.flush()
 
 
@@ -219,6 +234,16 @@ def load_context(session: Session, document_id: UUID) -> GroundingContext:
                 source_ref=r.source_ref,
             )
             for r in _rows(session, PatternRow, document_id)
+        ),
+        advice=tuple(
+            AdviceEntry(
+                finding_id=r.finding_id,
+                analyte_code=r.analyte_code,
+                direction=r.direction,
+                advice_sq=r.advice_sq,
+                source_ref=r.source_ref,
+            )
+            for r in _rows(session, AdviceRow, document_id)
         ),
     )
 

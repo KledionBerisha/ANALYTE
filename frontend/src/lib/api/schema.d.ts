@@ -506,6 +506,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/advice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Table */
+        get: operations["table_advice_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/documents/{document_id}/chat": {
         parameters: {
             query?: never;
@@ -603,6 +620,24 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdviceOut
+         * @description Një rresht i tabelës së këshillave me burim (ADR 0023), i plotësuar ose jo.
+         */
+        AdviceOut: {
+            /** Loinc Code */
+            loinc_code: string;
+            /** Analyte Name Sq */
+            analyte_name_sq: string;
+            /** Direction */
+            direction: string;
+            /** Advice Sq */
+            advice_sq: string;
+            /** Source Ref */
+            source_ref: string;
+            /** Is Filled */
+            is_filled: boolean;
+        };
         /**
          * AnalyteFinding
          * @description Një vlerë laboratorike e nxjerrë, e normalizuar dhe e klasifikuar.
@@ -2018,6 +2053,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    table_advice_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdviceOut"][];
                 };
             };
         };

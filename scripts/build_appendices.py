@@ -80,7 +80,41 @@ def appendix_a() -> str:
             f"| {_cell(r['term'])} | {_cell(r['explanation_sq'])} | {_cell(r['category'])} "
             f"| {_cell(r['synonyms'].replace('|', ', '))} | {_cell(r['source_ref'])} |"
         )
+    lines += ["", *_advice_table()]
     return "\n".join(lines) + "\n"
+
+
+def _advice_table() -> list[str]:
+    """Tabela A.2 — këshillat me burim (ADR 0023), një rresht për analit dhe drejtim."""
+    with (ROOT / "resources" / "advice.csv").open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    from analyte.catalog import load_analytes
+
+    names = {a.loinc_code: a.name_canonical_sq for a in load_analytes()}
+    direction = {"increased": "mbi intervalin", "decreased": "nën intervalin"}
+    filled = [r for r in rows if r["advice_sq"].strip() and "plotësohet" not in r["source_ref"]]
+    decided_empty = [r for r in rows if not r["advice_sq"].strip() and "plotësohet" not in r["source_ref"]]
+    pending = len(rows) - len(filled) - len(decided_empty)
+    lines = [
+        f"Tabela A.2 mban këshillat me burim (ADR 0023): një fjali e vetme për çdo analit dhe drejtim, e shtypur "
+        f"fjalë për fjalë nën vlerën përkatëse dhe e mbrojtur nga R8. {len(filled)} nga {len(rows)} rreshta kanë fjali "
+        f"dhe burim të lexuar; {len(decided_empty)} rresht(a) kanë burim por asnjë fjali, sepse burimi nuk jep asgjë "
+        f"për atë drejtim, dhe pacientit nuk i shfaqet asgjë; {pending} mbeten pa burim. Fjalia nuk emërton gjendje, "
+        "nuk jep trajtim dhe nuk parashikon: ajo tregon vetëm çfarë mund t'i thotë pacienti mjekut dhe cilët faktorë "
+        "para-analitikë përmend burimi. Çdo rresht i plotësuar kalon vetë nëpër R1, R2, R3 dhe SP1–SP3 "
+        "(`tests/unit/test_advice.py`).",
+        "",
+        "*Tabela A.2. Këshillat me burim sipas analitit dhe drejtimit*",
+        "",
+        "| Analiti | Drejtimi | Fjalia | Burimi |",
+        "|---|---|---|---|",
+    ]
+    for r in rows:
+        sentence = _cell(r["advice_sq"]) if r["advice_sq"].strip() else "—"
+        lines.append(
+            f"| {_cell(names[r['loinc_code']])} | {direction[r['direction']]} | {sentence} | {_cell(r['source_ref'])} |"
+        )
+    return lines
 
 
 # --------------------------------------------------------------------

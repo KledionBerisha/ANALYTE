@@ -40,7 +40,7 @@ from analyte.domain.policy import (
     UNINTERPRETABLE_NOTICE_SQ,
 )
 
-from .templates import POSITION, _number, _pattern_sentences, _quoted_assertions
+from .templates import POSITION, _number, _pattern_sentences, _quoted_assertions, advice_by_finding
 
 PROMPT_VERSION = "p1"
 
@@ -85,6 +85,14 @@ def _user_message(context: GroundingContext, feedback: tuple[Violation, ...]) ->
         )
 
     blocks.append("Vlerat laboratorike:\n" + _findings(context))
+
+    advice = _advice(context)
+    if advice:
+        # ADR 0023: blloku shfaqet vetëm kur konteksti ka këshilla; kërkesat pa këshilla mbeten `p1` bajt për bajt.
+        blocks.append(
+            "Këshilla me burim (KOPJOJE çdo fjali fjalë për fjalë, menjëherë pas vlerës përkatëse; "
+            "mos shto asnjë këshillë tjetër):\n" + advice
+        )
 
     patterns = _pattern_sentences(context)
     if patterns:
@@ -139,6 +147,12 @@ def _interval(finding: AnalyteFinding) -> str:
     if low is not None:
         return f"; intervali referent nga {_number(low)}"
     return ""
+
+
+def _advice(context: GroundingContext) -> str:
+    names = {finding.id: finding.analyte_name_canonical for finding in context.findings}
+    advice = advice_by_finding(context)
+    return "\n".join(f"- pas {names[finding_id]}: {sentence}" for finding_id, sentence in advice.items())
 
 
 def _terms(context: GroundingContext) -> str:

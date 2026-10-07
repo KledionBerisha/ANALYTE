@@ -33,3 +33,4 @@ del gjithmonë më i pastër dhe më i qëllimshëm seç ishte.
 | [0020](0020-kontrolli-i-besueshmerise-i-ocr-se.md) | Kontrolli i besueshmërisë për vlerat e lexuara nga OCR-ja (presja dhjetore që humbet) | i zbatuar; i matur mbi korpusin sintetik |
 | [0021](0021-rregullat-r1-4.md) | Katalogu i rregullave `r1.4`: katër rregulla përmirësohen, `r1.3` mbetet i ngrirë | i zbatuar; mostrat e kontaminuara |
 | [0022](0022-klasifikuesi-nuk-vendoset.md) | Klasifikuesi i fjalive mbetet alternativë e vlerësuar, jo pjesë e verifikimit të vendosur | vendim; nuk u rihartua |
+| [0023](0023-keshillat-me-burim.md) | Këshillat me burim: një tabelë me burim për çdo analit dhe drejtim, e kopjuar fjalë për fjalë, jo modeli gjuhësor | i zbatuar; tabela bosh, plotësohet nga autori |

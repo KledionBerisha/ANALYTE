@@ -54,6 +54,7 @@ CHILDREN = (
     "document_glossary",
     "document_unexplained_terms",
     "pattern_observations",
+    "document_advice",
     "processing_jobs",
     "explanations",
 )

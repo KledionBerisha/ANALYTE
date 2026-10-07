@@ -2,7 +2,7 @@
 
 ## Shtojca G — Skema SQL e bazës së të dhënave
 
-Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 21 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
+Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 22 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
 
 ```sql
 CREATE TABLE audit_events (
@@ -165,6 +165,21 @@ CREATE TABLE cross_references (
 );
 
 CREATE INDEX ix_cross_references_document_id ON cross_references (document_id);
+
+CREATE TABLE document_advice (
+	id SERIAL NOT NULL, 
+	document_id UUID NOT NULL, 
+	position INTEGER NOT NULL, 
+	finding_id UUID NOT NULL, 
+	analyte_code VARCHAR(20) NOT NULL, 
+	direction VARCHAR(20) NOT NULL, 
+	advice_sq TEXT NOT NULL, 
+	source_ref TEXT NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(document_id) REFERENCES documents (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_document_advice_document_id ON document_advice (document_id);
 
 CREATE TABLE document_glossary (
 	id SERIAL NOT NULL, 

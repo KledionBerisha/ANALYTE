@@ -114,3 +114,23 @@ def test_delivered_explanation_and_its_verification_round_trip(sessions):
         restored = repository.to_verification(row.verification)
     assert restored.violations == explanation.verification.violations
     assert restored.rules_version == explanation.verification.rules_version
+
+
+def test_advice_entries_round_trip_with_their_source(sessions):
+    """ADR 0023: këshilla ruhet e plotë, si fjalori, bashkë me burimin dhe gjetjen e saj."""
+    from analyte.catalog import Advice
+    from analyte.grounding.branch_a.advice import attach
+
+    context = build_reference_context()
+    high = next(f for f in context.findings if f.status.direction.value == "increased")
+    table = (Advice(high.analyte_code, "increased", "Flisni me mjekun tuaj për këtë vlerë.", "Burim i lexuar (provë)"),)
+    context = context.model_copy(update={"advice": attach(context.findings, table)})
+    assert len(context.advice) == 1
+    with sessions() as session:
+        _document(session, context.document_id)
+        repository.save_context(session, context)
+        session.commit()
+    with sessions() as session:
+        loaded = repository.load_context(session, context.document_id)
+    assert loaded == context and loaded.advice[0].source_ref == "Burim i lexuar (provë)"
+

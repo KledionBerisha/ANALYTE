@@ -167,6 +167,34 @@ class Pattern:
     source_ref: str
 
 
+@dataclass(frozen=True, slots=True)
+class Advice:
+    """Një këshillë e përgjithshme me burim për një analit dhe një drejtim (ADR 0023).
+
+    Nuk është gjenerim: fjalia shtypet ashtu siç është në tabelë dhe modeli
+    gjuhësor e kopjon fjalë për fjalë. Rreshti pa fjali ose pa burim të lexuar
+    nuk i shfaqet kurrë pacientit (`is_filled`).
+    """
+
+    loinc_code: str
+    direction: str
+    """`increased` ose `decreased` — vlera e `Direction`."""
+    advice_sq: str
+    source_ref: str
+
+    @property
+    def is_filled(self) -> bool:
+        return (
+            bool(self.advice_sq.strip())
+            and bool(self.source_ref.strip())
+            and "plotësohet" not in self.source_ref
+        )
+
+
+ADVICE_DIRECTIONS = ("increased", "decreased")
+ADVICE_MAX_LENGTH = 240
+
+
 def _decimal(raw: str) -> Decimal | None:
     raw = raw.strip()
     return Decimal(raw) if raw else None
@@ -285,6 +313,49 @@ def load_patterns() -> tuple[Pattern, ...]:
         )
         out.append(Pattern(row["pattern_id"], conditions, row["source_ref"]))
     return tuple(out)
+
+
+@lru_cache(maxsize=1)
+def load_advice() -> tuple[Advice, ...]:
+    """Këshillat me burim, një rresht për (analit, drejtim); tabela kontrollohet në ngarkim.
+
+    Fjalia e plotësuar nuk guxon të përmbajë shifra (R1 do ta refuzonte) dhe duhet të
+    jetë një fjali e vetme që mbyllet me pikë, që shablloni dhe modeli ta kopjojnë pa e
+    ndarë dhe R8 ta gjejë të plotë.
+    """
+    known = {a.loinc_code for a in load_analytes()}
+    out: list[Advice] = []
+    seen: set[tuple[str, str]] = set()
+    for row in _read("advice.csv"):
+        advice = Advice(
+            loinc_code=row["loinc_code"].strip(),
+            direction=row["direction"].strip(),
+            advice_sq=row["advice_sq"].strip(),
+            source_ref=row["source_ref"].strip(),
+        )
+        key = (advice.loinc_code, advice.direction)
+        if advice.loinc_code not in known:
+            raise ValueError(f"advice.csv: kod i panjohur analiti {advice.loinc_code!r}")
+        if advice.direction not in ADVICE_DIRECTIONS:
+            raise ValueError(f"advice.csv: drejtim i panjohur {advice.direction!r} te {advice.loinc_code}")
+        if key in seen:
+            raise ValueError(f"advice.csv: rresht i dyfishtë për {key}")
+        seen.add(key)
+        sentence = advice.advice_sq
+        if sentence:
+            if any(ch.isdigit() for ch in sentence):
+                raise ValueError(f"advice.csv: këshilla për {key} përmban shifra")
+            if not sentence.endswith(".") or "." in sentence[:-1]:
+                raise ValueError(f"advice.csv: këshilla për {key} duhet të jetë një fjali e vetme që mbyllet me pikë")
+            if len(sentence) > ADVICE_MAX_LENGTH:
+                raise ValueError(f"advice.csv: këshilla për {key} i kalon {ADVICE_MAX_LENGTH} shenja")
+        out.append(advice)
+    return tuple(out)
+
+
+@lru_cache(maxsize=1)
+def advice_by_key() -> dict[tuple[str, str], Advice]:
+    return {(a.loinc_code, a.direction): a for a in load_advice()}
 
 
 @lru_cache(maxsize=1)

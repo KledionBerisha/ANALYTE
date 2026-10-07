@@ -215,6 +215,17 @@ class VerificationOut(BaseModel):
     attempts: list[AttemptOut]
 
 
+class AdviceOut(BaseModel):
+    """Një rresht i tabelës së këshillave me burim (ADR 0023), i plotësuar ose jo."""
+
+    loinc_code: str
+    analyte_name_sq: str
+    direction: str
+    advice_sq: str
+    source_ref: str
+    is_filled: bool
+
+
 class TermOut(BaseModel):
     term: str
     explanation_sq: str

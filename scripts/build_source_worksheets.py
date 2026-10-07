@@ -15,6 +15,9 @@ dalin nga lista e të mbetura.
 
 Një zë që nuk gjen burim fshihet nga CSV-ja: termi pa burim bëhet «term i
 pashpjeguar» (SP6), dhe kombinimi pa burim hiqet.
+
+Këshillat me burim (`resources/advice.csv`, ADR 0023) radhiten po këtu: rreshti i
+paplotësuar nuk i shfaqet pacientit, prandaj ai mund të mbetet bosh pa pasojë.
 """
 
 from __future__ import annotations
@@ -26,7 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend" / "src"))
 
-from analyte.catalog import analytes_by_code, load_patterns, load_terminology  # noqa: E402
+from analyte.catalog import analytes_by_code, load_advice, load_patterns, load_terminology  # noqa: E402
 
 DEFAULT_OUT = ROOT / "docs" / "thesis" / "worksheets" / "burimet.md"
 PLACEHOLDER_MARKS = ("plotësohet",)
@@ -60,6 +63,14 @@ def pending_patterns():
     return [p for p in load_patterns() if is_placeholder(p.source_ref)]
 
 
+def pending_advice():
+    """Rreshtat e këshillave (ADR 0023) që presin ende: pa burim të lexuar.
+
+    Rreshti me burim por pa fjali është vendim, jo mungesë: burimi nuk jep asgjë për atë drejtim
+    (p.sh. CRP e ulët) dhe pacientit nuk i shfaqet asgjë. Ai nuk radhitet si i mbetur."""
+    return [a for a in load_advice() if not a.is_filled and is_placeholder(a.source_ref)]
+
+
 def describe_pattern(pattern) -> str:
     by_code = analytes_by_code()
     parts = []
@@ -87,8 +98,10 @@ def build() -> str:
         "",
     ]
     if not terms and not patterns:
-        out += ["Asnjë zë nuk mbetet pa burim. Burimet e lexuara dhe evidenca e secilit janë te "
+        out += ["Asnjë term dhe asnjë kombinim nuk mbetet pa burim. Burimet e lexuara dhe evidenca e secilit janë te "
                 "`docs/thesis/worksheets/burimet_e_gjetura.md`.", ""]
+    advice = pending_advice()
+    out += [f"Këshilla me burim (ADR 0023) të paplotësuara: **{len(advice)}** nga {len(load_advice())}.", ""]
 
     out += ["## Kombinimet e analiteve", "",
             "Për secilin: një udhëzues ose standard i mjekësisë laboratorike që e lidh këtë kombinim me kërkesën që "
@@ -113,6 +126,22 @@ def build() -> str:
         for t in sorted(group, key=lambda x: x.term):
             out.append(f"| {t.term} | {t.explanation_sq} | | |")
         out.append("")
+    if advice:
+        by_code = analytes_by_code()
+        out += ["## Këshillat me burim (`resources/advice.csv`)", "",
+                "Një fjali e vetme për çdo analit dhe drejtim, pa numra, pa emër gjendjeje, pa trajtim, pa parashikim, "
+                "e formuluar si temë ose pyetje për mjekun («Pyesni mjekun tuaj nëse …», «Flisni me mjekun tuaj për …»). "
+                "Burimi: një faqe pacienti e lexuar që thotë çfarë mund të nënkuptojë një vlerë e lartë ose e ulët "
+                "(MedlinePlus «What do the results mean», faqe pacientësh të shërbimeve shëndetësore kombëtare); fjalia shqipe "
+                "nuk guxon të thotë më shumë se burimi. Rreshti pa fjali ose pa burim nuk i shfaqet pacientit; rreshti i "
+                "plotësuar kalon vetë nëpër rregullat R1, R2, R3 dhe SP1–SP3 (`python -m pytest tests/unit/test_advice.py`).",
+                "",
+                "| Kodi | Analiti | Drejtimi | Fjalia (advice_sq) | Burimi i lexuar |",
+                "|---|---|---|---|---|"]
+        for a in advice:
+            name = by_code[a.loinc_code].name_canonical_sq
+            out.append(f"| {a.loinc_code} | {name} | {DIRECTION_SQ.get(a.direction, a.direction)} | {a.advice_sq} | |")
+        out.append("")
     out += ["## Pas leximit",
             "",
             "1. Kontrolloni që asnjë shpjegim nuk përmban numër ose pohim diagnostik.",
@@ -133,6 +162,7 @@ def main(argv: list[str] | None = None) -> int:
     terms, patterns = pending_terms(), pending_patterns()
     print(f"terma pa burim: {len(terms)} nga {len(load_terminology())}")
     print(f"kombinime pa burim: {len(patterns)} nga {len(load_patterns())}")
+    print(f"këshilla të paplotësuara: {len(pending_advice())} nga {len(load_advice())}")
     if args.check:
         return 0
     args.out.parent.mkdir(parents=True, exist_ok=True)

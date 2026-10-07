@@ -34,12 +34,12 @@ dokumentin e papërpunuar, as tekstin e nxjerrë prej tij.
 
 ```
 backend/src/analyte/domain/     modelet, enum-et dhe politika — pa I/O, pa varësi
-backend/src/analyte/catalog.py  tabelat burimore: analitet, njësitë, terminologjia
+backend/src/analyte/catalog.py  tabelat burimore: analitet, njësitë, terminologjia, kombinimet, këshillat
 backend/src/analyte/ingestion/  leximi i PDF-së dhe vendimi tekst/OCR
 backend/src/analyte/grounding/  interpretimi i vlerave (Dega A) dhe i tekstit (Dega B)
 data_generator/                 korpusi sintetik: të dhënat, faqet dhe simulimi i skanimit
 evaluation/                     harness-i i eksperimenteve dhe metrikat PK1-PK6
-resources/                      tabelat burimore: analitet, njësitë, terminologjia
+resources/                      tabelat burimore: analitet, njësitë, terminologjia, kombinimet, këshillat (ADR 0023)
 tests/                          njësi, fixture referues
 ```
 

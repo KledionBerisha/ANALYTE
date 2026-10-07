@@ -244,6 +244,23 @@ class PatternObservation(DomainModel):
     source_ref: str
 
 
+class AdviceEntry(DomainModel):
+    """Një këshillë e përgjithshme me burim, e lidhur me një gjetje jashtë intervalit (ADR 0023).
+
+    Nuk është gjenerim dhe nuk është e mjekut: është një fjali e tabelës
+    `resources/advice.csv`, e zgjedhur nga analiti dhe drejtimi i gjetjes dhe e
+    shtypur fjalë për fjalë. Si fjalori, mban burimin e vet; pa burim të lexuar
+    rreshti nuk hyn fare në kontekst. Fjalia nuk thotë çfarë ka pacienti dhe nuk
+    jep trajtim: SP1–SP3 e gjykojnë edhe atë, si çdo fjali tjetër të daljes.
+    """
+
+    finding_id: UUID
+    analyte_code: str
+    direction: Direction
+    advice_sq: str
+    source_ref: str
+
+
 class GroundingContext(DomainModel):
     """I VETMI input që i jepet modelit gjuhësor.
 
@@ -274,6 +291,13 @@ class GroundingContext(DomainModel):
         default=(),
         description="Kombinimet e rregullave deterministe ndërmjet analiteve.",
     )
+    advice: tuple[AdviceEntry, ...] = Field(
+        default=(),
+        description=(
+            "Këshillat me burim të tabelës për gjetjet jashtë intervalit (ADR 0023); "
+            "kopjohen fjalë për fjalë dhe R8 i kërkon në dalje."
+        ),
+    )
 
     @model_validator(mode="after")
     def check_internal_consistency(self) -> GroundingContext:
@@ -295,6 +319,12 @@ class GroundingContext(DomainModel):
             unknown = set(pattern.finding_ids) - finding_ids
             if unknown:
                 raise ValueError(f"modeli {pattern.pattern_id} i referohet gjetjeve të panjohura")
+
+        for entry in self.advice:
+            if entry.finding_id not in finding_ids:
+                raise ValueError(
+                    f"këshilla për {entry.analyte_code} i referohet gjetjes së panjohur {entry.finding_id}"
+                )
 
         explained = {e.term.casefold() for e in self.glossary}
         overlap = explained & {t.casefold() for t in self.unexplained_terms}

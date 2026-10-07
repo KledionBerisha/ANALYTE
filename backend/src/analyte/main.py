@@ -29,6 +29,7 @@ from analyte.orchestration.tasks import (
 )
 
 from .api import (
+    advice,
     auth,
     chat,
     documents,
@@ -78,7 +79,7 @@ def create_app(
     # Shtohet pas CORS, prandaj është më e jashtmja: kokat e sigurisë dalin edhe te përgjigjet e CORS (ADR 0018).
     app.add_middleware(SecurityHeaders)
     problems.install(app)
-    for module in (auth, two_factor, documents, findings, explanations, terminology, chat, privacy):
+    for module in (auth, two_factor, documents, findings, explanations, terminology, advice, chat, privacy):
         app.include_router(module.router)
 
     @app.get("/health", tags=["health"])

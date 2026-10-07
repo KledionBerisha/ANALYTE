@@ -22,6 +22,7 @@ funksionon me çdo emër analiti, në njëjës apo shumës, pa përshtatje.
 from __future__ import annotations
 
 from decimal import Decimal
+from uuid import UUID
 
 from analyte.domain.enums import AnalyteStatus
 from analyte.domain.models import AnalyteFinding, GroundingContext
@@ -70,8 +71,12 @@ def build(context: GroundingContext) -> str:
     if context.critical_findings():
         parts.append(CRITICAL_BANNER_SQ)
 
+    advice = advice_by_finding(context)
     for finding in context.findings:
         parts.append(_finding_sentence(finding))
+        if finding.id in advice:
+            # ADR 0023: këshilla me burim, fjalë për fjalë, menjëherë pas vlerës së saj.
+            parts.append(advice[finding.id])
 
     parts.extend(_pattern_sentences(context))
     parts.extend(_term_sentences(context))
@@ -79,6 +84,11 @@ def build(context: GroundingContext) -> str:
     parts.append(DISCLAIMER_SQ)
 
     return " ".join(part for part in parts if part)
+
+
+def advice_by_finding(context: GroundingContext) -> dict[UUID, str]:
+    """Fjalia e këshillës për çdo gjetje që ka një të tillë (ADR 0023)."""
+    return {entry.finding_id: entry.advice_sq for entry in context.advice}
 
 
 def _finding_sentence(finding: AnalyteFinding) -> str:

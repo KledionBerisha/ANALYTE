@@ -81,6 +81,8 @@ Falënderoj mentorin tim për udhëzimet, vërejtjet dhe durimin gjatë gjithë 
 
 Falënderoj familjen time për mbështetjen e pakushtëzuar.
 
+Falënderoj mjekun e mjekësisë familjare që i rishikoi rregullat e kombinimit të analiteve.
+
 Falënderoj gjithashtu komunitetin e programeve me burim të hapur, mbi të cilat është ndërtuar ky sistem.
 
 ::: {custom-style="FrontHeadingNoToc"}
@@ -663,8 +665,13 @@ Rregullat e kombinimit janë të shkruara me dorë në një tabelë burimore
 (Tabela B.3, Shtojca B), një rresht për rregull: një listë kushtesh — analiti dhe
 drejtimi i statusit të tij — që duhet të plotësohen njëkohësisht, dhe
 burimi i rregullit. Njëmbëdhjetë rregulla mbulojnë kombinime të njohura
-gjerësisht, si hemoglobina e ulët me ferritinë të ulët apo hormoni
-stimulues i tiroides i lartë me tiroksinë të lirë të ulët.
+gjerësisht, si hemoglobina e ulët me ferritinë të ulët [65] apo hormoni
+stimulues i tiroides i lartë me tiroksinë të lirë të ulët [72]. Burimi i
+secilit rregull është një udhëzues i një shoqate profesionale (BSG, ADA,
+ATA, ESC/EAS) ose një shqyrtim i recensuar [66], [67], [68], [69], [70], [71], [73], [74], [75], [76], [77];
+të gjitha u lexuan më 6 tetor 2026 dhe të 11 kombinimet, bashkë me
+drejtimet e tyre, u rishikuan dhe u konfirmuan nga një mjek i mjekësisë
+familjare në tetor 2026 (Tabela B.3).
 
 Rregulli nuk emërton gjendjen. Emri i një kombinimi është diagnozë, dhe
 SP1 e ndalon pavarësisht nga burimi; dalja thotë vetëm se këto vlera,
@@ -684,8 +691,57 @@ vërteta bazë e korpusit i llogarit me të njëjtin funksion.
 Korpusi prodhon vlera të pavarura për çdo analit, prandaj kombinimet aty
 janë të rralla — 19 nga 500 dokumente. Rregullat testohen mbi gjetje
 të ndërtuara me dorë, jo mbi korpusin, dhe asnjë PK nuk mat saktësinë e
-tyre klinike; ajo varet nga burimi i secilit rregull dhe nga shqyrtimi i
-mentorit.
+tyre klinike; ajo mbështetet te burimi i secilit rregull dhe te rishikimi
+nga mjeku familjar, jo te një matje e këtij punimi.
+
+### 4.3.9 Këshillat me burim për vlerat jashtë intervalit
+
+Pacienti që lexon se një vlerë është jashtë intervalit referent kërkon
+edhe një hap tjetër: çfarë mund të bëjë me këtë. Kërkesa fillestare ishte
+që modeli gjuhësor të shtonte një këshillë të shkurtër për çdo vlerë të
+tillë. Kjo bie ndesh me parimin e punimit: një këshillë e shkruar nga
+modeli është pohim mjekësor pa burim, SP1–SP3 e ndalojnë trajtimin dhe
+këshillën klinike, dhe auditi i seksionit 5.6.1 tregon se rregullat kapin
+vetëm një pjesë të gabimeve të modelit. Prandaj këshilla është e dhënë,
+jo e gjeneruar (ADR 0023).
+
+Një tabelë burimore, `resources/advice.csv`, mban një rresht për çdo
+analit të panelit dhe çdo drejtim (38 analite, dy drejtime, 76 rreshta):
+kodi LOINC, drejtimi, fjalia shqipe dhe burimi. Fjalia është një e vetme,
+pa numra, pa emër gjendjeje, pa trajtim dhe pa parashikim, e formuluar si
+temë ose pyetje për mjekun («Pyesni mjekun tuaj nëse kjo vlerë duhet
+përsëritur esëll.»), dhe nuk thotë më shumë se faqja e pacientit nga e
+cila rrjedh. Ngarkuesi e refuzon rreshtin me shifra, me më shumë se një
+fjali, pa pikë në fund, me kod ose drejtim të panjohur, dhe një rresht
+numërohet i plotësuar vetëm kur ka edhe fjalinë edhe burimin pa
+vendmbajtës; rreshti i paplotësuar nuk i shfaqet kurrë pacientit.
+
+Këshilla lidhet vetëm me gjetjet që kanë drejtim: vlerat normale, vlerat
+pa interval referent dhe analitet e dyfishta nuk marrin asgjë. Ajo hyn në
+`GroundingContext` bashkë me burimin, si zërat e fjalorit. Shablloni
+determinist e shtyp menjëherë pas fjalisë së vlerës përkatëse; kërkesa
+drejtuar modelit e jep si tekst për t'u kopjuar fjalë për fjalë, me
+ndalesën «mos shto asnjë këshillë tjetër», dhe blloku shfaqet vetëm kur
+konteksti ka këshilla. Kontekstet e eksperimenteve të Kapitullit 5 nuk
+kanë, prandaj udhëzimet e sistemit, versioni i kërkesës `p1` dhe cache-i
+i përgjigjeve mbeten bajt për bajt të njëjta dhe asnjë rezultat nuk
+ndryshon. Verifikimi e mbron këshillën si rekomandim: në katalogun
+`r1.4`, rregulli R8 kërkon që çdo këshillë e kontekstit të jetë në dalje
+fjalë për fjalë, dhe një këshillë e hequr ose e riformuluar e çon
+shpjegimin te shablloni (seksioni 4.5). Këshillat e dorëzuara ruhen të
+plota në bazë (`document_advice`), që fjalia që pa pacienti të mbetet e
+lexueshme edhe kur tabela ndryshon.
+
+Tabela u dorëzua bosh dhe u plotësua më 7 tetor 2026: 75 nga 76 rreshta
+mbajnë një fjali dhe burimin e saj, faqe pacientësh të MedlinePlus (në
+shumicën e rasteve seksioni «What do the results mean?»), të Cleveland
+Clinic dhe të Testing.com, të hapura të gjitha atë ditë; për Proteina C-reaktive (e ulët) nuk ka
+rresht, sepse asnjë faqe nuk jep përmbajtje të përdorshme për atë drejtim
+(vlera e ulët është gjetja e shëndetshme). Një test e kalon çdo rresht të
+plotësuar nëpër R1, R2, R3 dhe SP1–SP3 me kontekstin e vet, që një fjali
+me numër, me analit tjetër, me trajtim ose me diagnozë të mos hyjë në
+depo. Tabela e plotë është te Shtojca B (Tabela B.4); fjalitë nuk janë
+rishikuar nga një klinicist (seksioni 6.6).
 
 ## 4.4 Dega e raportit mjekësor
 
@@ -739,26 +795,27 @@ morfologjike ka dalë nga fuqia e vet.
 
 | Termi | Shpjegimi | Kategoria | Burimi |
 |---|---|---|---|
-| anemi | nivel i ulët i hemoglobinës në gjak | gjendje | MedlinePlus, "Anemia", https://medlineplus.gov/ency/article/000560.htm |
-| eritropoezë | prodhimi i qelizave të kuqe të gjakut në palcën kockore | proces | MeSH, "Erythropoiesis" (D004920), https://meshb.nlm.nih.gov/record/ui?ui=D004920 |
-| leukocitozë | numër i rritur i qelizave të bardha të gjakut | gjendje | MeSH, "Leukocytosis" (D007964), https://meshb.nlm.nih.gov/record/ui?ui=D007964 |
-| leukopeni | numër i ulët i qelizave të bardha të gjakut | gjendje | MeSH, "Leukopenia" (D007970), https://meshb.nlm.nih.gov/record/ui?ui=D007970 |
-| trombocitopeni | numër i ulët i pllakëzave të gjakut | gjendje | MeSH, "Thrombocytopenia" (D013921), https://meshb.nlm.nih.gov/record/ui?ui=D013921 |
-| trombocitozë | numër i rritur i pllakëzave të gjakut | gjendje | MeSH, "Thrombocytosis" (D013922), https://meshb.nlm.nih.gov/record/ui?ui=D013922 |
-| hiperglicemi | nivel i rritur i sheqerit në gjak | gjendje | MedlinePlus, "Hyperglycemia", https://medlineplus.gov/hyperglycemia.html |
-| hipoglicemi | nivel i ulët i sheqerit në gjak | gjendje | MedlinePlus, "Low blood sugar", https://medlineplus.gov/ency/article/000386.htm |
-| hiperkalemi | nivel i rritur i kaliumit në gjak | gjendje | MedlinePlus, "High potassium level", https://medlineplus.gov/ency/article/001179.htm |
-| hipokalemi | nivel i ulët i kaliumit në gjak | gjendje | MedlinePlus, "Low blood potassium", https://medlineplus.gov/ency/article/000479.htm |
+| anemi | nivel i ulët i hemoglobinës në gjak | gjendje | MedlinePlus, «Anemia» |
+| eritropoezë | prodhimi i qelizave të kuqe të gjakut në palcën kockore | proces | MeSH, «Erythropoiesis» (D004920) |
+| leukocitozë | numër i rritur i qelizave të bardha të gjakut | gjendje | MeSH, «Leukocytosis» (D007964) |
+| leukopeni | numër i ulët i qelizave të bardha të gjakut | gjendje | MeSH, «Leukopenia» (D007970) |
+| trombocitopeni | numër i ulët i pllakëzave të gjakut | gjendje | MeSH, «Thrombocytopenia» (D013921) |
+| trombocitozë | numër i rritur i pllakëzave të gjakut | gjendje | MeSH, «Thrombocytosis» (D013922) |
+| hiperglicemi | nivel i rritur i sheqerit në gjak | gjendje | MedlinePlus, «Hyperglycemia» |
+| hipoglicemi | nivel i ulët i sheqerit në gjak | gjendje | MedlinePlus, «Low blood sugar» |
+| hiperkalemi | nivel i rritur i kaliumit në gjak | gjendje | MedlinePlus, «High potassium level» |
+| hipokalemi | nivel i ulët i kaliumit në gjak | gjendje | MedlinePlus, «Low blood potassium» |
 
 *Ekstrakt i 10 zërave të parë; tabela e plotë është te Shtojca A (Tabela A.1).*
 
-Tabela përmban 82 zëra. Secili zë mban në kolonën e burimit faqen ose
+Tabela përmban 82 zëra. Çdo zë mban në kolonën e burimit faqen ose
 përshkruesin (MeSH, MedlinePlus, Cleveland Clinic, Testing.com) që u lexua
-më 2026-10-06 dhe që e mbështet shpjegimin shqip; shpjegimi është formulim
-i autorit, jo përkthim i burimit, dhe citimi i evidencës për secilin zë
-ruhet te `docs/thesis/worksheets/burimet_e_gjetura.md`. Pa këtë referencë
-tabela do të ishte vetë burim informacioni të paverifikuar — pikërisht ajo
-që SP6 synon të pengojë.
+më 6 tetor 2026 dhe që e mbështet shpjegimin shqip; shpjegimi është
+formulim i autorit në gjuhë të thjeshtë, jo përkthim i burimit, dhe fjalia
+mbështetëse e secilit zë ruhet bashkë me tabelën. Pa këtë referencë, tabela
+do të ishte vetë burim informacioni të paverifikuar — pikërisht ajo që SP6
+synon të pengojë. Shpjegimet nuk janë rishikuar nga një klinicist
+(seksioni 6.6).
 
 ### 4.4.3 Mohimi dhe pasiguria
 
@@ -863,7 +920,7 @@ Për tekstin narrativ, verifikimi është semantik. Polariteti i çdo pohimi bur
 | R8 | B | Mbijetesa e rekomandimeve |
 | R9 | B | Bazueshmëria e shpjegimeve terminologjike |
 
-Katalogu i zbatuar (versioni `r1.3`) përmban edhe një rregull politike, SP1–SP3, që refuzon pohimet diagnostike, të trajtimit dhe prognostike; versioni i katalogut regjistrohet te çdo rezultat verifikimi. Katalogu i plotë me një shembull për çdo rregull është te Shtojca C.
+Katalogu i zbatuar (versioni `r1.3`) përmban edhe një rregull politike, SP1–SP3, që refuzon pohimet diagnostike, të trajtimit dhe prognostike; versioni i katalogut regjistrohet te çdo rezultat verifikimi. Në versionin `r1.4`, që përdor shërbimi, R8 mbulon edhe këshillat me burim të seksionit 4.3.9: secila duhet të shfaqet në dalje fjalë për fjalë, pa rregull të ri dhe pa lloj të ri shkeljeje. Katalogu i plotë me një shembull për çdo rregull është te Shtojca C.
 
 Renditja e ekzekutimit është e përcaktuar: rregullat deterministe ekzekutohen të parat dhe kanë përparësi kudo ku verifikimi është mekanikisht i vendosshëm, ndërsa klasifikuesi ekzekutohet i dyti dhe mbulon zhvendosjet semantike që rregullat nuk i kapin. Vendimi përfundimtar është bashkimi i flamujve nga të dyja qasjet.
 
@@ -1043,7 +1100,7 @@ Tabela e gjetjeve laboratorike ruan për çdo analit vlerën e papërpunuar dhe 
 
 Terminologjia dhe intervalet referente nuk ruhen në bazë: `resources/` është burimi i vetëm, dhe një kopje në bazë do të largohej prej tij. Ruhet vetëm fjalori i secilit dokument, i plotë, që shpjegimi që pa pacienti të mbetet i gjurmueshëm edhe kur tabela ndryshon, bashkë me termat e pashpjeguar dhe kombinimet e vërejtura. Tabela e pohimeve ruan pohimet e nxjerra nga raporti narrativ, ndërsa tabela e krahasimeve të kryqëzuara lidh pohimet me gjetjet përkatëse.
 
-Tabela e shpjegimeve ruan veçmas daljen e papërpunuar të modelit dhe daljen përfundimtare të shfaqur, bashkë me versionin e kërkesës, modelin e përdorur dhe parametrat e tij. Diferenca ndërmjet dy fushave përbën gjurmën që dëshmon se asnjë tekst i paverifikuar nuk është shfaqur.
+Tabela e këshillave (`document_advice`) ruan për çdo dokument fjalitë me burim që iu bashkëngjitën gjetjeve, të plota, për të njëjtën arsye si fjalori. Tabela e shpjegimeve ruan veçmas daljen e papërpunuar të modelit dhe daljen përfundimtare të shfaqur, bashkë me versionin e kërkesës, modelin e përdorur dhe parametrat e tij. Diferenca ndërmjet dy fushave përbën gjurmën që dëshmon se asnjë tekst i paverifikuar nuk është shfaqur.
 
 Tabela e rezultateve të verifikimit dhe ajo e shkeljeve ruajnë vendimet e shtresës së verifikimit. Kolona që tregon nëse një shkelje është zbuluar nga rregullat apo nga klasifikuesi është burimi i drejtpërdrejtë i të dhënave për krahasimin e tre qasjeve.
 
@@ -1224,7 +1281,9 @@ Sistemi mban dy gjurma të ndara.
 
 **Mbrojtja e të dhënave** (ADR 0019). Kontrollet teknike i bëjnë vendimet e autorit të zbatueshme, jo pohime për kushtet e ofruesve. Modeli është i fikur si parazgjedhje; kur shërbimi e ka të ndezur, një dokument dërgohet te ofruesi vetëm nëse pacienti ka shënuar një kuti pëlqimi për atë ngarkim (e pashënuar si parazgjedhje, e ruajtur me kohë dhe e regjistruar te regjistri i auditimit pa të dhëna personale). Pa pëlqim shpjegimi del nga shablloni determinist dhe asnjë kërkesë nuk i dërgohet ofruesit. Edhe me pëlqim, citimet e mjekut dhe termat e pashpjeguar kalojnë një portë çidentifikimi që dështon e mbyllur: nëse shënohet emër, titull, datë, telefon, email, numër i gjatë, identifikues, moshë ose adresë, dokumenti nuk dërgohet fare dhe pacienti merr njoftim. Citimi nuk redaktohet kurrë, sepse R5, R6 dhe R8 e krahasojnë daljen me citimin origjinal dhe pacienti duhet ta shohë të pandryshuar. Pacienti mund ta fshijë një dokument ose gjithë llogarinë (me fjalëkalimin aktual) dhe t'i eksportojë të dhënat e veta; afati i ruajtjes është i konfigurueshëm (i fikur si parazgjedhje). Fshirja heq rreshtat, gjithçka të derivuar dhe skedarin e koduar; regjistri i auditimit mbetet pa identifikues përdoruesi dhe pa sha të skedarit. Baza ligjore, kushtet e ofruesit dhe miratimi etik nuk vendosen nga sistemi dhe mbeten vendim i autorit; kuadri ligjor përshkruhet te seksioni 2.7.3 [58], [59].
 
-**Çfarë përdor shërbimi dhe çfarë u mat** (ADR 0020, 0021). Shërbimi verifikon me katalogun `r1.4` dhe lexon faqet e OCR-së me kontrollin e besueshmërisë; eksperimentet e ngrira (E4, E6–E11, grupet A, B, C) u matën me `r1.3` dhe pa kontrollin, që rezultatet dhe cache-i i përgjigjeve të modelit të mbeten të vlefshme. Dallimi shkon te pipeline-t e harness-it (`rules="r1.3"`, `ocr_guard=False` si parazgjedhje) dhe matjet e `r1.4` dhe të kontrollit raportohen veçmas (§5.3.1, §5.6.2, §5.7.3). Klasifikuesi i fjalive nuk është pjesë e shërbimit (ADR 0022).
+**Këshillat me burim** (ADR 0023). Sistemi nuk gjeneron këshilla: e vetmja këshillë që i shfaqet pacientit është fjalia e tabelës `advice.csv` për analitin dhe drejtimin përkatës, me burim të lexuar, e kopjuar fjalë për fjalë dhe e verifikuar nga R8 (seksioni 4.3.9). Fjalia nuk emërton gjendje, nuk jep trajtim dhe nuk parashikon; ajo i drejton pacientin te mjeku me një temë ose pyetje konkrete.
+
+**Çfarë përdor shërbimi dhe çfarë u mat** (ADR 0020, 0021). Shërbimi verifikon me katalogun `r1.4` dhe lexon faqet e OCR-së me kontrollin e besueshmërisë; eksperimentet e ngrira (E4, E6–E11, grupet A, B, C) u matën me `r1.3` dhe pa kontrollin, që rezultatet dhe cache-i i përgjigjeve të modelit të mbeten të vlefshme. Dallimi shkon te pipeline-t e harness-it (`rules="r1.3"`, `ocr_guard=False` si parazgjedhje) dhe matjet e `r1.4` dhe të kontrollit raportohen veçmas (§5.3.1, §5.6.2, §5.7.3). Klasifikuesi i fjalive nuk është pjesë e shërbimit (ADR 0022). Tabela e këshillave u shtua pas matjeve dhe nuk ndikon asnjë kontekst eksperimenti.
 
 
 # 5 REZULTATET
@@ -1253,16 +1312,17 @@ Sistemi është zbatuar i plotë përveç chat-it të lidhur me dokumentin, që 
 | Përbërësi | Gjendja e matur |
 |---|---|
 | Paneli i analiteve | 38 analite me hartëzim LOINC (Tabela 3) |
-| Tabela terminologjike | 82 terma shqip, secili me burim të lexuar (Shtojca A); shpjegimet mbeten formulime të autorit |
-| Kombinimet ndërmjet analiteve | 11 rregulla, secila me burim të lexuar (Tabela B.3); P10 (leukocite ↑ + CRP ↑) mbështetet vetëm pjesërisht; asnjë rregull nuk është rishikuar nga mentor ose mjek |
+| Tabela terminologjike | 82 terma shqip, secili me burim të lexuar (Shtojca A) |
+| Kombinimet ndërmjet analiteve | 11 rregulla, secila me burim të lexuar dhe të rishikuara nga një mjek familjar (Tabela B.3); P10 (leukocite ↑ + CRP ↑) mbështetet vetëm pjesërisht nga literatura |
 | Katalogu i verifikimit | `r1.3`: R1–R9 dhe SP1–3, dhjetë lloje shkeljesh (Tabela 6) |
 | Modeli gjuhësor | Mistral `ministral-14b-2512` (plan falas) përmes `ChatClient` me cache të përgjigjeve në depo, kufizim shpejtësie dhe rifreskim; kërkesa `p1` merr vetëm `GroundingContext` (ADR 0015, Shtojca D). Te eksperimentet përdoret gjithmonë; te aplikacioni i uebit vetëm kur zgjidhet shprehimisht (`ANALYTE_SERVICE_GENERATOR=model`, pa cache në disk, me njoftim për pacientin; ADR 0017), dhe parazgjedhja është shablloni (§6.6, pika 12) |
 | Gjykatësit e detektimit | Claude Sonnet dhe Haiku (subagjentë), 15 batch-e me 20 mostra secili, dhe një audit i tekstit të dorëzuar (§5.7.2, §5.6.1) |
 | Kanali i leximit | Tekst dixhital dhe OCR (Tesseract 5, `eng`, `--psm 6`, 200 dpi) |
 | Shërbimi | API me autentikim të forcuar (konfirmim email-i, kufizim hyrjesh dhe regjistrimesh, seanca të revokueshme, dil kudo), regjistër auditimi, ruajtje e enkriptuar (ADR 0013, 0014, 0016) |
 | Ndërfaqja | Next.js në shqip: regjistrimi me konfirmim email-i, hyrja, dil kudo, ngarkimi, historiku, hapat e përpunimit, njoftimi për vlera kritike, paralajmërimi i OCR-së, shpjegimi me treguesin e verifikimit, tabela e gjetjeve ku një klikim hedh dritë mbi rreshtin burimor |
-| Vendimet arkitekturore | 22 ADR (`docs/adr/`) |
-| Testet | 987 kalojnë, 0 anashkalohen (me testet e integrimit mbi PostgreSQL 16; pa `ANALYTE_TEST_DATABASE_URL` testet e PostgreSQL anashkalohen) |
+| Këshillat me burim | 75 nga 76 rreshta të plotësuar (38 analite × dy drejtime) nga faqe pacientësh të lexuara më 7 tetor 2026; verifikim R8 nën `r1.4` (Tabela B.4) |
+| Vendimet arkitekturore | 23 ADR (`docs/adr/`) |
+| Testet | 987 kalojnë, 0 anashkalohen (gjendja e matur më 2026-10-05; tabela e këshillave shtoi 20 teste më pas) (me testet e integrimit mbi PostgreSQL 16; pa `ANALYTE_TEST_DATABASE_URL` testet e PostgreSQL anashkalohen) |
 
 Korpusi sintetik i vlerësimit ka 500 dokumente (332 dixhitale, 168 të skanuara, 556 faqe), me 9 860 gjetje laboratorike, 2 749 pohime narrative dhe 36 dokumente me të paktën një vlerë kritike. Korpusi i korruptuar del nga 1 500 dokumente për trajnimin dhe validimin e klasifikuesit dhe nga 200 dokumente burimore për testin (192 mostra, E10 dhe E11); rrjedhja e dokumenteve ndërmjet trajnimit dhe validimit është zero (`E11/leakage.json`).
 
@@ -1802,7 +1862,7 @@ Ajo që e mbush boshllëkun është një detektor që e kupton tekstin, dhe ai k
 
 Mungesa e modeleve klinike të paratrajnuara për shqipen e detyroi dizajnin drejt fjalorëve dhe rregullave për komponentët e vendosshëm, dhe drejt enkoderëve shumëgjuhësh të përgjithshëm për ata semantikë.
 
-Tabela terminologjike e ndërtuar në kuadër të këtij punimi (82 terma) mund të shërbejë si pikënisje për punime të ardhshme, por sot nuk është artefakt i ripërdorshëm: asnjë nga 82 shpjegimet nuk ka burim të shënuar dhe asnjë nuk është rishikuar nga një klinicist.
+Tabela terminologjike e ndërtuar në kuadër të këtij punimi (82 terma) mund të shërbejë si pikënisje për punime të ardhshme: çdo shpjegim mbështetet në një burim të lexuar (MeSH, MedlinePlus ose faqe pacientësh të institucioneve shëndetësore), por shpjegimet janë formulime të autorit dhe nuk janë rishikuar nga një klinicist; rregullat e kombinimit, përkundrazi, u rishikuan nga një mjek familjar (seksioni 4.3.8).
 
 **Cilësia e gjenerimit në shqip nuk u vlerësua.** Punimi nuk ka rishikim ekspertësh dhe as lexim të tekstit të gjeneruar nga një folës i shqipes (§5.9); pjesa e PK3 që kërkon vlerësim njerëzor mbetet pa matje. Ajo që u mat është besnikëria ndaj bazimit, jo rrjedhshmëria apo kuptueshmëria: E4 (§5.4) mat që mohimi, rezerva dhe rekomandimi mbijetojnë kur modeli i kopjon fjalët e mjekut, dhe auditi i E8 (§5.6.1) gjeti shpjegime të shpikura ose të gabuara të termave dhe analiteve (p.sh. TSH shpjeguar si «hormoni i stimulimit të mëlçisë») në tekste që kaluan verifikimin. Prandaj pohimi për shqipen kufizohet te pasoja arkitekturore e mungesës së modeleve klinike; punimi nuk ka rezultat që thotë se modeli shkruan shqip mjekësor të mirë.
 
@@ -1834,7 +1894,7 @@ Kufizimet renditen nga më e rëndësishmja. Secila thotë çfarë nuk dihet, jo
 
 **9. Rregullat kanë kufij leksikorë të njohur, dhe `r1.4` u hartua mbi gabimet e njohura.** Me `r1.3` rregullat njihnin drejtimin vetëm në format që kishin (5 nga 10 gabime drejtimi nuk u kapën te B; 23% e teksteve të modelit që kaluan kishin drejtim të gabuar), 7 nga 10 pohime diagnostike, trajtimi ose prognoze kaluan, dhe R9 humbi 4 nga 5 shpjegime të termave të pashpjeguar. `r1.4` (ADR 0021, §5.7.3) i trajton disa prej tyre (macro F1 mbi B 0.795 → 0.857; 17 nga 40 tekste me problem sipas auditit tani shënohen), por u hartua pasi u panë pikërisht ato gabime, prandaj A, B dhe auditi nuk janë më mostra të pastra për të; diagnoza, trajtimi dhe prognoza u përmirësuan pak (3 nga 10 në F1 0.46 → 0.57) dhe shpjegimet e termave aspak (0.33). Kapitulli 5 jep të dyja versionet (§5.6.2); E9 dhe auditi vetëm me `r1.3`.
 
-**10. Burimet.** Tabela terminologjike ka 82 terma dhe nuk mbulon çdo term të mundshëm mjekësor; asnjë nga 82 termat dhe asnjë nga 11 rregullat e kombinimit nuk ka burim të shënuar, dhe asnjë nuk është vlerësuar klinikisht. Paneli ka 38 analite, dhe rezultatet laboratorike jonumerike nuk mbulohen fare. Chat-i i lidhur me dokumentin nuk është ndërtuar.
+**10. Burimet dhe rishikimi klinik.** Tabela terminologjike ka 82 terma dhe nuk mbulon çdo term të mundshëm mjekësor. Të 82 shpjegimet dhe të 11 rregullat e kombinimit kanë burim të lexuar (Shtojca A, Tabela B.3), por burimet e termave janë faqe terminologjike dhe faqe pacientësh, jo literaturë klinike, dhe shpjegimet shqip nuk janë rishikuar nga një klinicist. Rregullat u rishikuan nga një mjek familjar i vetëm, pa protokoll të shkruar; për P10 (leukocite dhe CRP) literatura jep mbështetje të pjesshme. Këshillat me burim (seksioni 4.3.9, 75 fjali) rrjedhin nga faqe pacientësh, jo nga udhëzues klinikë, janë formulime të autorit, nuk janë rishikuar nga një klinicist, dhe u shtuan pas eksperimenteve: efekti i tyre mbi daljen e modelit (sa shpesh modeli e kopjon fjalinë fjalë për fjalë dhe sa dokumente shkojnë te shablloni për këtë arsye) nuk është matur. Paneli ka 38 analite, dhe rezultatet laboratorike jonumerike nuk mbulohen fare. Chat-i i lidhur me dokumentin nuk është ndërtuar.
 
 **11. Llogaria është e forcuar, jo e plotë.** Konfirmimi me email, rivendosja e fjalëkalimit, hapi i dytë TOTP, rindërgimi i mesazheve, kufizimi i regjistrimeve dhe i hyrjeve, seancat e revokueshme dhe «dil kudo» janë të provuara me teste (përfshirë prishje të qëllimshme që testet i kapën, teste integrimi mbi PostgreSQL 16 dhe prova konkurrence), por: nuk ka rrugë rimëkëmbjeje nëse humbasin edhe aplikacioni i vërtetimit edhe kodet e rimëkëmbjes; nuk ka rigjenerim kodesh, WebAuthn, SMS apo pajisje të besuara; sekretet TOTP ndajnë çelësin e ruajtjes me skedarët, prandaj ndërrimi i tij kërkon rikodim të të dyjave; kufizimet janë te baza e të dhënave dhe një sulmues që e di fjalëkalimin mund ta mbyllë përkohësisht hapin e dytë të një përdoruesi; koha e barabartë e degëve u siguruar duke e ekzekutuar Argon2 në secilën, por nuk u mat; rindërgimi automatik varet nga punëtori arq dhe nuk u provua me Redis të vërtetë; nuk ka CSP dhe HSTS; dërgimi me SMTP u provua me transporte të simuluara dhe një herë kundrejt kutisë së provës të Mailtrap (mesazhi mbërriti dhe lidhja konfirmoi llogarinë), jo kundrejt një kutie të vërtetë apo një ofruesi prodhimi; regjistrimi i një email-i të tjetrit para zotëruesit mbetet i mundshëm deri në konfirmim (ADR 0016). Asnjë nga këto nuk prek matjet e Kapitullit 5.
 
@@ -1846,7 +1906,7 @@ Kufizimet renditen nga më e rëndësishmja. Secila thotë çfarë nuk dihet, jo
 
 Validimi mbi një grup më të gjerë dokumentesh reale nga laboratorë të ndryshëm do të ishte hapi i parë dhe më i rëndësishëm për të konfirmuar përgjithësueshmërinë e rezultateve.
 
-Zgjerimi i tabelës terminologjike dhe i panelit të analiteve do ta rriste mbulimin praktik të sistemit pa ndryshuar arkitekturën.
+Zgjerimi i tabelës terminologjike dhe i panelit të analiteve do ta rriste mbulimin praktik të sistemit pa ndryshuar arkitekturën; rishikimi klinik i tabelës së këshillave dhe matja e R8 mbi këshillat me modelin e vërtetë (një kusht i ri ablacioni me kontekste që kanë këshilla) janë hapi i natyrshëm i radhës për atë tabelë.
 
 Zhvillimi i modeleve të specializuara të përpunimit të gjuhës natyrore për shqipen mjekësore do ta hiqte kufizimin themelor që ka formësuar dizajnin e këtij sistemi.
 
@@ -2007,11 +2067,37 @@ Së fundi, validimi klinik me pjesëmarrjen e profesionistëve shëndetësorë d
 
 [64] J. Cohen, "A coefficient of agreement for nominal scales," *Educational and Psychological Measurement*, vol. 20, no. 1, pp. 37–46, 1960, doi: 10.1177/001316446002000104.
 
+[65] J. Snook, N. Bhala, I. L. P. Beales, et al., "British Society of Gastroenterology guidelines for the management of iron deficiency anaemia in adults," *Gut*, vol. 70, no. 11, pp. 2030–2051, 2021, doi: 10.1136/gutjnl-2021-324757.
+
+[66] H. S. Chaudhry and M. R. Kasarla, "Microcytic hypochromic anemia," in *StatPearls* [Internet]. Treasure Island, FL, USA: StatPearls Publishing, 2026. [Online]. Available: https://www.ncbi.nlm.nih.gov/books/NBK470252/, date accessed: 06.10.2026.
+
+[67] M. W. Short and J. E. Domagalski, "Iron deficiency anemia: evaluation and management," *American Family Physician*, vol. 87, no. 2, pp. 98–104, 2013.
+
+[68] R. C. Langan and A. J. Goodbred, "Vitamin B12 deficiency: recognition and management," *American Family Physician*, vol. 96, no. 6, pp. 384–389, 2017.
+
+[69] American Diabetes Association Professional Practice Committee, "2. Diagnosis and classification of diabetes: Standards of Care in Diabetes—2025," *Diabetes Care*, vol. 48, suppl. 1, pp. S27–S49, 2025, doi: 10.2337/dc25-S002.
+
+[70] A. O. Hosten, "BUN and creatinine," in *Clinical Methods: The History, Physical, and Laboratory Examinations*, 3rd ed., H. K. Walker, W. D. Hall, and J. W. Hurst, Eds. Boston, MA, USA: Butterworths, 1990, ch. 193. [Online]. Available: https://www.ncbi.nlm.nih.gov/books/NBK305/, date accessed: 06.10.2026.
+
+[71] P. N. Newsome, R. Cramb, S. M. Davison, et al., "Guidelines on the management of abnormal liver blood tests," *Gut*, vol. 67, no. 1, pp. 6–19, 2018, doi: 10.1136/gutjnl-2017-315541.
+
+[72] S. A. Wilson, L. A. Stem, and R. D. Bruehlman, "Hypothyroidism: diagnosis and treatment," *American Family Physician*, vol. 103, no. 10, pp. 605–613, 2021.
+
+[73] D. S. Ross, H. B. Burch, D. S. Cooper, et al., "2016 American Thyroid Association guidelines for diagnosis and management of hyperthyroidism and other causes of thyrotoxicosis," *Thyroid*, vol. 26, no. 10, pp. 1343–1421, 2016, doi: 10.1089/thy.2016.0229.
+
+[74] I. Kravets, "Hyperthyroidism: diagnosis and treatment," *American Family Physician*, vol. 93, no. 5, pp. 363–370, 2016.
+
+[75] L. K. Riley and J. Rupert, "Evaluation of patients with leukocytosis," *American Family Physician*, vol. 92, no. 11, pp. 1004–1011, 2015.
+
+[76] A. Markanday, "Acute phase reactants in infections: evidence-based review and a guide for clinicians," *Open Forum Infectious Diseases*, vol. 2, no. 3, Art. no. ofv098, 2015, doi: 10.1093/ofid/ofv098.
+
+[77] F. Mach, C. Baigent, A. L. Catapano, et al., "2019 ESC/EAS Guidelines for the management of dyslipidaemias: lipid modification to reduce cardiovascular risk," *European Heart Journal*, vol. 41, no. 1, pp. 111–188, 2020, doi: 10.1093/eurheartj/ehz455.
+
 # 8 APPENDIXES
 
-**Shtojca A** — Tabela e plotë terminologjike shqip me shpjegimet, burimet dhe kategoritë
+**Shtojca A** — Tabela e plotë terminologjike shqip me shpjegimet, kategoritë dhe sinonimet
 
-**Shtojca B** — Paneli i plotë i analiteve me kodet LOINC dhe intervalet referente rezervë
+**Shtojca B** — Paneli i plotë i analiteve me kodet LOINC, intervalet referente rezervë, rregullat e kombinimit dhe këshillat me burim
 
 **Shtojca C** — Katalogu i plotë i rregullave të verifikimit me shembuj
 
@@ -2217,22 +2303,102 @@ vetëm se kombinimi kërkon vlerësim nga profesionisti shëndetësor.
 
 | ID | Kushtet | Burimi |
 |---|---|---|
-| P01 | Hemoglobinë në gjak ↓ + Ferritinë në serum ↓ | J. Snook, N. Bhala, I. L. P. Beales, et al., "British Society of Gastroenterology guidelines for the management of iron deficiency anaemia in adults," *Gut*, vol. 70, no. 11, pp. 2030–2051, 2021, doi: 10.1136/gutjnl-2021-324757. https://gut.bmj.com/content/70/11/2030 |
-| P02 | Hemoglobinë në gjak ↓ + Volumi mesatar eritrocitar ↓ | H. S. Chaudhry and M. R. Kasarla, "Microcytic Hypochromic Anemia," in *StatPearls* [Internet], Treasure Island, FL: StatPearls Publishing, updated Feb. 2026. https://www.ncbi.nlm.nih.gov/books/NBK470252/ |
-| P03 | Hemoglobinë në gjak ↓ + Vitaminë B12 ↓ | R. C. Langan and A. J. Goodbred, "Vitamin B12 Deficiency: Recognition and Management," *American Family Physician*, vol. 96, no. 6, pp. 384–389, 2017. https://www.aafp.org/pubs/afp/issues/2017/0915/p384.html |
-| P04 | Glukozë në serum ↑ + Hemoglobinë e glikuar ↑ | American Diabetes Association Professional Practice Committee, "2. Diagnosis and Classification of Diabetes: Standards of Care in Diabetes—2025," *Diabetes Care*, vol. 48, suppl. 1, pp. S27–S49, 2025, doi: 10.2337/dc25-S002. https://diabetesjournals.org/care/article/48/Supplement_1/S27/157566 |
-| P05 | Kreatininë në serum ↑ + Ure në serum ↑ | A. O. Hosten, "BUN and Creatinine," in *Clinical Methods: The History, Physical, and Laboratory Examinations*, 3rd ed., H. K. Walker, W. D. Hall, J. W. Hurst, Eds. Boston, MA: Butterworths, 1990, ch. 193. https://www.ncbi.nlm.nih.gov/books/NBK305/ |
-| P06 | Alanin aminotransferazë ↑ + Aspartat aminotransferazë ↑ | P. N. Newsome, R. Cramb, S. M. Davison, et al., "Guidelines on the management of abnormal liver blood tests," *Gut*, vol. 67, no. 1, pp. 6–19, 2018, doi: 10.1136/gutjnl-2017-315541. https://gut.bmj.com/content/67/1/6 |
-| P07 | Fosfatazë alkaline ↑ + Gama-glutamil transferazë ↑ | P. N. Newsome, R. Cramb, S. M. Davison, et al., "Guidelines on the management of abnormal liver blood tests," *Gut*, vol. 67, no. 1, pp. 6–19, 2018, doi: 10.1136/gutjnl-2017-315541. https://gut.bmj.com/content/67/1/6 |
-| P08 | Hormoni stimulues i tiroides ↑ + Tiroksinë e lirë ↓ | S. A. Wilson, L. A. Stem, and R. D. Bruehlman, "Hypothyroidism: Diagnosis and Treatment," *American Family Physician*, vol. 103, no. 10, pp. 605–613, 2021. https://www.aafp.org/pubs/afp/issues/2021/0515/p605.html |
-| P09 | Hormoni stimulues i tiroides ↓ + Tiroksinë e lirë ↑ | D. S. Ross, H. B. Burch, D. S. Cooper, et al., "2016 American Thyroid Association Guidelines for Diagnosis and Management of Hyperthyroidism and Other Causes of Thyrotoxicosis," *Thyroid*, vol. 26, no. 10, pp. 1343–1421, 2016, doi: 10.1089/thy.2016.0229. https://journals.sagepub.com/doi/10.1089/thy.2016.0229 |
-| P10 | Leukocite ↑ + Proteina C-reaktive ↑ | L. K. Riley and J. Rupert, "Evaluation of Patients with Leukocytosis," *American Family Physician*, vol. 92, no. 11, pp. 1004–1011, 2015. https://www.aafp.org/pubs/afp/issues/2015/1201/p1004.html |
-| P11 | Kolesterol LDL ↑ + Kolesterol HDL ↓ | F. Mach, C. Baigent, A. L. Catapano, et al., "2019 ESC/EAS Guidelines for the management of dyslipidaemias: lipid modification to reduce cardiovascular risk," *European Heart Journal*, vol. 41, no. 1, pp. 111–188, 2020, doi: 10.1093/eurheartj/ehz455. https://academic.oup.com/eurheartj/article/41/1/111/5556353 |
+| P01 | Hemoglobinë në gjak ↓ + Ferritinë në serum ↓ | [65] |
+| P02 | Hemoglobinë në gjak ↓ + Volumi mesatar eritrocitar ↓ | [66], [67] |
+| P03 | Hemoglobinë në gjak ↓ + Vitaminë B12 ↓ | [68] |
+| P04 | Glukozë në serum ↑ + Hemoglobinë e glikuar ↑ | [69] |
+| P05 | Kreatininë në serum ↑ + Ure në serum ↑ | [70] |
+| P06 | Alanin aminotransferazë ↑ + Aspartat aminotransferazë ↑ | [71] |
+| P07 | Fosfatazë alkaline ↑ + Gama-glutamil transferazë ↑ | [71] |
+| P08 | Hormoni stimulues i tiroides ↑ + Tiroksinë e lirë ↓ | [72] |
+| P09 | Hormoni stimulues i tiroides ↓ + Tiroksinë e lirë ↑ | [73], [74] |
+| P10 | Leukocite ↑ + Proteina C-reaktive ↑ | [75], [76] |
+| P11 | Kolesterol LDL ↑ + Kolesterol HDL ↓ | [77] |
 
-> Burimi i secilit kombinim u lexua më 2026-10-06; citimi i evidencës dhe
-> shkalla e mbështetjes (e plotë ose e pjesshme) për secilin jepen te
-> `docs/thesis/worksheets/burimet_e_gjetura.md`. Kombinimet duhen konfirmuar
-> nga mentori ose nga një mjek përpara dorëzimit.
+Burimi i secilit kombinim u lexua më 2026-10-06; fjalia mbështetëse e secilit dhe shkalla e mbështetjes jepen te `docs/thesis/worksheets/burimet_e_gjetura.md`. Për P10 literatura e lidh leukocitozën me infeksionin dhe inflamacionin dhe e emërton CRP-në si tregues plotësues, por asnjë udhëzues nuk e përcakton çiftin si të tillë; mbështetja është e pjesshme. Të 11 kombinimet, me drejtimet e tyre, u rishikuan dhe u konfirmuan nga një mjek i mjekësisë familjare në tetor 2026.
+
+*Tabela B.4. Këshillat me burim për vlerat jashtë intervalit (`resources/advice.csv`)*
+
+| Kodi LOINC | Analiti | Drejtimi | Fjalia | Burimi |
+|---|---|---|---|---|
+| 718-7 | Hemoglobinë në gjak | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini, sepse dehidrimi mund ta ndikojë këtë vlerë. | MedlinePlus, «Hemoglobin Test» |
+| 718-7 | Hemoglobinë në gjak | ↓ | Tregojini mjekut tuaj nëse keni pasur humbje gjaku, për shembull nga një lëndim ose nga menstruacione të rënda, sepse kjo mund ta ndikojë këtë vlerë. | MedlinePlus, «Hemoglobin Test» |
+| 4544-3 | Hematokrit | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini, sepse dehidrimi mund ta ndikojë këtë vlerë. | MedlinePlus, «Hematocrit Test» |
+| 4544-3 | Hematokrit | ↓ | Tregojini mjekut tuaj nëse jeni shtatzënë ose keni pasur humbje gjaku së fundmi, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Hematocrit Test» |
+| 789-8 | Eritrocite | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini, sepse dehidrimi mund ta ndikojë këtë vlerë. | MedlinePlus, «Red Blood Cell (RBC) Count» |
+| 789-8 | Eritrocite | ↓ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «Red Blood Cell (RBC) Count» |
+| 6690-2 | Leukocite | ↑ | Flisni me mjekun tuaj për barnat që përdorni, për stresin, duhanin ose një shtatzëni të mundshme, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «White Blood Count (WBC)» |
+| 6690-2 | Leukocite | ↓ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «White Blood Count (WBC)» |
+| 777-3 | Trombocite | ↑ | Tregojini mjekut tuaj nëse keni pasur humbje të madhe gjaku ose një infeksion së fundmi, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Platelet Tests» |
+| 777-3 | Trombocite | ↓ | Tregojini mjekut tuaj nëse jeni shtatzënë ose keni kaluar së fundmi një infeksion viral, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Platelet Tests» |
+| 787-2 | Volumi mesatar eritrocitar | ↑ | Flisni me mjekun tuaj për ushqimin tuaj dhe barnat që përdorni, sepse ato mund ta ndikojnë këtë vlerë. | MedlinePlus, «MCV (Mean Corpuscular Volume)» |
+| 787-2 | Volumi mesatar eritrocitar | ↓ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «MCV (Mean Corpuscular Volume)» |
+| 785-6 | Hemoglobina mesatare eritrocitare | ↑ | Flisni me mjekun tuaj për barnat që përdorni dhe për konsumin e alkoolit, sepse këto mund ta ndikojnë këtë vlerë. | Cleveland Clinic, «MCH in a Blood Test (Mean Corpuscular Hemoglobin)» |
+| 785-6 | Hemoglobina mesatare eritrocitare | ↓ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | Cleveland Clinic, «MCH in a Blood Test (Mean Corpuscular Hemoglobin)» |
+| 786-4 | Përqendrimi mesatar i hemoglobinës | ↑ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | Testing.com, «MCHC Blood Test: What Hemoglobin Concentration Means» |
+| 786-4 | Përqendrimi mesatar i hemoglobinës | ↓ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | Testing.com, «MCHC Blood Test: What Hemoglobin Concentration Means» |
+| 2345-7 | Glukozë në serum | ↑ | Pyesni mjekun tuaj nëse kjo vlerë duhet përsëritur esëll. | MedlinePlus, «Blood Glucose Test» |
+| 2345-7 | Glukozë në serum | ↓ | Tregojini mjekut tuaj nëse nuk keni ngrënë mjaftueshëm ose keni qenë më aktiv fizikisht se zakonisht, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Blood Glucose Test» |
+| 4548-4 | Hemoglobinë e glikuar | ↑ | Pyesni mjekun tuaj nëse kjo vlerë duhet përsëritur ose nëse nevojiten analiza të tjera për ta sqaruar. | MedlinePlus, «Hemoglobin A1C (HbA1C) Test» |
+| 4548-4 | Hemoglobinë e glikuar | ↓ | Tregojini mjekut tuaj nëse jeni shtatzënë dhe flisni me të për barnat që përdorni, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Hemoglobin A1C (HbA1C) Test» |
+| 2160-0 | Kreatininë në serum | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini, për aktivitetin fizik dhe për ushqimin tuaj, sepse dehidrimi, ushtrimet intensive dhe mishi i shumtë mund ta ndikojnë këtë vlerë. | MedlinePlus, «Creatinine Test» |
+| 2160-0 | Kreatininë në serum | ↓ | Flisni me mjekun tuaj për ushqimin tuaj dhe për çdo humbje të masës muskulore, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Creatinine Test» |
+| 3094-0 | Ure në serum | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini dhe për barnat që përdorni, sepse dehidrimi dhe disa barna mund ta ndikojnë këtë vlerë. | MedlinePlus, «BUN (Blood Urea Nitrogen)» |
+| 3094-0 | Ure në serum | ↓ | Flisni me mjekun tuaj për ushqimin tuaj, sepse ajo që hani mund ta ndikojë këtë vlerë. | MedlinePlus, «BUN (Blood Urea Nitrogen)» |
+| 3084-1 | Acid urik në serum | ↑ | Flisni me mjekun tuaj për ushqimin tuaj, sepse mishi i kuq, disa prodhime deti, alkooli dhe pijet e ëmbla mund ta ndikojnë këtë vlerë. | MedlinePlus, «Uric Acid Test» |
+| 3084-1 | Acid urik në serum | ↓ | Flisni me mjekun tuaj për barnat që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, «Uric Acid Test» |
+| 2951-2 | Natrium në serum | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini dhe për barnat që përdorni, sepse dehidrimi dhe disa barna mund ta ndikojnë këtë vlerë. | MedlinePlus, «Sodium Blood Test» |
+| 2951-2 | Natrium në serum | ↓ | Tregojini mjekut tuaj nëse keni pasur diarre ose të vjella dhe flisni për barnat që përdorni, sepse humbja e lëngjeve dhe disa barna mund ta ndikojnë këtë vlerë. | MedlinePlus, «Sodium Blood Test» |
+| 2823-3 | Kalium në serum | ↑ | Flisni me mjekun tuaj për barnat dhe shtesat ushqimore që përdorni dhe pyesni nëse kjo vlerë duhet përsëritur, sepse edhe shtrëngimi i grushtit gjatë marrjes së gjakut mund ta ndikojë. | MedlinePlus, «Potassium Blood Test» |
+| 2823-3 | Kalium në serum | ↓ | Tregojini mjekut tuaj nëse keni pasur diarre, të vjella ose djersitje të shumtë dhe flisni për barnat që përdorni, sepse humbja e lëngjeve dhe disa barna mund ta ndikojnë këtë vlerë. | MedlinePlus, «Potassium Blood Test» |
+| 2075-0 | Klor në serum | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini, sepse dehidrimi mund ta ndikojë këtë vlerë. | MedlinePlus, «Chloride Blood Test» |
+| 2075-0 | Klor në serum | ↓ | Tregojini mjekut tuaj nëse keni pasur të vjella ose diarre dhe flisni për sasinë e lëngjeve që pini dhe për barnat që përdorni, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Chloride Blood Test» |
+| 17861-6 | Kalcium në serum | ↑ | Flisni me mjekun tuaj për barnat dhe shtesat ushqimore që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, «Calcium Blood Test» |
+| 17861-6 | Kalcium në serum | ↓ | Flisni me mjekun tuaj për ushqimin tuaj, sepse ajo që hani mund ta ndikojë këtë vlerë. | MedlinePlus, «Calcium Blood Test» |
+| 2777-1 | Fosfor në serum | ↑ | Flisni me mjekun tuaj për barnat që përdorni për një kohë të gjatë, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, «Phosphate in Blood» |
+| 2777-1 | Fosfor në serum | ↓ | Flisni me mjekun tuaj për ushqimin tuaj dhe për barnat që përdorni për një kohë të gjatë, sepse ushqimi dhe disa barna mund ta ndikojnë këtë vlerë. | MedlinePlus, «Phosphate in Blood» |
+| 2601-3 | Magnez në serum | ↑ | Flisni me mjekun tuaj për barnat dhe shtesat ushqimore që përdorni dhe për sasinë e lëngjeve që pini, sepse disa barna dhe dehidrimi mund ta ndikojnë këtë vlerë. | MedlinePlus, «Magnesium Blood Test» |
+| 2601-3 | Magnez në serum | ↓ | Flisni me mjekun tuaj për ushqimin tuaj, për barnat që përdorni dhe për çdo diarre të zgjatur, dhe pyesni nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «Magnesium Blood Test» |
+| 1742-6 | Alanin aminotransferazë | ↑ | Flisni me mjekun tuaj për barnat që përdorni dhe për aktivitetin fizik të fortë, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «ALT Blood Test» |
+| 1742-6 | Alanin aminotransferazë | ↓ | Pyesni mjekun tuaj se si interpretohet kjo vlerë së bashku me analizat e tjera që ju janë bërë. | MedlinePlus, «ALT Blood Test» |
+| 1920-8 | Aspartat aminotransferazë | ↑ | Flisni me mjekun tuaj për aktivitetin fizik, për një shtatzëni të mundshme dhe për barnat që përdorni, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «AST Test» |
+| 1920-8 | Aspartat aminotransferazë | ↓ | Pyesni mjekun tuaj nëse kjo vlerë ka nevojë për ndonjë sqarim të mëtejshëm. | MedlinePlus, «AST Test» |
+| 6768-6 | Fosfatazë alkaline | ↑ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për të sqaruar burimin e kësaj vlere, pasi shtatzënia, mosha, ushqimi dhe disa barna mund ta ndikojnë atë. | MedlinePlus, «Alkaline Phosphatase» |
+| 6768-6 | Fosfatazë alkaline | ↓ | Flisni me mjekun tuaj për ushqimin tuaj dhe për barnat që përdorni, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Alkaline Phosphatase» |
+| 2324-2 | Gama-glutamil transferazë | ↑ | Flisni me mjekun tuaj për barnat që përdorni, për alkoolin dhe për duhanin, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Gamma-Glutamyl Transferase (GGT) Test» |
+| 2324-2 | Gama-glutamil transferazë | ↓ | Tregojini mjekut tuaj nëse kishit ngrënë para analizës, sepse ushqimi mund ta ndikojë këtë vlerë. | MedlinePlus, «Gamma-Glutamyl Transferase (GGT) Test» |
+| 1975-2 | Bilirubinë totale | ↑ | Flisni me mjekun tuaj për barnat që përdorni, për ushqimin dhe për aktivitetin fizik të fortë, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Bilirubin Blood Test» |
+| 1975-2 | Bilirubinë totale | ↓ | Flisni me mjekun tuaj për barnat që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë, e cila zakonisht nuk është shqetësuese. | MedlinePlus, «Bilirubin Blood Test» |
+| 1751-7 | Albuminë në serum | ↑ | Flisni me mjekun tuaj për sasinë e lëngjeve që pini dhe për barnat që përdorni, sepse dehidrimi dhe disa barna mund ta ndikojnë këtë vlerë. | MedlinePlus, «Albumin Blood Test» |
+| 1751-7 | Albuminë në serum | ↓ | Tregojini mjekut tuaj nëse jeni shtatzënë, nëse nuk kishit ngrënë për një kohë të gjatë para analizës ose nëse përdorni ndonjë bar, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Albumin Blood Test» |
+| 2885-2 | Proteina totale | ↑ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «Total Protein and Albumin/Globulin (A/G) Ratio» |
+| 2885-2 | Proteina totale | ↓ | Flisni me mjekun tuaj për ushqimin tuaj dhe për çdo problem të tretjes, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Total Protein and Albumin/Globulin (A/G) Ratio» |
+| 2093-3 | Kolesterol total | ↑ | Flisni me mjekun tuaj për ushqimin, aktivitetin fizik dhe zakonet tuaja të përditshme, para se të bëni ndonjë ndryshim të madh. | MedlinePlus, «Cholesterol Levels» |
+| 2093-3 | Kolesterol total | ↓ | Pyesni mjekun tuaj se cila vlerë është e përshtatshme për ju, pasi kjo varet nga mosha, historia familjare dhe mënyra e jetesës. | MedlinePlus, «Cholesterol Levels» |
+| 2085-9 | Kolesterol HDL | ↑ | Pyesni mjekun tuaj se si interpretohet kjo vlerë së bashku me rezultatet e tjera të analizës suaj, pasi ajo zakonisht konsiderohet e favorshme. | MedlinePlus, «HDL: The Good Cholesterol» |
+| 2085-9 | Kolesterol HDL | ↓ | Flisni me mjekun tuaj për ushqimin, peshën, aktivitetin fizik, duhanin dhe alkoolin, sepse mënyra e jetesës mund ta ndikojë këtë vlerë. | MedlinePlus, «HDL: The Good Cholesterol» |
+| 13457-7 | Kolesterol LDL | ↑ | Flisni me mjekun tuaj për ushqimin, peshën, aktivitetin fizik, duhanin dhe barnat që përdorni, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «LDL: The Bad Cholesterol» |
+| 13457-7 | Kolesterol LDL | ↓ | Pyesni mjekun tuaj se si interpretohet kjo vlerë së bashku me rezultatet e tjera të analizës suaj, pasi ajo zakonisht konsiderohet e favorshme. | MedlinePlus, «Cholesterol Levels» |
+| 2571-8 | Trigliceride | ↑ | Flisni me mjekun tuaj për ushqimin, aktivitetin fizik, gjumin, stresin dhe alkoolin, para se të bëni ndonjë ndryshim të madh. | MedlinePlus, «Triglycerides Test» |
+| 2571-8 | Trigliceride | ↓ | Pyesni mjekun tuaj se si interpretohet kjo vlerë, pasi raste të tilla janë shumë të rralla. | MedlinePlus, «Triglycerides Test» |
+| 3016-3 | Hormoni stimulues i tiroides | ↑ | Flisni me mjekun tuaj për barnat që përdorni dhe pyesni nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «TSH (Thyroid-stimulating hormone) Test» |
+| 3016-3 | Hormoni stimulues i tiroides | ↓ | Tregojini mjekut tuaj nëse jeni shtatzënë ose nëse keni pasur së fundmi probleme serioze shëndetësore, sepse këto mund ta ndikojnë përkohësisht këtë vlerë. | MedlinePlus, «TSH (Thyroid-stimulating hormone) Test» |
+| 3024-7 | Tiroksinë e lirë | ↑ | Flisni me mjekun tuaj për barnat që përdorni dhe pyesni nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «Thyroxine (T4) Test» |
+| 3024-7 | Tiroksinë e lirë | ↓ | Tregojini mjekut tuaj nëse keni pasur së fundmi probleme serioze shëndetësore dhe flisni për barnat që përdorni, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Thyroxine (T4) Test» |
+| 3051-0 | Triiodotironinë e lirë | ↑ | Pyesni mjekun tuaj se si interpretohet kjo vlerë së bashku me analizat e tjera që ju janë bërë, dhe tregojini për barnat që përdorni. | MedlinePlus, «Triiodothyronine (T3) Tests» |
+| 3051-0 | Triiodotironinë e lirë | ↓ | Flisni me mjekun tuaj për barnat dhe produktet e tjera që përdorni, sepse ato mund ta ndikojnë këtë vlerë. | MedlinePlus, «Triiodothyronine (T3) Tests» |
+| 2276-4 | Ferritinë në serum | ↑ | Tregojini mjekut tuaj nëse keni kaluar së fundmi një infeksion ose një operacion, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Ferritin Blood Test» |
+| 2276-4 | Ferritinë në serum | ↓ | Flisni me mjekun tuaj për barnat që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, «Ferritin Blood Test» |
+| 2498-4 | Hekur në serum | ↑ | Pyesni mjekun tuaj nëse kjo vlerë duhet përsëritur esëll dhe në mëngjes. | MedlinePlus, «Iron Tests» |
+| 2498-4 | Hekur në serum | ↓ | Tregojini mjekut tuaj nëse analiza është bërë gjatë ciklit menstrual, sepse kjo mund ta ndikojë këtë vlerë. | MedlinePlus, «Iron Tests» |
+| 1988-5 | Proteina C-reaktive | ↑ | Flisni me mjekun tuaj për barnat që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, «C-Reactive Protein (CRP) Test» |
+| 1988-5 | Proteina C-reaktive | ↓ | — (pa rresht: asnjë faqe nuk jep përmbajtje të përdorshme për këtë drejtim) | — |
+| 2132-9 | Vitaminë B12 | ↑ | Flisni me mjekun tuaj për barnat që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, «Vitamin B Test» |
+| 2132-9 | Vitaminë B12 | ↓ | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, «Vitamin B Test» |
+| 1989-3 | Vitaminë D 25-OH | ↑ | Flisni me mjekun tuaj për shtesat ushqimore që përdorni, sepse ato mund ta ndikojnë këtë vlerë. | MedlinePlus, «Vitamin D Test» |
+| 1989-3 | Vitaminë D 25-OH | ↓ | Flisni me mjekun tuaj për ushqimin tuaj, për ekspozimin ndaj diellit dhe për barnat që përdorni, sepse këto mund ta ndikojnë këtë vlerë. | MedlinePlus, «Vitamin D Test» |
+
+Çdo faqe u hap më 7 tetor 2026; adresa e plotë e secilës dhe fjalia angleze që e mbështet fjalinë shqipe ruhen te `docs/thesis/worksheets/keshillat_e_gjetura.csv`. Fjalitë janë formulime të autorit brenda asaj që thotë faqja dhe nuk janë rishikuar nga një klinicist.
 
 ## Shtojca C — Katalogu i plotë i rregullave të verifikimit
 
@@ -2251,7 +2417,7 @@ edhe pasi katalogu ndryshon.
 | R5 | B | `polarity_flip` | Polariteti i pohimit të mjekut nuk guxon të përmbyset. | fjalia |
 | R6 | B | `hedge_removed` | Pasiguria e shprehur nga mjeku nuk guxon të hiqet. | fjalia |
 | R7 | B | `fabricated_finding` | Asnjë gjetje që mungon në kontekst nuk guxon të shtohet. | fjalia |
-| R8 | B | `omitted_recommendation` | Çdo rekomandim i mjekut duhet të ruhet në dalje. | tërë dalja |
+| R8 | B | `omitted_recommendation` | Çdo rekomandim i mjekut, dhe çdo këshillë me burim e tabelës, duhet të ruhet në dalje. | tërë dalja |
 | R9 | B | `ungrounded_term_explanation` | Asnjë term jashtë tabelës terminologjike nuk guxon të shpjegohet. | fjalia |
 | SP1-3 | B | `prohibited_claim` | Asnjë pohim diagnostik, trajtimi apo prognoze. | fjalia |
 
@@ -2408,13 +2574,12 @@ Llojet e shkeljeve:
 - polarity_flip: Polariteti i pohimit të mjekut nuk guxon të përmbyset.
 - hedge_removed: Pasiguria e shprehur nga mjeku nuk guxon të hiqet.
 - fabricated_finding: Asnjë gjetje që mungon në kontekst nuk guxon të shtohet.
-- omitted_recommendation: Çdo rekomandim i mjekut duhet të ruhet në dalje.
+- omitted_recommendation: Çdo rekomandim i mjekut, dhe çdo këshillë me burim e tabelës, duhet të ruhet në dalje.
 - ungrounded_term_explanation: Asnjë term jashtë tabelës terminologjike nuk guxon të shpjegohet.
 - prohibited_claim: Asnjë pohim diagnostik, trajtimi apo prognoze.
 
 Kthe vetëm një rresht JSON të formës {"label": "..."}, ku label është ose një nga (ungrounded_number, ungrounded_analyte, direction_mismatch, missing_critical, polarity_flip, hedge_removed, fabricated_finding, omitted_recommendation, ungrounded_term_explanation, prohibited_claim), ose "clean" nëse shpjegimi nuk e shkel kontekstin. Mos shpjego asgjë.
 ```
-
 
 ## Shtojca E — Udhëzimet e anotimit për dokumentet reale
 
@@ -2428,7 +2593,7 @@ Kthe vetëm një rresht JSON të formës {"label": "..."}, ku label është ose 
 
 ## Shtojca G — Skema SQL e bazës së të dhënave
 
-Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 21 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
+Skema PostgreSQL e ndërtuar nga modelet (`persistence/tables.py`): 22 tabela. Migrimet Alembic (`backend/alembic/versions/`) e prodhojnë të njëjtën skemë; një test krahason rezultatin e tyre me modelet. Terminologjia dhe intervalet referente nuk janë në bazë (`resources/` është burimi i vetëm).
 
 ```sql
 CREATE TABLE audit_events (
@@ -2591,6 +2756,21 @@ CREATE TABLE cross_references (
 );
 
 CREATE INDEX ix_cross_references_document_id ON cross_references (document_id);
+
+CREATE TABLE document_advice (
+	id SERIAL NOT NULL, 
+	document_id UUID NOT NULL, 
+	position INTEGER NOT NULL, 
+	finding_id UUID NOT NULL, 
+	analyte_code VARCHAR(20) NOT NULL, 
+	direction VARCHAR(20) NOT NULL, 
+	advice_sq TEXT NOT NULL, 
+	source_ref TEXT NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(document_id) REFERENCES documents (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_document_advice_document_id ON document_advice (document_id);
 
 CREATE TABLE document_glossary (
 	id SERIAL NOT NULL, 
@@ -2757,6 +2937,7 @@ CREATE INDEX ix_violations_verification_result_id ON violations (verification_re
 | Parametri | Vlera |
 |---|---|
 | Versioni i gjeneruesit | `gen-1.0` |
+| Versioni i korpusit | `gen-1.0/s42/n500/37d8b080` gjatë matjeve; `gen-1.0/s42/n500/3fede455` pas shtimit të burimeve në tabelat burimore (7 tetor 2026), me përmbajtje të njëjtë (§5, hyrja) |
 | Fara | 42 |
 | Dokumente | 500 (168 të skanuara, pjesa e synuar 35%) |
 | Faqe | 556 |

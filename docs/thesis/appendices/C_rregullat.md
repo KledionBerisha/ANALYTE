@@ -17,7 +17,7 @@ edhe pasi katalogu ndryshon.
 | R5 | B | `polarity_flip` | Polariteti i pohimit të mjekut nuk guxon të përmbyset. | fjalia |
 | R6 | B | `hedge_removed` | Pasiguria e shprehur nga mjeku nuk guxon të hiqet. | fjalia |
 | R7 | B | `fabricated_finding` | Asnjë gjetje që mungon në kontekst nuk guxon të shtohet. | fjalia |
-| R8 | B | `omitted_recommendation` | Çdo rekomandim i mjekut duhet të ruhet në dalje. | tërë dalja |
+| R8 | B | `omitted_recommendation` | Çdo rekomandim i mjekut, dhe çdo këshillë me burim e tabelës, duhet të ruhet në dalje. | tërë dalja |
 | R9 | B | `ungrounded_term_explanation` | Asnjë term jashtë tabelës terminologjike nuk guxon të shpjegohet. | fjalia |
 | SP1-3 | B | `prohibited_claim` | Asnjë pohim diagnostik, trajtimi apo prognoze. | fjalia |
 

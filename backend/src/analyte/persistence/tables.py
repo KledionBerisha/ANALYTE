@@ -403,6 +403,25 @@ class PatternRow(Base):
     source_ref: Mapped[str] = mapped_column(Text)
 
 
+class AdviceRow(Base):
+    """Këshillat me burim ashtu siç ishin kur u ndërtua konteksti (ADR 0023).
+
+    Ruhen të plota, si fjalori: nëse rreshti i tabelës ndryshon më vonë, fjalia
+    që pa pacienti mbetet e gjurmueshme bashkë me burimin e saj.
+    """
+
+    __tablename__ = "document_advice"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    document_id: Mapped[UUID] = _document_fk()
+    position: Mapped[int] = mapped_column(Integer)
+    finding_id: Mapped[UUID] = mapped_column(Uuid)
+    analyte_code: Mapped[str] = mapped_column(String(20))
+    direction: Mapped[str] = mapped_column(String(20))
+    advice_sq: Mapped[str] = mapped_column(Text)
+    source_ref: Mapped[str] = mapped_column(Text)
+
+
 class ExplanationRow(Base):
     """Një përpjekje gjenerimi, ose shablloni rezervë.
 

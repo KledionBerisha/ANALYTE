@@ -132,7 +132,7 @@ Llojet e shkeljeve:
 - polarity_flip: Polariteti i pohimit të mjekut nuk guxon të përmbyset.
 - hedge_removed: Pasiguria e shprehur nga mjeku nuk guxon të hiqet.
 - fabricated_finding: Asnjë gjetje që mungon në kontekst nuk guxon të shtohet.
-- omitted_recommendation: Çdo rekomandim i mjekut duhet të ruhet në dalje.
+- omitted_recommendation: Çdo rekomandim i mjekut, dhe çdo këshillë me burim e tabelës, duhet të ruhet në dalje.
 - ungrounded_term_explanation: Asnjë term jashtë tabelës terminologjike nuk guxon të shpjegohet.
 - prohibited_claim: Asnjë pohim diagnostik, trajtimi apo prognoze.
 

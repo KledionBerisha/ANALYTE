@@ -196,6 +196,11 @@ def check_recommendations(context: GroundingContext, text: str) -> Iterator[Viol
 
     Krahasimi bëhet mbi përmbajtjen kuptimplote të rekomandimit dhe jo mbi
     vargun e plotë, sepse dalja lejohet ta paraqesë atë me hyrje të vetën.
+
+    `r1.4` (ADR 0023): edhe këshilla me burim e tabelës është rekomandim që
+    duhet ruajtur fjalë për fjalë; e riformuluara është e hequr, sepse sistemi
+    nuk ka si ta dijë nëse riformulimi ishte i padëmshëm. `r1.3` i ngrirë nuk e
+    kontrollon: kontekstet e tij nuk kanë këshilla.
     """
     for assertion in context.assertions:
         if assertion.kind is not AssertionKind.RECOMMENDATION:
@@ -206,6 +211,15 @@ def check_recommendations(context: GroundingContext, text: str) -> Iterator[Viol
                 "",
                 f"rekomandimi “{assertion.text_span}” mungon në dalje",
             )
+    if ruleset.modern():
+        folded_text = fold(text)
+        for entry in context.advice:
+            if fold(entry.advice_sq) not in folded_text:
+                yield violation(
+                    ViolationType.OMITTED_RECOMMENDATION,
+                    "",
+                    f"këshilla me burim për {entry.analyte_code} “{entry.advice_sq}” mungon në dalje ose është riformuluar",
+                )
 
 
 def check_term_explanations(context: GroundingContext, text: str) -> Iterator[Violation]:

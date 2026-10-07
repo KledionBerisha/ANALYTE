@@ -1,9 +1,9 @@
 """Build teza_v4.md from teza_v3.md: UBT order/numbering, new Chapter 2, references."""
 import re, pathlib
 
+SRC = pathlib.Path("/mnt/user-data/uploads/ANALYTE/docs/thesis/teza_v3.md")
 BUILD = pathlib.Path(__file__).parent
-SRC = BUILD.parent / "teza_v3.md"
-OUT = BUILD.parent / "teza_v4.md"
+OUT = BUILD / "teza_v4.md"
 
 text = SRC.read_text(encoding="utf-8")
 lines = text.split("\n")
@@ -67,7 +67,8 @@ edits = [
     ("*[Figura — plotësohet: shembull i një kombinimi nga gjetjet te fjalia e\ndaljes]*\n\n", ""),
     ("miratimi etik nuk vendosen nga sistemi dhe mbeten vendim i autorit [REFERENCË — plotësohet].",
      "miratimi etik nuk vendosen nga sistemi dhe mbeten vendim i autorit; kuadri ligjor përshkruhet te seksioni 2.7.3 [58], [59]."),
-    # (2026-10-07) kolona e burimit mbetet: burimet u plotësuan te resources/terminology.csv
+    # Table 4 (terminology extract): drop the source column
+    ("| Termi | Shpjegimi | Kategoria | Burimi |\n|---|---|---|---|", "| Termi | Shpjegimi | Kategoria |\n|---|---|---|"),
     # figure 17 / table 14 notes
     ("*Figura 17 nuk prodhohet: chat-i nuk është ndërtuar.*\n\n", ""),
     (" Tabela {{T14}} nuk prodhohet dhe nuk fabrikohen përgjigje pjesëmarrësish.", " Nuk fabrikohen përgjigje pjesëmarrësish."),
@@ -86,12 +87,20 @@ edits = [
      "1. **Gjykatësi nuk është i pavarur nga sistemi:** është asistenti që ndihmoi ta ndërtojë; modelet e mëdha gjuhësore njohin dhe favorizojnë daljet e veta kur veprojnë si vlerësues [49], [47]."),
     # Tabela 7b -> 11 caption cleanup (already renumbered by TMAP)
 ]
+OPTIONAL = {"| Termi | Shpjegimi | Kategoria | Burimi |\n|---|---|---|---|"}
 for old, new in edits:
     if old not in body_text:
+        if old in OPTIONAL:
+            continue
         raise SystemExit("edit not found: " + old[:60])
     body_text = body_text.replace(old, new)
 
-# (2026-10-07) rreshtat e Tabelës 2 dhe paragrafi i saj mbajnë burimet e plotësuara; nuk hiqet asgjë
+# Table 4 rows: drop the trailing source cell
+body_text = re.sub(r"^(\| [^|]+ \| [^|]+ \| (gjendje|proces) )\| \[BURIMI — plotësohet gjatë ndërtimit të tabelës\] \|$",
+                   r"\1|", body_text, flags=re.M)
+if "Kolona e burimit mbetet vendmbajtëse" in body_text:
+  body_text = body_text.replace("Tabela përmban 82 zëra. Kolona e burimit mbetet vendmbajtëse dhe duhet\nplotësuar përpara dorëzimit: pa referencë të verifikueshme, tabela bëhet\nvetë burim informacioni të paverifikuar — pikërisht ajo që SP6 synon të\npengojë.",
+    "Tabela përmban 82 zëra. Shpjegimet janë përkufizime pune të autorit dhe\nnuk janë referuar në një burim të verifikueshëm; pa referencë, tabela\nbëhet vetë burim informacioni të paverifikuar — pikërisht ajo që SP6 synon\ntë pengojë. Kjo deklarohet si kufizim te seksioni 6.6.")
 
 # untitled tables -> captions (tokens), and caption text tweaks
 caps = [
@@ -134,7 +143,16 @@ if missing:
 body_text = re.sub(r"\{\{(T[^}]+)\}\}", lambda m: final[m.group(1)], body_text)
 body_text = body_text.replace("tabelat 7–13 dhe 16 gjenerohen", "tabelat %s, %s, %s, %s, %s, %s dhe %s–%s gjenerohen" % (final["T7"], final["T8"], final["T9"], final["T10"], final["T11"], final["T16"], final["T12"], final["T13b"]))
 
-# (2026-10-07) shtojcat A dhe B mbajnë kolonën e burimit: burimet u plotësuan te resources/*.csv
+# appendix: drop placeholder source columns
+app_text = app_text.replace("| Termi | Shpjegimi | Kategoria | Sinonimet | Burimi |\n|---|---|---|---|---|",
+                            "| Termi | Shpjegimi | Kategoria | Sinonimet |\n|---|---|---|---|")
+app_text = re.sub(r" \| \[BURIMI — plotësohet gjatë ndërtimit të tabelës\] \|$", " |", app_text, flags=re.M)
+app_text = app_text.replace("| ID | Kushtet | Burimi |\n|---|---|---|", "| ID | Kushtet |\n|---|---|")
+app_text = re.sub(r" \| \[REFERENCË — plotësohet\] \|$", " |", app_text, flags=re.M)
+app_text = app_text.replace("Tabela mban 82 terma. **82 prej tyre mbajnë ende vendmbajtës në kolonën e burimit**: shpjegimet janë përkufizime pune të autorit dhe nuk janë referuar te një burim i verifikueshëm. Pa referencë, tabela vetë është burim informacioni të paverifikuar; kjo është kufizim i shprehur te seksioni 6.6, jo detaj i fshehur këtu.",
+    "Tabela mban 82 terma. Shpjegimet janë përkufizime pune të autorit dhe nuk janë referuar te një burim i verifikueshëm. Pa referencë, tabela vetë është burim informacioni të paverifikuar; kjo është kufizim i shprehur te seksioni 6.6, jo detaj i fshehur këtu.")
+app_text = app_text.replace("# 8 APPENDIXES", "# 8 APPENDIXES")
+app_text = app_text.replace("Tabela e plotë terminologjike shqip me shpjegimet, burimet dhe kategoritë", "Tabela e plotë terminologjike shqip me shpjegimet, kategoritë dhe sinonimet")
 app_text = app_text.replace("(Tabela 3)", "(Tabela 3)")
 
 # ---------- front matter ----------

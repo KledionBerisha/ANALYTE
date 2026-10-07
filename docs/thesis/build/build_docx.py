@@ -254,9 +254,9 @@ for tbl in doc.tables:
         for ci in range(min(ncols, len(cells))):
             L = len(para_text(cells[ci].paragraphs[0]) if cells[ci].paragraphs else "")
             # weight: sqrt-ish to avoid one huge column
-            lens[ci] = max(lens[ci], min(L, 120) ** 0.75)
+            lens[ci] = max(lens[ci], min(L, 80) ** 0.6)
     total = sum(lens)
-    widths = [max(Cm(1.3), int(TEXT_W * l / total)) for l in lens]
+    widths = [max(Cm(1.9), int(TEXT_W * l / total)) for l in lens]
     scale = TEXT_W / sum(widths)
     widths = [int(w * scale) for w in widths]
     tbl.autofit = False

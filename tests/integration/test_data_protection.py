@@ -37,6 +37,7 @@ from analyte import erasure
 from analyte.persistence.database import create_schema, make_engine, make_session_factory
 from analyte.persistence.storage import EncryptedStore
 from analyte.persistence.tables import (
+    AdviceRow,
     AssertionRow,
     AuditEventRow,
     AuthSessionRow,
@@ -68,6 +69,7 @@ DOCUMENT_TABLES = (
     GlossaryRow,
     UnexplainedTermRow,
     PatternRow,
+    AdviceRow,
     ExplanationRow,
     VerificationRow,
     ViolationRow,

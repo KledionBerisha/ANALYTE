@@ -1199,6 +1199,31 @@
         }
       }
     },
+    "/advice": {
+      "get": {
+        "tags": [
+          "advice"
+        ],
+        "summary": "Table",
+        "operationId": "table_advice_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdviceOut"
+                  },
+                  "type": "array",
+                  "title": "Response Table Advice Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/documents/{document_id}/chat": {
       "get": {
         "tags": [
@@ -1402,6 +1427,45 @@
   },
   "components": {
     "schemas": {
+      "AdviceOut": {
+        "properties": {
+          "loinc_code": {
+            "type": "string",
+            "title": "Loinc Code"
+          },
+          "analyte_name_sq": {
+            "type": "string",
+            "title": "Analyte Name Sq"
+          },
+          "direction": {
+            "type": "string",
+            "title": "Direction"
+          },
+          "advice_sq": {
+            "type": "string",
+            "title": "Advice Sq"
+          },
+          "source_ref": {
+            "type": "string",
+            "title": "Source Ref"
+          },
+          "is_filled": {
+            "type": "boolean",
+            "title": "Is Filled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loinc_code",
+          "analyte_name_sq",
+          "direction",
+          "advice_sq",
+          "source_ref",
+          "is_filled"
+        ],
+        "title": "AdviceOut",
+        "description": "Një rresht i tabelës së këshillave me burim (ADR 0023), i plotësuar ose jo."
+      },
       "AnalyteFinding": {
         "properties": {
           "id": {
