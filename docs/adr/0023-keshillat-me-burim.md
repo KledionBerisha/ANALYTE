@@ -57,5 +57,7 @@ shërbimeve shëndetësore kombëtare), dhe fjalia shqipe nuk guxon të thotë m
 - Puna e burimeve mbetet e autorit, si te termat: 76 rreshta, dhe asnjë nuk shkruhet pa u lexuar burimi.
 - **Rreshti me burim por pa fjali është vendim**: burimi nuk jep asgjë për atë drejtim (p.sh. CRP nën intervalin),
   pacientit nuk i shfaqet asgjë, dhe fleta e punës nuk e radhit më si të mbetur.
-- 2026-10-07: autori plotësoi 75 nga 76 rreshta (71 MedlinePlus, 2 Cleveland Clinic, 2 Testing.com); CRP ↓ mbeti bosh me
-  qëllim. Të gjithë rreshtat e plotësuar kalojnë `tests/unit/test_advice.py`. Shtojca A.2 e punimit e radhit tabelën.
+- 2026-10-07: autori plotësoi 75 nga 76 rreshta (71 MedlinePlus, 2 Cleveland Clinic, 2 Testing.com); CRP ↓ mban burimin
+  (faqen e CRP-së) pa fjali, me qëllim. Të gjithë rreshtat e plotësuar kalojnë `tests/unit/test_advice.py`. Shtojca A.2 e
+  punimit e radhit tabelën. Sipas autorit (2026-10-07), fjalitë e këshillave i shqyrtoi edhe një mjek familjeje, si edhe
+  11 rregullat e kombinimit; shqyrtimi nuk ka gjurmë të shkruar në depo, prandaj punimi duhet ta emërtojë shqyrtuesin dhe datën.

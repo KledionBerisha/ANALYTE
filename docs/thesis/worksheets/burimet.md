@@ -8,7 +8,7 @@ Mbeten: **0** terma dhe **0** kombinime.
 
 Asnjë term dhe asnjë kombinim nuk mbetet pa burim. Burimet e lexuara dhe evidenca e secilit janë te `docs/thesis/worksheets/burimet_e_gjetura.md`.
 
-Këshilla me burim (ADR 0023) të paplotësuara: **1** nga 76.
+Këshilla me burim (ADR 0023) të paplotësuara: **0** nga 76.
 
 ## Kombinimet e analiteve
 
@@ -18,14 +18,6 @@ Për secilin: një udhëzues ose standard i mjekësisë laboratorike që e lidh 
 |---|---|---|---|---|
 
 ## Termat
-
-## Këshillat me burim (`resources/advice.csv`)
-
-Një fjali e vetme për çdo analit dhe drejtim, pa numra, pa emër gjendjeje, pa trajtim, pa parashikim, e formuluar si temë ose pyetje për mjekun («Pyesni mjekun tuaj nëse …», «Flisni me mjekun tuaj për …»). Burimi: një faqe pacienti e lexuar që thotë çfarë mund të nënkuptojë një vlerë e lartë ose e ulët (MedlinePlus «What do the results mean», faqe pacientësh të shërbimeve shëndetësore kombëtare); fjalia shqipe nuk guxon të thotë më shumë se burimi. Rreshti pa fjali ose pa burim nuk i shfaqet pacientit; rreshti i plotësuar kalon vetë nëpër rregullat R1, R2, R3 dhe SP1–SP3 (`python -m pytest tests/unit/test_advice.py`).
-
-| Kodi | Analiti | Drejtimi | Fjalia (advice_sq) | Burimi i lexuar |
-|---|---|---|---|---|
-| 1988-5 | Proteina C-reaktive | ↓ ulët |  | |
 
 ## Pas leximit
 

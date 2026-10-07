@@ -91,7 +91,7 @@ Tabela mban 82 terma. Secili zë mban në kolonën e burimit faqen ose përshkru
 | gjakderdhje | humbje gjaku nga enët e gjakut | gjendje | gjakderdhja | MedlinePlus, "Bleeding", https://medlineplus.gov/ency/article/000045.htm |
 | imunitet | aftësia e trupit për t'u mbrojtur nga infeksionet | proces | imuniteti, imunitar | MedlinePlus, "Immune response", https://medlineplus.gov/ency/article/000821.htm |
 
-Tabela A.2 mban këshillat me burim (ADR 0023): një fjali e vetme për çdo analit dhe drejtim, e shtypur fjalë për fjalë nën vlerën përkatëse dhe e mbrojtur nga R8. 75 nga 76 rreshta kanë fjali dhe burim të lexuar; 0 rresht(a) kanë burim por asnjë fjali, sepse burimi nuk jep asgjë për atë drejtim, dhe pacientit nuk i shfaqet asgjë; 1 mbeten pa burim. Fjalia nuk emërton gjendje, nuk jep trajtim dhe nuk parashikon: ajo tregon vetëm çfarë mund t'i thotë pacienti mjekut dhe cilët faktorë para-analitikë përmend burimi. Çdo rresht i plotësuar kalon vetë nëpër R1, R2, R3 dhe SP1–SP3 (`tests/unit/test_advice.py`).
+Tabela A.2 mban këshillat me burim (ADR 0023): një fjali e vetme për çdo analit dhe drejtim, e shtypur fjalë për fjalë nën vlerën përkatëse dhe e mbrojtur nga R8. 75 nga 76 rreshta kanë fjali dhe burim të lexuar; 1 rresht(a) kanë burim por asnjë fjali, sepse burimi nuk jep asgjë për atë drejtim, dhe pacientit nuk i shfaqet asgjë; 0 mbeten pa burim. Fjalia nuk emërton gjendje, nuk jep trajtim dhe nuk parashikon: ajo tregon vetëm çfarë mund t'i thotë pacienti mjekut dhe cilët faktorë para-analitikë përmend burimi. Çdo rresht i plotësuar kalon vetë nëpër R1, R2, R3 dhe SP1–SP3 (`tests/unit/test_advice.py`).
 
 *Tabela A.2. Këshillat me burim sipas analitit dhe drejtimit*
 
@@ -168,7 +168,7 @@ Tabela A.2 mban këshillat me burim (ADR 0023): një fjali e vetme për çdo ana
 | Hekur në serum | mbi intervalin | Pyesni mjekun tuaj nëse kjo vlerë duhet përsëritur esëll dhe në mëngjes. | MedlinePlus, "Iron Tests", https://medlineplus.gov/lab-tests/iron-tests/, accessed 2026-10-07 |
 | Hekur në serum | nën intervalin | Tregojini mjekut tuaj nëse analiza është bërë gjatë ciklit menstrual, sepse kjo mund ta ndikojë këtë vlerë. | MedlinePlus, "Iron Tests", https://medlineplus.gov/lab-tests/iron-tests/, accessed 2026-10-07 |
 | Proteina C-reaktive | mbi intervalin | Flisni me mjekun tuaj për barnat që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, "C-Reactive Protein (CRP) Test", https://medlineplus.gov/lab-tests/c-reactive-protein-crp-test/, accessed 2026-10-07 |
-| Proteina C-reaktive | nën intervalin | — | [BURIMI — plotësohet] |
+| Proteina C-reaktive | nën intervalin | — | MedlinePlus, "C-Reactive Protein (CRP) Test", https://medlineplus.gov/lab-tests/c-reactive-protein-crp-test/, accessed 2026-10-07 |
 | Vitaminë B12 | mbi intervalin | Flisni me mjekun tuaj për barnat që përdorni, sepse disa prej tyre mund ta ndikojnë këtë vlerë. | MedlinePlus, "Vitamin B Test", https://medlineplus.gov/lab-tests/vitamin-b-test/, accessed 2026-10-07 |
 | Vitaminë B12 | nën intervalin | Pyesni mjekun tuaj nëse nevojiten analiza të tjera për ta sqaruar këtë vlerë. | MedlinePlus, "Vitamin B Test", https://medlineplus.gov/lab-tests/vitamin-b-test/, accessed 2026-10-07 |
 | Vitaminë D 25-OH | mbi intervalin | Flisni me mjekun tuaj për shtesat ushqimore që përdorni, sepse ato mund ta ndikojnë këtë vlerë. | MedlinePlus, "Vitamin D Test", https://medlineplus.gov/lab-tests/vitamin-d-test/, accessed 2026-10-07 |
