@@ -1,12 +1,12 @@
 pattern_id,conditions,source_ref
-P01,718-7:decreased|2276-4:decreased,[REFERENCË — plotësohet]
-P02,718-7:decreased|787-2:decreased,[REFERENCË — plotësohet]
-P03,718-7:decreased|2132-9:decreased,[REFERENCË — plotësohet]
-P04,2345-7:increased|4548-4:increased,[REFERENCË — plotësohet]
-P05,2160-0:increased|3094-0:increased,[REFERENCË — plotësohet]
-P06,1742-6:increased|1920-8:increased,[REFERENCË — plotësohet]
-P07,6768-6:increased|2324-2:increased,[REFERENCË — plotësohet]
-P08,3016-3:increased|3024-7:decreased,[REFERENCË — plotësohet]
-P09,3016-3:decreased|3024-7:increased,[REFERENCË — plotësohet]
-P10,6690-2:increased|1988-5:increased,[REFERENCË — plotësohet]
-P11,13457-7:increased|2085-9:decreased,[REFERENCË — plotësohet]
+P01,718-7:decreased|2276-4:decreased,"J. Snook, N. Bhala, I. L. P. Beales, et al., ""British Society of Gastroenterology guidelines for the management of iron deficiency anaemia in adults,"" *Gut*, vol. 70, no. 11, pp. 2030–2051, 2021, doi: 10.1136/gutjnl-2021-324757. https://gut.bmj.com/content/70/11/2030"
+P02,718-7:decreased|787-2:decreased,"H. S. Chaudhry and M. R. Kasarla, ""Microcytic Hypochromic Anemia,"" in *StatPearls* [Internet], Treasure Island, FL: StatPearls Publishing, updated Feb. 2026. https://www.ncbi.nlm.nih.gov/books/NBK470252/"
+P03,718-7:decreased|2132-9:decreased,"R. C. Langan and A. J. Goodbred, ""Vitamin B12 Deficiency: Recognition and Management,"" *American Family Physician*, vol. 96, no. 6, pp. 384–389, 2017. https://www.aafp.org/pubs/afp/issues/2017/0915/p384.html"
+P04,2345-7:increased|4548-4:increased,"American Diabetes Association Professional Practice Committee, ""2. Diagnosis and Classification of Diabetes: Standards of Care in Diabetes—2025,"" *Diabetes Care*, vol. 48, suppl. 1, pp. S27–S49, 2025, doi: 10.2337/dc25-S002. https://diabetesjournals.org/care/article/48/Supplement_1/S27/157566"
+P05,2160-0:increased|3094-0:increased,"A. O. Hosten, ""BUN and Creatinine,"" in *Clinical Methods: The History, Physical, and Laboratory Examinations*, 3rd ed., H. K. Walker, W. D. Hall, J. W. Hurst, Eds. Boston, MA: Butterworths, 1990, ch. 193. https://www.ncbi.nlm.nih.gov/books/NBK305/"
+P06,1742-6:increased|1920-8:increased,"P. N. Newsome, R. Cramb, S. M. Davison, et al., ""Guidelines on the management of abnormal liver blood tests,"" *Gut*, vol. 67, no. 1, pp. 6–19, 2018, doi: 10.1136/gutjnl-2017-315541. https://gut.bmj.com/content/67/1/6"
+P07,6768-6:increased|2324-2:increased,"P. N. Newsome, R. Cramb, S. M. Davison, et al., ""Guidelines on the management of abnormal liver blood tests,"" *Gut*, vol. 67, no. 1, pp. 6–19, 2018, doi: 10.1136/gutjnl-2017-315541. https://gut.bmj.com/content/67/1/6"
+P08,3016-3:increased|3024-7:decreased,"S. A. Wilson, L. A. Stem, and R. D. Bruehlman, ""Hypothyroidism: Diagnosis and Treatment,"" *American Family Physician*, vol. 103, no. 10, pp. 605–613, 2021. https://www.aafp.org/pubs/afp/issues/2021/0515/p605.html"
+P09,3016-3:decreased|3024-7:increased,"D. S. Ross, H. B. Burch, D. S. Cooper, et al., ""2016 American Thyroid Association Guidelines for Diagnosis and Management of Hyperthyroidism and Other Causes of Thyrotoxicosis,"" *Thyroid*, vol. 26, no. 10, pp. 1343–1421, 2016, doi: 10.1089/thy.2016.0229. https://journals.sagepub.com/doi/10.1089/thy.2016.0229"
+P10,6690-2:increased|1988-5:increased,"L. K. Riley and J. Rupert, ""Evaluation of Patients with Leukocytosis,"" *American Family Physician*, vol. 92, no. 11, pp. 1004–1011, 2015. https://www.aafp.org/pubs/afp/issues/2015/1201/p1004.html"
+P11,13457-7:increased|2085-9:decreased,"F. Mach, C. Baigent, A. L. Catapano, et al., ""2019 ESC/EAS Guidelines for the management of dyslipidaemias: lipid modification to reduce cardiovascular risk,"" *European Heart Journal*, vol. 41, no. 1, pp. 111–188, 2020, doi: 10.1093/eurheartj/ehz455. https://academic.oup.com/eurheartj/article/41/1/111/5556353"

@@ -56,11 +56,19 @@ def appendix_a() -> str:
     lines = [
         "## Shtojca A — Tabela e plotë terminologjike shqip",
         "",
-        f"Tabela mban {len(rows)} terma. **{unsourced} prej tyre mbajnë ende vendmbajtës në "
-        "kolonën e burimit**: shpjegimet janë përkufizime pune të autorit dhe nuk janë "
-        "referuar te një burim i verifikueshëm. Pa referencë, tabela vetë është burim "
-        "informacioni të paverifikuar; kjo është kufizim i shprehur te seksioni 7.6, jo "
-        "detaj i fshehur këtu.",
+        (
+            f"Tabela mban {len(rows)} terma. **{unsourced} prej tyre mbajnë ende vendmbajtës në "
+            "kolonën e burimit**: shpjegimet janë përkufizime pune të autorit dhe nuk janë "
+            "referuar te një burim i verifikueshëm. Pa referencë, tabela vetë është burim "
+            "informacioni të paverifikuar; kjo është kufizim i shprehur te seksioni 7.6, jo "
+            "detaj i fshehur këtu."
+            if unsourced
+            else f"Tabela mban {len(rows)} terma. Secili zë mban në kolonën e burimit faqen ose "
+            "përshkruesin (MeSH, MedlinePlus, Cleveland Clinic, Testing.com) që u lexua më "
+            "2026-10-06 dhe që e mbështet shpjegimin shqip; shpjegimi është formulim i autorit, "
+            "jo përkthim i burimit. Citimi i evidencës për secilin zë ruhet te "
+            "`docs/thesis/worksheets/burimet_e_gjetura.md`."
+        ),
         "",
         "*Tabela A.1. Termat, shpjegimet, kategoritë dhe sinonimet*",
         "",

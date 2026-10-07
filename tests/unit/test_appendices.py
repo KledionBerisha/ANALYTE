@@ -34,11 +34,16 @@ def test_every_terminology_entry_is_in_appendix_a():
     assert f"Tabela mban {len(terms)} terma" in text
 
 
-def test_appendix_a_says_how_many_entries_have_no_source():
-    """Burimet mungojnë dhe teksti nuk e fsheh: numri shfaqet te shtojca."""
+def test_appendix_a_reports_the_state_of_the_sources_honestly():
+    """Kur burimet mungojnë, numri i vendmbajtësve shfaqet; kur janë plotësuar (2026-10-06),
+    teksti e thotë dhe asnjë vendmbajtës nuk mbetet në tabelë."""
     text = appendices.appendix_a()
     unsourced = text.count("[BURIMI")
-    assert unsourced > 0 and f"{unsourced} prej tyre" in text
+    if unsourced:
+        assert f"{unsourced} prej tyre" in text
+    else:
+        assert "Secili zë mban në kolonën e burimit" in text
+        assert "plotësohet" not in text
 
 
 def test_the_schema_appendix_has_every_table_and_index():

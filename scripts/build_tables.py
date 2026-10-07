@@ -121,13 +121,24 @@ def table_3(limit: int = 20) -> str:
             f"| {term.term} | {term.explanation_sq} | {term.category or '—'} "
             f"| {term.source_ref} |"
         )
-    lines += [
-        "",
-        "> Kolona e burimit është ende vendmbajtëse. Çdo zë duhet të marrë një",
-        "> referencë të verifikueshme përpara dorëzimit; pa të, tabela bëhet vetë",
-        "> burim informacioni të paverifikuar dhe shkel arsyen për të cilën u",
-        "> ndërtua.",
-    ]
+    unsourced = sum(1 for t in terms if "plotësohet" in t.source_ref)
+    if unsourced:
+        lines += [
+            "",
+            f"> Kolona e burimit është ende vendmbajtëse për {unsourced} nga {len(terms)} zëra.",
+            "> Çdo zë duhet të marrë një referencë të verifikueshme përpara dorëzimit;",
+            "> pa të, tabela bëhet vetë burim informacioni të paverifikuar dhe shkel",
+            "> arsyen për të cilën u ndërtua.",
+        ]
+    else:
+        lines += [
+            "",
+            "> Çdo zë mban në kolonën e burimit faqen ose përshkruesin (MeSH, MedlinePlus,",
+            "> Cleveland Clinic, Testing.com) që u lexua më 2026-10-06 dhe që e mbështet",
+            "> shpjegimin shqip; shpjegimi është formulim i autorit, jo përkthim i burimit.",
+            "> Citimi i evidencës për secilin zë ruhet te",
+            "> `docs/thesis/worksheets/burimet_e_gjetura.md`.",
+        ]
     return "\n".join(lines) + "\n"
 
 
@@ -179,12 +190,22 @@ def table_5() -> str:
             f"{names[code]} {arrow[direction]}" for code, direction in pattern.conditions
         )
         lines.append(f"| {pattern.pattern_id} | {conditions} | {pattern.source_ref} |")
-    lines += [
-        "",
-        "> Kombinimet u zgjodhën si të njohura gjerësisht dhe duhen konfirmuar nga",
-        "> mentori ose nga një mjek, bashkë me burimin e secilit, përpara",
-        "> dorëzimit.",
-    ]
+    patterns = load_patterns()
+    if any("plotësohet" in p.source_ref for p in patterns):
+        lines += [
+            "",
+            "> Kombinimet u zgjodhën si të njohura gjerësisht dhe duhen konfirmuar nga",
+            "> mentori ose nga një mjek, bashkë me burimin e secilit, përpara",
+            "> dorëzimit.",
+        ]
+    else:
+        lines += [
+            "",
+            "> Burimi i secilit kombinim u lexua më 2026-10-06; citimi i evidencës dhe",
+            "> shkalla e mbështetjes (e plotë ose e pjesshme) për secilin jepen te",
+            "> `docs/thesis/worksheets/burimet_e_gjetura.md`. Kombinimet duhen konfirmuar",
+            "> nga mentori ose nga një mjek përpara dorëzimit.",
+        ]
     return "\n".join(lines) + "\n"
 
 

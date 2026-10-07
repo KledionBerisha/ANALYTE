@@ -1,83 +1,83 @@
 term,explanation_sq,source_ref,category,synonyms
-anemi,nivel i ulët i hemoglobinës në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,anemia|anemik
-eritropoezë,prodhimi i qelizave të kuqe të gjakut në palcën kockore,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,eritropoeza
-leukocitozë,numër i rritur i qelizave të bardha të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,leukocitoza
-leukopeni,numër i ulët i qelizave të bardha të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,leukopenia
-trombocitopeni,numër i ulët i pllakëzave të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,trombocitopenia
-trombocitozë,numër i rritur i pllakëzave të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,trombocitoza
-hiperglicemi,nivel i rritur i sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperglicemia
-hipoglicemi,nivel i ulët i sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipoglicemia
-hiperkalemi,nivel i rritur i kaliumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkalemia
-hipokalemi,nivel i ulët i kaliumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipokalemia
-hipernatremi,nivel i rritur i natriumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipernatremia
-hiponatremi,nivel i ulët i natriumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiponatremia
-hiperkalcemi,nivel i rritur i kalciumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkalcemia
-hipokalcemi,nivel i ulët i kalciumit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipokalcemia
-transaminaza,enzima që lidhen me funksionin e mëlçisë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],enzima,transaminazat|ALT|AST
-kolestazë,rrjedhje e penguar e biliarit nga mëlçia,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,kolestaza
-hiperbilirubinemi,nivel i rritur i bilirubinës në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperbilirubinemia
-ikter,ngjyrim i verdhë i lëkurës dhe i syve,[BURIMI — plotësohet gjatë ndërtimit të tabelës],shenjë,ikteri|verdhëz
-dislipidemi,vlera të çrregulluara të yndyrnave në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,dislipidemia
-hiperkolesterolemi,nivel i rritur i kolesterolit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkolesterolemia
-hipertrigliceridemi,nivel i rritur i trigliceridëve në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipertrigliceridemia
-hipotiroidizëm,veprimtari e ulët e gjëndrës tiroide,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipotiroidizmi|hipotiroidi
-hipertiroidizëm,veprimtari e shtuar e gjëndrës tiroide,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipertiroidizmi|hipertiroidi
-azotemi,nivel i rritur i mbetjeve azotike në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,azotemia
-proteinuri,prani e proteinave në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,proteinuria
-inflamacion,përgjigje mbrojtëse e organizmit ndaj dëmtimit ose infeksionit,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,inflamacioni|inflamator
-sideropeni,rezerva të ulëta të hekurit në organizëm,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,sideropenia
-hemolizë,shkatërrim i parakohshëm i qelizave të kuqe,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,hemoliza|hemolitik
-hipoalbuminemi,nivel i ulët i albuminës në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipoalbuminemia
-hiperurikemi,nivel i rritur i acidit urik në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperurikemia
-nefropati,sëmundje e veshkave,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,nefropatia
-hepatopati,sëmundje e mëlçisë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hepatopatia
-steatozë,grumbullim i yndyrës në mëlçi,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,steatoza
-glikemi,niveli i sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,glikemia
-elektrolit,minerale në gjak që mbajnë ekuilibrin e ujit dhe punën e qelizave,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,elektrolitet|elektrolitike
-hemogram,analiza e plotë e qelizave të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],analize,hemograma|analiza e plotë e gjakut
-interval referent,kufijtë brenda të cilëve vlera konsiderohet e zakonshme,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,vlera referente|intervali referent
-analit,substanca e matur në analizë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,analiti|analitet
-funksioni renal,mënyra si punojnë veshkat,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,funksioni i veshkave|renal
-funksioni hepatik,mënyra si punon mëlçia,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,funksioni i mëlçisë|hepatik
-metabolizëm,tërësia e proceseve kimike që mbajnë gjallë organizmin,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,metabolizmi|metabolik
-ferritinë,proteina që ruan hekurin në organizëm,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,ferritina
-hemoglobinë,proteina që bart oksigjenin në qelizat e kuqe,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,hemoglobina
-kreatininë,mbetje e punës së muskujve që largohet nga veshkat,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,kreatinina
-albuminë,proteina kryesore e gjakut e prodhuar nga mëlçia,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,albumina
-tiroide,gjëndra që rregullon shpejtësinë e metabolizmit,[BURIMI — plotësohet gjatë ndërtimit të tabelës],organ,tiroidja|tiroidea
-neutropeni,numër i ulët i një lloji të qelizave të bardha,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,neutropenia
-neutrofili,numër i rritur i një lloji të qelizave të bardha,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,
-limfocitozë,numër i rritur i limfociteve në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,limfocitoza
-limfopeni,numër i ulët i limfociteve në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,limfopenia
-policitemi,numër i rritur i qelizave të kuqe në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,policitemia
-hemostazë,procesi i ndalimit të gjakderdhjes,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,hemostaza
-koagulim,mpiksja e gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,koagulimi|koagulues
-filtrim glomerular,shpejtësia me të cilën veshkat pastrojnë gjakun,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,filtrimi glomerular|GFR
-klirens,masa e pastrimit të një substance nga gjaku,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,klirensi
-hematuri,prani e gjakut në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hematuria
-glikozuri,prani e sheqerit në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,glikozuria
-ketonuri,prani e trupave ketonikë në urinë,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,ketonuria
-urobilinogjen,produkt i zbërthimit të bilirubinës,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,urobilinogjeni
-lipoproteinë,grimcë që bart yndyrnat në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,lipoproteina|lipoproteinat
-aterosklerozë,ngurtësim dhe ngushtim i enëve të gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,ateroskleroza
-sindrom metabolik,bashkësi çrregullimesh të metabolizmit,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,sindromi metabolik
-rezistencë ndaj insulinës,përgjigje e dobësuar e qelizave ndaj insulinës,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,rezistenca ndaj insulinës
-insulinë,hormoni që ul nivelin e sheqerit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,insulina
-kortizol,hormon i gjëndrave mbiveshkore,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,kortizoli
-paratiroide,gjëndra që rregullojnë kalciumin,[BURIMI — plotësohet gjatë ndërtimit të tabelës],organ,paratiroidet
-osteoporozë,humbje e dendësisë së kockave,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,osteoporoza
-hiperfosfatemi,nivel i rritur i fosforit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperfosfatemia
-hipofosfatemi,nivel i ulët i fosforit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipofosfatemia
-hipomagnezemi,nivel i ulët i magnezit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipomagnezemia
-hipokloremi,nivel i ulët i klorit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hipokloremia
-hiperkloremi,nivel i rritur i klorit në gjak,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,hiperkloremia
-serum,pjesa e lëngshme e gjakut pa faktorët e mpiksjes,[BURIMI — plotësohet gjatë ndërtimit të tabelës],material,serumi
-plazmë,pjesa e lëngshme e gjakut me faktorët e mpiksjes,[BURIMI — plotësohet gjatë ndërtimit të tabelës],material,plazma
-gjëndër,organ që prodhon dhe lëshon substanca në trup,[BURIMI — plotësohet gjatë ndërtimit të tabelës],organ,gjëndra|gjëndrat
-enzimë,proteinë që përshpejton reaksionet kimike në trup,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,enzima|enzimat
-antitrup,proteinë mbrojtëse e prodhuar nga sistemi imunitar,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,antitrupa|antitrupat
-antigjen,substancë që nxit përgjigje të sistemit imunitar,[BURIMI — plotësohet gjatë ndërtimit të tabelës],matje,antigjeni
-biomarkues,tregues i matshëm i një gjendjeje në trup,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,biomarkuesi
-depistim,kontroll i rregullt për zbulim të hershëm,[BURIMI — plotësohet gjatë ndërtimit të tabelës],metodologji,depistimi
-gjakderdhje,humbje gjaku nga enët e gjakut,[BURIMI — plotësohet gjatë ndërtimit të tabelës],gjendje,gjakderdhja
-imunitet,aftësia e trupit për t'u mbrojtur nga infeksionet,[BURIMI — plotësohet gjatë ndërtimit të tabelës],proces,imuniteti|imunitar
+anemi,nivel i ulët i hemoglobinës në gjak,"MedlinePlus, ""Anemia"", https://medlineplus.gov/ency/article/000560.htm",gjendje,anemia|anemik
+eritropoezë,prodhimi i qelizave të kuqe të gjakut në palcën kockore,"MeSH, ""Erythropoiesis"" (D004920), https://meshb.nlm.nih.gov/record/ui?ui=D004920",proces,eritropoeza
+leukocitozë,numër i rritur i qelizave të bardha të gjakut,"MeSH, ""Leukocytosis"" (D007964), https://meshb.nlm.nih.gov/record/ui?ui=D007964",gjendje,leukocitoza
+leukopeni,numër i ulët i qelizave të bardha të gjakut,"MeSH, ""Leukopenia"" (D007970), https://meshb.nlm.nih.gov/record/ui?ui=D007970",gjendje,leukopenia
+trombocitopeni,numër i ulët i pllakëzave të gjakut,"MeSH, ""Thrombocytopenia"" (D013921), https://meshb.nlm.nih.gov/record/ui?ui=D013921",gjendje,trombocitopenia
+trombocitozë,numër i rritur i pllakëzave të gjakut,"MeSH, ""Thrombocytosis"" (D013922), https://meshb.nlm.nih.gov/record/ui?ui=D013922",gjendje,trombocitoza
+hiperglicemi,nivel i rritur i sheqerit në gjak,"MedlinePlus, ""Hyperglycemia"", https://medlineplus.gov/hyperglycemia.html",gjendje,hiperglicemia
+hipoglicemi,nivel i ulët i sheqerit në gjak,"MedlinePlus, ""Low blood sugar"", https://medlineplus.gov/ency/article/000386.htm",gjendje,hipoglicemia
+hiperkalemi,nivel i rritur i kaliumit në gjak,"MedlinePlus, ""High potassium level"", https://medlineplus.gov/ency/article/001179.htm",gjendje,hiperkalemia
+hipokalemi,nivel i ulët i kaliumit në gjak,"MedlinePlus, ""Low blood potassium"", https://medlineplus.gov/ency/article/000479.htm",gjendje,hipokalemia
+hipernatremi,nivel i rritur i natriumit në gjak,"MeSH, ""Hypernatremia"" (D006955), https://meshb.nlm.nih.gov/record/ui?name=Hypernatremia",gjendje,hipernatremia
+hiponatremi,nivel i ulët i natriumit në gjak,"MedlinePlus, ""Low blood sodium"", https://medlineplus.gov/ency/article/000394.htm",gjendje,hiponatremia
+hiperkalcemi,nivel i rritur i kalciumit në gjak,"MedlinePlus, ""Hypercalcemia"", https://medlineplus.gov/ency/article/000365.htm",gjendje,hiperkalcemia
+hipokalcemi,nivel i ulët i kalciumit në gjak,"MeSH, ""Hypocalcemia"" (D006996), https://meshb.nlm.nih.gov/record/ui?name=Hypocalcemia",gjendje,hipokalcemia
+transaminaza,enzima që lidhen me funksionin e mëlçisë,"MedlinePlus, ""ALT Blood Test"", https://medlineplus.gov/lab-tests/alt-blood-test/",enzima,transaminazat|ALT|AST
+kolestazë,rrjedhje e penguar e biliarit nga mëlçia,"MedlinePlus, ""Cholestasis"", https://medlineplus.gov/ency/article/000215.htm",gjendje,kolestaza
+hiperbilirubinemi,nivel i rritur i bilirubinës në gjak,"MeSH, ""Hyperbilirubinemia"" (D006932), https://meshb.nlm.nih.gov/record/ui?name=Hyperbilirubinemia",gjendje,hiperbilirubinemia
+ikter,ngjyrim i verdhë i lëkurës dhe i syve,"MeSH, ""Jaundice"" (D007565), https://meshb.nlm.nih.gov/record/ui?ui=D007565",shenjë,ikteri|verdhëz
+dislipidemi,vlera të çrregulluara të yndyrnave në gjak,"MeSH, ""Dyslipidemias"" (D050171), https://meshb.nlm.nih.gov/record/ui?name=Dyslipidemias",gjendje,dislipidemia
+hiperkolesterolemi,nivel i rritur i kolesterolit në gjak,"MeSH, ""Hypercholesterolemia"" (D006937), https://meshb.nlm.nih.gov/record/ui?name=Hypercholesterolemia",gjendje,hiperkolesterolemia
+hipertrigliceridemi,nivel i rritur i trigliceridëve në gjak,"Cleveland Clinic, ""Hypertriglyceridemia"", https://my.clevelandclinic.org/health/diseases/23942-hypertriglyceridemia",gjendje,hipertrigliceridemia
+hipotiroidizëm,veprimtari e ulët e gjëndrës tiroide,"MedlinePlus, ""Hypothyroidism"", https://medlineplus.gov/ency/article/000353.htm",gjendje,hipotiroidizmi|hipotiroidi
+hipertiroidizëm,veprimtari e shtuar e gjëndrës tiroide,"MedlinePlus, ""Hyperthyroidism"", https://medlineplus.gov/ency/article/000356.htm",gjendje,hipertiroidizmi|hipertiroidi
+azotemi,nivel i rritur i mbetjeve azotike në gjak,"MeSH, ""Azotemia"" (D053099), https://meshb.nlm.nih.gov/record/ui?name=Azotemia",gjendje,azotemia
+proteinuri,prani e proteinave në urinë,"MeSH, ""Proteinuria"" (D011507), https://meshb.nlm.nih.gov/record/ui?ui=D011507",gjendje,proteinuria
+inflamacion,përgjigje mbrojtëse e organizmit ndaj dëmtimit ose infeksionit,"Cleveland Clinic, ""What Is Inflammation?"", https://my.clevelandclinic.org/health/symptoms/21660-inflammation",proces,inflamacioni|inflamator
+sideropeni,rezerva të ulëta të hekurit në organizëm,"MeSH, ""Iron Deficiencies"" (D000090463), https://meshb.nlm.nih.gov/record/ui?ui=D000090463",gjendje,sideropenia
+hemolizë,shkatërrim i parakohshëm i qelizave të kuqe,"MedlinePlus, ""Hemolytic anemia"", https://medlineplus.gov/ency/article/000571.htm",proces,hemoliza|hemolitik
+hipoalbuminemi,nivel i ulët i albuminës në gjak,"MeSH, ""Hypoalbuminemia"" (D034141), https://meshb.nlm.nih.gov/record/ui?name=Hypoalbuminemia",gjendje,hipoalbuminemia
+hiperurikemi,nivel i rritur i acidit urik në gjak,"Cleveland Clinic, ""Hyperuricemia (High Uric Acid Level)"", https://my.clevelandclinic.org/health/diseases/17808-hyperuricemia-high-uric-acid-level",gjendje,hiperurikemia
+nefropati,sëmundje e veshkave,"MeSH, ""Kidney Diseases"" (D007674), https://meshb.nlm.nih.gov/record/ui?ui=D007674",gjendje,nefropatia
+hepatopati,sëmundje e mëlçisë,"MeSH, ""Liver Diseases"" (D008107), https://meshb.nlm.nih.gov/record/ui?name=Liver%20Diseases",gjendje,hepatopatia
+steatozë,grumbullim i yndyrës në mëlçi,"MeSH, ""Fatty Liver"" (D005234), https://meshb.nlm.nih.gov/record/ui?ui=D005234",gjendje,steatoza
+glikemi,niveli i sheqerit në gjak,"MedlinePlus, ""Blood Glucose Test"", https://medlineplus.gov/lab-tests/blood-glucose-test/",matje,glikemia
+elektrolit,minerale në gjak që mbajnë ekuilibrin e ujit dhe punën e qelizave,"MedlinePlus, ""Electrolyte Panel"", https://medlineplus.gov/lab-tests/electrolyte-panel/",matje,elektrolitet|elektrolitike
+hemogram,analiza e plotë e qelizave të gjakut,"MedlinePlus, ""Complete Blood Count (CBC)"", https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",analize,hemograma|analiza e plotë e gjakut
+interval referent,kufijtë brenda të cilëve vlera konsiderohet e zakonshme,"MedlinePlus, ""How to Understand Your Lab Results"", https://medlineplus.gov/lab-tests/how-to-understand-your-lab-results/",metodologji,vlera referente|intervali referent
+analit,substanca e matur në analizë,"Testing.com, ""Lab Testing Glossary"", https://www.testing.com/glossary/",metodologji,analiti|analitet
+funksioni renal,mënyra si punojnë veshkat,"MedlinePlus, ""Kidney Tests"", https://medlineplus.gov/kidneytests.html",matje,funksioni i veshkave|renal
+funksioni hepatik,mënyra si punon mëlçia,"MedlinePlus, ""Liver Function Tests"", https://medlineplus.gov/lab-tests/liver-function-tests/",matje,funksioni i mëlçisë|hepatik
+metabolizëm,tërësia e proceseve kimike që mbajnë gjallë organizmin,"MeSH, ""Metabolism"" (D008660), https://meshb.nlm.nih.gov/record/ui?ui=D008660",proces,metabolizmi|metabolik
+ferritinë,proteina që ruan hekurin në organizëm,"MedlinePlus, ""Ferritin Blood Test"", https://medlineplus.gov/lab-tests/ferritin-blood-test/",matje,ferritina
+hemoglobinë,proteina që bart oksigjenin në qelizat e kuqe,"MedlinePlus, ""Hemoglobin Test"", https://medlineplus.gov/lab-tests/hemoglobin-test/",matje,hemoglobina
+kreatininë,mbetje e punës së muskujve që largohet nga veshkat,"MedlinePlus, ""Creatinine Test"", https://medlineplus.gov/lab-tests/creatinine-test/",matje,kreatinina
+albuminë,proteina kryesore e gjakut e prodhuar nga mëlçia,"MedlinePlus, ""Albumin Blood Test"", https://medlineplus.gov/lab-tests/albumin-blood-test/",matje,albumina
+tiroide,gjëndra që rregullon shpejtësinë e metabolizmit,"MeSH, ""Thyroid Gland"" (D013961), https://meshb.nlm.nih.gov/record/ui?ui=D013961",organ,tiroidja|tiroidea
+neutropeni,numër i ulët i një lloji të qelizave të bardha,"MeSH, ""Neutropenia"" (D009503), https://meshb.nlm.nih.gov/record/ui?ui=D009503",gjendje,neutropenia
+neutrofili,numër i rritur i një lloji të qelizave të bardha,"Cleveland Clinic, ""Neutrophilia"", https://my.clevelandclinic.org/health/diseases/22367-neutrophilia",gjendje,
+limfocitozë,numër i rritur i limfociteve në gjak,"MeSH, ""Lymphocytosis"" (D008218), https://meshb.nlm.nih.gov/record/ui?ui=D008218",gjendje,limfocitoza
+limfopeni,numër i ulët i limfociteve në gjak,"MeSH, ""Lymphopenia"" (D008231), https://meshb.nlm.nih.gov/record/ui?ui=D008231",gjendje,limfopenia
+policitemi,numër i rritur i qelizave të kuqe në gjak,"MeSH, ""Polycythemia"" (D011086), https://meshb.nlm.nih.gov/record/ui?ui=D011086",gjendje,policitemia
+hemostazë,procesi i ndalimit të gjakderdhjes,"MeSH, ""Hemostasis"" (D006487), https://meshb.nlm.nih.gov/record/ui?ui=D006487",proces,hemostaza
+koagulim,mpiksja e gjakut,"MeSH, ""Blood Coagulation"" (D001777), https://meshb.nlm.nih.gov/record/ui?ui=D001777",proces,koagulimi|koagulues
+filtrim glomerular,shpejtësia me të cilën veshkat pastrojnë gjakun,"MedlinePlus, ""Glomerular filtration rate"", https://medlineplus.gov/ency/article/007305.htm",matje,filtrimi glomerular|GFR
+klirens,masa e pastrimit të një substance nga gjaku,"MedlinePlus, ""Creatinine clearance test"", https://medlineplus.gov/ency/article/003611.htm",matje,klirensi
+hematuri,prani e gjakut në urinë,"MedlinePlus, ""Urine - bloody"", https://medlineplus.gov/ency/article/003138.htm",gjendje,hematuria
+glikozuri,prani e sheqerit në urinë,"MeSH, ""Glycosuria"" (D006029), https://meshb.nlm.nih.gov/record/ui?name=Glycosuria",gjendje,glikozuria
+ketonuri,prani e trupave ketonikë në urinë,"MeSH, ""Ketosis"" (D007662; ""Ketonuria"" entry term), https://meshb.nlm.nih.gov/record/ui?ui=D007662",gjendje,ketonuria
+urobilinogjen,produkt i zbërthimit të bilirubinës,"MeSH, ""Urobilinogen"" (D014558), https://meshb.nlm.nih.gov/record/ui?ui=D014558",matje,urobilinogjeni
+lipoproteinë,grimcë që bart yndyrnat në gjak,"MedlinePlus, ""Lipoprotein (a) Blood Test"", https://medlineplus.gov/lab-tests/lipoprotein-a-blood-test/",matje,lipoproteina|lipoproteinat
+aterosklerozë,ngurtësim dhe ngushtim i enëve të gjakut,"MedlinePlus, ""Atherosclerosis"", https://medlineplus.gov/ency/article/000171.htm",gjendje,ateroskleroza
+sindrom metabolik,bashkësi çrregullimesh të metabolizmit,"MeSH, ""Metabolic Syndrome"" (D024821), https://meshb.nlm.nih.gov/record/ui?ui=D024821",gjendje,sindromi metabolik
+rezistencë ndaj insulinës,përgjigje e dobësuar e qelizave ndaj insulinës,"Cleveland Clinic, ""Insulin Resistance"", https://my.clevelandclinic.org/health/diseases/22206-insulin-resistance",gjendje,rezistenca ndaj insulinës
+insulinë,hormoni që ul nivelin e sheqerit në gjak,"Cleveland Clinic, ""Insulin"", https://my.clevelandclinic.org/health/body/22601-insulin",matje,insulina
+kortizol,hormon i gjëndrave mbiveshkore,"MedlinePlus, ""Cortisol Test"", https://medlineplus.gov/lab-tests/cortisol-test/",matje,kortizoli
+paratiroide,gjëndra që rregullojnë kalciumin,"MeSH, ""Parathyroid Glands"" (D010280), https://meshb.nlm.nih.gov/record/ui?ui=D010280",organ,paratiroidet
+osteoporozë,humbje e dendësisë së kockave,"MeSH, ""Osteoporosis"" (D010024), https://meshb.nlm.nih.gov/record/ui?ui=D010024",gjendje,osteoporoza
+hiperfosfatemi,nivel i rritur i fosforit në gjak,"MeSH, ""Hyperphosphatemia"" (D054559), https://meshb.nlm.nih.gov/record/ui?name=Hyperphosphatemia",gjendje,hiperfosfatemia
+hipofosfatemi,nivel i ulët i fosforit në gjak,"MeSH, ""Hypophosphatemia"" (D017674), https://meshb.nlm.nih.gov/record/ui?name=Hypophosphatemia",gjendje,hipofosfatemia
+hipomagnezemi,nivel i ulët i magnezit në gjak,"MedlinePlus, ""Magnesium deficiency"", https://medlineplus.gov/ency/article/000315.htm",gjendje,hipomagnezemia
+hipokloremi,nivel i ulët i klorit në gjak,"Cleveland Clinic, ""Hypochloremia (Low Chloride Levels)"", https://my.clevelandclinic.org/health/diseases/low-chloride-levels",gjendje,hipokloremia
+hiperkloremi,nivel i rritur i klorit në gjak,"Cleveland Clinic, ""Hyperchloremia (High Chloride Levels)"", https://my.clevelandclinic.org/health/diseases/high-chloride-levels",gjendje,hiperkloremia
+serum,pjesa e lëngshme e gjakut pa faktorët e mpiksjes,"MeSH, ""Serum"" (D044967), https://meshb.nlm.nih.gov/record/ui?ui=D044967",material,serumi
+plazmë,pjesa e lëngshme e gjakut me faktorët e mpiksjes,"MeSH, ""Plasma"" (D010949), https://meshb.nlm.nih.gov/record/ui?ui=D010949",material,plazma
+gjëndër,organ që prodhon dhe lëshon substanca në trup,"Cleveland Clinic, ""Glands: Anatomy & Function"", https://my.clevelandclinic.org/health/body/glands",organ,gjëndra|gjëndrat
+enzimë,proteinë që përshpejton reaksionet kimike në trup,"MedlinePlus, ""Enzyme"", https://medlineplus.gov/ency/article/002353.htm",matje,enzima|enzimat
+antitrup,proteinë mbrojtëse e prodhuar nga sistemi imunitar,"MedlinePlus, ""Antibody"", https://medlineplus.gov/ency/article/002223.htm",matje,antitrupa|antitrupat
+antigjen,substancë që nxit përgjigje të sistemit imunitar,"MedlinePlus, ""Antigen"", https://medlineplus.gov/ency/article/002224.htm",matje,antigjeni
+biomarkues,tregues i matshëm i një gjendjeje në trup,"MeSH, ""Biomarkers"" (D015415), https://meshb.nlm.nih.gov/record/ui?ui=D015415",metodologji,biomarkuesi
+depistim,kontroll i rregullt për zbulim të hershëm,"MedlinePlus, ""Health Screening"", https://medlineplus.gov/healthscreening.html",metodologji,depistimi
+gjakderdhje,humbje gjaku nga enët e gjakut,"MedlinePlus, ""Bleeding"", https://medlineplus.gov/ency/article/000045.htm",gjendje,gjakderdhja
+imunitet,aftësia e trupit për t'u mbrojtur nga infeksionet,"MedlinePlus, ""Immune response"", https://medlineplus.gov/ency/article/000821.htm",proces,imuniteti|imunitar

@@ -86,6 +86,9 @@ def build() -> str:
         f"Mbeten: **{len(terms)}** terma dhe **{len(patterns)}** kombinime.",
         "",
     ]
+    if not terms and not patterns:
+        out += ["Asnjë zë nuk mbetet pa burim. Burimet e lexuara dhe evidenca e secilit janë te "
+                "`docs/thesis/worksheets/burimet_e_gjetura.md`.", ""]
 
     out += ["## Kombinimet e analiteve", "",
             "Për secilin: një udhëzues ose standard i mjekësisë laboratorike që e lidh këtë kombinim me kërkesën që "

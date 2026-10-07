@@ -16,12 +16,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts import build_source_worksheets as sheets  # noqa: E402
 
 
-def test_the_worksheet_lists_every_term_and_pattern_that_still_has_a_placeholder():
+def test_the_worksheet_lists_exactly_the_terms_and_patterns_that_still_have_a_placeholder():
     text = sheets.build()
     for term in load_terminology():
-        assert f"| {term.term} |" in text
+        assert (f"| {term.term} |" in text) is sheets.is_placeholder(term.source_ref)
     for pattern in load_patterns():
-        assert f"| {pattern.pattern_id} |" in text
+        assert (f"| {pattern.pattern_id} |" in text) is sheets.is_placeholder(pattern.source_ref)
     terms, patterns = sheets.pending_terms(), sheets.pending_patterns()
     assert f"**{len(terms)}** terma dhe **{len(patterns)}** kombinime" in text
 
